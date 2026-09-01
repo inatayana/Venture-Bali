@@ -2,8 +2,7 @@
  * Venture Bali AI Agent - Core Types
  */
 
-import type { Venture, Variant, PriceTier, SlotTime, Booking, Customer } from '@/types/venture';
-import type { RefundCalculationResult } from '@/types/refund';
+import type { VentureItem, Variant, SlotTime, Booking } from '@/types/venture';
 
 // Agent State
 export interface AgentState {
@@ -14,6 +13,7 @@ export interface AgentState {
   language: 'id' | 'en' | 'ja' | 'zh';
   context: {
     productId?: string;
+    paxCount?: number;
     intent:
       | 'greeting'
       | 'product_inquiry'
@@ -45,7 +45,7 @@ export type Intent =
 export interface ToolCall<T> {
   name: string;
   args: T;
-  result?: any;
+  result?: unknown;
   error?: string;
 }
 
@@ -112,7 +112,7 @@ export interface CheckAvailabilityOutput {
 }
 
 export interface GetProductInfoOutput {
-  venture: Venture;
+  venture: VentureItem;
   variants: Variant[];
   slotTimes?: SlotTime[];
 }

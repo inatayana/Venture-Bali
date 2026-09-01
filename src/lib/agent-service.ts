@@ -2,7 +2,7 @@
  * Venture Bali AI Agent - Core Service
  */
 
-import { AgentState, Intent } from './agent';
+import { AgentState, Intent, AgentToolResult, AgentMessageResult } from './agent';
 import { AGENT_TOOLS } from './tools';
 
 /**
@@ -11,7 +11,7 @@ import { AGENT_TOOLS } from './tools';
 export async function handleAgentMessage(
   message: string, 
   state: AgentState
-): Promise<{ status: string; data: any; next_action: string }> {
+): Promise<AgentMessageResult> {
   const intent = detectIntent(message);
   updateSessionState(state, intent);
   const tool = getToolForIntent(intent);
@@ -23,7 +23,7 @@ export async function handleAgentMessage(
   try {
     const result = await tool(state);
     const nextAction = determineNextAction(result);
-    return { status: 'success', data: result, nextAction };
+    return { status: 'success', data: result, next_action: nextAction };
   } catch (error) {
     console.error('Agent error:', error);
     return { 
@@ -115,7 +115,7 @@ function mapIntentToFlow(intent: Intent): AgentState['activeFlow'] {
 /**
  * Get tool for intent
  */
-function getToolForIntent(intent: Intent): ((state: AgentState) => Promise<any>) | null {
+function getToolForIntent(intent: Intent): ((state: AgentState) => Promise<AgentToolResult>) | null {
   const toolMap: Record<Intent, keyof typeof AGENT_TOOLS | null> = {
     greeting: null,
     product_inquiry: 'getProductInfo',
@@ -135,19 +135,19 @@ function getToolForIntent(intent: Intent): ((state: AgentState) => Promise<any>)
 /**
  * Determine next action based on result
  */
-function determineNextAction(result: any): string {
-  if (result?.available === false) return 'suggest_alternative_date';
-  if (result?.totalPrice && result.paxCount) return 'confirm_booking';
-  if (result?.bookingCode) return 'payment_initiated';
-  if (result?.sent) return 'confirmation_sent';
-  if (result?.policy) return 'policy_shown';
+function determineNextAction(result: AgentToolResult): string {
+  if ('available' in result && result.available === false) return 'suggest_alternative_date';
+  if ('totalPrice' in result && result.totalPrice && result.paxCount) return 'confirm_booking';
+  if ('bookingCode' in result && result.bookingCode) return 'payment_initiated';
+  if ('sent' in result && result.sent) return 'confirmation_sent';
+  if ('policy' in result && result.policy) return 'policy_shown';
   return 'continue_conversation';
 }
 
 /**
  * Handle unknown intents
  */
-function handleUnknownIntent(): { status: string; data: any; next_action: string } {
+function handleUnknownIntent(): AgentMessageResult {
   return {
     status: 'fallback',
     data: {

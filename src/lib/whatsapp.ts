@@ -119,12 +119,8 @@ export class WhatsAppClient {
         header: { type: 'text', text: header },
         body: { text: body },
         action: {
-          buttons: [
-            {
-              type: 'reply',
-              reply: { id: 'show_list', title: buttonTitle },
-            },
-          ],
+          button: buttonTitle,
+          sections,
         },
       },
     };
@@ -160,7 +156,7 @@ export class WhatsAppClient {
   /**
    * Verify webhook signature
    */
-  verifySignature(signature: string, body: string): boolean {
+  verifySignature(signature: string): boolean {
     const expectedSignature = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || '';
     if (!signature || !expectedSignature) return false;
     
@@ -171,9 +167,10 @@ export class WhatsAppClient {
   /**
    * Parse incoming webhook payload
    */
-  parseWebhook(body: any): WhatsAppWebhookEntry[] {
-    if (!body || !Array.isArray(body.entry)) return [];
-    return body.entry as WhatsAppWebhookEntry[];
+  parseWebhook(body: unknown): WhatsAppWebhookEntry[] {
+    const payload = body as Record<string, unknown> | null;
+    if (!payload || !Array.isArray(payload.entry)) return [];
+    return payload.entry as WhatsAppWebhookEntry[];
   }
 
   /**

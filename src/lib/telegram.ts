@@ -145,7 +145,7 @@ export class TelegramClient {
   /**
    * Parse webhook payload
    */
-  parseWebhook(body: any): TelegramUpdate[] {
+  parseWebhook(body: unknown): TelegramUpdate[] {
     if (!body || !Array.isArray(body)) return [];
     return body as TelegramUpdate[];
   }

@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
-import { AgentService } from '@/lib/agent';
+import { AgentService, AgentState } from '@/lib/agent';
 
 export async function POST(request: Request) {
   try {
     const { message, sessionId, channel = 'web', language = 'id' } = await request.json();
 
     // Initialize or get agent session
-    const agentState = {
+    const agentState: AgentState = {
       sessionId: sessionId || `session_${Date.now()}`,
       channel: channel as 'whatsapp' | 'telegram' | 'web',
       language: language as 'id' | 'en' | 'ja' | 'zh',
-      context: {},
+      context: { intent: 'general_question' },
       lastAction: 'welcome',
       activeFlow: 'greeting',
     };

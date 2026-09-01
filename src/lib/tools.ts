@@ -4,19 +4,14 @@
  */
 
 import { AgentState, CheckAvailabilityOutput, GetProductInfoOutput, CalculatePriceOutput, CreateBookingOutput, SendBookingConfirmationOutput, GetRefundPolicyOutput } from './agent';
-import type { Venture, Variant, PriceTier, SlotTime, Booking } from '@/types/venture';
-import { getRefundPolicyText, formatRefundAmount } from './refundUtils';
+import type { Booking } from '@/types/venture';
+import { getRefundPolicyText } from './refundUtils';
 import { mockVentures } from '@/data/mockVentures';
 
 /**
  * Check availability for a product on a specific date
  */
-export async function checkAvailability(
-  state: AgentState
-): Promise<CheckAvailabilityOutput> {
-  const { productId, date } = state.context as any;
-  
-  const today = new Date();
+export async function checkAvailability(): Promise<CheckAvailabilityOutput> {
   const slots = [
     { time: '08:00', capacity: 10, booked: 3 },
     { time: '10:00', capacity: 10, booked: 7 },
@@ -40,7 +35,7 @@ export async function checkAvailability(
 export async function getProductInfo(
   state: AgentState
 ): Promise<GetProductInfoOutput> {
-  const { productId } = state.context as any;
+  const { productId } = state.context;
   
   const venture = mockVentures.find(v => v.id === productId || v.slug === productId);
   
@@ -66,7 +61,7 @@ export async function getProductInfo(
 export async function calculatePrice(
   state: AgentState
 ): Promise<CalculatePriceOutput> {
-  const { variantId, paxCount } = state.context as any;
+  const { paxCount } = state.context;
   
   const variant = mockVentures[0]?.variants?.[0];
   const priceTiers = variant?.priceTiers || [
@@ -91,19 +86,22 @@ export async function calculatePrice(
 /**
  * Create a provisional booking
  */
-export async function createBooking(
-  state: AgentState
-): Promise<CreateBookingOutput> {
-  const { bookingData } = state.context as any;
-  
+export async function createBooking(): Promise<CreateBookingOutput> {
   const bookingCode = `VB${Date.now().toString(36).toUpperCase()}`;
-  
-  const mockBooking = {
+
+  const mockBooking: Booking = {
     id: `booking_${Date.now()}`,
     bookingCode,
-    status: 'PENDING',
+    variantId: '',
+    customerId: '',
+    bookingDate: new Date().toISOString().split('T')[0],
+    meetingType: 'MEETING_POINT',
+    paxCount: 1,
+    totalPrice: 0,
+    paymentStatus: 'PENDING',
     createdAt: new Date(),
-  } as Booking;
+    updatedAt: new Date(),
+  };
   
   return {
     booking: mockBooking,
@@ -116,11 +114,7 @@ export async function createBooking(
 /**
  * Send booking confirmation via WhatsApp
  */
-export async function sendBookingConfirmation(
-  state: AgentState
-): Promise<SendBookingConfirmationOutput> {
-  const { bookingId } = state.context as any;
-  
+export async function sendBookingConfirmation(): Promise<SendBookingConfirmationOutput> {
   return {
     sent: true,
     messageId: `msg_${Date.now()}`,
@@ -131,9 +125,7 @@ export async function sendBookingConfirmation(
 /**
  * Get refund policy information
  */
-export async function getRefundPolicy(
-  state: AgentState
-): Promise<GetRefundPolicyOutput> {
+export async function getRefundPolicy(): Promise<GetRefundPolicyOutput> {
   const policyText = getRefundPolicyText();
   
   return {

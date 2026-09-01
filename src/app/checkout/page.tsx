@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Users, MapPin } from 'lucide-react';
+import { ArrowLeft, Calendar, Users } from 'lucide-react';
 import { BookingForm } from '@/components/booking/BookingForm';
 import { useBookingStore } from '@/store/bookingStore';
 

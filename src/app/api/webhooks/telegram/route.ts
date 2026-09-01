@@ -51,7 +51,7 @@ function formatResponse(data: any, nextAction: string): string {
         return `<b>${data.venture.name}</b>\n\n${data.venture.description}`;
       }
       if (data?.slots) {
-        return `Slot tersedia:\n${data.slots.map((s: any) => `• ${s.time} (${s.capacity - s.booked} tersisa)`).join('\n')}`;
+        return `Slot tersedia:\n${data.slots.map((s: { time: string; capacity: number; booked: number }) => `• ${s.time} (${s.capacity - s.booked} tersisa)`).join('\n')}`;
       }
       if (data?.message) {
         return data.message;

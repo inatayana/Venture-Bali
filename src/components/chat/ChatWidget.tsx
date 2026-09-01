@@ -11,7 +11,7 @@ export interface ChatWidgetProps {
   onMessage?: (message: string) => void;
 }
 
-export const ChatWidget: React.FC<ChatWidgetProps> = ({ initialMessage, language, onMessage }) => {
+export const ChatWidget: React.FC<ChatWidgetProps> = ({ initialMessage, onMessage }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([]);
   const [input, setInput] = useState('');

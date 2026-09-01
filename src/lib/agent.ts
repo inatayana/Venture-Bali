@@ -2,9 +2,23 @@
  * Venture Bali AI Agent - Core Types
  */
 
-import type { Venture, Variant, PriceTier, SlotTime, Booking, Customer } from '@/types/venture';
-import type { RefundCalculationResult } from '@/types/refund';
+import type { VentureItem, Variant, SlotTime, Booking } from '@/types/venture';
 import { handleAgentMessage } from './agent-service';
+
+// Tool Result Types
+export type AgentToolResult =
+  | CheckAvailabilityOutput
+  | GetProductInfoOutput
+  | CalculatePriceOutput
+  | CreateBookingOutput
+  | SendBookingConfirmationOutput
+  | GetRefundPolicyOutput;
+
+export type AgentMessageResult = {
+  status: string;
+  data: AgentToolResult | { error: string } | { message: string };
+  next_action: string;
+};
 
 // AgentService - Main Class
 export class AgentService {
@@ -14,7 +28,7 @@ export class AgentService {
     this.state = state;
   }
 
-  async handleMessage(message: string): Promise<{ status: string; data: any; next_action: string }> {
+  async handleMessage(message: string): Promise<AgentMessageResult> {
     return handleAgentMessage(message, this.state);
   }
 }
@@ -28,6 +42,7 @@ export interface AgentState {
   language: 'id' | 'en' | 'ja' | 'zh';
   context: {
     productId?: string;
+    paxCount?: number;
     intent: 
       | 'greeting' 
       | 'product_inquiry' 
@@ -59,7 +74,7 @@ export type Intent =
 export interface ToolCall<T> {
   name: string;
   args: T;
-  result?: any;
+  result?: unknown;
   error?: string;
 }
 
@@ -126,7 +141,7 @@ export interface CheckAvailabilityOutput {
 }
 
 export interface GetProductInfoOutput {
-  venture: Venture;
+  venture: VentureItem;
   variants: Variant[];
   slotTimes?: SlotTime[];
 }

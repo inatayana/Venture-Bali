@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { whatsappClient, WhatsAppWebhookEntry } from '@/lib/whatsapp';
+import { whatsappClient } from '@/lib/whatsapp';
 import { handleAgentMessage } from '@/lib/agent-service';
 import { AgentState } from '@/lib/agent';
 
@@ -51,7 +51,7 @@ function formatResponse(data: any, nextAction: string): string {
         return `${data.venture.name} - ${data.venture.description}`;
       }
       if (data?.slots) {
-        return `Slot tersedia: ${data.slots.map((s: any) => `${s.time} (${s.capacity - s.booked} tersisa)`).join(', ')}`;
+        return `Slot tersedia: ${data.slots.map((s: { time: string; capacity: number; booked: number }) => `${s.time} (${s.capacity - s.booked} tersisa)`).join(', ')}`;
       }
       if (data?.message) {
         return data.message;
