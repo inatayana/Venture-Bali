@@ -1,0 +1,255 @@
+import type { Venture, Variant, SlotTime, Addon } from '@/types/venture';
+
+// ============ MOCK TENANTS ============
+export const mockTenants = [
+  {
+    id: 'tenant-001',
+    domain: 'baligo.tours',
+    name: 'BaliGo Tours',
+    themeColor: '#1E40AF',
+    isActive: true,
+  },
+];
+
+// ============ MOCK LOCATIONS ============
+export const mockLocations = [
+  {
+    id: 'loc-001',
+    name: 'Tegallalang, Ubud, Gianyar, Bali',
+    region: 'Gianyar',
+    latitude: -8.4312,
+    longitude: 115.2791,
+  },
+  {
+    id: 'loc-002',
+    name: 'Kintamani, Bangli, Bali',
+    region: 'Bangli',
+    latitude: -8.2425,
+    longitude: 115.5087,
+  },
+  {
+    id: 'loc-003',
+    name: 'Nusa Penida Island, Klungkung, Bali',
+    region: 'Klungkung',
+    latitude: -8.7301,
+    longitude: 115.5328,
+  },
+];
+
+// ============ MOCK ADDONS ============
+export const mockAddons: Addon[] = [
+  {
+    id: 'addon-001',
+    variantId: 'var-001',
+    name: 'Professional Photographer',
+    price: 150000,
+    description: '1-hour session with 20 edited photos',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: 'addon-002',
+    variantId: 'var-001',
+    name: 'Traditional Balinese Lunch',
+    price: 85000,
+    description: 'Set menu at local warung',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: 'addon-003',
+    variantId: 'var-002',
+    name: 'Natural Hot Spring Entry',
+    price: 120000,
+    description: 'Relax at Toya Bouncy Hot Spring after trek',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
+
+// ============ MOCK SLOT TIMES ============
+export const mockSlotTimes: SlotTime[] = [
+  {
+    id: 'slot-001',
+    variantId: 'var-001',
+    time: '06:00 AM',
+    maxCapacity: 12,
+    currentBookings: 4,
+    isAvailable: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: 'slot-002',
+    variantId: 'var-001',
+    time: '08:00 AM',
+    maxCapacity: 12,
+    currentBookings: 8,
+    isAvailable: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: 'slot-003',
+    variantId: 'var-002',
+    time: '01:00 AM',
+    maxCapacity: 20,
+    currentBookings: 12,
+    isAvailable: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
+
+// ============ MOCK VARIANTS ============
+export const mockVariants: Variant[] = [
+  {
+    id: 'var-001',
+    ventureId: 'vtr-001',
+    title: 'Private Tour',
+    shortDescription: 'Personal guide & flexible timing',
+    badge: 'Best Seller',
+    meetingType: 'HOTEL_PICKUP',
+    priceTiers: [
+      { minPax: 1, maxPax: 1, pricePerPax: 550000 },
+      { minPax: 2, maxPax: 2, pricePerPax: 450000 },
+      { minPax: 3, maxPax: 4, pricePerPax: 420000 },
+      { minPax: 5, maxPax: 10, pricePerPax: 380000 },
+    ],
+    blackoutDates: ['2026-12-25'],
+    slotTimes: mockSlotTimes.filter((s) => s.variantId === 'var-001'),
+    addons: mockAddons.filter((a) => a.variantId === 'var-001'),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: 'var-002',
+    ventureId: 'vtr-002',
+    title: 'Sunrise Summit Trek',
+    shortDescription: 'Expert guide to Mount Batur summit',
+    badge: 'Epic Views',
+    meetingType: 'HOTEL_PICKUP',
+    priceTiers: [
+      { minPax: 1, maxPax: 1, pricePerPax: 800000 },
+      { minPax: 2, maxPax: 2, pricePerPax: 650000 },
+      { minPax: 3, maxPax: 4, pricePerPax: 600000 },
+      { minPax: 5, maxPax: 10, pricePerPax: 550000 },
+    ],
+    blackoutDates: ['2026-12-31'],
+    slotTimes: mockSlotTimes.filter((s) => s.variantId === 'var-002'),
+    addons: mockAddons.filter((a) => a.variantId === 'var-002'),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: 'var-003',
+    ventureId: 'vtr-003',
+    title: 'Full Day Snorkeling',
+    shortDescription: '3 snorkeling spots + lunch included',
+    badge: 'Marine Life',
+    meetingType: 'HOTEL_PICKUP',
+    priceTiers: [
+      { minPax: 1, maxPax: 1, pricePerPax: 1050000 },
+      { minPax: 2, maxPax: 2, pricePerPax: 850000 },
+      { minPax: 3, maxPax: 4, pricePerPax: 780000 },
+      { minPax: 5, maxPax: 10, pricePerPax: 720000 },
+    ],
+    blackoutDates: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
+
+// ============ MOCK VENTURES ===========
+export const mockVentures: (Venture & { variants: Variant[] })[] = [
+  {
+    id: 'vtr-001',
+    slug: 'atv-adventure-ubud',
+    tenantId: 'tenant-001',
+    locationId: 'loc-001',
+    title: 'ATV Adventure in Ubud Jungle',
+    hook3Sec: 'Thrilling ATV ride through Bali jungles',
+    duration: '2.5 hours',
+    badge: 'Best Seller',
+    highlights: ['Quad bike through rice fields', 'Professional guide', 'Lunch included'],
+    inclusions: ['ATV rental', 'Safety gear', 'Lunch', 'Insurance'],
+    exclusions: ['Personal expenses'],
+    itinerary: [
+      { time: '08:00 AM', activity: 'ATV ride begins' },
+      { time: '11:00 AM', activity: 'Lunch' },
+    ],
+    essentialInfo: {
+      perfectFor: ['Adventurers'],
+      whatToBring: ['Change of clothes'],
+      knowBeforeYouGo: ['Min age 12'],
+    },
+    languages: ['en', 'id'],
+    category: 'ATV',
+    imageUrl: '/images/atv-ubud.jpg',
+    gallery: ['/images/atv-ubud-1.jpg'],
+    rating: 4.8,
+    variants: mockVariants.filter((v) => v.ventureId === 'vtr-001'),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: 'vtr-002',
+    slug: 'mount-batur-sunrise-trek',
+    tenantId: 'tenant-001',
+    locationId: 'loc-002',
+    title: 'Mount Batur Sunrise Trek',
+    hook3Sec: 'Climb to summit for breathtaking sunrise',
+    duration: '6 hours',
+    badge: 'Epic Views',
+    highlights: ['Sunrise trek', 'Natural hot spring', 'Lunch included'],
+    inclusions: ['Guide', 'Breakfast', 'Lunch', 'Insurance'],
+    exclusions: ['Personal expenses'],
+    itinerary: [
+      { time: '03:00 AM', activity: 'Trek begins' },
+      { time: '06:30 AM', activity: 'Sunrise at summit' },
+    ],
+    essentialInfo: {
+      perfectFor: ['Hikers'],
+      whatToBring: ['Warm jacket', 'Flashlight'],
+      knowBeforeYouGo: ['Min age 10'],
+    },
+    languages: ['en', 'id'],
+    category: 'Trekking',
+    imageUrl: '/images/mount-batur.jpg',
+    gallery: ['/images/mount-batur-1.jpg'],
+    rating: 4.9,
+    variants: mockVariants.filter((v) => v.ventureId === 'vtr-002'),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: 'vtr-003',
+    slug: 'nusa-penida-snorkeling',
+    tenantId: 'tenant-001',
+    locationId: 'loc-003',
+    title: 'Nusa Penida Full-Day Snorkeling',
+    hook3Sec: '3 pristine snorkeling spots',
+    duration: '8 hours',
+    badge: 'Marine Life',
+    highlights: ['Manta rays', 'Crystal Bay', 'Lunch included'],
+    inclusions: ['Speedboat', 'Equipment', 'Lunch', 'Insurance'],
+    exclusions: ['Personal expenses'],
+    itinerary: [
+      { time: '08:30 AM', activity: 'Manta Point snorkeling' },
+      { time: '12:00 PM', activity: 'Lunch' },
+    ],
+    essentialInfo: {
+      perfectFor: ['Families'],
+      whatToBring: ['Towel', 'Sunscreen'],
+      knowBeforeYouGo: ['Min age 6'],
+    },
+    languages: ['en', 'id'],
+    category: 'Snorkeling',
+    imageUrl: '/images/nusa-penida.jpg',
+    gallery: ['/images/nusa-penida-1.jpg'],
+    rating: 4.7,
+    variants: mockVariants.filter((v) => v.ventureId === 'vtr-003'),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];

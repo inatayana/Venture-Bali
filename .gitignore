@@ -1,0 +1,40 @@
+# Dependencies
+node_modules
+pnpm-lockfile
+
+# Next.js
+.next
+out
+*.local
+
+# Prisma
+.prisma
+
+# Environment variables
+.env*.local
+
+# Vercel
+.vercel
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.8mo
+*~
+
+# Testing
+.jest/
+coverage/
+
+# Build artifacts
+dist/
+out/
+*.tsbuildinfo
+
+# Backup files
+*.bak
+
+# Local database
+*.sqlite
+node_modules
