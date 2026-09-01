@@ -1,4 +1,4 @@
-import type { Venture, Variant, SlotTime, Addon } from '@/types/venture';
+import type { VentureItem, Variant, SlotTime, Addon } from '@/types/venture';
 
 // ============ MOCK TENANTS ============
 export const mockTenants = [
@@ -161,7 +161,7 @@ export const mockVariants: Variant[] = [
 ];
 
 // ============ MOCK VENTURES ===========
-export const mockVentures: (Venture & { variants: Variant[] })[] = [
+export const mockVentures: VentureItem[] = [
   {
     id: 'vtr-001',
     slug: 'atv-adventure-ubud',
@@ -184,10 +184,18 @@ export const mockVentures: (Venture & { variants: Variant[] })[] = [
       knowBeforeYouGo: ['Min age 12'],
     },
     languages: ['en', 'id'],
-    category: 'ATV',
+    category: 'adventure',
     imageUrl: '/images/atv-ubud.jpg',
     gallery: ['/images/atv-ubud-1.jpg'],
     rating: 4.8,
+    description: 'Thrilling ATV ride through Bali jungles',
+    priceIdr: 380000,
+    durationHours: 2.5,
+    minParticipants: 1,
+    maxParticipants: 10,
+    reviewCount: 214,
+    isAvailable: true,
+    location: 'Ubud, Gianyar',
     variants: mockVariants.filter((v) => v.ventureId === 'vtr-001'),
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -214,10 +222,18 @@ export const mockVentures: (Venture & { variants: Variant[] })[] = [
       knowBeforeYouGo: ['Min age 10'],
     },
     languages: ['en', 'id'],
-    category: 'Trekking',
+    category: 'mountain',
     imageUrl: '/images/mount-batur.jpg',
     gallery: ['/images/mount-batur-1.jpg'],
     rating: 4.9,
+    description: 'Climb to summit for breathtaking sunrise',
+    priceIdr: 550000,
+    durationHours: 6,
+    minParticipants: 1,
+    maxParticipants: 10,
+    reviewCount: 189,
+    isAvailable: true,
+    location: 'Kintamani, Bangli',
     variants: mockVariants.filter((v) => v.ventureId === 'vtr-002'),
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -244,10 +260,18 @@ export const mockVentures: (Venture & { variants: Variant[] })[] = [
       knowBeforeYouGo: ['Min age 6'],
     },
     languages: ['en', 'id'],
-    category: 'Snorkeling',
+    category: 'beach',
     imageUrl: '/images/nusa-penida.jpg',
     gallery: ['/images/nusa-penida-1.jpg'],
     rating: 4.7,
+    description: '3 pristine snorkeling spots',
+    priceIdr: 720000,
+    durationHours: 8,
+    minParticipants: 1,
+    maxParticipants: 10,
+    reviewCount: 156,
+    isAvailable: true,
+    location: 'Nusa Penida, Klungkung',
     variants: mockVariants.filter((v) => v.ventureId === 'vtr-003'),
     createdAt: new Date(),
     updatedAt: new Date(),

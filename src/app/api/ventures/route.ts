@@ -3,17 +3,21 @@ import { prisma } from '@/lib/prisma';
 import { mockVentures } from '@/data/mockVentures';
 import type { VentureItem } from '@/types/venture';
 
+interface VentureWhereInput {
+  category?: string;
+  title?: { contains: string; mode: 'insensitive' };
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
-  const domain = searchParams.get('domain');
   const search = searchParams.get('search');
 
   let ventures: VentureItem[] = [];
 
   try {
     // Try Prisma
-    const where: any = {};
+    const where: VentureWhereInput = {};
     if (category) where.category = category;
     if (search) where.title = { contains: search, mode: 'insensitive' };
     // domain not in VentureItem schema, ignore
@@ -67,20 +71,35 @@ export async function POST(request: NextRequest) {
     const venture: VentureItem = {
       id: `venture-${Date.now()}`,
       slug: toSlug(title),
+      tenantId: 'tenant-001',
       title,
-      description,
+      hook3Sec: description,
+      duration: `${durationHours} hours`,
+      highlights: [],
+      inclusions: [],
+      exclusions: [],
+      itinerary: [],
+      essentialInfo: {
+        perfectFor: [],
+        whatToBring: [],
+        knowBeforeYouGo: [],
+      },
+      languages: ['en'],
       category,
+      imageUrl: imageUrl || '',
+      gallery: [],
+      rating,
+      variants: [],
+      description,
       location,
       priceIdr,
       durationHours,
       minParticipants,
       maxParticipants,
-      rating,
       reviewCount,
-      imageUrl: imageUrl || '',
       isAvailable: isAvailable ?? true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     await prisma.venture.create({

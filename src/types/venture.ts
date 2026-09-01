@@ -201,6 +201,20 @@ export interface Voucher {
   updatedAt: Date;
 }
 
+export interface BookingRequest {
+  ventureId: string;
+  userId: string;
+  bookingDate: string;
+  participants: number;
+  participantNames: string[];
+  contactEmail: string;
+  contactPhone: string;
+  specialRequests?: string;
+  promoCode?: string;
+}
+
+export type UserRole = 'admin' | 'member' | 'guest';
+
 // ============ CONTENT MODELS ============
 
 export interface Article {
@@ -266,6 +280,14 @@ export interface APIResponse<T> {
 
 // ============ SIMPLIFIED VENTURE ITEM (for list views) ============
 
-export interface VentureItem extends Venture {
+export interface VentureItem extends Omit<Venture, 'location'> {
   variants: Variant[];
+  description: string;
+  priceIdr: number;
+  durationHours: number;
+  minParticipants: number;
+  maxParticipants: number;
+  reviewCount: number;
+  isAvailable: boolean;
+  location: string;
 }

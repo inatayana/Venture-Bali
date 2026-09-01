@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { mockVentures } from '@/data/mockVentures';
-import { generateVentureMetadata, type SupportedDomain } from '@/lib/seo';
+import { generateVentureMetadata, generateVentureStructuredData, type SupportedDomain } from '@/lib/seo';
 import { VentureDetailClient } from './VentureDetailClient';
 import type { VentureItem } from '@/types/venture';
 
@@ -45,5 +45,18 @@ export default async function VentureDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  return <VentureDetailClient venture={venture} />;
+  const structuredData = generateVentureStructuredData({
+    venture,
+    domain: 'localhost' as SupportedDomain,
+  });
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <VentureDetailClient venture={venture} />
+    </>
+  );
 }

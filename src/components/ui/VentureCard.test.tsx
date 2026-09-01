@@ -6,7 +6,23 @@ import type { VentureItem } from '@/types/venture';
 const mockVenture: VentureItem = {
   id: 'vtr-001',
   slug: 'ubud-rice-terrace-sunrise-tour',
+  tenantId: 'tenant-001',
   title: 'Ubud Rice Terrace Sunrise Tour',
+  hook3Sec: 'Sunrise over the Tegallalang rice terraces',
+  duration: '5 hours',
+  highlights: ['Rice terrace walk', 'Local breakfast'],
+  inclusions: ['Guide', 'Breakfast', 'Insurance'],
+  exclusions: ['Personal expenses'],
+  itinerary: [
+    { time: '06:00 AM', activity: 'Sunrise walk begins' },
+    { time: '09:00 AM', activity: 'Breakfast' },
+  ],
+  essentialInfo: {
+    perfectFor: ['Photographers'],
+    whatToBring: ['Camera', 'Water'],
+    knowBeforeYouGo: ['Early start'],
+  },
+  languages: ['en', 'id'],
   description: 'A beautiful tour of the rice terraces at sunrise.',
   category: 'culture',
   location: 'Ubud, Gianyar',
@@ -17,9 +33,11 @@ const mockVenture: VentureItem = {
   rating: 4.9,
   reviewCount: 1284,
   imageUrl: '/images/ventures/ubud-rice-terrace.jpg',
+  gallery: ['/images/ventures/ubud-rice-terrace-1.jpg'],
   isAvailable: true,
-  createdAt: '2026-01-15T08:00:00Z',
-  updatedAt: '2026-08-01T10:30:00Z',
+  variants: [],
+  createdAt: new Date('2026-01-15T08:00:00Z'),
+  updatedAt: new Date('2026-08-01T10:30:00Z'),
 };
 
 describe('VentureCard Component', () => {

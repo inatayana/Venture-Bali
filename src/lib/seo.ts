@@ -17,13 +17,6 @@ const formatCurrency = (price: number): string => {
   }).format(price);
 };
 
-const toSlug = (str: string): string => {
-  return str
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-]+/g, '');
-};
-
 export function generateVentureMetadata({
   venture,
   domain,
@@ -40,36 +33,6 @@ export function generateVentureMetadata({
     : venture.description;
 
   const imageUrl = `${baseUrl}${venture.imageUrl}`;
-
-  const schemaData = {
-    '@context': 'https://schema.org',
-    '@type': 'TouristAttraction',
-    name: venture.title,
-    image: imageUrl,
-    description: venture.description,
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: venture.location.split(',')[0].trim(),
-      addressRegion: 'Bali',
-      addressCountry: 'ID',
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: -8.4172,
-      longitude: 115.2878,
-    },
-    url: canonicalUrl,
-    telephone: '+62-361-1234567',
-    priceRange: formatCurrency(venture.priceIdr),
-    tourType: 'Adventure',
-    offers: {
-      '@type': 'Offer',
-      price: venture.priceIdr,
-      priceCurrency: 'IDR',
-      availability: 'https://schema.org/InStock',
-      validFrom: venture.createdAt,
-    },
-  };
 
   return {
     title,
@@ -115,7 +78,49 @@ export function generateVentureMetadata({
     verification: {
       google: 'venturessystems',
     },
-    structuredData: schemaData,
+  };
+}
+
+export function generateVentureStructuredData({
+  venture,
+  domain,
+  isAdmin = false,
+}: GenerateVentureMetadataParams): Record<string, unknown> {
+  const baseUrl = `https://${domain}`;
+  const canonicalUrl = isAdmin
+    ? `${baseUrl}/admin/ventures/${venture.slug}`
+    : `${baseUrl}/ventures/${venture.slug}`;
+
+  const imageUrl = `${baseUrl}${venture.imageUrl}`;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'TouristAttraction',
+    name: venture.title,
+    image: imageUrl,
+    description: venture.description,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: venture.location?.split(',')[0]?.trim() || 'Bali',
+      addressRegion: 'Bali',
+      addressCountry: 'ID',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: -8.4172,
+      longitude: 115.2878,
+    },
+    url: canonicalUrl,
+    telephone: '+62-361-1234567',
+    priceRange: formatCurrency(venture.priceIdr),
+    tourType: 'Adventure',
+    offers: {
+      '@type': 'Offer',
+      price: venture.priceIdr,
+      priceCurrency: 'IDR',
+      availability: 'https://schema.org/InStock',
+      validFrom: venture.createdAt,
+    },
   };
 }
 
@@ -124,7 +129,7 @@ export function generateSitemapEntry(venture: VentureItem, domain: SupportedDoma
   return `
     <url>
       <loc>${baseUrl}/ventures/${venture.slug}</loc>
-      <lastmod>${venture.updatedAt.split('T')[0]}</lastmod>
+      <lastmod>${venture.updatedAt.toISOString().split('T')[0]}</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
