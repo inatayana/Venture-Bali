@@ -83,7 +83,16 @@ Examples:
 - Use `zod` for input validation on all API routes and webhooks
 - UI changes must be responsive (mobile-first) and use existing components in `src/components/ui/`
 
-## 9. When Something Is Unclear
+## 9. Product Guardrails
+
+- Venture Bali ONLY sells the 9 adventure mega categories (`src/lib/taxonomy.ts`, `docs/SEO_TAXONOMY.md`). NEVER add hotels, flights, pure transport, or restaurants.
+- Product titles MUST pass `src/lib/titleValidator.ts` (45–60 chars, keyword in first 25, Title Case, forbidden words, no emoji) — see `docs/PRODUCT_TITLE_CONSTITUTION.md`.
+- NEVER expose "Venture Bali" brand name in product titles, meta titles, or slugs.
+- NEVER expose vendor/partner names or partnership structure to customers (see `docs/OPERATION_CONTRACT.md`).
+- Booking modes are Self Drive (default) and Private Transfer only — never separate SKUs (see `docs/BOOKING_ARCHITECTURE.md`).
+- All prices stored as IDR integers; USD is display-only via the config rate.
+
+## 10. When Something Is Unclear
 
 If instructions conflict, or a task is ambiguous:
 1. Stop before writing code
