@@ -4,37 +4,28 @@ import type { RefundCalculationResult, RefundPolicy } from '@/types/refund';
  * Venture Bali Refund Utilities
  * Implements the refund policy from docs/REFUND_POLICY.md
  * 
- * Policy:
- * - Full refund: ≥72 hours before activity (100%)
- * - Partial refund: 48-72 hours (70%), 24-48 hours (30%)
- * - No refund: <24 hours or no-show (0%)
+ * Policy (v2):
+ * - ≥24 hours before activity: 20% cancel fee → 80% refund
+ * - <24 hours before activity: No cancellation allowed (0%)
+ * - No-show (no confirmation ≥1 day): 100% fee (0%)
  * 
  * Time is calculated using Bali Time (WITA, UTC+8)
  */
 
-// Default refund policy based on documentation
 export const DEFAULT_REFUND_POLICY: RefundPolicy = {
-  fullRefundHours: 72, // 3 days = 3 x 24 hours
-  partialRefundHours: [48, 72], // Window: 48-72 hours
-  partialRefundPercentages: [70, 30], // 70% first window, 30% second
+  fullRefundHours: 72,
+  partialRefundHours: [48, 72],
+  partialRefundPercentages: [70, 30],
   noRefundHours: 24,
   processingTimeDays: 3,
 };
 
-/**
- * Get current time in Bali (WITA - UTC+8)
- */
 export function getBaliTime(): Date {
   const now = new Date();
-  // Bali is WITA (UTC+8)
   const offset = now.getTime() + (8 * 60 * 60 * 1000);
   return new Date(offset);
 }
 
-/**
- * Calculate hours difference between two dates
- * Uses Bali time as reference
- */
 export function getHoursDifference(
   activityTime: Date,
   currentTime: Date = getBaliTime()
@@ -44,100 +35,84 @@ export function getHoursDifference(
 }
 
 /**
- * Calculate refund amount based on cancellation timing
- * @param activityTime - When the activity starts
- * @param cancellationTime - When the customer cancels
- * @param totalPrice - Original booking price
- * @param policy - Refund policy to apply (uses default if not provided)
- * @returns Refund calculation result
+ * Calculate refund amount based on new policy:
+ * - ≥24h: cancel fee 20% → refund 80%
+ * - <24h: no cancellation → refund 0%
  */
 export function calculateRefund(
   activityTime: Date,
   cancellationTime: Date,
-  totalPrice: number,
-  policy: RefundPolicy = DEFAULT_REFUND_POLICY
+  totalPrice: number
 ): RefundCalculationResult {
   const hoursBefore = getHoursDifference(activityTime, cancellationTime);
 
-  // Full refund window
-  if (hoursBefore >= policy.fullRefundHours) {
+  // ≥24 hours: 20% fee, 80% refund
+  if (hoursBefore >= 24) {
     return {
-      refundAmount: totalPrice,
-      refundStatus: 'FULL',
-      daysBefore: hoursBefore / 24,
-      eligibleForRefund: true,
-      policyApplied: `FULL - ${policy.fullRefundHours}h before activity`,
-    };
-  }
-
-  // Partial refund windows (48-72h = 70%, 24-48h = 30%)
-  if (hoursBefore >= policy.partialRefundHours[0] && hoursBefore < policy.partialRefundHours[1]) {
-    const refundPercent = policy.partialRefundPercentages[0];
-    return {
-      refundAmount: Math.round(totalPrice * (refundPercent / 100)),
+      refundAmount: Math.round(totalPrice * 0.8),
       refundStatus: 'PARTIAL',
       daysBefore: hoursBefore / 24,
       eligibleForRefund: true,
-      policyApplied: `PARTIAL - ${refundPercent}% (${policy.partialRefundHours[0]}h-${policy.partialRefundHours[1]}h before)`,
+      policyApplied: `PARTIAL - 20% cancel fee (${hoursBefore}h ≥ 24h before activity)`,
     };
   }
 
-  if (hoursBefore >= policy.noRefundHours && hoursBefore < policy.partialRefundHours[0]) {
-    const refundPercent = policy.partialRefundPercentages[1];
-    return {
-      refundAmount: Math.round(totalPrice * (refundPercent / 100)),
-      refundStatus: 'PARTIAL',
-      daysBefore: hoursBefore / 24,
-      eligibleForRefund: true,
-      policyApplied: `PARTIAL - ${refundPercent}% (${policy.noRefundHours}h-${policy.partialRefundHours[0]}h before)`,
-    };
-  }
-
-  // No refund window
+  // <24 hours: no cancellation
   return {
     refundAmount: 0,
     refundStatus: 'NONE',
     daysBefore: hoursBefore / 24,
     eligibleForRefund: false,
-    policyApplied: `NO REFUND - Less than ${policy.noRefundHours}h before activity`,
+    policyApplied: `NO CANCELLATION - Less than 24h before activity`,
   };
 }
 
-/**
- * Check if a booking is eligible for any refund
- * @param activityTime - When the activity starts
- * @param cancellationTime - When the customer cancels
- * @returns Whether the cancellation is eligible for refund
- */
 export function isEligibleForRefund(
   activityTime: Date,
   cancellationTime: Date
 ): boolean {
   const hoursBefore = getHoursDifference(activityTime, cancellationTime);
-  const policy = DEFAULT_REFUND_POLICY;
-  
-  return hoursBefore >= policy.noRefundHours;
+  return hoursBefore >= 24;
 }
 
 /**
- * Get refund policy text to display to customer
+ * Check if booking is eligible for reschedule (≥1 day before activity)
  */
+export function isEligibleForReschedule(
+  activityTime: Date,
+  currentTime: Date = getBaliTime()
+): boolean {
+  return getHoursDifference(activityTime, currentTime) >= 24;
+}
+
+/**
+ * Check if customer is considered no-show
+ * (no confirmation ≥1 day before activity)
+ */
+export function isNoShow(
+  activityTime: Date,
+  confirmationTime: Date | null,
+  currentTime: Date = getBaliTime()
+): boolean {
+  if (confirmationTime === null) return true;
+  const hoursUntilActivity = getHoursDifference(activityTime, currentTime);
+  if (hoursUntilActivity < 0) return true;
+  const hoursOfConfirmation = getHoursDifference(activityTime, confirmationTime);
+  return hoursOfConfirmation < 24;
+}
+
 export function getRefundPolicyText(): string {
-  const policy = DEFAULT_REFUND_POLICY;
   return `
 **Refund Policy:**
-• Full refund: Cancel ${policy.fullRefundHours}h (3 days) or more before activity ✅ 100% refund
-• Partial refund: Cancel ${policy.partialRefundHours[0]}h-${policy.partialRefundHours[1]}h before ✅ 70% refund
-• Partial refund: Cancel ${policy.noRefundHours}h-${policy.partialRefundHours[0]}h before ✅ 30% refund
-• No refund: Cancel less than ${policy.noRefundHours}h before activity ❌ 0% refund
+• Cancel ≥24h before activity ✅ Cancel fee 20% → 80% refund
+• Cancel <24h before activity ❌ Cannot cancel (0% refund)
+• No-show (no confirmation) ❌ 100% fee (0% refund)
 
-Refunds processed within ${policy.processingTimeDays} business days.
+Refunds processed within 3 business days.
+Reschedule available ≥24h before activity (free).
 `.trim();
 }
 
-/**
- * Format refund amount for display (IDR currency)
- */
 export function formatRefundAmount(amount: number): string {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',

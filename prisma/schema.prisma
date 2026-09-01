@@ -3,15 +3,26 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 // ============ ENUMS ============
 
-enum MeetingType {
-  MEETING_POINT
-  HOTEL_PICKUP
+enum FulfillmentMode {
+  SELF_DRIVE
+  PRIVATE_TRANSFER
+}
+
+enum Difficulty {
+  EASY
+  MODERATE
+  CHALLENGING
+}
+
+enum PickupZoneType {
+  UBUD_AREA
+  SOUTH_BALI
 }
 
 enum PaymentStatus {
@@ -50,41 +61,57 @@ enum NotificationStatus {
 // ============ CORE MODELS ============
 
 model Tenant {
-  id            String   @id @default(cuid())
-  domain        String   @unique
-  name          String
-  themeColor    String   @default("#1E40AF")
-  logoUrl       String?
-  isActive      Boolean  @default(true)
-  ventures      Venture[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String    @id @default(cuid())
+  domain    String    @unique
+  name      String
+  themeColor String   @default("#1E40AF")
+  logoUrl   String?
+  isActive  Boolean   @default(true)
+  ventures  Venture[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model AdminUser {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id           String    @id @default(cuid())
+  email        String    @unique
   name         String
   passwordHash String
   role         AdminRole @default(EDITOR)
-  isActive     Boolean  @default(true)
+  isActive     Boolean   @default(true)
   lastLoginAt  DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Location {
-  id          String   @id @default(cuid())
-  name        String
-  region      String
-  latitude    Float
-  longitude   Float
-  ventures    Venture[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String    @id @default(cuid())
+  name      String
+  region    String
+  latitude  Float
+  longitude Float
+  ventures  Venture[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([name])
   @@index([region])
+}
+
+model PickupZone {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  areaType      PickupZoneType
+  surchargeIdr  Int            @default(0)
+  isCustomQuote Boolean        @default(false)
+  vehicleMaxPax Int            @default(4)
+  isActive      Boolean        @default(true)
+  bookings      Booking[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([areaType])
+  @@index([isActive])
 }
 
 model Customer {
@@ -95,6 +122,7 @@ model Customer {
   whatsapp      String
   totalBookings Int       @default(0)
   bookings      Booking[]
+  reviews       Review[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -102,88 +130,104 @@ model Customer {
   @@index([name])
 }
 
+// ============ PRODUCT MODELS ============
+
 model Venture {
-  id              String   @id @default(cuid())
-  slug            String   @unique
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-  locationId      String?
-  location        Location? @relation(fields: [locationId], references: [id])
-  title           String
-  hook3Sec        String
-  duration        String
-  badge           String?
-  highlights      Json
-  inclusions      Json
-  exclusions      Json
-  itinerary       Json
-  essentialInfo   Json
-  languages       Json
-  category        String
-  imageUrl        String
-  gallery         Json
-  rating          Float @default(5.0)
+  id                String     @id @default(cuid())
+  slug              String     @unique
+  tenantId          String
+  tenant            Tenant     @relation(fields: [tenantId], references: [id])
+  locationId        String?
+  location          Location?  @relation(fields: [locationId], references: [id])
+  title             String
+  hook3Sec          String
+  shortDescription  String?
+  duration          String
+  badge             String?
+  highlights        Json
+  inclusions        Json
+  exclusions        Json
+  itinerary         Json
+  essentialInfo     Json
+  faqs              Json       @default("[]")
+  languages         Json
+  category          String
+  subcategory       String?
+  primaryKeyword    String?
+  secondaryKeywords Json       @default("[]")
+  searchTags        Json       @default("[]")
+  difficulty        Difficulty @default(EASY)
+  suitableFor       Json       @default("[]")
+  imageUrl          String
+  gallery           Json
+  videoUrl          String?
+  rating            Float      @default(5.0)
 
   @@index([slug])
   @@index([tenantId])
   @@index([locationId])
   @@index([category])
+  @@index([difficulty])
   @@index([rating])
-  variants        Variant[] @relation("VentureToVariant")
-  articles        Article[] @relation("VentureToArticle")
-  reviews         Review[]  @relation("VentureToReview")
-  mediaAssets     MediaAsset[] @relation("VentureToMediaAsset")
+  variants    Variant[]     @relation("VentureToVariant")
+  articles    Article[]     @relation("VentureToArticle")
+  reviews     Review[]      @relation("VentureToReview")
+  mediaAssets MediaAsset[]  @relation("VentureToMediaAsset")
 }
 
 model Variant {
-  id               String   @id @default(cuid())
+  id               String      @id @default(cuid())
   ventureId        String
-  venture          Venture @relation("VentureToVariant", fields: [ventureId], references: [id], onDelete: Cascade)
+  venture          Venture     @relation("VentureToVariant", fields: [ventureId], references: [id], onDelete: Cascade)
   title            String
   shortDescription String
   badge            String?
-  meetingType      MeetingType
   priceTiers       PriceTier[] @relation("VariantToPriceTier")
   blackoutDates    Json
-  slotTimes        SlotTime[] @relation("SlotTimeToVariant")
-  addons           Addon[] @relation("AddonToVariant")
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  slotTimes        SlotTime[]  @relation("SlotTimeToVariant")
+  addons           Addon[]     @relation("AddonToVariant")
+  bookings         Booking[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   @@index([ventureId])
 }
 
 model PriceTier {
-  id         String  @id @default(cuid())
-  minPax     Int
-  maxPax     Int
-  pricePerPax Float
-  variant     Variant?  @relation("VariantToPriceTier")
+  id          String  @id @default(cuid())
+  minPax      Int
+  maxPax      Int
+  pricePerPax Int
+  variantId   String
+  variant     Variant @relation("VariantToPriceTier", fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@index([variantId])
 }
 
 model SlotTime {
-  id            String   @id @default(cuid())
-  variantId     String
-  variant       Variant  @relation("SlotTimeToVariant", fields: [variantId], references: [id], onDelete: Cascade)
-  time          String
-  maxCapacity   Int
-  currentBookings Int @default(0)
-  isAvailable   Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String   @id @default(cuid())
+  variantId       String
+  variant         Variant  @relation("SlotTimeToVariant", fields: [variantId], references: [id], onDelete: Cascade)
+  time            String
+  maxCapacity     Int
+  currentBookings Int      @default(0)
+  isAvailable     Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  bookings        Booking[]
 
   @@index([variantId])
 }
 
 model Addon {
-  id            String   @id @default(cuid())
-  variantId     String
-  variant       Variant  @relation("AddonToVariant", fields: [variantId], references: [id], onDelete: Cascade)
-  name          String
-  price         Float
-  description   String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String   @id @default(cuid())
+  variantId   String
+  variant     Variant  @relation("AddonToVariant", fields: [variantId], references: [id], onDelete: Cascade)
+  name        String
+  price       Int
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([variantId])
 }
@@ -191,44 +235,52 @@ model Addon {
 // ============ BOOKING & PAYMENT MODELS ============
 
 model Booking {
-  id              String    @id @default(cuid())
-  bookingCode     String    @unique
-  variantId       String
-  variant         Variant   @relation(fields: [variantId], references: [id], onDelete: Cascade)
-  customerId      String
-  customer        Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  bookingDate     String
-  slotTimeId      String?
-  slotTime        SlotTime?
-  meetingType     MeetingType
-  hotelAddress    String?
-  paxCount        Int
-  selectedAddons  Json
-  totalPrice      Float
-  paymentStatus   PaymentStatus
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String          @id @default(cuid())
+  bookingCode      String          @unique
+  variantId        String
+  variant          Variant         @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  customerId       String
+  customer         Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  bookingDate      String
+  slotTimeId       String?
+  slotTime         SlotTime?       @relation(fields: [slotTimeId], references: [id])
+  fulfillmentMode  FulfillmentMode
+  pickupZoneId     String?
+  pickupZone       PickupZone?     @relation(fields: [pickupZoneId], references: [id])
+  hotelAddress     String?
+  paxCount         Int
+  vehicleCount     Int             @default(1)
+  zoneSurchargeIdr Int             @default(0)
+  selectedAddons   Json
+  totalPrice       Int
+  paymentStatus    PaymentStatus
+  payment          Payment?
+  vouchers         Voucher[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   @@index([bookingCode])
   @@index([variantId])
   @@index([customerId])
   @@index([paymentStatus])
+  @@index([fulfillmentMode])
+  @@index([pickupZoneId])
 }
 
 model Payment {
-  id                String    @id @default(cuid())
-  bookingId         String    @unique
-  booking           Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  midtransOrderId   String
-  snapToken         String?
-  redirectUrl       String?
-  paymentMethod     String?
-  grossAmount       Float
-  transactionTime   DateTime?
-  rawResponse       Json?
-  status            PaymentStatus
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id              String         @id @default(cuid())
+  bookingId       String         @unique
+  booking         Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  midtransOrderId String
+  snapToken       String?
+  redirectUrl     String?
+  paymentMethod   String?
+  grossAmount     Int
+  transactionTime DateTime?
+  rawResponse     Json?
+  status          PaymentStatus
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   @@index([bookingId])
   @@index([midtransOrderId])
@@ -236,16 +288,16 @@ model Payment {
 }
 
 model Voucher {
-  id            String    @id @default(cuid())
-  bookingId     String    @unique
-  booking       Booking   @relation(fields: [bookingId], references: [id])
-  qrCodeData    String
-  issuedAt      DateTime  @default(now())
-  redeemedAt    DateTime?
-  redeemedBy    String?
-  status        VoucherStatus @default(ACTIVE)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String        @id @default(cuid())
+  bookingId   String        @unique
+  booking     Booking       @relation(fields: [bookingId], references: [id])
+  qrCodeData  String
+  issuedAt    DateTime      @default(now())
+  redeemedAt  DateTime?
+  redeemedBy  String?
+  status      VoucherStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   @@index([bookingId])
   @@index([status])
@@ -254,19 +306,19 @@ model Voucher {
 // ============ CONTENT MODELS ============
 
 model Article {
-  id           String    @id @default(cuid())
-  slug         String    @unique
-  title        Json
-  content      String    @db.Text
-  metaDesc     Json
-  keywords     Json
-  tags         Json
-  publishedAt  DateTime?
-  aiGenerated  Boolean   @default(false)
-  ventureId    String?
-  venture      Venture?  @relation(fields: [ventureId], references: [id])
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       Json
+  content     String    @db.Text
+  metaDesc    Json
+  keywords    Json
+  tags        Json
+  publishedAt DateTime?
+  aiGenerated Boolean   @default(false)
+  ventureId   String?
+  venture     Venture?  @relation("VentureToArticle", fields: [ventureId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([slug])
   @@index([ventureId])
@@ -275,15 +327,15 @@ model Article {
 }
 
 model Review {
-  id         String    @id @default(cuid())
+  id         String   @id @default(cuid())
   ventureId  String
-  venture    Venture   @relation(fields: [ventureId], references: [id])
+  venture    Venture  @relation("VentureToReview", fields: [ventureId], references: [id])
   customerId String
-  customer   Customer  @relation(fields: [customerId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id])
   rating     Int
-  comment    String    @db.Text
-  isApproved Boolean   @default(false)
-  createdAt  DateTime  @default(now())
+  comment    String   @db.Text
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
   @@index([ventureId, isApproved])
   @@index([customerId])
@@ -291,23 +343,23 @@ model Review {
 }
 
 model MediaAsset {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   url       String
   altText   String
   width     Int?
   height    Int?
   size      Int?
-  isPrimary Boolean   @default(false)
+  isPrimary Boolean  @default(false)
   ventureId String?
-  venture   Venture?  @relation(fields: [ventureId], references: [id])
-  createdAt DateTime  @default(now())
+  venture   Venture? @relation("VentureToMediaAsset", fields: [ventureId], references: [id])
+  createdAt DateTime @default(now())
 
   @@index([ventureId])
   @@index([isPrimary])
 }
 
 model NotificationLog {
-  id           String    @id @default(cuid())
+  id           String             @id @default(cuid())
   bookingId    String?
   customerId   String?
   type         NotificationType
@@ -317,7 +369,7 @@ model NotificationLog {
   status       NotificationStatus @default(PENDING)
   sentAt       DateTime?
   errorMessage String?
-  createdAt    DateTime  @default(now())
+  createdAt    DateTime           @default(now())
 
   @@index([bookingId])
   @@index([customerId])

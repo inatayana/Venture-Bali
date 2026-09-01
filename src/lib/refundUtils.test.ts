@@ -1,101 +1,153 @@
-import { calculateRefund, getHoursDifference, isEligibleForRefund, getRefundPolicyText } from '@/lib/refundUtils';
-import type { RefundCalculationResult } from '@/types/refund';
+import {
+  calculateRefund,
+  isEligibleForRefund,
+  isEligibleForReschedule,
+  isNoShow,
+  getRefundPolicyText,
+  formatRefundAmount,
+} from './refundUtils';
 
-describe('Refund Utilities', () => {
-  const FIXED_BALI_TIME = new Date('2026-08-31T10:00:00Z'); // 2026-08-31 18:00 WITA
-  
-  // Mock getBaliTime for consistent tests
-  beforeEach(() => {
-    jest.spyOn(Date, 'now').mockImplementation(() => FIXED_BALI_TIME.getTime());
-  });
-  
-  afterEach(() => {
-    (Date.now as jest.Mock).mockRestore();
-  });
+// Mock getBaliTime to use test-controlled time
+jest.mock('./refundUtils', () => {
+  const actual = jest.requireActual('./refundUtils');
+  return {
+    ...actual,
+    getBaliTime: () => new Date('2026-09-01T06:00:00.000Z'),
+  };
+});
 
-  describe('getHoursDifference', () => {
-    it('should calculate hours correctly', () => {
-      const activityTime = new Date('2026-09-01T10:00:00Z'); // Next day, 18:00 WITA
-      const hours = getHoursDifference(activityTime, FIXED_BALI_TIME);
-      expect(hours).toBe(24);
+describe('Refund Utilities (v2 — 20% cancel fee)', () => {
+  const totalPrice = 1000000;
+
+  describe('calculateRefund', () => {
+    it('should apply 20% cancel fee for cancellations ≥24h before activity', () => {
+      const activityTime = new Date('2026-09-03T08:00:00.000Z');
+      const cancellationTime = new Date('2026-09-01T06:00:00.000Z');
+
+      const result = calculateRefund(activityTime, cancellationTime, totalPrice);
+
+      expect(result.refundAmount).toBe(800000);
+      expect(result.refundStatus).toBe('PARTIAL');
+      expect(result.eligibleForRefund).toBe(true);
+    });
+
+    it('should allow 20% fee for exactly 24h before activity', () => {
+      const activityTime = new Date('2026-09-02T06:00:00.000Z');
+      const cancellationTime = new Date('2026-09-01T06:00:00.000Z');
+
+      const result = calculateRefund(activityTime, cancellationTime, totalPrice);
+
+      expect(result.refundAmount).toBe(800000);
+      expect(result.refundStatus).toBe('PARTIAL');
+      expect(result.eligibleForRefund).toBe(true);
+    });
+
+    it('should deny cancellation for <24h before activity', () => {
+      const activityTime = new Date('2026-09-02T00:00:00.000Z');
+      const cancellationTime = new Date('2026-09-01T06:00:00.000Z');
+
+      const result = calculateRefund(activityTime, cancellationTime, totalPrice);
+
+      expect(result.refundAmount).toBe(0);
+      expect(result.refundStatus).toBe('NONE');
+      expect(result.eligibleForRefund).toBe(false);
+    });
+
+    it('should deny cancellation for 1 hour before activity', () => {
+      const activityTime = new Date('2026-09-01T07:00:00.000Z');
+      const cancellationTime = new Date('2026-09-01T06:00:00.000Z');
+
+      const result = calculateRefund(activityTime, cancellationTime, totalPrice);
+
+      expect(result.refundAmount).toBe(0);
+      expect(result.refundStatus).toBe('NONE');
+      expect(result.eligibleForRefund).toBe(false);
+    });
+
+    it('should deny cancellation for 0 hours before activity', () => {
+      const activityTime = new Date('2026-09-01T06:00:00.000Z');
+      const cancellationTime = new Date('2026-09-01T06:00:00.000Z');
+
+      const result = calculateRefund(activityTime, cancellationTime, totalPrice);
+
+      expect(result.refundAmount).toBe(0);
+      expect(result.refundStatus).toBe('NONE');
+      expect(result.eligibleForRefund).toBe(false);
     });
   });
 
   describe('isEligibleForRefund', () => {
-    it('should return true for cancellation >24h before', () => {
-      const activityTime = new Date('2026-09-02T10:00:00Z'); // 2 days later
-      expect(isEligibleForRefund(activityTime, FIXED_BALI_TIME)).toBe(true);
+    it('should return true for ≥24h before', () => {
+      const activity = new Date('2026-09-02T08:00:00.000Z');
+      const now = new Date('2026-09-01T06:00:00.000Z');
+
+      expect(isEligibleForRefund(activity, now)).toBe(true);
     });
 
-    it('should return false for cancellation <24h before', () => {
-      const activityTime = new Date('2026-08-31T11:00:00Z'); // 1 hour later
-      expect(isEligibleForRefund(activityTime, FIXED_BALI_TIME)).toBe(false);
-    });
+    it('should return false for <24h before', () => {
+      const activity = new Date('2026-09-01T18:00:00.000Z');
+      const now = new Date('2026-09-01T06:00:00.000Z');
 
-    it('should return false for past activity', () => {
-      const activityTime = new Date('2026-08-30T10:00:00Z'); // Yesterday
-      expect(isEligibleForRefund(activityTime, FIXED_BALI_TIME)).toBe(false);
+      expect(isEligibleForRefund(activity, now)).toBe(false);
     });
   });
 
-  describe('calculateRefund', () => {
-    // Test cases: [activity_time, cancellation_time, expected_hours_before, expected_refund_percent]
-    const testCases: [string, string, number, number][] = [
-      // Full refund cases (>=72h)
-      ['2026-09-03T10:00:00Z', '2026-08-31T10:00:00Z', 72, 100],
-      ['2026-09-04T10:00:00Z', '2026-08-31T10:00:00Z', 96, 100],
-      
-      // Partial refund 70% cases (48-72h)
-      ['2026-09-03T10:00:00Z', '2026-09-01T10:00:00Z', 48, 70],
-      ['2026-09-03T10:00:00Z', '2026-09-01T04:00:00Z', 54, 70],
-      
-      // Partial refund 30% cases (24-48h)
-      ['2026-09-02T10:00:00Z', '2026-09-01T10:00:00Z', 24, 30],
-      ['2026-09-02T10:00:00Z', '2026-08-31T10:00:00Z', 48, 70], // Actually 70% range
-      
-      // No refund cases (<24h)
-      ['2026-09-01T10:00:00Z', '2026-08-31T13:00:00Z', 21, 0],
-      ['2026-09-01T10:00:00Z', '2026-08-31T23:00:00Z', 11, 0],
-      ['2026-09-01T10:00:00Z', '2026-09-01T09:00:00Z', 1, 0],
-      
-      // Edge cases
-      ['2026-09-01T10:00:00Z', '2026-08-31T10:00:00Z', 24, 30], // Exactly 24h
-      ['2026-09-03T10:00:00Z', '2026-08-31T10:00:00Z', 72, 100], // Exactly 72h
-    ];
+  describe('isEligibleForReschedule', () => {
+    it('should return true for ≥24h before', () => {
+      const activity = new Date('2026-09-02T08:00:00.000Z');
+      const now = new Date('2026-09-01T06:00:00.000Z');
 
-    testCases.forEach(([activityStr, cancelStr, expectedHours, expectedPercent]) => {
-      it(`should calculate ${expectedPercent}% refund for ${expectedHours}h before`, () => {
-        const activityTime = new Date(activityStr);
-        const cancellationTime = new Date(cancelStr);
-        const totalPrice = 1000000; // 1,000,000 IDR
-        
-        const result: RefundCalculationResult = calculateRefund(
-          activityTime,
-          cancellationTime,
-          totalPrice
-        );
-        
-        const expectedAmount = Math.round(totalPrice * (expectedPercent / 100));
-        
-        expect(result.refundAmount).toBe(expectedAmount);
-        expect(result.refundStatus).toBe(
-          expectedPercent === 100 ? 'FULL' :
-          expectedPercent > 0 ? 'PARTIAL' : 'NONE'
-        );
-        expect(result.daysBefore).toBeCloseTo(expectedHours / 24, 1);
-        expect(result.eligibleForRefund).toBe(expectedPercent > 0);
-      });
+      expect(isEligibleForReschedule(activity, now)).toBe(true);
+    });
+
+    it('should return false for <24h before', () => {
+      const activity = new Date('2026-09-01T18:00:00.000Z');
+      const now = new Date('2026-09-01T06:00:00.000Z');
+
+      expect(isEligibleForReschedule(activity, now)).toBe(false);
+    });
+  });
+
+  describe('isNoShow', () => {
+    it('should return true if no confirmation', () => {
+      const activity = new Date('2026-09-02T08:00:00.000Z');
+
+      expect(isNoShow(activity, null)).toBe(true);
+    });
+
+    it('should return true if confirmation <24h before', () => {
+      const activity = new Date('2026-09-02T08:00:00.000Z');
+      const confirmation = new Date('2026-09-01T18:00:00.000Z');
+
+      expect(isNoShow(activity, confirmation)).toBe(true);
+    });
+
+    it('should return false if confirmation ≥24h before', () => {
+      const activity = new Date('2026-09-02T08:00:00.000Z');
+      const confirmation = new Date('2026-09-01T06:00:00.000Z');
+
+      expect(isNoShow(activity, confirmation)).toBe(false);
     });
   });
 
   describe('getRefundPolicyText', () => {
-    it('should return formatted policy text', () => {
+    it('should contain key policy elements', () => {
       const text = getRefundPolicyText();
-      expect(text).toContain('Full refund: Cancel 72h (3 days)');
-      expect(text).toContain('Partial refund: Cancel 48h-72h');
-      expect(text).toContain('Partial refund: Cancel 24h-48h');
-      expect(text).toContain('No refund: Cancel less than 24h');
-      expect(text).toContain('Refunds processed within 3 business days');
+
+      expect(text).toContain('Cancel fee 20%');
+      expect(text).toContain('80% refund');
+      expect(text).toContain('Cannot cancel');
+      expect(text).toContain('No-show');
+      expect(text).toContain('3 business days');
+    });
+  });
+
+  describe('formatRefundAmount', () => {
+    it('should format IDR currency', () => {
+      const formatted = formatRefundAmount(1000000);
+
+      expect(formatted).toContain('Rp');
+      expect(formatted).toContain('1.000.000');
     });
   });
 });

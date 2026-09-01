@@ -109,7 +109,6 @@ export const mockVariants: Variant[] = [
     title: 'Private Tour',
     shortDescription: 'Personal guide & flexible timing',
     badge: 'Best Seller',
-    meetingType: 'HOTEL_PICKUP',
     priceTiers: [
       { minPax: 1, maxPax: 1, pricePerPax: 550000 },
       { minPax: 2, maxPax: 2, pricePerPax: 450000 },
@@ -128,7 +127,6 @@ export const mockVariants: Variant[] = [
     title: 'Sunrise Summit Trek',
     shortDescription: 'Expert guide to Mount Batur summit',
     badge: 'Epic Views',
-    meetingType: 'HOTEL_PICKUP',
     priceTiers: [
       { minPax: 1, maxPax: 1, pricePerPax: 800000 },
       { minPax: 2, maxPax: 2, pricePerPax: 650000 },
@@ -147,7 +145,6 @@ export const mockVariants: Variant[] = [
     title: 'Full Day Snorkeling',
     shortDescription: '3 snorkeling spots + lunch included',
     badge: 'Marine Life',
-    meetingType: 'HOTEL_PICKUP',
     priceTiers: [
       { minPax: 1, maxPax: 1, pricePerPax: 1050000 },
       { minPax: 2, maxPax: 2, pricePerPax: 850000 },
@@ -185,6 +182,7 @@ export const mockVentures: VentureItem[] = [
     },
     languages: ['en', 'id'],
     category: 'adventure',
+    difficulty: 'EASY',
     imageUrl: '/images/atv-ubud.jpg',
     gallery: ['/images/atv-ubud-1.jpg'],
     rating: 4.8,
@@ -223,6 +221,7 @@ export const mockVentures: VentureItem[] = [
     },
     languages: ['en', 'id'],
     category: 'mountain',
+    difficulty: 'MODERATE',
     imageUrl: '/images/mount-batur.jpg',
     gallery: ['/images/mount-batur-1.jpg'],
     rating: 4.9,
@@ -261,6 +260,7 @@ export const mockVentures: VentureItem[] = [
     },
     languages: ['en', 'id'],
     category: 'beach',
+    difficulty: 'EASY',
     imageUrl: '/images/nusa-penida.jpg',
     gallery: ['/images/nusa-penida-1.jpg'],
     rating: 4.7,
