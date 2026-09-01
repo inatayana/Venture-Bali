@@ -58,17 +58,6 @@ export function calculateRefund(
   policy: RefundPolicy = DEFAULT_REFUND_POLICY
 ): RefundCalculationResult {
   const hoursBefore = getHoursDifference(activityTime, cancellationTime);
-  
-  // Force majeure or emergency - handled separately
-  if (hoursBefore < 0) {
-    return {
-      refundAmount: totalPrice,
-      refundStatus: 'FULL',
-      daysBefore: 0,
-      eligibleForRefund: false,
-      policyApplied: 'POSTPONED - Activity passed',
-    };
-  }
 
   // Full refund window
   if (hoursBefore >= policy.fullRefundHours) {
@@ -93,35 +82,24 @@ export function calculateRefund(
     };
   }
 
-  if (hoursBefore >= policy.partialRefundHours[1] && hoursBefore < policy.fullRefundHours) {
+  if (hoursBefore >= policy.noRefundHours && hoursBefore < policy.partialRefundHours[0]) {
     const refundPercent = policy.partialRefundPercentages[1];
     return {
       refundAmount: Math.round(totalPrice * (refundPercent / 100)),
       refundStatus: 'PARTIAL',
       daysBefore: hoursBefore / 24,
       eligibleForRefund: true,
-      policyApplied: `PARTIAL - ${refundPercent}% (${policy.partialRefundHours[1]}h-${policy.fullRefundHours}h before)`,
+      policyApplied: `PARTIAL - ${refundPercent}% (${policy.noRefundHours}h-${policy.partialRefundHours[0]}h before)`,
     };
   }
 
   // No refund window
-  if (hoursBefore < policy.noRefundHours) {
-    return {
-      refundAmount: 0,
-      refundStatus: 'NONE',
-      daysBefore: hoursBefore / 24,
-      eligibleForRefund: hoursBefore >= 0,
-      policyApplied: `NO REFUND - Less than ${policy.noRefundHours}h before activity`,
-    };
-  }
-
-  // Default case - should not reach here
   return {
     refundAmount: 0,
     refundStatus: 'NONE',
     daysBefore: hoursBefore / 24,
     eligibleForRefund: false,
-    policyApplied: 'UNDEFINED POLICY',
+    policyApplied: `NO REFUND - Less than ${policy.noRefundHours}h before activity`,
   };
 }
 
@@ -149,8 +127,8 @@ export function getRefundPolicyText(): string {
   return `
 **Refund Policy:**
 • Full refund: Cancel ${policy.fullRefundHours}h (3 days) or more before activity ✅ 100% refund
-• Partial refund: Cancel ${policy.partialRefundHours[1]}h-72h before ✅ 70% refund
-• Partial refund: Cancel ${policy.partialRefundHours[0]}h-48h before ✅ 30% refund
+• Partial refund: Cancel ${policy.partialRefundHours[0]}h-${policy.partialRefundHours[1]}h before ✅ 70% refund
+• Partial refund: Cancel ${policy.noRefundHours}h-${policy.partialRefundHours[0]}h before ✅ 30% refund
 • No refund: Cancel less than ${policy.noRefundHours}h before activity ❌ 0% refund
 
 Refunds processed within ${policy.processingTimeDays} business days.

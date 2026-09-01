@@ -1,4 +1,4 @@
-import { calculateRefund, getBaliTime, getHoursDifference, isEligibleForRefund, getRefundPolicyText } from '@/lib/refundUtils';
+import { calculateRefund, getHoursDifference, isEligibleForRefund, getRefundPolicyText } from '@/lib/refundUtils';
 import type { RefundCalculationResult } from '@/types/refund';
 
 describe('Refund Utilities', () => {
@@ -40,18 +40,18 @@ describe('Refund Utilities', () => {
 
   describe('calculateRefund', () => {
     // Test cases: [activity_time, cancellation_time, expected_hours_before, expected_refund_percent]
-    const testCases = [
+    const testCases: [string, string, number, number][] = [
       // Full refund cases (>=72h)
       ['2026-09-03T10:00:00Z', '2026-08-31T10:00:00Z', 72, 100],
       ['2026-09-04T10:00:00Z', '2026-08-31T10:00:00Z', 96, 100],
       
       // Partial refund 70% cases (48-72h)
       ['2026-09-03T10:00:00Z', '2026-09-01T10:00:00Z', 48, 70],
-      ['2026-09-03T10:00:00Z', '2026-09-02T04:00:00Z', 54, 70],
+      ['2026-09-03T10:00:00Z', '2026-09-01T04:00:00Z', 54, 70],
       
       // Partial refund 30% cases (24-48h)
-      ['2026-09-02T10:00:00Z', '2026-08-31T10:00:00Z', 24, 30],
-      ['2026-09-02T10:00:00Z', '2026-09-01T10:00:00Z', 48, 70], // Actually 70% range
+      ['2026-09-02T10:00:00Z', '2026-09-01T10:00:00Z', 24, 30],
+      ['2026-09-02T10:00:00Z', '2026-08-31T10:00:00Z', 48, 70], // Actually 70% range
       
       // No refund cases (<24h)
       ['2026-09-01T10:00:00Z', '2026-08-31T13:00:00Z', 21, 0],
