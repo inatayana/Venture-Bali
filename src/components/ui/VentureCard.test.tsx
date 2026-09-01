@@ -25,6 +25,7 @@ const mockVenture: VentureItem = {
   languages: ['en', 'id'],
   description: 'A beautiful tour of the rice terraces at sunrise.',
   category: 'culture',
+  difficulty: 'EASY',
   location: 'Ubud, Gianyar',
   priceIdr: 450000,
   durationHours: 5,

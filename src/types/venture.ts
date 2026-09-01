@@ -6,7 +6,9 @@
 
 // ============ ENUMS ============
 
-export type MeetingType = 'MEETING_POINT' | 'HOTEL_PICKUP';
+export type FulfillmentMode = 'SELF_DRIVE' | 'PRIVATE_TRANSFER';
+export type Difficulty = 'EASY' | 'MODERATE' | 'CHALLENGING';
+export type PickupZoneType = 'UBUD_AREA' | 'SOUTH_BALI';
 export type PaymentStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'FAILED';
 export type VoucherStatus = 'ACTIVE' | 'REDEEMED' | 'EXPIRED' | 'CANCELLED';
 export type AdminRole = 'SUPER_ADMIN' | 'ADMIN' | 'EDITOR' | 'VIEWER';
@@ -56,6 +58,25 @@ export interface Location {
   updatedAt: Date;
 }
 
+export interface PickupZone {
+  id: string;
+  name: string;
+  areaType: PickupZoneType;
+  surchargeIdr: number;
+  isCustomQuote: boolean;
+  vehicleMaxPax: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export type SuitableFor = 'KIDS' | 'COUPLE' | 'FAMILY' | 'SOLO' | 'GROUP';
+
 export interface Customer {
   id: string;
   email: string;
@@ -88,6 +109,7 @@ export interface Venture {
   location?: Location;
   title: string;
   hook3Sec: string;
+  shortDescription?: string;
   duration: string;
   badge?: string;
   highlights: string[];
@@ -95,10 +117,18 @@ export interface Venture {
   exclusions: string[];
   itinerary: ItineraryItem[];
   essentialInfo: EssentialInfo;
+  faqs?: FaqItem[];
   languages: string[];
   category: string;
+  subcategory?: string;
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  searchTags?: string[];
+  difficulty: Difficulty;
+  suitableFor?: SuitableFor[];
   imageUrl: string;
   gallery: string[];
+  videoUrl?: string;
   rating: number;
   variants?: Variant[];
   reviews?: Review[];
@@ -142,7 +172,6 @@ export interface Variant {
   title: string;
   shortDescription: string;
   badge?: string;
-  meetingType: MeetingType;
   priceTiers: PriceTier[];
   blackoutDates: string[];
   slotTimes?: SlotTime[];
@@ -163,12 +192,17 @@ export interface Booking {
   bookingDate: string;
   slotTimeId?: string;
   slotTime?: SlotTime;
-  meetingType: MeetingType;
+  fulfillmentMode: FulfillmentMode;
+  pickupZoneId?: string;
+  pickupZone?: PickupZone;
   hotelAddress?: string;
   paxCount: number;
+  vehicleCount: number;
+  zoneSurchargeIdr: number;
   selectedAddons?: { id: string; name: string; price: number }[];
   totalPrice: number;
   paymentStatus: PaymentStatus;
+  payment?: Payment;
   createdAt: Date;
   updatedAt: Date;
 }

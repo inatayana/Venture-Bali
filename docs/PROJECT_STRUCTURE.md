@@ -15,7 +15,7 @@ Venture Bali is a multi-tenant OTA platform for adventure tourism in Bali.
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS
 - **ORM:** Prisma
-- **Database:** MySQL (Hostinger) / PostgreSQL
+- **Database:** PostgreSQL (Prisma)
 - **State:** Zustand
 - **Payment:** Midtrans Snap
 - **AI:** Gemini Free Tier

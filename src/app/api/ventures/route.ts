@@ -1,38 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { mockVentures } from '@/data/mockVentures';
 import type { VentureItem } from '@/types/venture';
-
-interface VentureWhereInput {
-  category?: string;
-  title?: { contains: string; mode: 'insensitive' };
-}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
   const search = searchParams.get('search');
 
-  let ventures: VentureItem[] = [];
+  let ventures: VentureItem[] = mockVentures;
 
-  try {
-    // Try Prisma
-    const where: VentureWhereInput = {};
-    if (category) where.category = category;
-    if (search) where.title = { contains: search, mode: 'insensitive' };
-    // domain not in VentureItem schema, ignore
-
-    const results = await prisma.venture.findMany({ where });
-    ventures = results;
-  } catch (error) {
-    console.error('Prisma query failed, falling back to mock data:', error);
-    // Fallback to mock data
-    ventures = mockVentures.filter(v => {
-      if (category && v.category !== category) return false;
-      if (search && !v.title.toLowerCase().includes(search.toLowerCase())) return false;
-      // domain not in mock, ignore
-      return true;
-    });
+  if (category) {
+    ventures = ventures.filter((v) => v.category === category);
+  }
+  if (search) {
+    ventures = ventures.filter((v) =>
+      v.title.toLowerCase().includes(search.toLowerCase())
+    );
   }
 
   return NextResponse.json({
@@ -60,8 +43,7 @@ export async function POST(request: NextRequest) {
       isAvailable,
     } = body;
 
-    // Basic validation
-    if (!title || !description || !category || !location || priceIdr === undefined || !durationHours || !minParticipants || !maxParticipants || !rating || !reviewCount) {
+    if (!title || !description || !category || !location || priceIdr === undefined) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
@@ -74,6 +56,7 @@ export async function POST(request: NextRequest) {
       tenantId: 'tenant-001',
       title,
       hook3Sec: description,
+      shortDescription: description.slice(0, 160),
       duration: `${durationHours} hours`,
       highlights: [],
       inclusions: [],
@@ -86,6 +69,7 @@ export async function POST(request: NextRequest) {
       },
       languages: ['en'],
       category,
+      difficulty: 'EASY',
       imageUrl: imageUrl || '',
       gallery: [],
       rating,
@@ -102,10 +86,6 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date(),
     };
 
-    await prisma.venture.create({
-      data: venture,
-    });
-
     return NextResponse.json(
       { success: true, data: venture, message: 'Created successfully' },
       { status: 201 }
@@ -119,7 +99,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Helper to slug (could be moved to utils)
 function toSlug(str: string): string {
   return str
     .toLowerCase()
