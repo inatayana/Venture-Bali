@@ -11,6 +11,7 @@ out
 .prisma
 
 # Environment variables
+.env
 .env*.local
 
 # Vercel
