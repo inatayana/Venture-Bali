@@ -1,7 +1,8 @@
-import { Star, MapPin, Clock, Users } from 'lucide-react';
+import { Star, MapPin, Clock, Users, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import type { VentureItem } from '@/types/venture';
 import { cn } from '@/utils/cn';
+import { formatPrice } from '@/lib/i18n';
 
 export interface VentureCardProps {
   venture: VentureItem;
@@ -15,14 +16,6 @@ const categoryStyles: Record<VentureItem['category'], string> = {
   culture: 'bg-amber-100 text-amber-800',
   adventure: 'bg-orange-100 text-orange-800',
   wellness: 'bg-purple-100 text-purple-800',
-};
-
-const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(price);
 };
 
 export function VentureCard({
@@ -74,6 +67,11 @@ export function VentureCard({
         >
           {venture.category}
         </span>
+        {venture.badge && (
+          <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-400 text-yellow-900">
+            {venture.badge}
+          </span>
+        )}
         {!venture.isAvailable && (
           <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
             Sold Out
@@ -86,11 +84,12 @@ export function VentureCard({
           {venture.title}
         </h3>
 
-        <p className="text-sm text-gray-600 line-clamp-2 mb-4">
-          {venture.description}
-        </p>
+        <div className="flex items-center gap-2 mb-3">
+          <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
+          <span className="text-xs text-green-700 font-medium">Instant Confirmation</span>
+        </div>
 
-        <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
           <div className="flex items-center gap-1">
             <MapPin className="w-4 h-4" aria-hidden="true" />
             <span className="line-clamp-1">{venture.location}</span>
@@ -126,6 +125,11 @@ export function VentureCard({
             </span>
             <span className="text-xs text-gray-500"> / person</span>
           </div>
+          {venture.badge && (
+            <span className="text-xs text-orange-600 font-medium bg-orange-50 px-2 py-1 rounded-full">
+              🔥 Trending
+            </span>
+          )}
         </div>
       </div>
     </article>
