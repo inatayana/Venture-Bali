@@ -112,27 +112,43 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
     }
   };
 
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = async () => {
     if (!selectedDate || !selectedTime || !variant) return;
 
     setIsBooking(true);
-    setTimeout(() => {
+    try {
       const bookingDate = selectedDate.toISOString().split('T')[0];
       const timeStr = selectedTime.time;
       
-      addBooking({
-        ventureId: venture.id,
-        title: venture.title,
-        participants,
-        totalPrice: priceBreakdown.totalPrice,
-        bookingDate: `${bookingDate}T${timeStr}:00.000Z`,
+      const response = await fetch('/api/booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ventureId: venture.id,
+          variantId: variant.id,
+          bookingDate,
+          slotTimeId: selectedTime.id || `slot-${timeStr}`,
+          fulfillmentMode: 'SELF_DRIVE',
+          paxCount: participants,
+          customerName: 'Customer', // In real app, get from form
+          customerEmail: 'customer@example.com',
+          customerWhatsApp: '+628123456789',
+        }),
       });
-      
+
+      const data = await response.json();
+      if (data.success && data.data.redirectUrl) {
+        setIsBooking(false);
+        setIsBookingOpen(false);
+        // Redirect to checkout page
+        window.location.href = data.data.redirectUrl;
+      } else {
+        throw new Error(data.error?.message || 'Booking failed');
+      }
+    } catch (error) {
       setIsBooking(false);
-      setBookingSuccess(true);
-      setIsBookingOpen(false);
-      setTimeout(() => setBookingSuccess(false), 3000);
-    }, 800);
+      alert(error instanceof Error ? error.message : 'Booking failed. Please try again.');
+    }
   };
 
   const mockReviews = [
