@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowLeft, Calendar, Users } from 'lucide-react';
 import { BookingForm } from '@/components/booking/BookingForm';

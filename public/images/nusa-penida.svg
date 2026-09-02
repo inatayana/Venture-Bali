@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0369a1"/>
+      <stop offset="50%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#67e8f9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <path d="M0 520 Q150 470 300 520 T600 520 T900 520 T1200 520 L1200 800 L0 800 Z" fill="#0c4a6e" opacity="0.6"/>
+  <path d="M0 580 Q150 530 300 580 T600 580 T900 580 T1200 580 L1200 800 L0 800 Z" fill="#082f49" opacity="0.6"/>
+  <text x="600" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="56" font-weight="bold" fill="#ffffff" opacity="0.95">Nusa Penida Snorkeling</text>
+  <text x="600" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#cffafe">Demo placeholder image</text>
+</svg>

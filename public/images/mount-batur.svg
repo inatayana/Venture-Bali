@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="45%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <circle cx="600" cy="500" r="130" fill="#fbbf24" opacity="0.95"/>
+  <path d="M0 640 L300 360 L520 640 L760 300 L1000 640 L1200 480 L1200 800 L0 800 Z" fill="#1e1b4b" opacity="0.85"/>
+  <text x="600" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="56" font-weight="bold" fill="#ffffff" opacity="0.95">Mount Batur Sunrise Trek</text>
+  <text x="600" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#ede9fe">Demo placeholder image</text>
+</svg>
