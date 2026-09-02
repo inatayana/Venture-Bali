@@ -42,10 +42,10 @@ const mockVenture: VentureItem = {
 };
 
 describe('VentureCard Component', () => {
-  it('renders venture title and description', () => {
+  it('renders venture title and trust badge', () => {
     render(<VentureCard venture={mockVenture} />);
     expect(screen.getByText(mockVenture.title)).toBeInTheDocument();
-    expect(screen.getByText(mockVenture.description)).toBeInTheDocument();
+    expect(screen.getByText('Instant Confirmation')).toBeInTheDocument();
   });
 
   it('formats IDR price correctly', () => {

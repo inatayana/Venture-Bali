@@ -7,15 +7,6 @@ import {
   formatRefundAmount,
 } from './refundUtils';
 
-// Mock getBaliTime to use test-controlled time
-jest.mock('./refundUtils', () => {
-  const actual = jest.requireActual('./refundUtils');
-  return {
-    ...actual,
-    getBaliTime: () => new Date('2026-09-01T06:00:00.000Z'),
-  };
-});
-
 describe('Refund Utilities (v2 — 20% cancel fee)', () => {
   const totalPrice = 1000000;
 

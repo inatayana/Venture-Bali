@@ -38,4 +38,6 @@ out/
 
 # Local database
 *.sqlite
-node_modules
+
+# API keys
+*-api-keys.txt

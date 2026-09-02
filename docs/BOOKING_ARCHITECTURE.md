@@ -1,8 +1,9 @@
 # Venture Bali — Booking Architecture
 
-> **Version:** 1.0.0
+> **Version:** 1.1.0
 > **Status:** MUST FOLLOW for booking flow, pricing, and checkout logic.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §2)
+> **Changelog v1.1.0:** Tambah dimensi kelas kendaraan (VehicleClass) untuk PRIVATE_TRANSFER + aturan combo add-on dependen transfer (Klook-style configurator).
 
 ## 1. Dual Fulfillment Mode (1 Product = 2 Options)
 
@@ -20,14 +21,24 @@ Implementasi: mode adalah **booking option** (`Booking.fulfillmentMode`), BUKAN 
 ## 2. Pricing Formula
 
 ```
-Final Price (IDR) = (Base Price × Pax) + (Zone Surcharge × VehicleCount)
-VehicleCount      = ceil(Pax / vehicleMaxPax)   // default vehicleMaxPax = 4
+Final Price (IDR) = (Base Price × Pax)
+                  + ((Zone Surcharge + VehicleClass Delta) × VehicleCount)
+                  + (Combo Add-on Price × Pax)
+VehicleCount      = ceil(Pax / vehicleClass.vehicleMaxPax)   // SUV=4, MPV=6, Minivan=12
 ```
 
 - Semua harga disimpan sebagai **IDR integer** (tanpa sen) — Midtrans menagih IDR.
-- **USD hanya display** melalui `USD_TO_IDR_RATE` di `src/config/pricing.ts` (rate tetap, diubah via PR).
+- **USD hanya display** melalui `src/lib/fx.ts` (estimasi konversi, bukan harga tagihan).
 - Base price berasal dari `PriceTier.pricePerPax` sesuai pax (tier lookup).
+- Kelas kendaraan (SUV/MPV/Minivan) adalah **pilihan di dalam mode PRIVATE_TRANSFER**, bukan SKU terpisah; `SELF_DRIVE` tidak kena vehicle class & zone surcharge.
 - Harga WAJIB dihitung ulang di server saat checkout — total dari client tidak dipercaya.
+
+## 2b. Dependent Combo Add-ons (Klook-style Configurator)
+
+- Add-on dengan flag `requiresTransfer = true` (mis. Rafting combo, Tubing, Lunch upgrade) **hanya bisa dipilih saat mode PRIVATE_TRANSFER**.
+- UI: saat `SELF_DRIVE` ("No Transfer"), combo add-on **disabled/grayed-out** dengan helper "Requires hotel transfer".
+- Add-on non-transfer (mis. Photographer) tetap tersedia di kedua mode.
+- Validasi server: payload yang memuat add-on `requiresTransfer` tanpa `fulfillmentMode = PRIVATE_TRANSFER` → ditolak (400).
 
 ## 3. Zone Surcharge Matrix (per vehicle)
 

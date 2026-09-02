@@ -8,7 +8,8 @@
 
 export type FulfillmentMode = 'SELF_DRIVE' | 'PRIVATE_TRANSFER';
 export type Difficulty = 'EASY' | 'MODERATE' | 'CHALLENGING';
-export type PickupZoneType = 'UBUD_AREA' | 'SOUTH_BALI';
+export type PickupZoneType = 'ZONE_1' | 'ZONE_2' | 'ZONE_3' | 'ZONE_4';
+export type VehicleClassType = 'STANDARD_SUV' | 'PREMIUM_MPV' | 'MINIVAN';
 export type PaymentStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'FAILED';
 export type VoucherStatus = 'ACTIVE' | 'REDEEMED' | 'EXPIRED' | 'CANCELLED';
 export type AdminRole = 'SUPER_ADMIN' | 'ADMIN' | 'EDITOR' | 'VIEWER';
@@ -65,6 +66,19 @@ export interface PickupZone {
   surchargeIdr: number;
   isCustomQuote: boolean;
   vehicleMaxPax: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface VehicleClass {
+  id: string;
+  name: VehicleClassType;
+  label: string;
+  description?: string;
+  vehicleMaxPax: number;
+  deltaIdr: number;
+  sortOrder: number;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -162,6 +176,8 @@ export interface Addon {
   name: string;
   price: number;
   description?: string;
+  requiresTransfer: boolean;
+  isCombo: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -195,6 +211,8 @@ export interface Booking {
   fulfillmentMode: FulfillmentMode;
   pickupZoneId?: string;
   pickupZone?: PickupZone;
+  vehicleClassId?: string;
+  vehicleClass?: VehicleClass;
   hotelAddress?: string;
   paxCount: number;
   vehicleCount: number;

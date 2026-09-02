@@ -1,24 +1,16 @@
-import type { RefundCalculationResult, RefundPolicy } from '@/types/refund';
+import type { RefundCalculationResult } from '@/types/refund';
 
 /**
  * Venture Bali Refund Utilities
  * Implements the refund policy from docs/REFUND_POLICY.md
- * 
+ *
  * Policy (v2):
  * - ≥24 hours before activity: 20% cancel fee → 80% refund
  * - <24 hours before activity: No cancellation allowed (0%)
  * - No-show (no confirmation ≥1 day): 100% fee (0%)
- * 
+ *
  * Time is calculated using Bali Time (WITA, UTC+8)
  */
-
-export const DEFAULT_REFUND_POLICY: RefundPolicy = {
-  fullRefundHours: 72,
-  partialRefundHours: [48, 72],
-  partialRefundPercentages: [70, 30],
-  noRefundHours: 24,
-  processingTimeDays: 3,
-};
 
 export function getBaliTime(): Date {
   const now = new Date();
@@ -91,12 +83,9 @@ export function isEligibleForReschedule(
  */
 export function isNoShow(
   activityTime: Date,
-  confirmationTime: Date | null,
-  currentTime: Date = getBaliTime()
+  confirmationTime: Date | null
 ): boolean {
   if (confirmationTime === null) return true;
-  const hoursUntilActivity = getHoursDifference(activityTime, currentTime);
-  if (hoursUntilActivity < 0) return true;
   const hoursOfConfirmation = getHoursDifference(activityTime, confirmationTime);
   return hoursOfConfirmation < 24;
 }

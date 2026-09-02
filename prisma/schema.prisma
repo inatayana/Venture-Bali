@@ -21,8 +21,16 @@ enum Difficulty {
 }
 
 enum PickupZoneType {
-  UBUD_AREA
-  SOUTH_BALI
+  ZONE_1
+  ZONE_2
+  ZONE_3
+  ZONE_4
+}
+
+enum VehicleClassType {
+  STANDARD_SUV
+  PREMIUM_MPV
+  MINIVAN
 }
 
 enum PaymentStatus {
@@ -111,6 +119,24 @@ model PickupZone {
   updatedAt     DateTime       @updatedAt
 
   @@index([areaType])
+  @@index([isActive])
+}
+
+// Fleet classes for PRIVATE_TRANSFER (Klook-style configurator).
+// Display labels use generic class names only — never vendor names (OPERATION_CONTRACT.md §1).
+model VehicleClass {
+  id            String           @id @default(cuid())
+  name          VehicleClassType @unique
+  label         String
+  description   String?
+  vehicleMaxPax Int              @default(4)
+  deltaIdr      Int              @default(0)
+  sortOrder     Int              @default(0)
+  isActive      Boolean          @default(true)
+  bookings      Booking[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
   @@index([isActive])
 }
 
@@ -220,14 +246,16 @@ model SlotTime {
 }
 
 model Addon {
-  id          String   @id @default(cuid())
-  variantId   String
-  variant     Variant  @relation("AddonToVariant", fields: [variantId], references: [id], onDelete: Cascade)
-  name        String
-  price       Int
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String   @id @default(cuid())
+  variantId        String
+  variant          Variant  @relation("AddonToVariant", fields: [variantId], references: [id], onDelete: Cascade)
+  name             String
+  price            Int
+  description      String?
+  requiresTransfer Boolean  @default(false)
+  isCombo          Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@index([variantId])
 }
@@ -247,6 +275,8 @@ model Booking {
   fulfillmentMode  FulfillmentMode
   pickupZoneId     String?
   pickupZone       PickupZone?     @relation(fields: [pickupZoneId], references: [id])
+  vehicleClassId   String?
+  vehicleClass     VehicleClass?   @relation(fields: [vehicleClassId], references: [id])
   hotelAddress     String?
   paxCount         Int
   vehicleCount     Int             @default(1)
@@ -265,6 +295,7 @@ model Booking {
   @@index([paymentStatus])
   @@index([fulfillmentMode])
   @@index([pickupZoneId])
+  @@index([vehicleClassId])
 }
 
 model Payment {
