@@ -15,7 +15,6 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
-  const [snapToken, setSnapToken] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -60,7 +59,6 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
 
       const data = await response.json();
       if (data.success && data.snapToken) {
-        setSnapToken(data.snapToken);
         // Load Midtrans Snap.js
         loadMidtransSnap(data.snapToken);
       } else {

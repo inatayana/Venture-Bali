@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { mockVentures } from '@/data/mockVentures';
-import type { VentureItem, Variant, SlotTime, Booking, FulfillmentMode } from '@/types/venture';
-import { calculatePriceBreakdown, isDateAvailable, getAvailableSlots } from '@/lib/pricing';
+import { mockVentures, mockPickupZones, mockVehicleClasses } from '@/data/mockVentures';
+import type { Booking, Variant } from '@/types/venture';
+import {
+  calculateTotalPrice,
+  validateAddonModeCombinations,
+  isBookable,
+  isDateAvailable,
+  getAvailableSlots,
+} from '@/lib/pricing';
 
 const bookingSchema = z.object({
   ventureId: z.string().min(1, 'Venture ID is required'),
@@ -11,12 +17,13 @@ const bookingSchema = z.object({
   slotTimeId: z.string().min(1, 'Time slot ID is required'),
   fulfillmentMode: z.enum(['SELF_DRIVE', 'PRIVATE_TRANSFER']),
   pickupZoneId: z.string().optional(),
+  vehicleClassType: z.enum(['STANDARD_SUV', 'PREMIUM_MPV', 'MINIVAN']).optional(),
   hotelAddress: z.string().optional(),
   paxCount: z.number().int().min(1, 'At least 1 participant required'),
+  selectedAddons: z.array(z.string()).optional(),
   customerName: z.string().min(2, 'Name must be at least 2 characters'),
   customerEmail: z.string().email('Invalid email format'),
   customerWhatsApp: z.string().min(10, 'WhatsApp number required'),
-  selectedAddons: z.array(z.string()).optional(),
 });
 
 function generateBookingCode(): string {
@@ -25,22 +32,12 @@ function generateBookingCode(): string {
   return `BK-${timestamp}-${random}`;
 }
 
-function findVentureAndVariant(ventureId: string, variantId: string): { venture: VentureItem; variant: Variant } | null {
-  const venture = mockVentures.find(v => v.id === ventureId);
-  if (!venture) return null;
-
-  const variant = venture.variants?.find(v => v.id === variantId);
-  if (!variant) return null;
-
-  return { venture, variant };
-}
-
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const validated = bookingSchema.parse(body);
+    const validated = bookingSchema.parse(await request.json());
 
-    const { venture, variant } = findVentureAndVariant(validated.ventureId, validated.variantId) || { venture: null, variant: null };
+    const venture = mockVentures.find((v) => v.id === validated.ventureId);
+    const variant: Variant | undefined = venture?.variants?.find((v) => v.id === validated.variantId);
     if (!venture || !variant) {
       return NextResponse.json(
         { success: false, error: { code: 'NOT_FOUND', message: 'Venture or variant not found' } },
@@ -48,7 +45,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate date availability
+    // Blackout date check
     if (!isDateAvailable(variant, validated.bookingDate)) {
       return NextResponse.json(
         { success: false, error: { code: 'UNAVAILABLE', message: 'Selected date is not available' } },
@@ -56,74 +53,99 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate slot time
-    const availableSlots = getAvailableSlots(variant, validated.paxCount);
-    const selectedSlot = availableSlots.find(s => s.time === validated.slotTimeId);
-    if (!selectedSlot) {
+    // Slot capacity check (by id, fallback by time label)
+    const slots = getAvailableSlots(variant, validated.paxCount);
+    const slot = variant.slotTimes?.find(
+      (s) => s.id === validated.slotTimeId || s.time === validated.slotTimeId
+    );
+    if (!slot || !slots.some((s) => s.time === slot.time)) {
       return NextResponse.json(
         { success: false, error: { code: 'UNAVAILABLE', message: 'Selected time slot is not available' } },
         { status: 400 }
       );
     }
 
-    // Calculate pricing
-    const priceBreakdown = calculatePriceBreakdown(variant.priceTiers, validated.paxCount);
-    let totalPrice = priceBreakdown.totalPrice;
+    // Transfer requirements
+    const isTransfer = validated.fulfillmentMode === 'PRIVATE_TRANSFER';
+    const zone = isTransfer ? mockPickupZones.find((z) => z.id === validated.pickupZoneId) ?? null : null;
+    const vehicleClass = isTransfer
+      ? mockVehicleClasses.find((c) => c.name === validated.vehicleClassType) ?? null
+      : null;
 
-    // Add pickup zone surcharge if private transfer
-    let zoneSurcharge = 0;
-    if (validated.fulfillmentMode === 'PRIVATE_TRANSFER' && validated.pickupZoneId) {
-      // In real implementation, fetch pickup zone from DB
-      zoneSurcharge = 150000; // Example surcharge
-      totalPrice += zoneSurcharge;
+    if (isTransfer && (!zone || !vehicleClass)) {
+      return NextResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'Pickup zone and vehicle class are required for PRIVATE_TRANSFER' } },
+        { status: 400 }
+      );
     }
 
-    // Add addons
-    const addonTotal = (validated.selectedAddons || []).reduce((sum, addonId) => {
-      const addon = variant.addons?.find(a => a.id === addonId);
-      return sum + (addon?.price || 0);
-    }, 0);
-    totalPrice += addonTotal;
+    // Dependent combo guard (BOOKING_ARCHITECTURE §2b)
+    const violations = validateAddonModeCombinations(
+      variant.addons ?? [],
+      validated.selectedAddons ?? [],
+      validated.fulfillmentMode
+    );
+    if (violations.length > 0) {
+      return NextResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'Some selected add-ons require PRIVATE_TRANSFER' } },
+        { status: 400 }
+      );
+    }
 
-    // Create booking object
+    // Server-side price recalculation — client total is never trusted
+    const breakdown = calculateTotalPrice(variant.priceTiers, validated.paxCount, validated.fulfillmentMode, {
+      zone,
+      vehicleClass,
+      selectedAddons: (variant.addons ?? []).filter((a) => (validated.selectedAddons ?? []).includes(a.id)),
+    });
+
+    // Cut-off check (SELF_DRIVE H-2 / TRANSFER 22:00 WITA D-1, Zone 4 = quote only)
+    const [y, m, d] = validated.bookingDate.split('-').map(Number);
+    const activityTime = new Date(Date.UTC(y, m - 1, d, 0, 0, 0));
+    if (!isBookable(activityTime, validated.fulfillmentMode, new Date(), zone)) {
+      return NextResponse.json(
+        { success: false, error: { code: 'CUT_OFF', message: isTransfer && zone?.isCustomQuote ? 'Outer area requires a custom quote' : 'Booking cut-off has passed for this slot' } },
+        { status: 400 }
+      );
+    }
+
     const booking: Booking = {
       id: `booking_${Date.now()}`,
       bookingCode: generateBookingCode(),
-      variantId: validated.variantId,
+      variantId: variant.id,
       variant,
       customerId: `customer_${Date.now()}`,
-      customer: undefined,
       bookingDate: validated.bookingDate,
-      slotTimeId: validated.slotTimeId,
-      slotTime: variant.slotTimes?.find(s => s.id === validated.slotTimeId),
+      slotTimeId: slot.id,
+      slotTime: slot,
       fulfillmentMode: validated.fulfillmentMode,
-      pickupZoneId: validated.pickupZoneId,
+      pickupZoneId: zone?.id,
+      pickupZone: zone ?? undefined,
+      vehicleClassId: vehicleClass?.id,
+      vehicleClass: vehicleClass ?? undefined,
       hotelAddress: validated.hotelAddress,
       paxCount: validated.paxCount,
-      vehicleCount: Math.ceil(validated.paxCount / 4), // 4 pax per vehicle
-      zoneSurchargeIdr: zoneSurcharge,
-      selectedAddons: (validated.selectedAddons || []).map(id => {
-        const addon = variant.addons?.find(a => a.id === id);
-        return addon ? { id, name: addon.name, price: addon.price } : { id, name: '', price: 0 };
-      }).filter(a => a.price > 0),
-      totalPrice,
+      vehicleCount: breakdown.transfer.vehicleCount,
+      zoneSurchargeIdr: breakdown.transfer.totalFeeIdr,
+      selectedAddons: (variant.addons ?? [])
+        .filter((a) => (validated.selectedAddons ?? []).includes(a.id))
+        .map((a) => ({ id: a.id, name: a.name, price: a.price })),
+      totalPrice: breakdown.totalPriceIdr,
       paymentStatus: 'PENDING',
-      payment: undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    // In real implementation, save to database
-    // await prisma.booking.create({ data: booking });
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        booking,
-        redirectUrl: `/checkout/${booking.id}`,
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          booking,
+          redirectUrl: `/checkout/${booking.id}`,
+        },
       },
-    }, { status: 201 });
-
+      { status: 201 }
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

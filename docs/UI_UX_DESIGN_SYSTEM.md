@@ -1,8 +1,9 @@
 # Venture Bali — UI/UX Design System & Flow
 
-> **Version:** 2.0.0
+> **Version:** 3.0.0
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
-> **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10
+> **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
+> **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
 
 ## 1. Design Principles
 
@@ -98,72 +99,55 @@
 
 ---
 
-## 4. Product Details Page (PDP) — REORDERED FOR CONVERSION
+## 4. Product Details Page (PDP) — KLOOK-STYLE ARCHITECTURE (v3.0.0)
 
-### Section 1: Header & Hero Gallery
-- **Breadcrumb**: Home / Bali Adventures / Ubud / ATV Quad Bike
-- **Title**: SEO optimized (45–60 char).
-- **Action Buttons**: Share, Save to Wishlist.
-- **Mobile**: Interactive Photo Carousel (swipeable) dengan indikator angka (1/5).
-- **Desktop**: Asymmetric Photo Grid (1 foto utama besar + 4 foto pendukung).
+### Arsitektur 6 Section
 
-### Section 2: Title + Rating + Review Count
-- **Judul** besar dan jelas.
-- **Rating**: ★ 4.92 / 5.0 (276 reviews) — social proof langsung.
-- **Trust badges**: "✓ Instant Confirmation" + "Free Cancellation".
+| Section | Isi | Anchor ID |
+|---------|-----|-----------|
+| 1 | Hero Gallery & Quick Overview (Title, Rating, Wishlist/Share) | — |
+| 2 | Sticky "Package Options" Widget (Core Booking Engine) | `#package-options` |
+| 3 | Floating Anchor Nav Bar (jump scroll) | — |
+| 4 | Detailed Activity Information & Visual Gallery (Itinerary, Food, Equipment) | `#what-to-expect` |
+| 5 | Customer Reviews & Media Proof (ratings breakdown, foto/video review) | `#reviews` |
+| 6 | Location / Meeting Point Map & Related Adventures | `#location` |
 
-### Section 3: Quick Key Highlights (At a Glance)
-Icon-based list ringkas:
-- 📍 Location: Ubud, Bali
-- ⏱️ Duration: Approx. 2 Hours
-- 🗣️ Languages: English, Indonesian
-- 🛡️ Equipment: Helmet, Boots, & Safety Gear Provided
-- 🚗 Transfer: Optional Hotel Pickup Available
+### Sticky Anchor Nav Bar (Quick Scroll)
+- Sub-header sticky muncul saat scroll melewati hero: `[Package Options] | [What To Expect] | [Reviews] | [Location]`.
+- Anchor aktif di-highlight (scroll-spy). Tap = smooth scroll, tanpa reload.
 
-### Section 4: Sticky Booking Widget (Conversion Focus) ⚡ PENTING
-- **Mobile (Fixed Bottom Bar)**:
-  - Kiri: Harga mulai dari Rp XXX.XXX / guest (+ estimasi currency).
-  - Kanan: CTA Button "Show dates" / "Book Now".
-- **Desktop (Right Sticky Card)**:
-  - Harga per orang, kalender singkat, pemilih waktu, tombol aksi cepat.
-- **Trust indicators**: "🔒 Secure checkout" + "✓ Instant Confirmation" + payment logos.
+### Section 2: Klook-style "Package Options" Widget ⚡ CORE BOOKING ENGINE
 
-### Section 5: Activity Overview & "What You'll Do"
-- **Description Paragraph**: Penjelasan singkat yang menggugah.
-- **Visual Itinerary / Timeline**:
-  1. Registration & Safety Briefing
-  2. ATV Ride through Rice Fields & Jungle
-  3. Tunnel Exploration & Waterfall Action Spot
-  4. Finish Point, Shower & Lunch / Refreshment
+**Desktop**: Inline Configurator Card di kolom kanan sticky — SEMUA langkah terlihat di satu card, tanpa modal.
 
-### Section 6: What's Included & Excluded (2 Kolom)
+**Mobile**: Fixed Bottom CTA "Select Options" (kiri: harga mulai-dari + estimasi FX; kanan: tombol). Sekali tap membuka **full-height bottom sheet** berisi seluruh konfigurasi: Package → Date → Pax → Transport → Book Now.
 
-| Included ✅ | Excluded ❌ |
-|-------------|-------------|
-| Professional ATV Instructor / Guide | Personal Expenses & Souvenirs |
-| Safety Equipment (Helmet & Boots) | Tipping for Instructor (Optional) |
-| Locker, Shower Facilities, & Towel | Photos / Videos Service (Optional Add-on) |
-| Insurance Coverage | — |
-| Lunch & Mineral Water | — |
+Langkah konfigurasi (berlaku untuk desktop inline & mobile bottom sheet):
 
-### Section 7: Social Proof & Reviews (URGENT — di atas Meeting Point)
-- **Summary Badge**: Overall score (★ 4.92 / 5.0) dari total ulasan.
-- **Review Cards**: Recent reviews secara horizontal (mobile carousel, desktop 2x2 grid).
-- **Elemen card**: Nama reviewer, asal negara (dengan bendera), rating, tanggal, kutipan singkat.
-- **Tombol**: "Show all X reviews" (modal popup, tidak pindah halaman).
+- **Step A — Package Type** (Radio Cards): variant produk, mis. "Single Ride", "Tandem Ride", "VIP Private Package". Card menampilkan badge + delta harga.
+- **Step B — Date & Time**: tombol cepat Today / Tomorrow + trigger Calendar inline; diikuti pilihan slot time (time cards + sisa slot).
+- **Step C — Travellers**: Stepper (−/+) Dewasa/Anak.
+- **Step D — Transport** (Radio Group, dependency-aware):
+  1. No Transfer (Meeting Point Only) — Rp 0 → `SELF_DRIVE` (default)
+  2. Standard SUV (4 pax/vehicle) — delta per kendaraan
+  3. Premium MPV (6 pax/vehicle) — delta per kendaraan
+  4. Minivan (12 pax/vehicle) — delta per kendaraan
+  - Memilih transfer membuka **Zone Picker** (Core Ubud = included, South 1, South 2, Outer = "Request Quote" — tidak bisa instant book).
+  - Label armada pakai **kelas generik** (tanpa nama vendor — OPERATION_CONTRACT §1).
+- **Step E — Combo Add-ons** (Conditional): hanya tampil/aktif jika transfer dipilih. Checkbox: aktivitas combo (Rafting, Tubing), upgrade makan. Add-on ber-flag `requiresTransfer` **disabled/grayed-out** saat "No Transfer" + helper text "Requires hotel transfer". Pilihan eksplisit "None (Base Package Only)".
+- **Real-Time Price Calculation**: Total = (Base × Pax) + Transfer Fee + (Combo × Pax). Re-render instan saat pax/transport/combo berubah + **estimasi FX** (mis. "≈ US$98.50"). Detail breakdown expandable sebelum CTA.
+- **CTA**: "Book Now" di dalam widget (desktop) / footer bottom sheet (mobile). Zone Outer → CTA berubah "Request Quote" (WhatsApp).
 
-### Section 8: Meeting Point & Map
-- **Map Widget**: Google Maps interaktif dengan pin lokasi.
-- **Address Details**: Alamat lengkap + tombol "Open in Google Maps".
-- **Pickup Info Note**: Penjelasan jika memilih hotel transfer.
+### Section 4: Detailed Activity Information (What To Expect)
+- Description + visual itinerary timeline + What's Included/Excluded 2 kolom + Things to Know (accordion) + FAQ.
 
-### Section 9: Things to Know (Accordion)
-- **Cancellation Policy**: Free cancellation up to 24 hours before activity.
-- **What to Bring**: Baju ganti, sunscreen, kantong plastik, uang tunai.
-- **Safety & Restrictions**: Tidak direkomendasikan untuk hamil, di bawah umur, kondisi medis.
+### Section 5: Reviews & Media Proof
+- Ratings breakdown (bar per bintang) + summary badge + review cards (mobile carousel / desktop grid) + foto/video dari reviewer.
 
-### Section 10: Related Adventures (Cross-Selling)
-3–4 card aktivitas sejenis di daerah yang sama.
+### Section 6: Location & Related Adventures
+- Map widget + address + "Open in Google Maps" + pickup info note + 3–4 related cards.
+
+> **Aturan konversi lama (v2.0.0) tetap berlaku**: trust badges, skeleton/empty/error states, touch target 44×44px, social proof, price anchoring.
 
 ---
 

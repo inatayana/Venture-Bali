@@ -1,8 +1,9 @@
 # Venture Bali — Product Detail Spec
 
-> **Version:** 2.0.0
+> **Version:** 2.1.0
 > Defines the canonical data contract for venture products, matching `prisma/schema.prisma` and `src/types/venture.ts`.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §3), `docs/BOOKING_ARCHITECTURE.md`, `docs/PRODUCT_TITLE_CONSTITUTION.md`
+> **Changelog v2.1.0:** Model `VehicleClass` (fleet Klook-style), flag `Addon.requiresTransfer`/`isCombo`, enum `PickupZoneType` diselaraskan ke ZONE_1..ZONE_4, `Booking.vehicleClassId`.
 
 ## 1. Model Hierarchy
 
@@ -44,12 +45,14 @@ PickupZone (standalone) ◄── Booking (fulfillmentMode + pickupZoneId)
 - `Variant`: `title`, `shortDescription`, `badge?`, `priceTiers[]`, `blackoutDates[]`, `slotTimes[]`, `addons[]`. Mode fulfillment TIDAK lagi di Variant (pindah ke Booking).
 - `PriceTier`: `minPax`, `maxPax`, `pricePerPax` (Int IDR). Tiers tidak overlap; `minPax <= maxPax`.
 - `SlotTime`: `time`, `maxCapacity`, `currentBookings`, `isAvailable`.
-- `Addon`: `name`, `price` (Int IDR), `description?`.
+- `Addon`: `name`, `price` (Int IDR), `description?`, `requiresTransfer` (Boolean, default false — combo hanya bisa saat PRIVATE_TRANSFER), `isCombo` (Boolean, default false — dikelompokkan sebagai combo add-on di UI).
 
-## 4. Fulfillment & Pickup Zones
+## 4. Fulfillment & Pickup Zones & Vehicle Class
 
 - Enum `FulfillmentMode`: `SELF_DRIVE` (default) | `PRIVATE_TRANSFER` — di level **Booking**, bukan Variant (1 produk = 2 opsi, bukan SKU terpisah).
-- Model `PickupZone`: `name`, `areaType` (ZONE_1..ZONE_4), `surchargeIdr` (Int, per vehicle), `isCustomQuote` (Zone 4), `vehicleMaxPax` (default 4), `isActive`.
+- Model `PickupZone`: `name`, `areaType` (**`ZONE_1`..`ZONE_4`**), `surchargeIdr` (Int, per vehicle), `isCustomQuote` (Zone 4), `vehicleMaxPax` (default 4), `isActive`.
+- Model `VehicleClass` (fleet, Klook-style): `name` (`STANDARD_SUV` | `PREMIUM_MPV` | `MINIVAN`), `label` display generik tanpa nama vendor (mis. "Standard SUV · 4 pax"), `vehicleMaxPax` (4/6/12), `deltaIdr` (Int, per kendaraan, di atas zone surcharge), `isActive`. Kelas hanya relevan untuk `PRIVATE_TRANSFER`.
+- `Booking.vehicleClassId`: wajib terisi saat `PRIVATE_TRANSFER`; `null` untuk `SELF_DRIVE`.
 - Matrix zone: lihat `docs/BOOKING_ARCHITECTURE.md` §3.
 
 ## 5. View Model (`VentureItem`)
