@@ -3,6 +3,12 @@ import type { VentureItem } from '@/types/venture';
 
 export type SupportedDomain = 'venture-bali.com' | 'localhost';
 
+const FALLBACK_BASE_URL = 'https://venture-bali.com';
+
+export function getBaseUrl(): string {
+  return process.env.NEXT_PUBLIC_APP_URL ?? FALLBACK_BASE_URL;
+}
+
 interface GenerateVentureMetadataParams {
   venture: VentureItem;
   domain: SupportedDomain;
