@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .heading-caps {
+    @apply font-heading font-semibold uppercase tracking-wider;
+  }
+}

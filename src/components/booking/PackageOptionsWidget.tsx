@@ -137,7 +137,7 @@ export function PackageOptionsWidget({
     <div className="space-y-5" id="package-options">
       {/* Step A — Package Type */}
       <div>
-        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">1 · Package Type</h3>
+        <h3 className="font-heading text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">1 · Package Type</h3>
         <div className="space-y-2">
           {(venture.variants ?? []).map((v) => {
             const active = v.id === variant?.id;
@@ -166,7 +166,7 @@ export function PackageOptionsWidget({
                   </div>
                   <div className="text-right shrink-0">
                     <span className="block text-xs text-gray-500">from</span>
-                    <span className="font-bold text-blue-600">{formatPrice(tier.pricePerPax)}</span>
+                    <span className="font-heading font-bold tabular-nums text-blue-600">{formatPrice(tier.pricePerPax)}</span>
                     <span className="block text-xs text-gray-400">/pax</span>
                   </div>
                 </div>
@@ -178,7 +178,7 @@ export function PackageOptionsWidget({
 
       {/* Step B — Date & Time */}
       <div>
-        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">2 · Date & Time</h3>
+        <h3 className="font-heading text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">2 · Date & Time</h3>
         <div className="flex gap-2 mb-3">
           {QUICK_DATES.map((q) => {
             const d = new Date();
@@ -259,7 +259,7 @@ export function PackageOptionsWidget({
 
       {/* Step C — Travellers */}
       <div>
-        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">3 · Travellers</h3>
+        <h3 className="font-heading text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">3 · Travellers</h3>
         <Stepper
           label="Adults"
           value={config.adults}
@@ -271,7 +271,7 @@ export function PackageOptionsWidget({
 
       {/* Step D — Transport */}
       <div>
-        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+        <h3 className="font-heading text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
           <Car className="w-4 h-4" /> 4 · Transport
         </h3>
         <div className="space-y-2">
@@ -287,7 +287,7 @@ export function PackageOptionsWidget({
               <span className="font-semibold text-gray-900 block">No Transfer</span>
               <span className="text-xs text-gray-500">Meeting Point Only</span>
             </div>
-            <span className="font-bold text-gray-900">Rp 0</span>
+            <span className="font-heading font-bold tabular-nums text-gray-900">Rp 0</span>
           </button>
 
           {mockVehicleClasses.map((c) => {
@@ -306,7 +306,7 @@ export function PackageOptionsWidget({
                   <span className="font-semibold text-gray-900 block">{c.label}</span>
                   {c.description && <span className="text-xs text-gray-500">{c.description}</span>}
                 </div>
-                <span className="font-bold text-gray-900">
+                <span className="font-heading font-bold tabular-nums text-gray-900">
                   {c.deltaIdr > 0 ? `+ ${formatPrice(c.deltaIdr)}/vehicle` : 'Included'}
                 </span>
               </button>
@@ -341,7 +341,7 @@ export function PackageOptionsWidget({
       {/* Step E — Combo Add-ons (dependent) */}
       {addonsWithState.length > 0 && (
         <div>
-          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+          <h3 className="font-heading text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
             <Plus className="w-4 h-4" /> 5 · Combos & Add-ons
           </h3>
           {fulfillmentMode !== 'PRIVATE_TRANSFER' && (
@@ -382,7 +382,7 @@ export function PackageOptionsWidget({
                     </span>
                     {a.isDisabled && <span className="text-xs text-amber-700">Requires hotel transfer</span>}
                   </div>
-                  <span className={cn('text-sm font-bold shrink-0', a.isDisabled ? 'text-gray-400' : 'text-blue-600')}>
+                  <span className={cn('font-heading text-sm font-bold tabular-nums shrink-0', a.isDisabled ? 'text-gray-400' : 'text-blue-600')}>
                     + {formatPrice(a.price)}/pax
                   </span>
                 </button>
@@ -401,7 +401,7 @@ export function PackageOptionsWidget({
         >
           <span className="text-sm font-medium text-gray-600">Total Price</span>
           <span className="text-right">
-            <span className="block text-2xl font-bold text-blue-600">{formatPrice(total.totalPriceIdr)}</span>
+            <span className="block font-heading text-2xl font-bold tabular-nums text-blue-600">{formatPrice(total.totalPriceIdr)}</span>
             {usdEstimate && <span className="text-xs text-gray-500">{usdEstimate}</span>}
           </span>
         </button>
@@ -433,7 +433,7 @@ export function PackageOptionsWidget({
           href={requestQuoteUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="block w-full text-center px-6 py-3.5 text-lg font-medium rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors min-h-[44px]"
+          className="block w-full text-center px-6 py-3.5 font-heading font-semibold uppercase tracking-wider text-lg rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors min-h-[44px]"
         >
           Request Quote (Outer Area)
         </a>

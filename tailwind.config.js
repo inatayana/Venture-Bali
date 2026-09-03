@@ -7,6 +7,15 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-body)', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-heading)', 'Arial Narrow', 'sans-serif'],
+      },
+      colors: {
+        ink: '#1A1A1A',
+        jungle: '#1E3A2B',
+        sand: '#E5DFD5',
+      },
       keyframes: {
         'slide-up': {
           '0%': { transform: 'translateY(100%)' },

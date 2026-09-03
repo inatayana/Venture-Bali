@@ -1,9 +1,10 @@
 # Venture Bali — UI/UX Design System & Flow
 
-> **Version:** 3.0.0
+> **Version:** 3.1.0
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
+> **Changelog v3.1.0:** Font Pairing System — Barlow Condensed (heading) + Plus Jakarta Sans (body), design token warna `ink`/`jungle`/`sand`, utility `.heading-caps`.
 
 ## 1. Design Principles
 
@@ -22,6 +23,23 @@
 - Tipografi bersih, kontras tinggi untuk teks, spacing lega.
 - Badge status di pojok kiri atas kartu produk.
 - Wishlist icon (hati) di pojok kanan atas.
+
+### Tipografi (Font Pairing System)
+Dua font self-hosted via `next/font/google` (zero render-blocking, mendukung KPI Lighthouse >90):
+- **Heading & CTA**: `Barlow Condensed` — weight 600 (SemiBold) & 700 (Bold). Untuk judul banner, nama paket, tombol aksi utama, dan angka harga. Token Tailwind: `font-heading`.
+- **Body & UI**: `Plus Jakarta Sans` — weight 400 (Regular), 500 (Medium), 600 (SemiBold). Untuk deskripsi, form, navigasi, teks rinci. Token Tailwind: `font-sans` (default).
+
+Hirarki ukuran mobile:
+| Elemen | Font | Ukuran |
+|--------|------|--------|
+| Judul paket | Barlow Condensed Bold (700) | 22–28px |
+| Label / Tag | Barlow Condensed SemiBold (600), ALL-CAPS + `tracking-wider` | 12–14px |
+| Deskripsi & detail | Plus Jakarta Sans Regular (400) | 14–16px |
+
+Aturan penerapan:
+- Heading kategori/paket gunakan utility `.heading-caps` (ALL-CAPS + letter-spacing 0.05em) agar terlihat premium.
+- Angka harga gunakan `tabular-nums` agar tidak bergeser saat pax berubah.
+- **Warna brand (design token Tailwind)**: `ink` `#1A1A1A` (teks utama), `jungle` `#1E3A2B` (aksen/latar gelap), `sand` `#E5DFD5` (latar terang). Hindari warna neon.
 
 ### Trust & Conversion Signals
 - **Payment badges**: logo VISA, Mastercard, GoPay, QRIS visible di bawah harga.

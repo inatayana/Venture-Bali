@@ -61,26 +61,26 @@ export function VentureCard({
         />
         <span
           className={cn(
-            'absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wide',
+            'absolute top-3 left-3 px-2.5 py-1 rounded-full font-heading text-xs font-semibold uppercase tracking-wider',
             categoryStyles[venture.category]
           )}
         >
           {venture.category}
         </span>
         {venture.badge && (
-          <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-400 text-yellow-900">
+          <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full font-heading text-xs font-semibold uppercase tracking-wider bg-yellow-400 text-yellow-900">
             {venture.badge}
           </span>
         )}
         {!venture.isAvailable && (
-          <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+          <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full font-heading text-xs font-semibold uppercase tracking-wider bg-red-100 text-red-800">
             Sold Out
           </span>
         )}
       </div>
 
       <div className="p-5">
-        <h3 className="text-lg font-bold text-gray-900 line-clamp-2 mb-2">
+        <h3 className="font-heading text-lg font-bold text-gray-900 line-clamp-2 mb-2">
           {venture.title}
         </h3>
 
@@ -120,7 +120,7 @@ export function VentureCard({
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div>
             <span className="text-xs text-gray-500 block">From</span>
-            <span className="text-xl font-bold text-blue-600">
+            <span className="font-heading text-xl font-bold tabular-nums text-blue-600">
               {formatPrice(venture.priceIdr)}
             </span>
             <span className="text-xs text-gray-500"> / person</span>
