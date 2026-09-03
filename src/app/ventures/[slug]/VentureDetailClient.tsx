@@ -187,7 +187,7 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
         </div>
 
         <div className="bg-white rounded-xl shadow-md p-6 mb-4">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">{venture.title}</h1>
+          <h1 className="font-heading text-2xl md:text-3xl font-bold text-gray-900 mb-2">{venture.title}</h1>
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <div className="flex items-center gap-1">
               <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
@@ -219,7 +219,7 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
                 type="button"
                 onClick={() => scrollTo(id)}
                 className={cn(
-                  'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors min-h-[44px]',
+                  'px-4 py-2 rounded-full font-heading text-sm font-semibold uppercase tracking-wider whitespace-nowrap transition-colors min-h-[44px]',
                   activeAnchor === id ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
                 )}
               >
@@ -233,18 +233,18 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
           <div className="lg:col-span-2 space-y-6">
             {/* ===== Section 2 (mobile summary → scroll to sheet trigger) ===== */}
             <div id="package-options" className="lg:hidden bg-white rounded-xl shadow-md p-6">
-              <h2 className="text-lg font-bold text-gray-900 mb-1">Package Options</h2>
+              <h2 className="heading-caps text-lg text-gray-900 mb-1">Package Options</h2>
               <p className="text-sm text-gray-500 mb-4">Configure package, date, pax & transport</p>
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs text-gray-500 block">From</span>
-                  <span className="text-2xl font-bold text-blue-600">{formatPrice(fromPrice)}</span>
+                  <span className="font-heading text-2xl font-bold tabular-nums text-blue-600">{formatPrice(fromPrice)}</span>
                   <span className="text-xs text-gray-500"> /pax</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsSheetOpen(true)}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 min-h-[44px]"
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg font-heading font-semibold uppercase tracking-wider hover:bg-blue-700 min-h-[44px]"
                 >
                   Select Options
                 </button>
@@ -253,7 +253,7 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
 
             {/* ===== Section 4: What To Expect ===== */}
             <div id="what-to-expect" className="bg-white rounded-xl shadow-md p-6 scroll-mt-20">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">What To Expect</h2>
+              <h2 className="heading-caps text-lg text-gray-900 mb-4">What To Expect</h2>
               <p className="text-gray-600 leading-relaxed mb-6">{venture.description}</p>
 
               {venture.itinerary.length > 0 && (
@@ -312,9 +312,9 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
 
             {/* ===== Section 5: Reviews ===== */}
             <div id="reviews" className="bg-white rounded-xl shadow-md p-6 scroll-mt-20">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Reviews</h2>
+              <h2 className="heading-caps text-lg text-gray-900 mb-4">Reviews</h2>
               <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
-                <span className="text-4xl font-bold text-gray-900">{venture.rating.toFixed(1)}</span>
+                <span className="font-heading text-4xl font-bold tabular-nums text-gray-900">{venture.rating.toFixed(1)}</span>
                 <div className="flex-1 space-y-1">
                   {[5, 4, 3].map((stars) => (
                     <div key={stars} className="flex items-center gap-2 text-xs text-gray-500">
@@ -352,7 +352,7 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
 
             {/* ===== Section 6: Location & Related ===== */}
             <div id="location" className="bg-white rounded-xl shadow-md p-6 scroll-mt-20">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Location</h2>
+              <h2 className="heading-caps text-lg text-gray-900 mb-4">Location</h2>
               <div className="bg-gray-100 rounded-lg h-48 flex items-center justify-center text-gray-400 relative">
                 <MapPin className="w-12 h-12 text-gray-300" />
               </div>
@@ -374,7 +374,7 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
             <div className="sticky top-16 bg-white rounded-xl shadow-md p-6 max-h-[calc(100vh-5rem)] overflow-y-auto">
               <div className="mb-4 pb-4 border-b border-gray-100">
                 <span className="text-sm text-gray-500 block">From</span>
-                <span className="text-3xl font-bold text-blue-600">{formatPrice(fromPrice)}</span>
+                <span className="font-heading text-3xl font-bold tabular-nums text-blue-600">{formatPrice(fromPrice)}</span>
                 <span className="text-sm text-gray-500"> / person</span>
               </div>
               {widget(handleBook)}
@@ -398,13 +398,13 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <span className="text-xs text-gray-500 block">From</span>
-            <span className="text-lg font-bold text-blue-600">{formatPrice(fromPrice)}</span>
+            <span className="font-heading text-lg font-bold tabular-nums text-blue-600">{formatPrice(fromPrice)}</span>
             <span className="text-xs text-gray-500"> /pax</span>
           </div>
           <button
             type="button"
             onClick={() => setIsSheetOpen(true)}
-            className="px-8 py-3.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 min-h-[44px]"
+            className="px-8 py-3.5 bg-blue-600 text-white rounded-lg font-heading font-semibold uppercase tracking-wider hover:bg-blue-700 min-h-[44px]"
           >
             Select Options
           </button>

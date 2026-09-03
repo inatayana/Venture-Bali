@@ -62,7 +62,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-blue-600">Venture Bali</h1>
+          <h1 className="font-heading text-4xl font-bold uppercase tracking-wider text-blue-600">Venture Bali</h1>
           <p className="text-gray-600 mt-1">
             Discover amazing adventures in Bali
           </p>
@@ -109,7 +109,7 @@ export default function Home() {
         {filteredVentures.length === 0 && (
           <div className="text-center py-16">
             <div className="text-4xl mb-4">🔍</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="font-heading text-lg font-bold text-gray-900 mb-2">
               No adventures found
             </h3>
             <p className="text-gray-500 mb-4">
