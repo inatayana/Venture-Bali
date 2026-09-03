@@ -64,7 +64,7 @@ export default function VoucherPage({ params }: VoucherPageProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Voucher Not Found</h1>
+          <h1 className="font-heading text-2xl font-bold text-gray-900 mb-2">Voucher Not Found</h1>
           <p className="text-gray-500 mb-6">{error || 'Invalid voucher'}</p>
           <a href="/" className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
             Back to Home
@@ -90,15 +90,15 @@ export default function VoucherPage({ params }: VoucherPageProps) {
             {/* Header */}
             <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm opacity-90">E-VOUCHER</span>
-                <span className="text-sm opacity-90">{voucherId}</span>
+                <span className="font-heading text-sm font-semibold uppercase tracking-wider opacity-90">E-Voucher</span>
+                <span className="font-heading text-sm font-semibold tracking-wider opacity-90">{voucherId}</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
                   <CheckCircle className="w-7 h-7" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold">Booking Confirmed!</h1>
+                  <h1 className="font-heading text-2xl font-bold">Booking Confirmed!</h1>
                   <p className="opacity-90">{booking.bookingCode}</p>
                 </div>
               </div>
@@ -108,27 +108,27 @@ export default function VoucherPage({ params }: VoucherPageProps) {
             <div className="p-6 space-y-6">
               {/* Activity Info */}
               <div className="bg-gray-50 rounded-xl p-5">
-                <h2 className="text-xl font-bold text-gray-900 mb-2">{booking.variant?.title ?? 'Adventure Booking'}</h2>
+                <h2 className="font-heading text-xl font-bold text-gray-900 mb-2">{booking.variant?.title ?? 'Adventure Booking'}</h2>
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div className="flex items-center gap-2 text-gray-600">
                     <Calendar className="w-4 h-4 text-blue-600" />
                     <div>
                       <p className="text-xs text-gray-500">Date</p>
-                      <p className="font-medium">{new Date(booking.bookingDate).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                      <p className="font-medium tabular-nums">{new Date(booking.bookingDate).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
                     <Clock className="w-4 h-4 text-blue-600" />
                     <div>
                       <p className="text-xs text-gray-500">Time</p>
-                      <p className="font-medium">{booking.slotTime?.time || 'TBA'}</p>
+                      <p className="font-medium tabular-nums">{booking.slotTime?.time || 'TBA'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
                     <Users className="w-4 h-4 text-blue-600" />
                     <div>
                       <p className="text-xs text-gray-500">Guests</p>
-                      <p className="font-medium">{booking.paxCount}</p>
+                      <p className="font-medium tabular-nums">{booking.paxCount}</p>
                     </div>
                   </div>
                 </div>
@@ -136,7 +136,7 @@ export default function VoucherPage({ params }: VoucherPageProps) {
 
               {/* QR Code */}
               <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
-                <h3 className="text-sm font-medium text-gray-500 mb-4 uppercase tracking-wide">Show this QR code at the venue</h3>
+                <h3 className="font-heading text-sm font-semibold text-gray-500 mb-4 uppercase tracking-wider">Show this QR code at the venue</h3>
                 {qrCodeUrl ? (
                   <img src={qrCodeUrl} alt="Voucher QR Code" className="w-48 h-48 mx-auto" />
                 ) : (
@@ -175,13 +175,13 @@ export default function VoucherPage({ params }: VoucherPageProps) {
 
           {/* Payment Info */}
           <div className="mt-6 bg-white rounded-xl shadow-md p-5">
-            <h3 className="font-semibold text-gray-900 mb-3">Payment Summary</h3>
+            <h3 className="font-heading font-semibold text-gray-900 mb-3">Payment Summary</h3>
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-gray-600">Activity</span><span className="font-medium">{formatPrice(booking.totalPrice)}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Tax & Fees (10%)</span><span className="font-medium">{formatPrice(Math.round(booking.totalPrice * 0.1))}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Activity</span><span className="font-heading font-medium tabular-nums">{formatPrice(booking.totalPrice)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Tax & Fees (10%)</span><span className="font-heading font-medium tabular-nums">{formatPrice(Math.round(booking.totalPrice * 0.1))}</span></div>
               <div className="flex justify-between pt-2 border-t border-gray-200 text-lg font-bold">
-                <span className="text-gray-900">Total Paid</span>
-                <span className="text-blue-600">{formatPrice(Math.round(booking.totalPrice * 1.1))}</span>
+                <span className="font-heading text-gray-900">Total Paid</span>
+                <span className="font-heading tabular-nums text-blue-600">{formatPrice(Math.round(booking.totalPrice * 1.1))}</span>
               </div>
               <p className="text-xs text-gray-500 mt-3">Payment Status: <span className="font-medium text-green-600">PAID</span></p>
             </div>
@@ -194,7 +194,7 @@ export default function VoucherPage({ params }: VoucherPageProps) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="font-semibold">E-Voucher PDF</h3>
+              <h3 className="font-heading font-semibold">E-Voucher PDF</h3>
               <Button variant="ghost" size="sm" onClick={() => setShowPDF(false)}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </Button>

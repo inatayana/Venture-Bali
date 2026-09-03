@@ -101,7 +101,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
       <main className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Booking Not Found</h1>
+          <h1 className="font-heading text-2xl font-bold text-gray-900 mb-2">Booking Not Found</h1>
           <p className="text-gray-500 mb-6">{error || 'Invalid booking session'}</p>
           <a href="/" className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
             Back to Home
@@ -121,18 +121,18 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
       </div>
 
       <div className="container mx-auto px-4 pb-12">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+        <h1 className="font-heading text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Order Summary - Left Column */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-md p-6 sticky top-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Order Summary</h2>
+              <h2 className="heading-caps text-lg text-gray-900 mb-4">Order Summary</h2>
 
               <div className="space-y-4 mb-6">
                 <div className="flex gap-4 pb-4 border-b border-gray-100">
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{booking.variant?.title ?? 'Adventure Booking'}</h3>
+                    <h3 className="font-heading font-semibold text-gray-900">{booking.variant?.title ?? 'Adventure Booking'}</h3>
                     <div className="mt-1 space-y-1 text-sm text-gray-600">
                       <div className="flex items-center gap-1">
                         <Users className="w-3 h-3" />
@@ -152,7 +152,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="font-semibold text-gray-900">{formatPrice(booking.totalPrice)}</span>
+                    <span className="font-heading font-bold tabular-nums text-gray-900">{formatPrice(booking.totalPrice)}</span>
                   </div>
                 </div>
               </div>
@@ -160,15 +160,15 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
               <div className="pt-4 border-t border-gray-200 space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">{formatPrice(booking.totalPrice)}</span>
+                  <span className="font-heading font-medium tabular-nums">{formatPrice(booking.totalPrice)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax & Fees</span>
-                  <span className="font-medium">{formatPrice(Math.round(booking.totalPrice * 0.1))}</span>
+                  <span className="font-heading font-medium tabular-nums">{formatPrice(Math.round(booking.totalPrice * 0.1))}</span>
                 </div>
                 <div className="flex justify-between pt-4 border-t border-gray-200">
-                  <span className="text-lg font-semibold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-blue-600">{formatPrice(Math.round(booking.totalPrice * 1.1))}</span>
+                  <span className="font-heading text-lg font-semibold text-gray-900">Total</span>
+                  <span className="font-heading text-2xl font-bold tabular-nums text-blue-600">{formatPrice(Math.round(booking.totalPrice * 1.1))}</span>
                 </div>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
           {/* Payment - Right Column */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-md p-6 md:p-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Payment</h2>
+              <h2 className="heading-caps text-lg text-gray-900 mb-6">Payment</h2>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
@@ -185,7 +185,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                     <CreditCard className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">Midtrans Snap</h3>
+                    <h3 className="font-heading font-semibold text-gray-900">Midtrans Snap</h3>
                     <p className="text-sm text-gray-500">Credit Card, Debit Card, GoPay, QRIS, Bank Transfer</p>
                   </div>
                 </div>
