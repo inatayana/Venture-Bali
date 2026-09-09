@@ -30,8 +30,8 @@ export function generateVentureMetadata({
 }: GenerateVentureMetadataParams): Metadata {
   const baseUrl = `https://${domain}`;
   const canonicalUrl = isAdmin
-    ? `${baseUrl}/admin/ventures/${venture.slug}`
-    : `${baseUrl}/ventures/${venture.slug}`;
+    ? `${baseUrl}/admin/experiences/${venture.id}/${venture.slug}`
+    : `${baseUrl}/experiences/${venture.id}/${venture.slug}`;
 
   const title = `${venture.title} | Venture Bali`;
   const description = venture.description.length > 160
@@ -94,8 +94,8 @@ export function generateVentureStructuredData({
 }: GenerateVentureMetadataParams): Record<string, unknown> {
   const baseUrl = `https://${domain}`;
   const canonicalUrl = isAdmin
-    ? `${baseUrl}/admin/ventures/${venture.slug}`
-    : `${baseUrl}/ventures/${venture.slug}`;
+    ? `${baseUrl}/admin/experiences/${venture.id}/${venture.slug}`
+    : `${baseUrl}/experiences/${venture.id}/${venture.slug}`;
 
   const imageUrl = `${baseUrl}${venture.imageUrl}`;
 
@@ -134,7 +134,7 @@ export function generateSitemapEntry(venture: VentureItem, domain: SupportedDoma
   const baseUrl = `https://${domain}`;
   return `
     <url>
-      <loc>${baseUrl}/ventures/${venture.slug}</loc>
+      <loc>${baseUrl}/experiences/${venture.id}/${venture.slug}</loc>
       <lastmod>${venture.updatedAt.toISOString().split('T')[0]}</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>

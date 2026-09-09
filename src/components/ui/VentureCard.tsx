@@ -7,6 +7,7 @@ import { formatPrice } from '@/lib/i18n';
 export interface VentureCardProps {
   venture: VentureItem;
   onSelect?: (ventureId: string) => void;
+  href?: string;
   className?: string;
 }
 
@@ -21,6 +22,7 @@ const categoryStyles: Record<VentureItem['category'], string> = {
 export function VentureCard({
   venture,
   onSelect,
+  href,
   className,
 }: VentureCardProps) {
   const handleClick = () => {
@@ -36,21 +38,8 @@ export function VentureCard({
     }
   };
 
-  return (
-    <article
-      className={cn(
-        'group bg-white rounded-xl shadow-md overflow-hidden',
-        'transition-all duration-300 hover:shadow-xl hover:-translate-y-1',
-        onSelect && 'cursor-pointer',
-        className
-      )}
-      onClick={onSelect ? handleClick : undefined}
-      onKeyDown={onSelect ? handleKeyDown : undefined}
-      role={onSelect ? 'button' : undefined}
-      tabIndex={onSelect ? 0 : undefined}
-      aria-label={`View details for ${venture.title}`}
-      data-testid={`venture-card-${venture.id}`}
-    >
+  const content = (
+    <>
       <div className="relative h-48 w-full overflow-hidden bg-gray-200">
         <Image
           src={venture.imageUrl}
@@ -132,6 +121,43 @@ export function VentureCard({
           )}
         </div>
       </div>
+    </>
+  );
+
+  if (href) {
+    return (
+      <article
+        className={cn(
+          'group bg-white rounded-xl shadow-md overflow-hidden',
+          'transition-all duration-300 hover:shadow-xl hover:-translate-y-1',
+          className,
+        )}
+        aria-label={`View details for ${venture.title}`}
+        data-testid={`venture-card-${venture.id}`}
+      >
+        <a href={href} className="block">
+          {content}
+        </a>
+      </article>
+    );
+  }
+
+  return (
+    <article
+      className={cn(
+        'group bg-white rounded-xl shadow-md overflow-hidden',
+        'transition-all duration-300 hover:shadow-xl hover:-translate-y-1',
+        onSelect && 'cursor-pointer',
+        className,
+      )}
+      onClick={onSelect ? handleClick : undefined}
+      onKeyDown={onSelect ? handleKeyDown : undefined}
+      role={onSelect ? 'button' : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      aria-label={`View details for ${venture.title}`}
+      data-testid={`venture-card-${venture.id}`}
+    >
+      {content}
     </article>
   );
 }

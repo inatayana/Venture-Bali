@@ -1,18 +1,19 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import { Calendar, Clock, Car, Plus, Check } from 'lucide-react';
+import { Calendar, Clock, Car } from 'lucide-react';
 import { Button, Stepper, Calendar as CalendarComponent, TimeSlotCard } from '@/components/ui';
 import { formatPrice } from '@/lib/i18n';
 import { convertFromIDR } from '@/lib/fx';
+import { PickupAddonsStep } from '@/components/features/PickupAddonsStep';
+import { normalizeAddons } from '@/lib/addons';
 import {
   calculateTotalPrice,
-  filterAddonsForMode,
   isDateAvailable,
   getAvailableSlots,
 } from '@/lib/pricing';
-import { mockVehicleClasses, mockPickupZones } from '@/data/mockVentures';
-import type { VentureItem, VehicleClassType, FulfillmentMode, SlotTime } from '@/types/venture';
+import { mockVehicleClasses, mockPickupZones } from '@/data/mockExperiences';
+import type { VentureItem, VehicleClassType, SlotTime } from '@/types/venture';
 import { cn } from '@/utils/cn';
 
 export interface BookingConfig {
@@ -29,7 +30,7 @@ export interface BookingConfig {
   countryCode: string;
 }
 
-interface PackageOptionsWidgetProps {
+interface ExperienceBookingWidgetProps {
   venture: VentureItem;
   config: BookingConfig;
   onChange: (patch: Partial<BookingConfig>) => void;
@@ -42,20 +43,20 @@ const QUICK_DATES = [
   { label: 'Tomorrow', offset: 1 },
 ];
 
-export function PackageOptionsWidget({
+export function ExperienceBookingWidget({
   venture,
   config,
   onChange,
   onBook,
   isBooking,
-}: PackageOptionsWidgetProps) {
+}: ExperienceBookingWidgetProps) {
   const [showCalendar, setShowCalendar] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [usdEstimate, setUsdEstimate] = useState<string | null>(null);
 
   const variant = useMemo(
     () => venture.variants?.find((v) => v.id === config.variantId) ?? venture.variants?.[0] ?? null,
-    [venture.variants, config.variantId]
+    [venture.variants, config.variantId],
   );
 
   const priceTiers = useMemo(() => {
@@ -63,16 +64,16 @@ export function PackageOptionsWidget({
     return [{ minPax: 1, maxPax: venture.maxParticipants, pricePerPax: venture.priceIdr }];
   }, [variant, venture.priceIdr, venture.maxParticipants]);
 
-  const fulfillmentMode: FulfillmentMode = config.transfer === 'NONE' ? 'SELF_DRIVE' : 'PRIVATE_TRANSFER';
+  const fulfillmentMode = config.transfer === 'NONE' ? 'SELF_DRIVE' : 'PRIVATE_TRANSFER';
   const vehicleClass = config.transfer === 'NONE' ? null : mockVehicleClasses.find((c) => c.name === config.transfer) ?? null;
   const zone = fulfillmentMode === 'PRIVATE_TRANSFER' ? mockPickupZones.find((z) => z.id === config.zoneId) ?? null : null;
 
   const selectedAddons = useMemo(
     () =>
-      (variant?.addons ?? []).filter(
-        (a) => config.addonIds.includes(a.id) && !(a.requiresTransfer && fulfillmentMode !== 'PRIVATE_TRANSFER')
+      normalizeAddons(variant?.addons).filter(
+        (a) => config.addonIds.includes(a.id) && !(a.requiresTransfer && fulfillmentMode !== 'PRIVATE_TRANSFER'),
       ),
-    [variant, config.addonIds, fulfillmentMode]
+    [variant, config.addonIds, fulfillmentMode],
   );
 
   const total = useMemo(
@@ -82,7 +83,7 @@ export function PackageOptionsWidget({
         vehicleClass,
         selectedAddons,
       }),
-    [priceTiers, config.adults, fulfillmentMode, zone, vehicleClass, selectedAddons]
+    [priceTiers, config.adults, fulfillmentMode, zone, vehicleClass, selectedAddons],
   );
 
   // FX estimate (display only)
@@ -98,16 +99,11 @@ export function PackageOptionsWidget({
     };
   }, [total.totalPriceIdr]);
 
-  const addonsWithState = useMemo(
-    () => filterAddonsForMode(variant?.addons ?? [], fulfillmentMode),
-    [variant, fulfillmentMode]
-  );
-
   const dateStr = config.date ? config.date.toISOString().split('T')[0] : null;
   const dateBlocked = dateStr && variant ? !isDateAvailable(variant, dateStr) : false;
   const slots = useMemo(
     () => (variant && !dateBlocked ? getAvailableSlots(variant, config.adults) : []),
-    [variant, dateBlocked, config.adults]
+    [variant, dateBlocked, config.adults],
   );
 
   const isCustomQuote = fulfillmentMode === 'PRIVATE_TRANSFER' && zone?.isCustomQuote === true;
@@ -115,17 +111,20 @@ export function PackageOptionsWidget({
   const handleTransferChange = (value: 'NONE' | VehicleClassType) => {
     if (value === 'NONE') {
       // Dependent matrix: reset zone + transfer-required combos
-      onChange({ transfer: 'NONE', zoneId: null, addonIds: config.addonIds.filter((id) => {
-        const addon = variant?.addons?.find((a) => a.id === id);
-        return addon ? !addon.requiresTransfer : false;
-      }) });
+      onChange({
+        transfer: 'NONE',
+        zoneId: null,
+        addonIds: config.addonIds.filter((id) => {
+          const addon = normalizeAddons(variant?.addons).find((a) => a.id === id);
+          return addon ? !addon.requiresTransfer : false;
+        }),
+      });
     } else {
       onChange({ transfer: value, zoneId: config.zoneId ?? 'zone-1' });
     }
   };
 
-  const handleToggleAddon = (addonId: string, requiresTransfer: boolean, disabled: boolean) => {
-    if (disabled) return;
+  const handleToggleAddon = (addonId: string) => {
     if (config.addonIds.includes(addonId)) {
       onChange({ addonIds: config.addonIds.filter((id) => id !== addonId) });
     } else {
@@ -134,7 +133,7 @@ export function PackageOptionsWidget({
   };
 
   const requestQuoteUrl = `https://wa.me/?text=${encodeURIComponent(
-    `Request Quote: ${venture.title} (${variant?.title ?? ''}) — ${config.adults} pax, ${vehicleClass?.label ?? ''}, ${zone?.name ?? ''}`
+    `Request Quote: ${venture.title} (${variant?.title ?? ''}) — ${config.adults} pax, ${vehicleClass?.label ?? ''}, ${zone?.name ?? ''}`,
   )}`;
 
   return (
@@ -153,7 +152,7 @@ export function PackageOptionsWidget({
                 onClick={() => onChange({ variantId: v.id, slot: null })}
                 className={cn(
                   'w-full text-left p-4 rounded-xl border-2 transition-all min-h-[44px]',
-                  active ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                  active ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300',
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -195,7 +194,7 @@ export function PackageOptionsWidget({
                 onClick={() => onChange({ date: d, slot: null })}
                 className={cn(
                   'px-4 py-2.5 rounded-lg text-sm font-medium border-2 transition-all min-h-[44px]',
-                  active ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                  active ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300',
                 )}
               >
                 {q.label}
@@ -207,7 +206,7 @@ export function PackageOptionsWidget({
             onClick={() => setShowCalendar(!showCalendar)}
             className={cn(
               'px-4 py-2.5 rounded-lg text-sm font-medium border-2 transition-all flex items-center gap-1.5 min-h-[44px]',
-              showCalendar ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+              showCalendar ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300',
             )}
           >
             <Calendar className="w-4 h-4" />
@@ -284,7 +283,7 @@ export function PackageOptionsWidget({
             onClick={() => handleTransferChange('NONE')}
             className={cn(
               'w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all min-h-[44px]',
-              config.transfer === 'NONE' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+              config.transfer === 'NONE' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300',
             )}
           >
             <div className="text-left">
@@ -303,7 +302,7 @@ export function PackageOptionsWidget({
                 onClick={() => handleTransferChange(c.name)}
                 className={cn(
                   'w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all min-h-[44px]',
-                  active ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                  active ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300',
                 )}
               >
                 <div className="text-left">
@@ -342,59 +341,14 @@ export function PackageOptionsWidget({
         )}
       </div>
 
-      {/* Step E — Combo Add-ons (dependent) */}
-      {addonsWithState.length > 0 && (
-        <div>
-          <h3 className="font-heading text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-            <Plus className="w-4 h-4" /> 5 · Combos & Add-ons
-          </h3>
-          {fulfillmentMode !== 'PRIVATE_TRANSFER' && (
-            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2.5 mb-2">
-              Combos require hotel transfer — select a transport option to unlock.
-            </p>
-          )}
-          <div className="space-y-2">
-            {addonsWithState.map((a) => {
-              const checked = config.addonIds.includes(a.id);
-              return (
-                <button
-                  key={a.id}
-                  type="button"
-                  onClick={() => handleToggleAddon(a.id, a.requiresTransfer, a.isDisabled)}
-                  disabled={a.isDisabled}
-                  className={cn(
-                    'w-full flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all text-left min-h-[44px]',
-                    a.isDisabled && 'opacity-50 cursor-not-allowed border-gray-100',
-                    !a.isDisabled && checked && 'border-blue-600 bg-blue-50',
-                    !a.isDisabled && !checked && 'border-gray-200 hover:border-gray-300'
-                  )}
-                >
-                  <span
-                    className={cn(
-                      'w-5 h-5 rounded border-2 flex items-center justify-center shrink-0',
-                      checked ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
-                    )}
-                  >
-                    {checked && <Check className="w-3.5 h-3.5 text-white" />}
-                  </span>
-                  <div className="flex-1">
-                    <span className={cn('font-medium text-sm block', a.isDisabled ? 'text-gray-400' : 'text-gray-900')}>
-                      {a.name}
-                      {a.isCombo && (
-                        <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold bg-purple-100 text-purple-700 rounded">COMBO</span>
-                      )}
-                    </span>
-                    {a.isDisabled && <span className="text-xs text-amber-700">Requires hotel transfer</span>}
-                  </div>
-                  <span className={cn('font-heading text-sm font-bold tabular-nums shrink-0', a.isDisabled ? 'text-gray-400' : 'text-blue-600')}>
-                    + {formatPrice(a.price)}/pax
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* Step E — Combo Add-ons (dependent, normalized) */}
+      <PickupAddonsStep
+        addons={variant?.addons}
+        variantId={variant?.id ?? ''}
+        fulfillmentMode={fulfillmentMode}
+        selectedAddonIds={config.addonIds}
+        onToggle={handleToggleAddon}
+      />
 
       <div className="space-y-3 rounded-xl border border-gray-200 p-4">
         <div>
@@ -468,7 +422,7 @@ export function PackageOptionsWidget({
             )}
             {total.addonsTotalIdr > 0 && (
               <div className="flex justify-between text-gray-600">
-                <span>Combos & Add-ons ({config.addonIds.length})</span>
+                <span>Combos &amp; Add-ons ({config.addonIds.length})</span>
                 <span>{formatPrice(total.addonsTotalIdr)}</span>
               </div>
             )}

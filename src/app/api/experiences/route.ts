@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockVentures } from '@/data/mockVentures';
+import { mockExperiences } from '@/data/mockExperiences';
 import type { VentureItem } from '@/types/venture';
 
 export async function GET(request: NextRequest) {
@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const category = searchParams.get('category');
   const search = searchParams.get('search');
 
-  let ventures: VentureItem[] = mockVentures;
+  let ventures: VentureItem[] = mockExperiences;
 
   if (category) {
     ventures = ventures.filter((v) => v.category === category);

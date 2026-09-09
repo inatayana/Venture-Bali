@@ -15,13 +15,13 @@ import {
   Heart,
   Share2,
 } from 'lucide-react';
-import { BottomSheet } from '@/components/ui/BottomSheet';
-import { PackageOptionsWidget, type BookingConfig } from '@/components/booking/PackageOptionsWidget';
+import { BottomSheet } from '@/components/ui';
+import { ExperienceBookingWidget, type BookingConfig } from '@/components/features/ExperienceBookingWidget';
 import { formatPrice } from '@/lib/i18n';
 import type { VentureItem } from '@/types/venture';
 import { cn } from '@/utils/cn';
 
-interface VentureDetailClientProps {
+interface ExperienceDetailClientProps {
   venture: VentureItem;
 }
 
@@ -50,7 +50,7 @@ function buildInitialConfig(venture: VentureItem): BookingConfig {
   };
 }
 
-export function VentureDetailClient({ venture }: VentureDetailClientProps) {
+export function ExperienceDetailClient({ venture }: ExperienceDetailClientProps) {
   const [config, setConfig] = useState<BookingConfig>(() => buildInitialConfig(venture));
   const [isBooking, setIsBooking] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -60,7 +60,7 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
 
   const variant = useMemo(
     () => venture.variants?.find((v) => v.id === config.variantId) ?? venture.variants?.[0] ?? null,
-    [venture.variants, config.variantId]
+    [venture.variants, config.variantId],
   );
 
   // Lowest-tier "from" price for mobile CTA bar
@@ -131,7 +131,7 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
   };
 
   const widget = (onBook: () => void) => (
-    <PackageOptionsWidget
+    <ExperienceBookingWidget
       venture={venture}
       config={config}
       onChange={patchConfig}
@@ -225,7 +225,7 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
                 onClick={() => scrollTo(id)}
                 className={cn(
                   'px-4 py-2 rounded-full font-heading text-sm font-semibold uppercase tracking-wider whitespace-nowrap transition-colors min-h-[44px]',
-                  activeAnchor === id ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+                  activeAnchor === id ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100',
                 )}
               >
                 {label}

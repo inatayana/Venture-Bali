@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { VentureCard, SearchBar, FilterChips } from '@/components/ui';
-import { mockVentures } from '@/data/mockVentures';
+import { mockExperiences } from '@/data/mockExperiences';
 
 const CATEGORIES = ['ATV', 'Rafting', 'Tubing', 'Cycling', 'Trekking', 'Water Sports', 'Snorkeling', 'Extreme', 'Combo'];
 
@@ -20,7 +20,7 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<string>('recommended');
 
   const filteredVentures = useMemo(() => {
-    let result = [...mockVentures];
+    let result = [...mockExperiences];
 
     if (search) {
       const q = search.toLowerCase();
@@ -101,7 +101,7 @@ export default function Home() {
             <VentureCard
               key={venture.id}
               venture={venture}
-              onSelect={(id) => console.log('Selected venture:', id)}
+              href={`/experiences/${venture.id}/${venture.slug}`}
             />
           ))}
         </div>
