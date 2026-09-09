@@ -1,78 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  verifyWebhookSignature,
-  mapTransactionStatus,
-  type MidtransWebhookPayload,
-} from '@/lib/midtrans';
+import { z } from 'zod';
+import { PaymentServiceError, processMidtransWebhook } from '@/lib/paymentService';
+import type { MidtransWebhookPayload } from '@/lib/midtrans';
+
+const webhookPayloadSchema = z.object({
+  order_id: z.string().min(1),
+  status_code: z.string(),
+  status_message: z.string(),
+  transaction_status: z.string(),
+  payment_type: z.string(),
+  fraud_status: z.string().optional(),
+  gross_amount: z.string(),
+  transaction_time: z.string(),
+  transaction_id: z.string(),
+  merchant_id: z.string(),
+  signature_key: z.string().min(1),
+}) satisfies z.ZodType<MidtransWebhookPayload>;
 
 export async function POST(request: NextRequest) {
   try {
-    const payload: MidtransWebhookPayload = await request.json();
+    const payload = webhookPayloadSchema.parse(await request.json());
+    const result = await processMidtransWebhook(payload);
 
-    // Verify webhook signature
-    if (!verifyWebhookSignature(payload)) {
-      console.error('Midtrans webhook: Invalid signature');
+    console.log('Midtrans webhook processed:', {
+      orderId: payload.order_id,
+      status: result.paymentStatus,
+      voucherIssued: result.voucherIssued,
+    });
+
+    return NextResponse.json({ success: true, data: result });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid signature' },
-        { status: 400 }
+        { success: false, error: { code: 'VALIDATION_ERROR', message: error.errors[0].message } },
+        { status: 400 },
+      );
+    }
+    if (error instanceof PaymentServiceError) {
+      const status = error.code === 'INVALID_SIGNATURE' ? 401 : error.code === 'NOT_FOUND' ? 404 : 400;
+      console.error('Midtrans webhook rejected:', error.code, error.message);
+      return NextResponse.json(
+        { success: false, error: { code: error.code, message: error.message } },
+        { status },
       );
     }
 
-    const { order_id, transaction_status, fraud_status, gross_amount, transaction_time, payment_type } = payload;
-
-    // Map transaction status
-    const paymentStatus = mapTransactionStatus(transaction_status, fraud_status);
-
-    console.log('Midtrans webhook received:', {
-      orderId: order_id,
-      status: paymentStatus,
-      amount: gross_amount,
-      paymentType: payment_type,
-      time: transaction_time,
-    });
-
-    // In real implementation:
-    // 1. Find booking by order_id
-    // 2. Update booking payment status
-    // 3. Generate voucher if payment successful
-    // 4. Send confirmation notification
-
-    // Example:
-    // const booking = await prisma.booking.findUnique({ where: { bookingCode: order_id } });
-    // if (booking) {
-    //   await prisma.booking.update({
-    //     where: { id: booking.id },
-    //     data: {
-    //       paymentStatus,
-    //       payment: {
-    //         upsert: {
-    //           where: { bookingId: booking.id },
-    //           create: {
-    //             bookingId: booking.id,
-    //             midtransOrderId: order_id,
-    //             snapToken: '', // would be stored during booking creation
-    //             grossAmount: parseInt(gross_amount),
-    //             paymentMethod: payment_type,
-    //             rawResponse: payload,
-    //             status: paymentStatus,
-    //           },
-    //           update: {
-    //             status: paymentStatus,
-    //             rawResponse: payload,
-    //             transactionTime: new Date(transaction_time),
-    //           },
-    //         },
-    //       },
-    //     },
-    //   });
-    // }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
     console.error('Midtrans webhook error:', error);
     return NextResponse.json(
-      { success: false, error: 'Webhook processing failed' },
-      { status: 500 }
+      { success: false, error: { code: 'INTERNAL_ERROR', message: 'Webhook processing failed' } },
+      { status: 500 },
     );
   }
 }
