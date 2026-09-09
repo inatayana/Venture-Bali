@@ -43,6 +43,10 @@ function buildInitialConfig(venture: VentureItem): BookingConfig {
     transfer: 'NONE',
     zoneId: null,
     addonIds: [],
+    customerName: '',
+    customerEmail: '',
+    customerWhatsApp: '',
+    countryCode: 'ID',
   };
 }
 
@@ -107,9 +111,10 @@ export function VentureDetailClient({ venture }: VentureDetailClientProps) {
           vehicleClassType: config.transfer === 'NONE' ? undefined : config.transfer,
           paxCount: config.adults,
           selectedAddons: config.addonIds,
-          customerName: 'Customer',
-          customerEmail: 'customer@example.com',
-          customerWhatsApp: '+628123456789',
+          customerName: config.customerName,
+          customerEmail: config.customerEmail,
+          customerWhatsApp: config.customerWhatsApp,
+          countryCode: config.countryCode,
         }),
       });
       const data = await response.json();
