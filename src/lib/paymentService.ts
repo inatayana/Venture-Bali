@@ -5,6 +5,8 @@ import {
   verifyWebhookSignature,
   type MidtransWebhookPayload,
 } from '@/lib/midtrans';
+import { generateVoucherId } from '@/lib/voucher';
+import { sendBookingConfirmations } from '@/lib/notificationService';
 
 export class PaymentServiceError extends Error {
   constructor(
@@ -66,7 +68,7 @@ export async function processMidtransWebhook(
     transactionTime && !Number.isNaN(transactionTime.getTime()) ? transactionTime : null;
 
   try {
-    return await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const updated = await tx.payment.updateMany({
         where: { id: payment.id, status: payment.status },
         data: {
@@ -103,8 +105,38 @@ export async function processMidtransWebhook(
 
       return { paymentStatus, voucherIssued };
     });
+
+    // Booking confirmation notifications (BOOKING_FLOW.md §3) — after the
+    // transaction commits, outside the DB transaction, with full relations.
+    if (result.paymentStatus === 'PAID') {
+      await sendPaidConfirmations(payment.bookingId);
+    }
+
+    return result;
   } catch (error) {
     console.error('Webhook transaction failed:', error);
     throw new PaymentServiceError('PROCESSING_ERROR', 'Failed to process webhook notification');
+  }
+}
+
+async function sendPaidConfirmations(bookingId: string): Promise<void> {
+  try {
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        customer: { select: { name: true, email: true, whatsapp: true } },
+        variant: { select: { title: true } },
+        slotTime: { select: { time: true } },
+      },
+    });
+    if (!booking) return;
+
+    await sendBookingConfirmations({
+      booking,
+      voucherId: generateVoucherId(booking.id),
+    });
+  } catch (error) {
+    // Notification failure must never break webhook processing — audit via logs.
+    console.error('Confirmation notification failed:', error);
   }
 }

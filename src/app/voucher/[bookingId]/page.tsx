@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, Calendar, Users, Clock, Download, QrCode, Shield } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Calendar, Users, Clock, Download, QrCode, Shield, MapPin, Umbrella } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { formatPrice } from '@/lib/i18n';
 import type { Booking } from '@/types/venture';
@@ -11,8 +11,17 @@ interface VoucherPageProps {
   params: Promise<{ bookingId: string }>;
 }
 
+interface VoucherBooking extends Booking {
+  venture?: { title: string; location?: string } | null;
+}
+
+function buildMapsUrl(location?: string): string {
+  if (!location) return 'https://maps.google.com';
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+}
+
 export default function VoucherPage({ params }: VoucherPageProps) {
-  const [booking, setBooking] = useState<Booking | null>(null);
+  const [booking, setBooking] = useState<VoucherBooking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
@@ -147,10 +156,28 @@ export default function VoucherPage({ params }: VoucherPageProps) {
                 <p className="mt-4 text-sm text-gray-500">Voucher ID: {voucherId}</p>
               </div>
 
-              {/* Important Info */}
+              {/* Meeting Point */}
+              <div className="bg-white border border-gray-200 rounded-xl p-5">
+                <h3 className="text-sm font-medium text-gray-500 mb-3 uppercase tracking-wide flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-blue-600" /> Meeting Point
+                </h3>
+                <p className="text-sm text-gray-900 font-medium mb-1">
+                  {booking.venture?.location ?? 'See activity details'}
+                </p>
+                <a
+                  href={buildMapsUrl(booking.venture?.location)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1"
+                >
+                  <MapPin className="w-4 h-4" /> Open in Google Maps
+                </a>
+              </div>
+
+              {/* Safety & Insurance */}
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                 <h3 className="font-medium text-amber-800 mb-2 flex items-center gap-2">
-                  <Shield className="w-4 h-4" /> Important Reminders
+                  <Shield className="w-4 h-4" /> Safety Notes
                 </h3>
                 <ul className="text-sm text-amber-700 space-y-1">
                   <li>• Present this QR code at the meeting point</li>
@@ -158,6 +185,12 @@ export default function VoucherPage({ params }: VoucherPageProps) {
                   <li>• Bring valid ID for verification</li>
                   <li>• This voucher is valid for one-time use only</li>
                 </ul>
+                <div className="mt-3 pt-3 border-t border-amber-200 flex items-start gap-2">
+                  <Umbrella className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                  <p className="text-sm text-green-700 font-medium">
+                    Insurance &amp; public liability included by the provider — no extra purchase needed.
+                  </p>
+                </div>
               </div>
 
               {/* Actions */}
