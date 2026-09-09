@@ -285,8 +285,8 @@ export const mockVariants: Variant[] = [
   },
 ];
 
-// ============ MOCK VENTURES ===========
-export const mockVentures: VentureItem[] = [
+// ============ MOCK EXPERIENCES ===========
+export const mockExperiences: VentureItem[] = [
   {
     id: 'vtr-001',
     slug: 'atv-adventure-ubud',

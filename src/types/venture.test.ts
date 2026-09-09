@@ -1,4 +1,4 @@
-import { mockVentures } from '@/data/mockVentures';
+import { mockExperiences } from '@/data/mockExperiences';
 import type { VentureItem, BookingRequest, APIResponse, UserRole } from '@/types/venture';
 
 describe('Type Definitions', () => {
@@ -28,7 +28,7 @@ describe('Type Definitions', () => {
   it('APIResponse interface supports generic type', () => {
     const response: APIResponse<VentureItem> = {
       success: true,
-      data: mockVentures[0],
+      data: mockExperiences[0],
       error: null,
       meta: { total: 1, page: 1, pageSize: 10 },
     };

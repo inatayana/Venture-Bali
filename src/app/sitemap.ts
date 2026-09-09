@@ -1,26 +1,26 @@
 import type { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
-import { mockVentures } from '@/data/mockVentures';
+import { mockExperiences } from '@/data/mockExperiences';
 import { getBaseUrl } from '@/lib/seo';
 
-async function getVentureSlugs(): Promise<string[]> {
+async function getExperienceSlugs(): Promise<Array<{ id: string; slug: string }>> {
   try {
     const ventures = await prisma.venture.findMany({
-      select: { slug: true },
+      select: { id: true, slug: true },
     });
-    return ventures.map((venture) => venture.slug);
+    return ventures.map((venture) => ({ id: venture.id, slug: venture.slug }));
   } catch (error) {
     console.error('Prisma query failed, falling back to mock data:', error);
-    return mockVentures.map((venture) => venture.slug);
+    return mockExperiences.map((venture) => ({ id: venture.id, slug: venture.slug }));
   }
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl();
-  const slugs = await getVentureSlugs();
+  const slugs = await getExperienceSlugs();
 
-  const ventureUrls: MetadataRoute.Sitemap = slugs.map((slug) => ({
-    url: `${baseUrl}/ventures/${slug}`,
+  const experienceUrls: MetadataRoute.Sitemap = slugs.map(({ id, slug }) => ({
+    url: `${baseUrl}/experiences/${id}/${slug}`,
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
@@ -32,6 +32,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 1,
     },
-    ...ventureUrls,
+    ...experienceUrls,
   ];
 }

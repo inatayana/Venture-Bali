@@ -6,7 +6,7 @@
 import { AgentState, CheckAvailabilityOutput, GetProductInfoOutput, CalculatePriceOutput, CreateBookingOutput, SendBookingConfirmationOutput, GetRefundPolicyOutput } from './agent';
 import type { Booking } from '@/types/venture';
 import { getRefundPolicyText } from './refundUtils';
-import { mockVentures } from '@/data/mockVentures';
+import { mockExperiences } from '@/data/mockExperiences';
 
 /**
  * Check availability for a product on a specific date
@@ -37,10 +37,10 @@ export async function getProductInfo(
 ): Promise<GetProductInfoOutput> {
   const { productId } = state.context;
   
-  const venture = mockVentures.find(v => v.id === productId || v.slug === productId);
+  const venture = mockExperiences.find(v => v.id === productId || v.slug === productId);
   
   if (!venture) {
-    const fallback = mockVentures[0];
+    const fallback = mockExperiences[0];
     return {
       venture: fallback,
       variants: fallback.variants || [],
@@ -63,7 +63,7 @@ export async function calculatePrice(
 ): Promise<CalculatePriceOutput> {
   const { paxCount } = state.context;
   
-  const variant = mockVentures[0]?.variants?.[0];
+  const variant = mockExperiences[0]?.variants?.[0];
   const priceTiers = variant?.priceTiers || [
     { minPax: 1, maxPax: 1, pricePerPax: 750000 },
     { minPax: 2, maxPax: 2, pricePerPax: 650000 },

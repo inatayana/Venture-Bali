@@ -328,9 +328,9 @@ SATU bottom sheet dengan 3 step di dalamnya (bukan sheet terpisah):
 
 | Section UI | Source Data | Komponen Code |
 |------------|-------------|---------------|
-| Card Grid | `mockVentures` / API | `src/components/ui/VentureCard.tsx` |
-| PDP Hero | `VentureItem` | `src/app/ventures/[slug]/VentureDetailClient.tsx` |
-| Sticky CTA | Harga + CTA | `src/components/booking/BookingForm.tsx` |
+| Card Grid | `mockExperiences` / API | `src/components/ui/VentureCard.tsx` |
+| PDP Hero | `VentureItem` | `src/app/experiences/[id]/[slug]/ExperienceDetailClient.tsx` |
+| Sticky CTA | Harga + CTA | `src/components/features/ExperienceBookingWidget.tsx` |
 | Bottom Sheet (3-step) | Slot times + pax | `src/components/ui/BottomSheet.tsx` (baru) |
 | Calendar | Slot times | `src/components/ui/Calendar.tsx` (baru) |
 | Time Slots | SlotTime data | `src/components/ui/TimeSlotCard.tsx` (baru) |
