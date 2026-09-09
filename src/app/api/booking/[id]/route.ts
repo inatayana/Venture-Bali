@@ -1,33 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { Booking } from '@/types/venture';
-
-// Mock in-memory storage (replace with DB in production)
-const bookingStore = new Map<string, Booking>();
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
-    const booking = bookingStore.get(id);
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      include: {
+        variant: { include: { priceTiers: true, slotTimes: true, addons: true } },
+        slotTime: true,
+        pickupZone: true,
+        vehicleClass: true,
+      },
+    });
 
     if (!booking) {
       return NextResponse.json(
         { success: false, error: { code: 'NOT_FOUND', message: 'Booking not found' } },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: booking,
-    });
+    return NextResponse.json({ success: true, data: booking });
   } catch (error) {
     console.error('Booking fetch error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch booking' } },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

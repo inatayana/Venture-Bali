@@ -23,6 +23,10 @@ export interface BookingConfig {
   transfer: 'NONE' | VehicleClassType;
   zoneId: string | null;
   addonIds: string[];
+  customerName: string;
+  customerEmail: string;
+  customerWhatsApp: string;
+  countryCode: string;
 }
 
 interface PackageOptionsWidgetProps {
@@ -392,6 +396,51 @@ export function PackageOptionsWidget({
         </div>
       )}
 
+      <div className="space-y-3 rounded-xl border border-gray-200 p-4">
+        <div>
+          <h3 className="font-heading text-base font-semibold text-gray-900">Contact details</h3>
+          <p className="mt-1 text-xs text-gray-500">We use these details for your booking confirmation.</p>
+        </div>
+        <input
+          aria-label="Full name"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-600"
+          onChange={(event) => onChange({ customerName: event.target.value })}
+          placeholder="Full name"
+          required
+          type="text"
+          value={config.customerName}
+        />
+        <input
+          aria-label="Email address"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-600"
+          onChange={(event) => onChange({ customerEmail: event.target.value })}
+          placeholder="Email address"
+          required
+          type="email"
+          value={config.customerEmail}
+        />
+        <div className="grid grid-cols-[5rem_1fr] gap-2">
+          <input
+            aria-label="Country code"
+            className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm uppercase outline-none focus:border-blue-600"
+            maxLength={2}
+            onChange={(event) => onChange({ countryCode: event.target.value.toUpperCase() })}
+            placeholder="ID"
+            required
+            value={config.countryCode}
+          />
+          <input
+            aria-label="WhatsApp number"
+            className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-600"
+            onChange={(event) => onChange({ customerWhatsApp: event.target.value })}
+            placeholder="WhatsApp number"
+            required
+            type="tel"
+            value={config.customerWhatsApp}
+          />
+        </div>
+      </div>
+
       {/* Real-time Total */}
       <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
         <button
@@ -438,7 +487,7 @@ export function PackageOptionsWidget({
           Request Quote (Outer Area)
         </a>
       ) : (
-        <Button onClick={onBook} disabled={isBooking || !config.date || !config.slot} fullWidth size="lg">
+        <Button onClick={onBook} disabled={isBooking || !config.date || !config.slot || !config.customerName || !config.customerEmail || !config.customerWhatsApp} fullWidth size="lg">
           {isBooking ? 'Processing…' : 'Book Now'}
         </Button>
       )}
