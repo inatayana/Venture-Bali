@@ -67,7 +67,7 @@ Implementasi murni di `src/lib/pricing.ts` (`isBookable`, cutoff functions) — 
 PDP → pilih tanggal & slot
     → pilih mode: Self Drive | Private Transfer (+ zone picker)
     → pilih pax + addons → kalkulasi harga live (client) 
-    → POST /api/v1/booking/checkout (server re-calculate + zod + cut-off check)
+    → POST /api/booking (server re-calculate + zod + cut-off check)
     → Booking PENDING + Midtrans Snap token → bayar → PAID → voucher
 ```
 
@@ -77,6 +77,13 @@ Aturan checkout (server):
 3. Reject jika melewati cut-off mode terpilih, slot penuh, atau blackout date.
 4. Simpan `fulfillmentMode`, `pickupZoneId`, `zoneSurchargeIdr`, `vehicleCount` di Booking.
 5. Midtrans Snap dibuat server-side (`MIDTRANS_SERVER_KEY` tidak pernah ke client).
+
+### 5.1 Reservation and Capacity Protection
+
+- `Booking` adalah source of truth untuk reservation; UI mock dan in-memory state tidak boleh dipakai untuk membuat atau membaca booking produksi.
+- Server mengunci `SlotTime` dan menghitung pax pada kombinasi tanggal + slot di dalam transaksi PostgreSQL `Serializable` sebelum membuat booking baru.
+- Booking dengan status `PAID` selalu memakai capacity. Booking `PENDING` memakai capacity selama 15 menit sebagai payment hold; hold yang lebih lama tidak lagi menghitung availability.
+- Harga, vehicle count, pickup surcharge, dan add-on yang dipilih selalu dihitung ulang dari data database di server. Nilai total dari browser tidak pernah dipercaya.
 
 ## 6. Product Card Priority (listing)
 
