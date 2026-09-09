@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, CreditCard, Shield, CheckCircle, Loader2, Users, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { formatPrice } from '@/lib/i18n';
@@ -8,6 +8,41 @@ import type { Booking } from '@/types/venture';
 
 interface CheckoutPageProps {
   params: Promise<{ session_id: string }>;
+}
+
+interface SnapWindow {
+  snap?: {
+    pay: (token: string, callbacks: { onSuccess?: () => void; onPending?: () => void; onError?: () => void }) => void;
+  };
+}
+
+const MIDTRANS_SNAP_SANDBOX = 'https://app.sandbox.midtrans.com/snap/snap.js';
+const MIDTRANS_SNAP_PRODUCTION = 'https://app.midtrans.com/snap/snap.js';
+
+const BOOKING_TOTAL_MULTIPLIER = 1.1;
+
+function loadSnapScript(clientKey: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const w = window as SnapWindow;
+    if (w.snap) {
+      resolve();
+      return;
+    }
+    const existing = document.querySelector<HTMLScriptElement>('script[data-midtrans-snap]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve());
+      existing.addEventListener('error', () => reject(new Error('Failed to load Midtrans Snap.js')));
+      return;
+    }
+    const script = document.createElement('script');
+    const isProduction = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true';
+    script.src = isProduction ? MIDTRANS_SNAP_PRODUCTION : MIDTRANS_SNAP_SANDBOX;
+    script.setAttribute('data-midtrans-snap', 'true');
+    script.setAttribute('data-client-key', clientKey);
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Midtrans Snap.js'));
+    document.body.appendChild(script);
+  });
 }
 
 export default function CheckoutPage({ params }: CheckoutPageProps) {
@@ -39,6 +74,10 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     fetchBooking();
   }, [params]);
 
+  const handlePaymentResult = useCallback(() => {
+    window.location.href = `/voucher/${booking?.id}`;
+  }, [booking]);
+
   const handlePayWithMidtrans = async () => {
     if (!booking || paying) return;
     setPaying(true);
@@ -47,45 +86,30 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
       const response = await fetch('/api/payment/midtrans', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bookingId: booking.id,
-          orderId: booking.bookingCode,
-          amount: booking.totalPrice,
-          customerName: 'Customer', // Would come from form
-          customerEmail: 'customer@example.com',
-          customerPhone: '+628123456789',
-        }),
+        body: JSON.stringify({ bookingId: booking.id }),
       });
 
       const data = await response.json();
       if (data.success && data.snapToken) {
-        // Load Midtrans Snap.js
-        loadMidtransSnap(data.snapToken);
+        const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY ?? '';
+        await loadSnapScript(clientKey);
+
+        const w = window as SnapWindow;
+        if (!w.snap) {
+          throw new Error('Midtrans Snap failed to initialize');
+        }
+        w.snap.pay(data.snapToken, {
+          onSuccess: handlePaymentResult,
+          onPending: handlePaymentResult,
+          onError: () => setPaying(false),
+        });
       } else {
         throw new Error(data.error?.message || 'Failed to initialize payment');
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Payment initialization failed');
-    } finally {
       setPaying(false);
     }
-  };
-
-  const loadMidtransSnap = (token: string) => {
-    // In production, load Midtrans Snap.js from CDN
-    // For demo, simulate payment completion
-    console.log('Initializing Midtrans Snap with token:', token);
-
-    // Simulate payment completion after 3 seconds
-    setTimeout(() => {
-      // In real implementation, this callback comes from Midtrans
-      handlePaymentSuccess();
-    }, 3000);
-  };
-
-  const handlePaymentSuccess = () => {
-    alert('Payment successful! Redirecting to voucher...');
-    window.location.href = `/voucher/${booking?.id}`;
   };
 
   if (loading) {
@@ -110,6 +134,8 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
       </main>
     );
   }
+
+  const totalWithFees = Math.round(booking.totalPrice * BOOKING_TOTAL_MULTIPLIER);
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -163,12 +189,12 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                   <span className="font-medium">{formatPrice(booking.totalPrice)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tax & Fees</span>
-                  <span className="font-medium">{formatPrice(Math.round(booking.totalPrice * 0.1))}</span>
+                  <span className="text-gray-600">Tax &amp; Fees</span>
+                  <span className="font-medium">{formatPrice(totalWithFees - booking.totalPrice)}</span>
                 </div>
                 <div className="flex justify-between pt-4 border-t border-gray-200">
                   <span className="text-lg font-semibold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-blue-600">{formatPrice(Math.round(booking.totalPrice * 1.1))}</span>
+                  <span className="text-2xl font-bold text-blue-600">{formatPrice(totalWithFees)}</span>
                 </div>
               </div>
             </div>
@@ -212,7 +238,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                       Processing...
                     </>
                   ) : (
-                    `Pay ${formatPrice(Math.round(booking.totalPrice * 1.1))}`
+                    `Pay ${formatPrice(totalWithFees)}`
                   )}
                 </Button>
               </div>
