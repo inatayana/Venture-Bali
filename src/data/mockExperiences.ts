@@ -1,407 +1,183 @@
-import type { VentureItem, Variant, SlotTime, Addon, VehicleClass, PickupZone } from '@/types/venture';
+/**
+ * Venture Bali — Mock / Offline Catalogue
+ * ---------------------------------------
+ * Serves the demo catalogue when no database is reachable (demo builds,
+ * preview deployments, local development without a database).
+ *
+ * The data is DERIVED from `src/data/catalogue.ts` — the exact same module
+ * the Prisma seed writes to the database — and is mapped through the same
+ * `toVentureItem()` helper the PDP uses. The mock can therefore never drift
+ * away from what the seed produces: same products, same titles, same
+ * categories, same prices, same shape.
+ *
+ * Docs: docs/MASTER_PRODUCT_CATALOG.md
+ */
 
-// ============ MOCK VEHICLE CLASSES (fleet, generic labels only) ============
-export const mockVehicleClasses: VehicleClass[] = [
-  {
-    id: 'vc-suv',
-    name: 'STANDARD_SUV',
-    label: 'Standard SUV · up to 4 pax',
-    description: 'Compact SUV, comfortable for small groups',
-    vehicleMaxPax: 4,
-    deltaIdr: 0,
-    sortOrder: 1,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'vc-mpv',
-    name: 'PREMIUM_MPV',
-    label: 'Premium MPV · up to 6 pax',
-    description: 'Spacious MPV with extra legroom',
-    vehicleMaxPax: 6,
-    deltaIdr: 100000,
-    sortOrder: 2,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'vc-van',
-    name: 'MINIVAN',
-    label: 'Minivan · up to 12 pax',
-    description: 'Large minivan for groups',
-    vehicleMaxPax: 12,
-    deltaIdr: 250000,
-    sortOrder: 3,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+import {
+  DEFAULT_SLOTS,
+  LOCATIONS,
+  PICKUP_ZONES,
+  TENANT_DOMAIN,
+  VEHICLE_CLASSES,
+  VENTURES,
+  type VentureSeed,
+} from './catalogue';
+import { toVentureItem, type VentureWithRelations } from '@/lib/ventureMapper';
+import type { PickupZone, VehicleClass } from '@/types/venture';
 
-// ============ MOCK PICKUP ZONES (BOOKING_ARCHITECTURE.md §3) ============
-export const mockPickupZones: PickupZone[] = [
-  {
-    id: 'zone-1',
-    name: 'Core Area — Ubud/Gianyar',
-    areaType: 'ZONE_1',
-    surchargeIdr: 0,
-    isCustomQuote: false,
-    vehicleMaxPax: 4,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'zone-2',
-    name: 'South 1 — Kuta, Seminyak, Canggu, Sanur',
-    areaType: 'ZONE_2',
-    surchargeIdr: 224000,
-    isCustomQuote: false,
-    vehicleMaxPax: 4,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'zone-3',
-    name: 'South 2 — Nusa Dua, Jimbaran, Uluwatu',
-    areaType: 'ZONE_3',
-    surchargeIdr: 320000,
-    isCustomQuote: false,
-    vehicleMaxPax: 4,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'zone-4',
-    name: 'Outer — Amed, Lovina, Pemuteran, etc.',
-    areaType: 'ZONE_4',
-    surchargeIdr: 0,
-    isCustomQuote: true,
-    vehicleMaxPax: 4,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+// ============ STABLE IDENTIFIERS ============
 
-// ============ MOCK ADDONS ============
-export const mockAddons: Addon[] = [
-  {
-    id: 'addon-001',
-    variantId: 'var-001',
-    name: 'Professional Photographer',
-    price: 150000,
-    description: '1-hour session with 20 edited photos',
-    requiresTransfer: false,
-    isCombo: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'addon-002',
-    variantId: 'var-001',
-    name: 'Traditional Balinese Lunch',
-    price: 85000,
-    description: 'Set menu at local warung',
-    requiresTransfer: false,
-    isCombo: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'addon-003',
-    variantId: 'var-002',
-    name: 'Natural Hot Spring Entry',
-    price: 120000,
-    description: 'Relax at Toya Bouncy Hot Spring after trek',
-    requiresTransfer: false,
-    isCombo: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  // Combo add-ons — require PRIVATE_TRANSFER (dependent matrix)
-  {
-    id: 'combo-001',
-    variantId: 'var-001',
-    name: 'Ayung River Rafting Combo',
-    price: 350000,
-    description: 'Add white-water rafting after your ATV ride',
-    requiresTransfer: true,
-    isCombo: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'combo-002',
-    variantId: 'var-001',
-    name: 'Water Tubing Combo',
-    price: 300000,
-    description: 'Add river tubing to your package',
-    requiresTransfer: true,
-    isCombo: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'combo-003',
-    variantId: 'var-001',
-    name: 'Hotel Buffet Lunch Upgrade',
-    price: 150000,
-    description: 'Upgrade to international buffet lunch',
-    requiresTransfer: true,
-    isCombo: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+/** Mock vehicle class ids — kept stable so the booking widget can reference them. */
+const VEHICLE_CLASS_IDS: Record<string, string> = {
+  STANDARD_SUV: 'vc-suv',
+  PREMIUM_MPV: 'vc-mpv',
+  MINIVAN: 'vc-van',
+};
 
-// ============ MOCK TENANTS ============
+/** Mock pickup zone ids — "zone-1" .. "zone-4", matching the widget default. */
+const ZONE_IDS = ['zone-1', 'zone-2', 'zone-3', 'zone-4'] as const;
+
+const MOCK_TENANT_ID = 'tenant-001';
+const MOCK_NOW = new Date('2026-01-01T00:00:00.000Z');
+
+export const mockVehicleClasses: VehicleClass[] = VEHICLE_CLASSES.map((vc) => ({
+  id: VEHICLE_CLASS_IDS[vc.name] ?? vc.name.toLowerCase(),
+  name: vc.name,
+  label: vc.label,
+  description: vc.description,
+  vehicleMaxPax: vc.vehicleMaxPax,
+  deltaIdr: vc.deltaIdr,
+  sortOrder: vc.sortOrder,
+  isActive: true,
+  createdAt: MOCK_NOW,
+  updatedAt: MOCK_NOW,
+}));
+
+export const mockPickupZones: PickupZone[] = PICKUP_ZONES.map((zone, index) => ({
+  id: ZONE_IDS[index] ?? `zone-${index + 1}`,
+  name: zone.name,
+  areaType: zone.areaType,
+  surchargeIdr: zone.surchargeIdr,
+  isCustomQuote: zone.isCustomQuote,
+  vehicleMaxPax: zone.vehicleMaxPax,
+  isActive: true,
+  createdAt: MOCK_NOW,
+  updatedAt: MOCK_NOW,
+}));
+
 export const mockTenants = [
   {
-    id: 'tenant-001',
-    domain: 'baligo.tours',
-    name: 'BaliGo Tours',
+    id: MOCK_TENANT_ID,
+    domain: TENANT_DOMAIN,
+    name: 'Venture Bali',
     themeColor: '#1E40AF',
     isActive: true,
   },
 ];
 
-// ============ MOCK LOCATIONS ============
-export const mockLocations = [
-  {
-    id: 'loc-001',
-    name: 'Tegallalang, Ubud, Gianyar, Bali',
-    region: 'Gianyar',
-    latitude: -8.4312,
-    longitude: 115.2791,
-  },
-  {
-    id: 'loc-002',
-    name: 'Kintamani, Bangli, Bali',
-    region: 'Bangli',
-    latitude: -8.2425,
-    longitude: 115.5087,
-  },
-  {
-    id: 'loc-003',
-    name: 'Nusa Penida Island, Klungkung, Bali',
-    region: 'Klungkung',
-    latitude: -8.7301,
-    longitude: 115.5328,
-  },
-];
+export const mockLocations = LOCATIONS.map((loc, index) => ({
+  id: `loc-${String(index + 1).padStart(3, '0')}`,
+  name: loc.name,
+  region: loc.region,
+  latitude: loc.latitude,
+  longitude: loc.longitude,
+}));
 
-// ============ MOCK SLOT TIMES ============
-export const mockSlotTimes: SlotTime[] = [
-  {
-    id: 'slot-001',
-    variantId: 'var-001',
-    time: '06:00 AM',
-    maxCapacity: 12,
-    currentBookings: 4,
-    isAvailable: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'slot-002',
-    variantId: 'var-001',
-    time: '08:00 AM',
-    maxCapacity: 12,
-    currentBookings: 8,
-    isAvailable: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'slot-003',
-    variantId: 'var-002',
-    time: '01:00 AM',
-    maxCapacity: 20,
-    currentBookings: 12,
-    isAvailable: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+const locationIdByKey = new Map(mockLocations.map((loc, index) => [LOCATIONS[index].key, loc.id]));
 
-// ============ MOCK VARIANTS ============
-export const mockVariants: Variant[] = [
-  {
-    id: 'var-001',
-    ventureId: 'vtr-001',
-    title: 'Private Tour',
-    shortDescription: 'Personal guide & flexible timing',
-    badge: 'Best Seller',
-    priceTiers: [
-      { minPax: 1, maxPax: 1, pricePerPax: 550000 },
-      { minPax: 2, maxPax: 2, pricePerPax: 450000 },
-      { minPax: 3, maxPax: 4, pricePerPax: 420000 },
-      { minPax: 5, maxPax: 10, pricePerPax: 380000 },
-    ],
-    blackoutDates: ['2026-12-25'],
-    slotTimes: mockSlotTimes.filter((s) => s.variantId === 'var-001'),
-    addons: mockAddons.filter((a) => a.variantId === 'var-001'),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'var-002',
-    ventureId: 'vtr-002',
-    title: 'Sunrise Summit Trek',
-    shortDescription: 'Expert guide to Mount Batur summit',
-    badge: 'Epic Views',
-    priceTiers: [
-      { minPax: 1, maxPax: 1, pricePerPax: 800000 },
-      { minPax: 2, maxPax: 2, pricePerPax: 650000 },
-      { minPax: 3, maxPax: 4, pricePerPax: 600000 },
-      { minPax: 5, maxPax: 10, pricePerPax: 550000 },
-    ],
-    blackoutDates: ['2026-12-31'],
-    slotTimes: mockSlotTimes.filter((s) => s.variantId === 'var-002'),
-    addons: mockAddons.filter((a) => a.variantId === 'var-002'),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'var-003',
-    ventureId: 'vtr-003',
-    title: 'Full Day Snorkeling',
-    shortDescription: '3 snorkeling spots + lunch included',
-    badge: 'Marine Life',
-    priceTiers: [
-      { minPax: 1, maxPax: 1, pricePerPax: 1050000 },
-      { minPax: 2, maxPax: 2, pricePerPax: 850000 },
-      { minPax: 3, maxPax: 4, pricePerPax: 780000 },
-      { minPax: 5, maxPax: 10, pricePerPax: 720000 },
-    ],
-    blackoutDates: [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+// ============ CATALOGUE -> PRISMA SHAPE ============
 
-// ============ MOCK EXPERIENCES ===========
-export const mockExperiences: VentureItem[] = [
-  {
-    id: 'vtr-001',
-    slug: 'atv-adventure-ubud',
-    tenantId: 'tenant-001',
-    locationId: 'loc-001',
-    title: 'ATV Adventure in Ubud Jungle',
-    hook3Sec: 'Thrilling ATV ride through Bali jungles',
-    duration: '2.5 hours',
-    badge: 'Best Seller',
-    highlights: ['Quad bike through rice fields', 'Professional guide', 'Lunch included'],
-    inclusions: ['ATV rental', 'Safety gear', 'Lunch', 'Insurance'],
-    exclusions: ['Personal expenses'],
-    itinerary: [
-      { time: '08:00 AM', activity: 'ATV ride begins' },
-      { time: '11:00 AM', activity: 'Lunch' },
-    ],
-    essentialInfo: {
-      perfectFor: ['Adventurers'],
-      whatToBring: ['Change of clothes'],
-      knowBeforeYouGo: ['Min age 12'],
-    },
-    languages: ['en', 'id'],
-    category: 'adventure',
-    difficulty: 'EASY',
-    imageUrl: '/images/atv-ubud.svg',
-    gallery: ['/images/atv-ubud.svg'],
-    rating: 4.8,
-    description: 'Thrilling ATV ride through Bali jungles',
-    priceIdr: 380000,
-    durationHours: 2.5,
-    minParticipants: 1,
-    maxParticipants: 10,
-    reviewCount: 214,
-    isAvailable: true,
-    location: 'Ubud, Gianyar',
-    variants: mockVariants.filter((v) => v.ventureId === 'vtr-001'),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'vtr-002',
-    slug: 'mount-batur-sunrise-trek',
-    tenantId: 'tenant-001',
-    locationId: 'loc-002',
-    title: 'Mount Batur Sunrise Trek',
-    hook3Sec: 'Climb to summit for breathtaking sunrise',
-    duration: '6 hours',
-    badge: 'Epic Views',
-    highlights: ['Sunrise trek', 'Natural hot spring', 'Lunch included'],
-    inclusions: ['Guide', 'Breakfast', 'Lunch', 'Insurance'],
-    exclusions: ['Personal expenses'],
-    itinerary: [
-      { time: '03:00 AM', activity: 'Trek begins' },
-      { time: '06:30 AM', activity: 'Sunrise at summit' },
-    ],
-    essentialInfo: {
-      perfectFor: ['Hikers'],
-      whatToBring: ['Warm jacket', 'Flashlight'],
-      knowBeforeYouGo: ['Min age 10'],
-    },
-    languages: ['en', 'id'],
-    category: 'mountain',
-    difficulty: 'MODERATE',
-    imageUrl: '/images/mount-batur.svg',
-    gallery: ['/images/mount-batur.svg'],
-    rating: 4.9,
-    description: 'Climb to summit for breathtaking sunrise',
-    priceIdr: 550000,
-    durationHours: 6,
-    minParticipants: 1,
-    maxParticipants: 10,
-    reviewCount: 189,
-    isAvailable: true,
-    location: 'Kintamani, Bangli',
-    variants: mockVariants.filter((v) => v.ventureId === 'vtr-002'),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'vtr-003',
-    slug: 'nusa-penida-snorkeling',
-    tenantId: 'tenant-001',
-    locationId: 'loc-003',
-    title: 'Nusa Penida Full-Day Snorkeling',
-    hook3Sec: '3 pristine snorkeling spots',
-    duration: '8 hours',
-    badge: 'Marine Life',
-    highlights: ['Manta rays', 'Crystal Bay', 'Lunch included'],
-    inclusions: ['Speedboat', 'Equipment', 'Lunch', 'Insurance'],
-    exclusions: ['Personal expenses'],
-    itinerary: [
-      { time: '08:30 AM', activity: 'Manta Point snorkeling' },
-      { time: '12:00 PM', activity: 'Lunch' },
-    ],
-    essentialInfo: {
-      perfectFor: ['Families'],
-      whatToBring: ['Towel', 'Sunscreen'],
-      knowBeforeYouGo: ['Min age 6'],
-    },
-    languages: ['en', 'id'],
-    category: 'beach',
-    difficulty: 'EASY',
-    imageUrl: '/images/nusa-penida.svg',
-    gallery: ['/images/nusa-penida.svg'],
-    rating: 4.7,
-    description: '3 pristine snorkeling spots',
-    priceIdr: 720000,
-    durationHours: 8,
-    minParticipants: 1,
-    maxParticipants: 10,
-    reviewCount: 156,
-    isAvailable: true,
-    location: 'Nusa Penida, Klungkung',
-    variants: mockVariants.filter((v) => v.ventureId === 'vtr-003'),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+/**
+ * Convert a catalogue entry into the Prisma row shape so it can be pushed
+ * through the same mapper the database rows use.
+ */
+function toPrismaShape(venture: VentureSeed): VentureWithRelations {
+  const location = mockLocations.find((loc) => loc.id === locationIdByKey.get(venture.locationKey));
+
+  return {
+    id: `mock-${venture.slug}`,
+    slug: venture.slug,
+    tenantId: MOCK_TENANT_ID,
+    locationId: location?.id ?? null,
+    title: venture.title,
+    hook3Sec: venture.hook3Sec,
+    shortDescription: venture.shortDescription ?? null,
+    duration: venture.duration,
+    badge: venture.badge,
+    highlights: venture.highlights,
+    inclusions: venture.inclusions,
+    exclusions: venture.exclusions,
+    itinerary: venture.itinerary,
+    essentialInfo: venture.essentialInfo,
+    faqs: venture.faqs,
+    languages: venture.languages,
+    category: venture.category,
+    subcategory: venture.subcategory,
+    primaryKeyword: venture.primaryKeyword,
+    secondaryKeywords: venture.secondaryKeywords,
+    searchTags: venture.searchTags,
+    difficulty: venture.difficulty,
+    suitableFor: venture.suitableFor,
+    imageUrl: venture.imageUrl,
+    gallery: venture.gallery,
+    videoUrl: null,
+    rating: venture.rating,
+    createdAt: MOCK_NOW,
+    updatedAt: MOCK_NOW,
+    location: location
+      ? {
+          id: location.id,
+          name: location.name,
+          region: location.region,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          createdAt: MOCK_NOW,
+          updatedAt: MOCK_NOW,
+        }
+      : null,
+    variants: venture.variants.map((variant, variantIndex) => ({
+      id: `mock-${venture.slug}-${variantIndex + 1}`,
+      ventureId: `mock-${venture.slug}`,
+      title: variant.title,
+      shortDescription: variant.shortDescription,
+      badge: variant.badge,
+      blackoutDates: variant.blackoutDates,
+      createdAt: MOCK_NOW,
+      updatedAt: MOCK_NOW,
+      priceTiers: variant.priceTiers.map((tier, tierIndex) => ({
+        id: `mock-${venture.slug}-${variantIndex + 1}-tier-${tierIndex + 1}`,
+        variantId: `mock-${venture.slug}-${variantIndex + 1}`,
+        minPax: tier.minPax,
+        maxPax: tier.maxPax,
+        pricePerPax: tier.pricePerPax,
+      })),
+      slotTimes: DEFAULT_SLOTS.map((slot, slotIndex) => ({
+        id: `mock-${venture.slug}-${variantIndex + 1}-slot-${slotIndex + 1}`,
+        variantId: `mock-${venture.slug}-${variantIndex + 1}`,
+        time: slot.time,
+        maxCapacity: slot.maxCapacity,
+        currentBookings: 0,
+        isAvailable: true,
+        createdAt: MOCK_NOW,
+        updatedAt: MOCK_NOW,
+      })),
+      addons: variant.addons.map((addon, addonIndex) => ({
+        id: `mock-${venture.slug}-${variantIndex + 1}-addon-${addonIndex + 1}`,
+        variantId: `mock-${venture.slug}-${variantIndex + 1}`,
+        name: addon.name,
+        price: addon.price,
+        description: addon.description,
+        requiresTransfer: addon.requiresTransfer,
+        isCombo: addon.isCombo,
+        createdAt: MOCK_NOW,
+        updatedAt: MOCK_NOW,
+      })),
+    })),
+    reviews: [],
+  } as VentureWithRelations;
+}
+
+/**
+ * The offline catalogue — 9 ventures, one per adventure mega category.
+ */
+export const mockExperiences = VENTURES.map(toPrismaShape).map(toVentureItem);

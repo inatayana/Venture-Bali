@@ -1,17 +1,33 @@
-import { mockExperiences } from './mockExperiences';
+import { mockExperiences, mockPickupZones, mockVehicleClasses } from './mockExperiences';
+import { VENTURES } from './catalogue';
+import { MEGA_CATEGORY_SHORT_LABELS, isAllowedCategory } from '@/lib/taxonomy';
+import { validateVentureTitle, isVentureSlugValid } from '@/lib/titleValidator';
 import type { VentureItem } from '@/types/venture';
 
 describe('mockExperiences Data', () => {
-  it('contains exactly 3 venture items', () => {
-    expect(mockExperiences).toHaveLength(3);
+  it('contains one venture per mega category', () => {
+    expect(mockExperiences).toHaveLength(9);
+    expect(mockExperiences).toHaveLength(VENTURES.length);
   });
 
   it('all items conform to VentureItem format', () => {
     const requiredFields: (keyof VentureItem)[] = [
-      'id', 'slug', 'title', 'description', 'category', 'location',
-      'priceIdr', 'durationHours', 'minParticipants', 'maxParticipants',
-      'rating', 'reviewCount', 'imageUrl', 'isAvailable',
-      'createdAt', 'updatedAt',
+      'id',
+      'slug',
+      'title',
+      'description',
+      'category',
+      'location',
+      'priceIdr',
+      'durationHours',
+      'minParticipants',
+      'maxParticipants',
+      'rating',
+      'reviewCount',
+      'imageUrl',
+      'isAvailable',
+      'createdAt',
+      'updatedAt',
     ];
 
     mockExperiences.forEach((venture) => {
@@ -62,10 +78,47 @@ describe('mockExperiences Data', () => {
     });
   });
 
-  it('all categories are valid', () => {
-    const validCategories = ['beach', 'mountain', 'culture', 'adventure', 'wellness'];
+  it('every category is one of the 9 mega categories', () => {
     mockExperiences.forEach((venture) => {
-      expect(validCategories).toContain(venture.category);
+      expect(isAllowedCategory(venture.category)).toBe(true);
+      expect(MEGA_CATEGORY_SHORT_LABELS).toContain(venture.category as never);
+    });
+  });
+
+  it('covers all 9 mega categories exactly once', () => {
+    const used = new Set(mockExperiences.map((v) => v.category));
+    expect(used.size).toBe(9);
+    MEGA_CATEGORY_SHORT_LABELS.forEach((category) => {
+      expect(used.has(category)).toBe(true);
+    });
+  });
+
+  it('every title passes the Product Title Constitution', () => {
+    mockExperiences.forEach((venture) => {
+      const catalogueEntry = VENTURES.find((v) => v.slug === venture.slug);
+      expect(catalogueEntry).toBeDefined();
+
+      const result = validateVentureTitle({
+        title: venture.title,
+        primaryKeyword: catalogueEntry?.primaryKeyword,
+        destination: catalogueEntry?.destination,
+      });
+
+      expect(result.errors).toEqual([]);
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  it('every slug passes the slug rules', () => {
+    mockExperiences.forEach((venture) => {
+      expect(isVentureSlugValid(venture.slug)).toBe(true);
+    });
+  });
+
+  it('never exposes the brand name in a title or slug', () => {
+    mockExperiences.forEach((venture) => {
+      expect(venture.title.toLowerCase()).not.toContain('venture bali');
+      expect(venture.slug.toLowerCase()).not.toContain('venture-bali');
     });
   });
 
@@ -76,12 +129,39 @@ describe('mockExperiences Data', () => {
     });
   });
 
-  it('createdAt dates are before updatedAt', () => {
+  it('every venture has both booking modes', () => {
     mockExperiences.forEach((venture) => {
-      const created = new Date(venture.createdAt);
-      const updated = new Date(venture.updatedAt);
-      expect(created.getTime()).toBeLessThanOrEqual(updated.getTime());
+      const titles = venture.variants.map((v) => v.title);
+      expect(titles).toContain('Self Drive');
+      expect(titles).toContain('Private Transfer');
     });
+  });
+
+  it('every venture has price tiers, slots and add-ons', () => {
+    mockExperiences.forEach((venture) => {
+      venture.variants.forEach((variant) => {
+        expect(variant.priceTiers.length).toBeGreaterThan(0);
+        expect(variant.slotTimes?.length ?? 0).toBeGreaterThan(0);
+        expect(variant.addons?.length ?? 0).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  it('exposes the same pickup zones and vehicle classes as the catalogue', () => {
+    expect(mockPickupZones).toHaveLength(4);
+    expect(mockVehicleClasses).toHaveLength(3);
+    expect(mockPickupZones.map((z) => z.id)).toEqual(['zone-1', 'zone-2', 'zone-3', 'zone-4']);
+    expect(mockVehicleClasses.map((v) => v.name)).toEqual([
+      'STANDARD_SUV',
+      'PREMIUM_MPV',
+      'MINIVAN',
+    ]);
+  });
+
+  it('only the outer zone is a custom quote', () => {
+    const customQuoteZones = mockPickupZones.filter((z) => z.isCustomQuote);
+    expect(customQuoteZones).toHaveLength(1);
+    expect(customQuoteZones[0].areaType).toBe('ZONE_4');
   });
 
   it('has at least one item from each expected location type', () => {
