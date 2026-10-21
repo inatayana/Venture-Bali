@@ -76,10 +76,41 @@ npm ci                # exact dependency install
 npm run db:generate   # generate Prisma Client
 npm run db:migrate    # create + apply migration (local dev only)
 npm run db:deploy     # apply pending migrations (production)
+npm run db:push       # push schema without migration (throwaway DBs only)
 npm run db:seed       # seed reference data + demo ventures
+npm run db:studio     # browse the database in a GUI
 npm run build         # next build
 npm start             # next start (or platform runtime)
 ```
+
+### 4.1 Local Database
+
+A PostgreSQL container is used for local development:
+
+```bash
+docker run -d --name venture-bali-pg \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=venture_bali_dev \
+  -p 55432:5432 postgres:17-alpine
+```
+
+`.env` for local development:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:55432/venture_bali_dev?schema=public"
+```
+
+Verify the seed landed correctly:
+
+```bash
+psql -h localhost -p 55432 -U postgres -d venture_bali_dev -f scripts/verify-seed.sql
+```
+
+Expected: 9 `Venture`, 18 `Variant`, 72 `PriceTier`, 108 `SlotTime`, 48 `Addon`.
+
+> ⚠️ Use a **dedicated** database name. Never point `DATABASE_URL` at a
+> database that belongs to another project.
 
 ---
 

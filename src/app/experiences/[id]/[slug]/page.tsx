@@ -2,6 +2,10 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { mockExperiences } from '@/data/mockExperiences';
+import {
+  toVentureItem,
+  ventureWithRelations,
+} from '@/lib/ventureMapper';
 import { generateVentureMetadata, generateVentureStructuredData, type SupportedDomain } from '@/lib/seo';
 import { ExperienceDetailClient } from './ExperienceDetailClient';
 import type { VentureItem } from '@/types/venture';
@@ -14,8 +18,9 @@ async function getExperience(id: string, slug: string): Promise<VentureItem | nu
   try {
     const venture = await prisma.venture.findFirst({
       where: { OR: [{ id }, { slug }] },
+      include: ventureWithRelations,
     });
-    return venture as VentureItem | null;
+    return venture ? toVentureItem(venture) : null;
   } catch (error) {
     console.error('Prisma query failed, falling back to mock data:', error);
     return mockExperiences.find((v) => v.id === id || v.slug === slug) ?? null;
