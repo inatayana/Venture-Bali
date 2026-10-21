@@ -1,25 +1,14 @@
 'use client';
 
 import { cn } from '@/utils/cn';
+import { CATEGORY_ICONS } from '@/lib/taxonomy';
 
 interface FilterChipsProps {
-  categories: string[];
+  categories: readonly string[];
   selectedCategory: string | null;
   onSelect: (category: string | null) => void;
   className?: string;
 }
-
-const CATEGORY_ICONS: Record<string, string> = {
-  ATV: '🏍️',
-  Rafting: '🛶',
-  Tubing: '🛝',
-  Cycling: '🚴',
-  Trekking: '🥾',
-  'Water Sports': '🏄',
-  Snorkeling: '🤿',
-  Extreme: '⚡',
-  Combo: '🎯',
-};
 
 export function FilterChips({
   categories,

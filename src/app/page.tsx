@@ -3,8 +3,9 @@
 import { useState, useMemo } from 'react';
 import { VentureCard, SearchBar, FilterChips } from '@/components/ui';
 import { mockExperiences } from '@/data/mockExperiences';
+import { CATEGORY_FILTERS } from '@/lib/taxonomy';
 
-const CATEGORIES = ['ATV', 'Rafting', 'Tubing', 'Cycling', 'Trekking', 'Water Sports', 'Snorkeling', 'Extreme', 'Combo'];
+const CATEGORIES = CATEGORY_FILTERS;
 
 const SORT_OPTIONS = [
   { value: 'recommended', label: 'Recommended' },

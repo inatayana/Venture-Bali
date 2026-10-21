@@ -21,6 +21,26 @@
 - Tidak boleh ada kategori ganda atau kategori di luar daftar ini.
 - 1 produk = strictly 1 category + 1 subcategory.
 
+### Format yang disimpan di database
+
+Kolom `Venture.category` menyimpan **short label** (bukan nama kanonik), supaya
+filter chip di homepage cocok langsung:
+
+| # | Canonical (dokumen) | Short label (DB & filter) | Slug |
+|---|---------------------|---------------------------|------|
+| 1 | ATV & Off-Road | `ATV` | `atv` |
+| 2 | Rafting | `Rafting` | `rafting` |
+| 3 | River Tubing | `Tubing` | `tubing` |
+| 4 | Cycling | `Cycling` | `cycling` |
+| 5 | Trekking & Hiking | `Trekking` | `trekking` |
+| 6 | Water Sports | `Water Sports` | `water-sports` |
+| 7 | Snorkeling & Diving | `Snorkeling` | `snorkeling` |
+| 8 | Extreme Adventures | `Extreme` | `extreme` |
+| 9 | Adventure Combo Packages | `Combo` | `combo` |
+
+Ketiganya tersedia di `src/lib/taxonomy.ts` sebagai `MEGA_CATEGORIES`,
+`MEGA_CATEGORY_SHORT_LABELS`, dan `MEGA_CATEGORY_SLUGS`.
+
 ## 2. Destination Graph (ringkas)
 
 | Destination | Aktivitas dominan |
