@@ -10,6 +10,9 @@
 2. `docs/DEVELOPMENT_WORKFLOW.md` — Git flow, branch naming
 3. `Venture_Bali_PRD_PPS.md` — product requirements and phases
 4. `docs/REFUND_POLICY.md`, `docs/NO_SHOW_POLICY.md` — business rules that affect code
+5. `docs/TECH_DECISION_LOG.md` — approved stack, database provider, deployment targets
+6. `docs/TEAM_WORKING_AGREEMENT.md` — single sources of truth, guardrails, DoD
+7. `docs/DEPLOYMENT_STRATEGY.md` — how the app is actually deployed (Vercel now, VPS later)
 
 Do not start work before reading the section relevant to your task.
 
