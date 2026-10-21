@@ -90,6 +90,36 @@ export function isNoShow(
   return hoursOfConfirmation < 24;
 }
 
+/**
+ * The refund windows, exactly as defined in docs/REFUND_POLICY.md v2.
+ * Exported so every consumer — including the customer service agent — reads
+ * the same numbers instead of restating them.
+ */
+export const REFUND_WINDOWS = [
+  {
+    hours: '>=24 hours',
+    percentage: 80,
+    cancelFeePercentage: 20,
+    description: 'Cancel fee 20% → 80% refund',
+  },
+  {
+    hours: '<24 hours',
+    percentage: 0,
+    cancelFeePercentage: 100,
+    description: 'Cannot cancel — treated as a no-show if the customer does not arrive',
+  },
+] as const;
+
+/** No-show means the customer never confirmed ≥1 day before the activity. */
+export const NO_SHOW_POLICY = {
+  cancelFeePercentage: 100,
+  refundPercentage: 0,
+  description: 'No-show — 100% cancel fee, no refund',
+} as const;
+
+/** Refunds are processed within this many business days. */
+export const REFUND_PROCESSING_DAYS = 3;
+
 export function getRefundPolicyText(): string {
   return `
 **Refund Policy:**
@@ -97,7 +127,7 @@ export function getRefundPolicyText(): string {
 • Cancel <24h before activity ❌ Cannot cancel (0% refund)
 • No-show (no confirmation) ❌ 100% fee (0% refund)
 
-Refunds processed within 3 business days.
+Refunds processed within ${REFUND_PROCESSING_DAYS} business days.
 Reschedule available ≥24h before activity (free).
 `.trim();
 }

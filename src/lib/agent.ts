@@ -42,7 +42,9 @@ export interface AgentState {
   language: 'id' | 'en' | 'ja' | 'zh';
   context: {
     productId?: string;
+    variantId?: string;
     paxCount?: number;
+    bookingDate?: string;
     intent: 
       | 'greeting' 
       | 'product_inquiry' 
@@ -141,9 +143,12 @@ export interface CheckAvailabilityOutput {
 }
 
 export interface GetProductInfoOutput {
-  venture: VentureItem;
+  venture: VentureItem | null;
   variants: Variant[];
   slotTimes?: SlotTime[];
+  /** False when the requested product does not exist — the agent must say so
+   *  instead of describing a different product. */
+  found: boolean;
 }
 
 export interface CalculatePriceOutput {
@@ -159,6 +164,11 @@ export interface CreateBookingOutput {
   paymentLink: string;
   voucherId: string;
   bookingCode: string;
+  /**
+   * False while the agent is still collecting details. The booking row is
+   * created by the checkout flow, never by the agent.
+   */
+  persisted: boolean;
 }
 
 export interface SendBookingConfirmationOutput {
