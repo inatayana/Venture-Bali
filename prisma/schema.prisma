@@ -409,3 +409,32 @@ model NotificationLog {
   @@index([type])
   @@index([status])
 }
+
+// ============ AI AGENT MODELS ============
+
+/// A conversation with the customer service agent.
+/// One row per channel user, so the agent keeps its context between turns.
+model AgentSession {
+  id           String   @id @default(cuid())
+  /// Stable identifier, e.g. "wa_628123456789" or "tg_12345".
+  sessionKey   String   @unique
+  channel      String
+  language     String   @default("id")
+  userId       String?
+  phone        String?
+  /// The current product the conversation is about.
+  productId    String?
+  variantId    String?
+  paxCount     Int?
+  bookingDate  String?
+  /// The detected intent of the last turn.
+  intent       String?
+  /// Recent turns, oldest first, as a JSON array of { role, text }.
+  history      Json     @default("[]")
+  lastActiveAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([channel])
+  @@index([lastActiveAt])
+}

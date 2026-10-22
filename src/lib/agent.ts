@@ -16,7 +16,12 @@ export type AgentToolResult =
 
 export type AgentMessageResult = {
   status: string;
-  data: AgentToolResult | { error: string } | { message: string };
+  data:
+    | AgentToolResult
+    | { error: string }
+    | { message: string }
+    | { reply: string | null; message: string; tool?: string }
+    | ({ reply?: string | null } & AgentToolResult);
   next_action: string;
 };
 
@@ -45,6 +50,8 @@ export interface AgentState {
     variantId?: string;
     paxCount?: number;
     bookingDate?: string;
+    /** Recent conversation turns, oldest first. */
+    history?: { role: 'user' | 'model'; text: string }[];
     intent: 
       | 'greeting' 
       | 'product_inquiry' 
