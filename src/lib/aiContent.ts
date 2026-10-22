@@ -13,7 +13,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { generateJson, isGeminiConfigured } from '@/lib/gemini';
+import { generateJson, getLastFailure, isGeminiConfigured } from '@/lib/gemini';
 import { MEGA_CATEGORY_SLUGS, isAllowedCategory } from '@/lib/taxonomy';
 import { validateVentureTitle, isVentureSlugValid } from '@/lib/titleValidator';
 
@@ -106,7 +106,24 @@ export async function generateArticle(
   });
 
   if (!generated) {
-    return { article: null, rejection: 'Gemini did not return a usable article.' };
+    const failure = getLastFailure();
+
+    if (failure?.quotaExceeded) {
+      return {
+        article: null,
+        rejection:
+          'The Gemini free tier quota is exhausted. Wait for the quota to reset or upgrade the plan, then try again.',
+      };
+    }
+
+    if (failure) {
+      return { article: null, rejection: failure.message };
+    }
+
+    return {
+      article: null,
+      rejection: 'Gemini did not return a usable article. Try again.',
+    };
   }
 
   const rejection = validateGeneratedArticle(generated, request);

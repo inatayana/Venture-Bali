@@ -97,14 +97,29 @@ Customer (WhatsApp / Telegram / Web)
 
 ```bash
 # .env
-GEMINI_API_KEY="..."      # dari Google AI Studio
-GEMINI_MODEL="gemini-2.0-flash"   # opsional, default sama
+GEMINI_API_KEY="..."           # dari Google AI Studio
+GEMINI_MODEL="gemini-3.8-flash"   # opsional, default sama
 ```
+
+> ⚠️ **Model retirement:** Google sudah me-retire identifier
+> `gemini-2.0-flash` dan API membalas 404 dengan "This model is no longer
+> available". Default di `src/lib/gemini.ts` sudah diarahkan ke
+> `gemini-3.8-flash`. Kalau model berubah lagi, perbarui
+> `DEFAULT_GEMINI_MODEL` **dan** `GEMINI_MODEL` di `.env.example`.
 
 - Tanpa `GEMINI_API_KEY`, agent otomatis memakai jalur deterministik
   (keyword intent + template). **Tidak error.**
 - Semua panggilan punya timeout 30 detik dan return `null` saat gagal —
-  request user tidak menggantung.
+  request user tidak menggantung. Saat Gemini gagal, agent **tidak** diam,
+  tapi turun ke jalur deterministik.
+- **Retry:** status `408/425/429/500/502/503/504` dicoba lagi maksimal 3
+  kali dengan backoff eksponensial (0,8s → 1,6s → 3,2s). Free tier
+  Gemini sering membalas 429/503.
+- **Kuota habis** (429 dengan pesan "exceeded your current quota") **tidak**
+  di-retry, karena tidak akan berhasil dalam window tersebut. Operator
+  mendapat pesan yang jelas, bukan error generik.
+- `getLastFailure()` mengembalikan alasan kegagalan terakhir, supaya UI
+  bisa menjelaskan apa yang terjadi.
 - Prompt memakai `temperature` rendah (0.2–0.6) supaya hasil stabil.
 
 ---

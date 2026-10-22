@@ -3,6 +3,7 @@ import {
   generateContent,
   generateJson,
   generateText,
+  getLastFailure,
   isGeminiConfigured,
 } from './gemini';
 
@@ -141,9 +142,86 @@ describe('generateContent', () => {
   });
 
   it('returns null when the API responds with an error', async () => {
-    mockGeminiError(429, 'rate limited');
+    mockGeminiError(404, 'model not found');
 
     expect(await generateContent({ prompt: 'a' })).toBeNull();
+  });
+
+  it('retries a throttled request and succeeds on the second attempt', async () => {
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+        json: async () => ({}),
+        text: async () => 'rate limited',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => geminiPayload([{ text: 'Recovered' }]),
+        text: async () => '',
+      });
+
+    const result = await generateContent({ prompt: 'a' });
+
+    expect(result?.text).toBe('Recovered');
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('gives up after the retry limit', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      status: 503,
+      json: async () => ({}),
+      text: async () => 'unavailable',
+    });
+
+    expect(await generateContent({ prompt: 'a' })).toBeNull();
+    expect(global.fetch).toHaveBeenCalledTimes(3);
+  });
+
+  it('does not retry a client error that will never succeed', async () => {
+    mockGeminiError(400, 'bad request');
+
+    expect(await generateContent({ prompt: 'a' })).toBeNull();
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not retry when the free tier quota is exhausted', async () => {
+    mockGeminiError(429, 'You exceeded your current quota, please check your plan');
+
+    expect(await generateContent({ prompt: 'a' })).toBeNull();
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('records why the call failed', async () => {
+    mockGeminiError(500, 'internal error');
+
+    await generateContent({ prompt: 'a' });
+
+    const failure = getLastFailure();
+    expect(failure?.status).toBe(500);
+    expect(failure?.quotaExceeded).toBe(false);
+  });
+
+  it('flags an exhausted quota', async () => {
+    mockGeminiError(429, 'You exceeded your current quota');
+
+    await generateContent({ prompt: 'a' });
+
+    const failure = getLastFailure();
+    expect(failure?.quotaExceeded).toBe(true);
+    expect(failure?.message).toContain('quota');
+  });
+
+  it('clears the recorded failure after a successful call', async () => {
+    mockGeminiError(500, 'internal error');
+    await generateContent({ prompt: 'a' });
+    expect(getLastFailure()).not.toBeNull();
+
+    mockGemini(geminiPayload([{ text: 'fine' }]));
+    await generateContent({ prompt: 'a' });
+    expect(getLastFailure()).toBeNull();
   });
 
   it('returns null when the request throws', async () => {

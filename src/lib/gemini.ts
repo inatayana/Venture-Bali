@@ -13,10 +13,65 @@
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-export const DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash';
+/**
+ * The default Gemini model.
+ *
+ * Google retired the `gemini-2.0-flash` identifier; the API answers 404
+ * with "This model is no longer available" when it is used. Keep this
+ * default in sync with the current free-tier model, and override it per
+ * environment with the `GEMINI_MODEL` variable when a different model is
+ * wanted.
+ */
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash';
 
 /** Abort a Gemini request after this many milliseconds. */
 const REQUEST_TIMEOUT_MS = 30_000;
+
+/**
+ * How many times a transient failure is retried.
+ * The free tier regularly answers 429 or 503, and a single retry usually
+ * succeeds.
+ */
+const MAX_ATTEMPTS = 3;
+
+/** Base delay for the exponential backoff between retries. */
+const RETRY_BASE_DELAY_MS = 800;
+
+/** HTTP statuses that are worth retrying. */
+const RETRYABLE_STATUSES = new Set([408, 425, 429, 500, 502, 503, 504]);
+
+/**
+ * A failed Gemini call, kept so the caller can explain what went wrong
+ * instead of showing a generic "could not generate" message.
+ */
+export interface GeminiFailure {
+  status: number | null;
+  message: string;
+  /** True when the free tier quota is exhausted — retrying will not help. */
+  quotaExceeded: boolean;
+}
+
+let lastFailure: GeminiFailure | null = null;
+
+/**
+ * The reason the most recent Gemini call failed, or null when it succeeded.
+ */
+export function getLastFailure(): GeminiFailure | null {
+  return lastFailure;
+}
+
+/**
+ * The free tier answers 429 both for a short-lived rate limit and for an
+ * exhausted quota. Only the first is worth retrying.
+ */
+function isQuotaExhausted(status: number, body: string): boolean {
+  if (status !== 429) return false;
+  return /quota|billing|exceeded your current/i.test(body);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export interface GeminiFunctionDeclaration {
   name: string;
@@ -75,8 +130,12 @@ function getModel(model?: string): string {
 
 /**
  * Call Gemini and return the generated text and any function calls.
- * Returns null when the key is missing or the request fails, so the caller
- * can fall back instead of failing the whole request.
+ * Returns null when the key is missing or the request keeps failing, so the
+ * caller can fall back instead of failing the whole request.
+ *
+ * Transient failures (429, 503 and friends) are retried with an exponential
+ * backoff, because the Gemini free tier throttles and runs out of capacity
+ * regularly.
  */
 export async function generateContent(
   options: GenerateContentOptions
@@ -113,62 +172,111 @@ export async function generateContent(
     body.toolConfig = { functionCallingConfig: { mode: 'AUTO' } };
   }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  let lastError = 'unknown error';
+  lastFailure = null;
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': getApiKey(),
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-    if (!response.ok) {
-      const detail = await response.text().catch(() => '');
-      console.error(
-        `Gemini request failed (${response.status}): ${detail.slice(0, 500)}`
-      );
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': getApiKey(),
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const detail = await response.text().catch(() => '');
+        lastError = `HTTP ${response.status}: ${detail.slice(0, 200)}`;
+
+        const quotaExceeded = isQuotaExhausted(response.status, detail);
+
+        lastFailure = {
+          status: response.status,
+          message: quotaExceeded
+            ? 'The Gemini free tier quota is exhausted.'
+            : `Gemini request failed with HTTP ${response.status}.`,
+          quotaExceeded,
+        };
+
+        // An exhausted quota will not recover within a retry window.
+        const retryable =
+          RETRYABLE_STATUSES.has(response.status) &&
+          !quotaExceeded &&
+          attempt < MAX_ATTEMPTS;
+
+        if (retryable) {
+          const delay = RETRY_BASE_DELAY_MS * 2 ** (attempt - 1);
+          console.warn(
+            `Gemini request returned ${response.status}, retrying in ${delay}ms (attempt ${attempt}/${MAX_ATTEMPTS})`
+          );
+          await sleep(delay);
+          continue;
+        }
+
+        console.error(`Gemini request failed (${response.status}): ${detail.slice(0, 500)}`);
+        return null;
+      }
+
+      const payload = (await response.json()) as {
+        candidates?: {
+          content?: { parts?: GeminiContentPart[] };
+          finishReason?: string;
+        }[];
+      };
+
+      const candidate = payload.candidates?.[0];
+      const parts = candidate?.content?.parts ?? [];
+
+      const text = parts
+        .map((part) => part.text)
+        .filter((value): value is string => typeof value === 'string' && value.length > 0)
+        .join('\n')
+        .trim();
+
+      const functionCalls = parts
+        .filter((part) => part.functionCall)
+        .map((part) => ({
+          name: part.functionCall!.name,
+          args: part.functionCall!.args ?? {},
+        }));
+
+      return {
+        text: text.length > 0 ? text : null,
+        functionCalls,
+        finishReason: candidate?.finishReason ?? null,
+      };
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : 'network error';
+      lastFailure = {
+        status: null,
+        message: `The Gemini request could not be completed (${lastError}).`,
+        quotaExceeded: false,
+      };
+
+      if (attempt < MAX_ATTEMPTS) {
+        const delay = RETRY_BASE_DELAY_MS * 2 ** (attempt - 1);
+        console.warn(
+          `Gemini request failed (${lastError}), retrying in ${delay}ms (attempt ${attempt}/${MAX_ATTEMPTS})`
+        );
+        await sleep(delay);
+        continue;
+      }
+
+      console.error('Gemini request error:', error);
       return null;
+    } finally {
+      clearTimeout(timeout);
     }
-
-    const payload = (await response.json()) as {
-      candidates?: {
-        content?: { parts?: GeminiContentPart[] };
-        finishReason?: string;
-      }[];
-    };
-
-    const candidate = payload.candidates?.[0];
-    const parts = candidate?.content?.parts ?? [];
-
-    const text = parts
-      .map((part) => part.text)
-      .filter((value): value is string => typeof value === 'string' && value.length > 0)
-      .join('\n')
-      .trim();
-
-    const functionCalls = parts
-      .filter((part) => part.functionCall)
-      .map((part) => ({
-        name: part.functionCall!.name,
-        args: part.functionCall!.args ?? {},
-      }));
-
-    return {
-      text: text.length > 0 ? text : null,
-      functionCalls,
-      finishReason: candidate?.finishReason ?? null,
-    };
-  } catch (error) {
-    console.error('Gemini request error:', error);
-    return null;
-  } finally {
-    clearTimeout(timeout);
   }
+
+  console.error(`Gemini request failed after ${MAX_ATTEMPTS} attempts: ${lastError}`);
+  return null;
 }
 
 /**
