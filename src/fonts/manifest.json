@@ -1,0 +1,23 @@
+[
+  {
+    "family": "Plus Jakarta Sans",
+    "slug": "plus-jakarta-sans",
+    "weight": "200 800",
+    "file": "plus-jakarta-sans-latin-variable.woff2",
+    "bytes": 27348
+  },
+  {
+    "family": "Barlow Condensed",
+    "slug": "barlow-condensed",
+    "weight": "600",
+    "file": "barlow-condensed-latin-600.woff2",
+    "bytes": 22308
+  },
+  {
+    "family": "Barlow Condensed",
+    "slug": "barlow-condensed",
+    "weight": "700",
+    "file": "barlow-condensed-latin-700.woff2",
+    "bytes": 22444
+  }
+]

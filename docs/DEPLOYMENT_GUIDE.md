@@ -83,6 +83,33 @@ npm run build         # next build
 npm start             # next start (or platform runtime)
 ```
 
+### 4.0 Slow or flaky networks
+
+`npm install` can be painfully slow on a weak connection — a package fetch
+may take minutes and the default timeout aborts the whole install.
+
+The repository ships an `.npmrc` that raises the fetch timeout to 10
+minutes, retries five times with backoff, and prefers the local cache:
+
+```ini
+fetch-timeout=600000
+fetch-retries=5
+fetch-retry-factor=10
+prefer-offline=true
+```
+
+If an install still stalls, re-running it is safe and much faster because
+the packages are already in the npm cache:
+
+```bash
+npm install --prefer-offline
+```
+
+> npm 11 blocks dependency install scripts by default. Prisma's
+> `postinstall` therefore does not run automatically — that is fine,
+> because `npm run db:generate` generates the Prisma Client explicitly.
+> The CI workflow runs it as a dedicated step.
+
 ### 4.1 Local Database
 
 A PostgreSQL container is used for local development:
