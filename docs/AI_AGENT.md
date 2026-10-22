@@ -122,6 +122,30 @@ GEMINI_MODEL="gemini-3.8-flash"   # opsional, default sama
   bisa menjelaskan apa yang terjadi.
 - Prompt memakai `temperature` rendah (0.2–0.6) supaya hasil stabil.
 
+### Batas kuota free tier — penting untuk operasional
+
+Kuota free tier Gemini untuk `generate_content_free_tier_requests` adalah
+**20 request per hari per model**. Ini limit harian, bukan per menit.
+
+| Yang dihitung | 1 request = 1 pemanggilan `generateContent` |
+|---------------|-------------------------------------------|
+| Satu balasan chat agent | 1–2 request (klasifikasi + tool + menulis balasan) |
+| Satu artikel content wizard | 1 request |
+| Generate artikel 166 produk | 166 request → **9 hari** |
+
+Saat kuota habis, Gemini membalas 429 dengan
+`"Quota exceeded ... Please retry in 4h41m"`. Aplikasi **tidak** retry
+kasus ini (tidak akan berhasil dalam window tersebut) dan operator
+melihat pesan yang jelas.
+
+**Konsekuensi untuk strategi konten:**
+- 166 artikel butuh ~9 hari free tier, atau 9 hari/run
+- Jadwalkan cron artikel **maksimal ~15 per hari** supaya tidak kena limit
+- Naikkan kuota lewat billing Google Cloud kalau butuh lebih cepat
+- Pertimbangkan model lain (mis. `gemini-3.5-flash`) sebagai cadangan, karena
+  kuota dihitung **per model**
+
+
 ---
 
 ## 6. Session
