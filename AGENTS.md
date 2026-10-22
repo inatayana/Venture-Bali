@@ -13,6 +13,7 @@
 5. `docs/TECH_DECISION_LOG.md` — approved stack, database provider, deployment targets
 6. `docs/TEAM_WORKING_AGREEMENT.md` — single sources of truth, guardrails, DoD
 7. `docs/DEPLOYMENT_STRATEGY.md` — how the app is actually deployed (Vercel now, VPS later)
+8. `docs/AI_AGENT.md` — agent tools, session handling, content wizard rules
 
 Do not start work before reading the section relevant to your task.
 

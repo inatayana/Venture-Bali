@@ -143,7 +143,27 @@ Roles, from lowest to highest: `VIEWER`, `EDITOR`, `ADMIN`, `SUPER_ADMIN`.
 - Rotating `ADMIN_SESSION_SECRET` invalidates every active session.
 - Never commit `ADMIN_SESSION_SECRET`.
 
-### 4.2 Local Database
+### 4.2 AI Agent & Content Wizard
+
+The customer service agent works without a language model and gets better
+with one. Set the key to enable Gemini:
+
+```env
+GEMINI_API_KEY="..."            # Google AI Studio
+GEMINI_MODEL="gemini-2.0-flash" # optional override
+```
+
+| Without `GEMINI_API_KEY` | With it |
+|--------------------------|---------|
+| Keyword intent detection | Gemini classifies the intent |
+| Templated replies | Gemini writes the reply from the tool output |
+| No content generation | The AI content wizard generates articles |
+
+The agent reads prices, slots and the refund policy from the database and
+from `src/lib/refundUtils.ts` — never from the model's memory. See
+`docs/AI_AGENT.md` for the full design.
+
+### 4.3 Local Database
 
 A PostgreSQL container is used for local development:
 
