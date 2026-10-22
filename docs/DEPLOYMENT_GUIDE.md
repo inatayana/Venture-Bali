@@ -110,7 +110,40 @@ npm install --prefer-offline
 > because `npm run db:generate` generates the Prisma Client explicitly.
 > The CI workflow runs it as a dedicated step.
 
-### 4.1 Local Database
+### 4.1 Operator Panel
+
+The admin panel lives under `/admin` and is protected by a signed session
+cookie. It is never indexed — the layout sends `noindex, nofollow`.
+
+```bash
+# 1. Set a session secret (once per environment)
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+#    -> put the value in ADMIN_SESSION_SECRET
+
+# 2. Create an operator account
+npm run admin:create -- operator@example.com "a-strong-password" SUPER_ADMIN
+```
+
+Roles, from lowest to highest: `VIEWER`, `EDITOR`, `ADMIN`, `SUPER_ADMIN`.
+
+| Page | Purpose |
+|------|---------|
+| `/admin` | Live dashboard: catalogue size, booking status, paid revenue |
+| `/admin/ventures` | The product catalogue, straight from the database |
+| `/admin/bookings` | Every booking with customer, slot and payment status |
+| `/admin/content` | AI content wizard |
+
+**Security notes**
+
+- Passwords are hashed with scrypt and a per-user salt; the plain password
+  is never stored.
+- The session cookie is `HttpOnly`, `SameSite=Lax` and `Secure` in
+  production. It is signed with HMAC-SHA256, so a tampered cookie is
+  rejected.
+- Rotating `ADMIN_SESSION_SECRET` invalidates every active session.
+- Never commit `ADMIN_SESSION_SECRET`.
+
+### 4.2 Local Database
 
 A PostgreSQL container is used for local development:
 
