@@ -131,9 +131,9 @@ describe('mockExperiences Data', () => {
 
   it('every venture has both booking modes', () => {
     mockExperiences.forEach((venture) => {
-      const titles = venture.variants.map((v) => v.title);
-      expect(titles).toContain('Self Drive');
-      expect(titles).toContain('Private Transfer');
+      const modes = venture.variants.map((variant) => variant.fulfillmentMode);
+      expect(modes).toContain('SELF_DRIVE');
+      expect(modes).toContain('PRIVATE_TRANSFER');
     });
   });
 

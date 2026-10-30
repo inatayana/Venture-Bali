@@ -4,6 +4,7 @@ import {
   PICKUP_ZONES,
   VEHICLE_CLASSES,
   VENTURES,
+  resolveFulfillmentMode,
 } from './catalogue';
 import {
   MEGA_CATEGORIES,
@@ -71,11 +72,14 @@ describe('catalogue', () => {
     });
   });
 
-  it('gives every venture both booking modes with price tiers', () => {
+  it('gives every venture a self-drive and a private-transfer variant with price tiers', () => {
     VENTURES.forEach((venture) => {
-      const titles = venture.variants.map((v) => v.title);
-      expect(titles).toContain('Self Drive');
-      expect(titles).toContain('Private Transfer');
+      const modes = venture.variants.map((variant) => ({
+        variant,
+        mode: resolveFulfillmentMode(variant),
+      }));
+      expect(modes.some((entry) => entry.mode === 'SELF_DRIVE')).toBe(true);
+      expect(modes.some((entry) => entry.mode === 'PRIVATE_TRANSFER')).toBe(true);
 
       venture.variants.forEach((variant) => {
         expect(variant.priceTiers.length).toBeGreaterThan(0);
@@ -90,8 +94,12 @@ describe('catalogue', () => {
 
   it('never prices a Private Transfer variant below its Self Drive counterpart', () => {
     VENTURES.forEach((venture) => {
-      const selfDrive = venture.variants.find((v) => v.title === 'Self Drive');
-      const transfer = venture.variants.find((v) => v.title === 'Private Transfer');
+      const selfDrive = venture.variants.find(
+        (variant) => resolveFulfillmentMode(variant) === 'SELF_DRIVE'
+      );
+      const transfer = venture.variants.find(
+        (variant) => resolveFulfillmentMode(variant) === 'PRIVATE_TRANSFER'
+      );
       if (!selfDrive || !transfer) return;
 
       const selfDrivePrice = Math.min(...selfDrive.priceTiers.map((t) => t.pricePerPax));
@@ -101,11 +109,44 @@ describe('catalogue', () => {
     });
   });
 
-  it('marks transfer-required add-ons only on Private Transfer variants', () => {
+  it('marks transfer-required add-ons only on transfer variants', () => {
     VENTURES.forEach((venture) => {
-      const selfDrive = venture.variants.find((v) => v.title === 'Self Drive');
-      selfDrive?.addons.forEach((addon) => {
-        expect(addon.requiresTransfer).toBe(false);
+      venture.variants
+        .filter((variant) => resolveFulfillmentMode(variant) === 'SELF_DRIVE')
+        .forEach((variant) => {
+          variant.addons.forEach((addon) => {
+            expect(addon.requiresTransfer).toBe(false);
+          });
+        });
+    });
+  });
+
+  it('gives promo prices that undercut the list price', () => {
+    VENTURES.forEach((venture) => {
+      venture.variants.forEach((variant) => {
+        if (variant.promoPriceIdr == null) return;
+        const lowestList = Math.min(...variant.priceTiers.map((tier) => tier.pricePerPax));
+        expect(variant.promoPriceIdr).toBeGreaterThan(0);
+        expect(Number.isInteger(variant.promoPriceIdr)).toBe(true);
+        expect(variant.promoPriceIdr).toBeLessThan(lowestList);
+      });
+    });
+  });
+
+  it('keeps every variant departure inside operating hours (08:00–16:00)', () => {
+    VENTURES.forEach((venture) => {
+      venture.variants.forEach((variant) => {
+        if (!variant.slots) return;
+        variant.slots.forEach((slot) => {
+          const match = slot.time.match(/^(\d{2}):(\d{2}) (AM|PM)$/);
+          expect(match).not.toBeNull();
+          if (!match) return;
+          let hour = Number(match[1]);
+          if (match[3] === 'PM' && hour < 12) hour += 12;
+          if (match[3] === 'AM' && hour === 12) hour = 0;
+          expect(hour).toBeGreaterThanOrEqual(8);
+          expect(hour).toBeLessThanOrEqual(15);
+        });
       });
     });
   });

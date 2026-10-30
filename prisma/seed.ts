@@ -22,6 +22,7 @@ import { validateVentureTitle, isVentureSlugValid } from '../src/lib/titleValida
 import { isAllowedCategory } from '../src/lib/taxonomy.ts';
 import {
   CATALOGUE_CATEGORIES,
+  COUPONS,
   DEFAULT_SLOTS,
   LOCATIONS,
   PICKUP_ZONES,
@@ -30,6 +31,7 @@ import {
   TENANT_THEME,
   VEHICLE_CLASSES,
   VENTURES,
+  resolveFulfillmentMode,
   type VentureSeed,
 } from '../src/data/catalogue.ts';
 
@@ -164,6 +166,34 @@ async function seedVehicleClasses() {
   console.log(`✓ Vehicle classes: ${VEHICLE_CLASSES.length}`);
 }
 
+async function seedCoupons() {
+  for (const coupon of COUPONS) {
+    await prisma.coupon.upsert({
+      where: { code: coupon.code },
+      update: {
+        label: coupon.label,
+        discountPercent: coupon.discountPercent,
+        minPax: coupon.minPax,
+        validFrom: coupon.validFrom,
+        validUntil: coupon.validUntil,
+        isActive: coupon.isActive,
+        usageLimit: coupon.usageLimit,
+      },
+      create: {
+        code: coupon.code,
+        label: coupon.label,
+        discountPercent: coupon.discountPercent,
+        minPax: coupon.minPax,
+        validFrom: coupon.validFrom,
+        validUntil: coupon.validUntil,
+        isActive: coupon.isActive,
+        usageLimit: coupon.usageLimit,
+      },
+    });
+  }
+  console.log(`✓ Coupons: ${COUPONS.map((coupon) => coupon.code).join(', ')}`);
+}
+
 async function seedVentures(
   tenantId: string,
   locationIds: Map<string, string>,
@@ -240,6 +270,12 @@ async function seedVentures(
             data: {
               shortDescription: variantSeed.shortDescription,
               badge: variantSeed.badge,
+              transportBadge: variantSeed.transportBadge ?? null,
+              duration: variantSeed.duration ?? v.duration,
+              fulfillmentMode: resolveFulfillmentMode(variantSeed),
+              promoPriceIdr: variantSeed.promoPriceIdr ?? null,
+              operationNotes: variantSeed.operationNotes ?? null,
+              sortOrder: variantSeed.sortOrder ?? 0,
               blackoutDates:
                 variantSeed.blackoutDates as unknown as Prisma.InputJsonValue,
             },
@@ -250,6 +286,12 @@ async function seedVentures(
               title: variantSeed.title,
               shortDescription: variantSeed.shortDescription,
               badge: variantSeed.badge,
+              transportBadge: variantSeed.transportBadge ?? null,
+              duration: variantSeed.duration ?? v.duration,
+              fulfillmentMode: resolveFulfillmentMode(variantSeed),
+              promoPriceIdr: variantSeed.promoPriceIdr ?? null,
+              operationNotes: variantSeed.operationNotes ?? null,
+              sortOrder: variantSeed.sortOrder ?? 0,
               blackoutDates:
                 variantSeed.blackoutDates as unknown as Prisma.InputJsonValue,
             },
@@ -269,7 +311,7 @@ async function seedVentures(
       // Slot times
       await prisma.slotTime.deleteMany({ where: { variantId: variant.id } });
       await prisma.slotTime.createMany({
-        data: DEFAULT_SLOTS.map((slot) => ({
+        data: (variantSeed.slots ?? DEFAULT_SLOTS).map((slot) => ({
           variantId: variant.id,
           time: slot.time,
           maxCapacity: slot.maxCapacity,
@@ -294,7 +336,7 @@ async function seedVentures(
       }
     }
   }
-  console.log(`✓ Ventures: ${VENTURES.length} (${VENTURES.length * 2} variants)`);
+  console.log(`✓ Ventures: ${VENTURES.length} (${VENTURES.reduce((sum, v) => sum + v.variants.length, 0)} variants)`);
 }
 
 // ============ MAIN ============
@@ -309,6 +351,7 @@ async function main() {
   await seedPickupZones();
   await seedVehicleClasses();
   await seedVentures(tenant.id, locationIds);
+  await seedCoupons();
 
   console.log('\n✅ Seed completed successfully.');
   console.log(`   Categories covered: ${CATALOGUE_CATEGORIES.join(', ')}`);

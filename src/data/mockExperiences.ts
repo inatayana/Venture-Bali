@@ -20,6 +20,7 @@ import {
   TENANT_DOMAIN,
   VEHICLE_CLASSES,
   VENTURES,
+  resolveFulfillmentMode,
   type VentureSeed,
 } from './catalogue';
 import { toVentureItem, type VentureWithRelations } from '@/lib/ventureMapper';
@@ -141,6 +142,12 @@ function toPrismaShape(venture: VentureSeed): VentureWithRelations {
       title: variant.title,
       shortDescription: variant.shortDescription,
       badge: variant.badge,
+      transportBadge: variant.transportBadge ?? null,
+      duration: variant.duration ?? venture.duration,
+      fulfillmentMode: resolveFulfillmentMode(variant),
+      promoPriceIdr: variant.promoPriceIdr ?? null,
+      operationNotes: variant.operationNotes ?? null,
+      sortOrder: variant.sortOrder ?? variantIndex,
       blackoutDates: variant.blackoutDates,
       createdAt: MOCK_NOW,
       updatedAt: MOCK_NOW,
@@ -151,7 +158,7 @@ function toPrismaShape(venture: VentureSeed): VentureWithRelations {
         maxPax: tier.maxPax,
         pricePerPax: tier.pricePerPax,
       })),
-      slotTimes: DEFAULT_SLOTS.map((slot, slotIndex) => ({
+      slotTimes: (variant.slots ?? DEFAULT_SLOTS).map((slot, slotIndex) => ({
         id: `mock-${venture.slug}-${variantIndex + 1}-slot-${slotIndex + 1}`,
         variantId: `mock-${venture.slug}-${variantIndex + 1}`,
         time: slot.time,

@@ -3,14 +3,25 @@ import { prisma } from '@/lib/prisma';
 import type { BookingInput } from '@/lib/bookingSchema';
 import type { Addon, VehicleClass } from '@/types/venture';
 import {
-  calculateTotalPrice,
+  computeQuote,
+  getCouponRejection,
   isBookable,
   isDateAvailable,
   validateAddonModeCombinations,
+  type CouponRejectionReason,
 } from '@/lib/pricing';
 
 const PENDING_HOLD_MINUTES = 15;
 const SERIALIZATION_RETRY_LIMIT = 3;
+
+const COUPON_REJECTION_MESSAGES: Record<CouponRejectionReason, string> = {
+  COUPON_INACTIVE: 'This coupon is not active',
+  COUPON_NOT_STARTED: 'This coupon is not valid yet',
+  COUPON_EXPIRED: 'This coupon has expired',
+  COUPON_MIN_PAX: 'This coupon requires more guests',
+  COUPON_EXHAUSTED: 'This coupon has reached its usage limit',
+  COUPON_NOT_APPLICABLE_ON_PROMO: 'This coupon cannot be combined with an active promo price',
+};
 
 export class BookingServiceError extends Error {
   constructor(
@@ -65,6 +76,13 @@ async function createBookingInTransaction(
     throw new BookingServiceError('NOT_FOUND', 'Venture or variant not found');
   }
 
+  if (variant.fulfillmentMode !== input.fulfillmentMode) {
+    throw new BookingServiceError(
+      'VALIDATION_ERROR',
+      `This package is sold as ${variant.fulfillmentMode}, not ${input.fulfillmentMode}`,
+    );
+  }
+
   if (!isDateAvailable({ blackoutDates: stringArray(variant.blackoutDates) }, input.bookingDate)) {
     throw new BookingServiceError('UNAVAILABLE', 'Selected date is not available');
   }
@@ -74,20 +92,42 @@ async function createBookingInTransaction(
     throw new BookingServiceError('UNAVAILABLE', 'Selected time slot is not available');
   }
 
-  const isTransfer = input.fulfillmentMode === 'PRIVATE_TRANSFER';
-  const [zone, vehicleClass] = isTransfer
-    ? await Promise.all([
-        tx.pickupZone.findFirst({ where: { id: input.pickupZoneId, isActive: true } }),
-        tx.vehicleClass.findFirst({ where: { name: input.vehicleClassType, isActive: true } }),
-      ])
-    : [null, null];
+  const needsPickup = input.fulfillmentMode !== 'SELF_DRIVE';
+  const zone = needsPickup
+    ? await tx.pickupZone.findFirst({ where: { id: input.pickupZoneId, isActive: true } })
+    : null;
+  const vehicleClass =
+    input.fulfillmentMode === 'PRIVATE_TRANSFER'
+      ? await tx.vehicleClass.findFirst({ where: { name: input.vehicleClassType, isActive: true } })
+      : null;
 
-  if (isTransfer && (!zone || !vehicleClass)) {
-    throw new BookingServiceError('VALIDATION_ERROR', 'Pickup zone and vehicle class are required for PRIVATE_TRANSFER');
+  if (needsPickup && !zone) {
+    throw new BookingServiceError('VALIDATION_ERROR', 'Pickup zone is required for a transfer booking');
+  }
+
+  if (input.fulfillmentMode === 'PRIVATE_TRANSFER' && !vehicleClass) {
+    throw new BookingServiceError('VALIDATION_ERROR', 'Vehicle class is required for PRIVATE_TRANSFER');
   }
 
   if (zone?.isCustomQuote) {
     throw new BookingServiceError('UNAVAILABLE', 'Outer area requires a custom quote');
+  }
+
+  const coupon = input.couponCode
+    ? await tx.coupon.findFirst({ where: { code: input.couponCode } })
+    : null;
+  if (input.couponCode && !coupon) {
+    throw new BookingServiceError('VALIDATION_ERROR', 'Coupon code not found');
+  }
+  if (coupon) {
+    const rejection = getCouponRejection(
+      coupon,
+      input.paxCount,
+      variant.promoPriceIdr !== null && variant.promoPriceIdr > 0,
+    );
+    if (rejection) {
+      throw new BookingServiceError('VALIDATION_ERROR', COUPON_REJECTION_MESSAGES[rejection]);
+    }
   }
 
   const availableAddons = variant.addons.map(toAddon);
@@ -97,7 +137,7 @@ async function createBookingInTransaction(
   }
 
   if (validateAddonModeCombinations(availableAddons, input.selectedAddons, input.fulfillmentMode).length > 0) {
-    throw new BookingServiceError('VALIDATION_ERROR', 'Some selected add-ons require PRIVATE_TRANSFER');
+    throw new BookingServiceError('VALIDATION_ERROR', 'Some selected add-ons require a transfer package');
   }
 
   const [year, month, day] = input.bookingDate.split('-').map(Number);
@@ -123,7 +163,13 @@ async function createBookingInTransaction(
     throw new BookingServiceError('UNAVAILABLE', 'Selected time slot no longer has enough capacity');
   }
 
-  const breakdown = calculateTotalPrice(variant.priceTiers, input.paxCount, input.fulfillmentMode, {
+  const breakdown = computeQuote({
+    priceTiers: variant.priceTiers,
+    paxCount: input.paxCount,
+    fulfillmentMode: input.fulfillmentMode,
+    promoPriceIdr: variant.promoPriceIdr,
+    coupon,
+    slotTimeLabel: slot.time,
     zone,
     vehicleClass: vehicleClass ? toVehicleClass(vehicleClass) : null,
     selectedAddons,
@@ -154,10 +200,14 @@ async function createBookingInTransaction(
       fulfillmentMode: input.fulfillmentMode,
       pickupZoneId: zone?.id,
       vehicleClassId: vehicleClass?.id,
-      hotelAddress: input.hotelAddress,
+      hotelAddress: input.isTba ? null : input.hotelAddress,
+      isTba: input.isTba,
       paxCount: input.paxCount,
       vehicleCount: breakdown.transfer.vehicleCount,
       zoneSurchargeIdr: breakdown.transfer.totalFeeIdr,
+      nightSurchargeIdr: breakdown.nightSurchargeIdr,
+      discountIdr: breakdown.discountIdr,
+      appliedCouponCode: breakdown.couponCode,
       selectedAddons: selectedAddons.map((addon) => ({ id: addon.id, name: addon.name, price: addon.price })),
       totalPrice: breakdown.totalPriceIdr,
       paymentStatus: 'PENDING',

@@ -93,7 +93,7 @@ Examples:
 - Product titles MUST pass `src/lib/titleValidator.ts` (45–60 chars, keyword in first 25, Title Case, forbidden words, no emoji) — see `docs/PRODUCT_TITLE_CONSTITUTION.md`.
 - NEVER expose "Venture Bali" brand name in product titles, meta titles, or slugs.
 - NEVER expose vendor/partner names or partnership structure to customers (see `docs/OPERATION_CONTRACT.md`).
-- Booking modes are Self Drive (default) and Private Transfer only — never separate SKUs (see `docs/BOOKING_ARCHITECTURE.md`).
+- Booking modes are Self Drive (default), Shared Transfer, and Private Transfer only — never separate products/SKUs (see `docs/BOOKING_ARCHITECTURE.md`).
 - All prices stored as IDR integers; USD is display-only via the config rate.
 
 ## 10. When Something Is Unclear

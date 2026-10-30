@@ -42,8 +42,9 @@ export const ventureWithRelations = {
       slotTimes: { orderBy: { time: 'asc' } },
       addons: true,
     },
+    orderBy: { sortOrder: 'asc' },
   },
-  reviews: { where: { isApproved: true } },
+  reviews: { where: { isApproved: true }, orderBy: { createdAt: 'desc' } },
 } satisfies Prisma.VentureInclude;
 
 export type VentureWithRelations = Prisma.VentureGetPayload<{
@@ -121,12 +122,17 @@ export function parseDurationHours(duration: string): number {
 
 /**
  * The lowest price per pax across every variant and tier — this is the
- * "from" price shown on cards and in structured data.
+ * "from" price shown on cards and in structured data. An active promo price
+ * replaces the tier price for the same calculation.
  */
 export function deriveFromPrice(venture: VentureWithRelations): number {
-  const prices = venture.variants.flatMap((variant) =>
-    variant.priceTiers.map((tier) => tier.pricePerPax)
-  );
+  const prices = venture.variants.flatMap((variant) => {
+    const promo =
+      variant.promoPriceIdr !== null && variant.promoPriceIdr > 0 ? variant.promoPriceIdr : null;
+    return variant.priceTiers.map((tier) =>
+      promo !== null && promo < tier.pricePerPax ? promo : tier.pricePerPax
+    );
+  });
   return prices.length > 0 ? Math.min(...prices) : 0;
 }
 
@@ -209,6 +215,12 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
       title: variant.title,
       shortDescription: variant.shortDescription,
       badge: variant.badge ?? undefined,
+      transportBadge: variant.transportBadge ?? undefined,
+      duration: variant.duration ?? undefined,
+      fulfillmentMode: variant.fulfillmentMode,
+      promoPriceIdr: variant.promoPriceIdr ?? undefined,
+      operationNotes: variant.operationNotes ?? undefined,
+      sortOrder: variant.sortOrder,
       priceTiers: variant.priceTiers.map((tier) => ({
         minPax: tier.minPax,
         maxPax: tier.maxPax,
@@ -247,6 +259,16 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
     minParticipants: min,
     maxParticipants: max,
     reviewCount: venture.reviews.filter((review) => review.isApproved).length,
+    reviewList: venture.reviews
+      .filter((review) => review.isApproved)
+      .slice(0, 10)
+      .map((review) => ({
+        id: review.id,
+        rating: review.rating,
+        comment: review.comment,
+        author: 'Verified guest',
+        createdAt: review.createdAt,
+      })),
     isAvailable: deriveIsAvailable(venture),
     location: venture.location?.name ?? '',
   };

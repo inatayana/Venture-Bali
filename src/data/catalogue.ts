@@ -202,6 +202,51 @@ export const DEFAULT_SLOTS = [
   { time: '05:00 PM', maxCapacity: 10 },
 ];
 
+/**
+ * Tubing departures follow operating hours 08:00–16:00 WITA.
+ * The last start is `16:00 − duration`, so longer packages sell fewer slots:
+ *   3 hrs → last start 13:00 · 4 hrs → 12:00 · 6 hrs → 10:00.
+ */
+export const TUBING_SLOTS = {
+  THREE_HOURS: ['08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM'],
+  FOUR_HOURS: ['08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM'],
+  SIX_HOURS: ['08:00 AM', '09:00 AM', '10:00 AM'],
+} as const;
+
+function toSlots(times: readonly string[]): SlotSeed[] {
+  return times.map((time) => ({ time, maxCapacity: 10 }));
+}
+
+// ============ COUPONS ============
+
+export type CouponSeed = {
+  code: string;
+  label: string;
+  discountPercent: number;
+  minPax: number;
+  validFrom: Date | null;
+  validUntil: Date | null;
+  isActive: boolean;
+  usageLimit: number | null;
+};
+
+/**
+ * Launch coupon. Promo prices and coupons never stack: the coupon applies to
+ * packages sold at list price (see docs/BOOKING_ARCHITECTURE.md §5).
+ */
+export const COUPONS: CouponSeed[] = [
+  {
+    code: 'TRYBALI2026',
+    label: 'Try Bali 2026 — 40% off',
+    discountPercent: 40,
+    minPax: 1,
+    validFrom: null,
+    validUntil: new Date('2026-12-31T23:59:59.000Z'),
+    isActive: true,
+    usageLimit: 100,
+  },
+];
+
 // ============ TYPE HELPERS ============
 
 export type PriceTierSeed = { minPax: number; maxPax: number; pricePerPax: number };
@@ -214,14 +259,41 @@ export type AddonSeed = {
   isCombo: boolean;
 };
 
+export type SlotSeed = { time: string; maxCapacity: number };
+
 export type VariantSeed = {
   title: string;
   shortDescription: string;
   badge: string | null;
+  /** Transport / tier badge shown on the catalogue card. */
+  transportBadge?: string;
+  /** Human duration for this variant; falls back to the venture duration. */
+  duration?: string;
+  /** Derived from the title when omitted (Private Transfer / Shared Transfer / else Self Drive). */
+  fulfillmentMode?: 'SELF_DRIVE' | 'SHARED_TRANSFER' | 'PRIVATE_TRANSFER';
+  /** Flat promo price per pax (IDR). Replaces the tier price when lower. */
+  promoPriceIdr?: number | null;
+  operationNotes?: string | null;
+  sortOrder?: number;
+  /** Departure slots for this variant; falls back to DEFAULT_SLOTS. */
+  slots?: SlotSeed[];
   priceTiers: PriceTierSeed[];
   blackoutDates: string[];
   addons: AddonSeed[];
 };
+
+/**
+ * The single derivation used by the seed, the mock catalogue and the tests.
+ * Variants that do not declare a mode fall back to their title.
+ */
+export function resolveFulfillmentMode(
+  variant: Pick<VariantSeed, 'title' | 'fulfillmentMode'>
+): 'SELF_DRIVE' | 'SHARED_TRANSFER' | 'PRIVATE_TRANSFER' {
+  if (variant.fulfillmentMode) return variant.fulfillmentMode;
+  if (/shared/i.test(variant.title)) return 'SHARED_TRANSFER';
+  if (/private/i.test(variant.title)) return 'PRIVATE_TRANSFER';
+  return 'SELF_DRIVE';
+}
 
 export type VentureSeed = {
   slug: string;
@@ -479,19 +551,19 @@ export const VENTURES: VentureSeed[] = [
   // ---------- 3. TUBING ----------
   {
     slug: 'ubud-river-tubing-adventure',
-    title: 'Ubud Tubing Adventure through Jungle Canyons and Rapids',
+    title: 'Ubud Tubing: Hidden Canyon Adventure with Lunch',
     hook3Sec: 'Float down the Kelan River on a tube through the green valley',
     shortDescription:
-      'Relaxing river tubing on the Kelan River with two gentle sections, a safety kayak escort and a complimentary drink.',
-    duration: '2 hours',
+      'Relaxing river tubing on the Kelan River with two gentle sections, a safety kayak escort and a complimentary lunch.',
+    duration: '3 hours',
     badge: 'Family Friendly',
     highlights: [
       'Two scenic tube sections along the Kelan River',
       'Safety kayak escort on every run',
       'Lifeguards stationed at entry and exit points',
-      'Refreshment included after the run',
+      'Complimentary lunch after the run',
     ],
-    inclusions: ['Tube and paddle', 'Safety kayak escort', 'Lifeguard support', 'Insurance', 'Drinking water'],
+    inclusions: ['Tube and paddle', 'Safety kayak escort', 'Lifeguard support', 'Lunch', 'Insurance', 'Drinking water'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
     itinerary: [
       { time: '08:00', activity: 'Registration and equipment fitting' },
@@ -531,30 +603,84 @@ export const VENTURES: VentureSeed[] = [
     locationKey: 'kintamani',
     variants: [
       {
-        title: 'Self Drive',
-        shortDescription: 'Meet at the Kelan river gate and start straight away',
+        title: 'River Tubing with Meeting Point',
+        shortDescription: 'Gear, guide and lunch included. Make your own way to the river gate.',
         badge: null,
+        transportBadge: '📍 Meeting Point',
+        duration: '3 hrs',
+        fulfillmentMode: 'SELF_DRIVE',
+        promoPriceIdr: 300000,
+        operationNotes: 'Meet at the Kelan river gate 15 minutes before departure',
+        sortOrder: 1,
+        slots: toSlots(TUBING_SLOTS.THREE_HOURS),
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 350000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 300000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 280000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 250000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 450000 },
+          { minPax: 2, maxPax: 2, pricePerPax: 400000 },
+          { minPax: 3, maxPax: 4, pricePerPax: 380000 },
+          { minPax: 5, maxPax: 10, pricePerPax: 350000 },
         ],
         blackoutDates: [],
-        addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
+        addons: [ADDON_PHOTOGRAPHY],
       },
       {
-        title: 'Private Transfer',
-        shortDescription: 'Round-trip hotel pickup and drop-off included',
+        title: 'River Tubing with Shared Transfer',
+        shortDescription: 'Hotel shuttle pick-up and drop-off shared with other guests.',
         badge: null,
+        transportBadge: '🚐 Shared Transfer',
+        duration: '4 hrs',
+        fulfillmentMode: 'SHARED_TRANSFER',
+        promoPriceIdr: 440000,
+        operationNotes: 'Shuttle fee is charged per guest; departure times are fixed',
+        sortOrder: 2,
+        slots: toSlots(TUBING_SLOTS.FOUR_HOURS),
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 550000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 500000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 480000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 450000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 650000 },
+          { minPax: 2, maxPax: 2, pricePerPax: 600000 },
+          { minPax: 3, maxPax: 4, pricePerPax: 580000 },
+          { minPax: 5, maxPax: 10, pricePerPax: 550000 },
         ],
         blackoutDates: [],
-        addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH, ADDON_BUFFET],
+        addons: [ADDON_PHOTOGRAPHY],
+      },
+      {
+        title: 'River Tubing with Private Transfer',
+        shortDescription: 'Private car and driver for your group, door to door.',
+        badge: 'Most Popular',
+        transportBadge: '🚗 Private Transfer',
+        duration: '4 hrs',
+        fulfillmentMode: 'PRIVATE_TRANSFER',
+        promoPriceIdr: 600000,
+        operationNotes: 'Private vehicle class is selected at checkout',
+        sortOrder: 3,
+        slots: toSlots(TUBING_SLOTS.FOUR_HOURS),
+        priceTiers: [
+          { minPax: 1, maxPax: 1, pricePerPax: 850000 },
+          { minPax: 2, maxPax: 2, pricePerPax: 800000 },
+          { minPax: 3, maxPax: 4, pricePerPax: 780000 },
+          { minPax: 5, maxPax: 10, pricePerPax: 750000 },
+        ],
+        blackoutDates: [],
+        addons: [ADDON_PHOTOGRAPHY, ADDON_BUFFET],
+      },
+      {
+        title: 'River Tubing with Ubud Highlights Tour',
+        shortDescription: 'Tubing, lunch, plus temple and rice terrace visits in one day.',
+        badge: null,
+        transportBadge: '🏛️ Ubud Highlights',
+        duration: '6 hrs',
+        fulfillmentMode: 'SELF_DRIVE',
+        promoPriceIdr: null,
+        operationNotes: 'Full-day bundle; the coupon applies because this package has no promo price',
+        sortOrder: 4,
+        slots: toSlots(TUBING_SLOTS.SIX_HOURS),
+        priceTiers: [
+          { minPax: 1, maxPax: 1, pricePerPax: 950000 },
+          { minPax: 2, maxPax: 2, pricePerPax: 900000 },
+          { minPax: 3, maxPax: 4, pricePerPax: 880000 },
+          { minPax: 5, maxPax: 10, pricePerPax: 850000 },
+        ],
+        blackoutDates: [],
+        addons: [ADDON_PHOTOGRAPHY],
       },
     ],
   },
