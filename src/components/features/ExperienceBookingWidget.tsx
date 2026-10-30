@@ -1,19 +1,26 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
-import { Calendar, Clock, Car } from 'lucide-react';
-import { Button, Stepper, Calendar as CalendarComponent, TimeSlotCard } from '@/components/ui';
+import { useEffect, useMemo, useState } from 'react';
+import { CalendarDays, Clock, MapPin, Tag, Users } from 'lucide-react';
+import { Button, Stepper, Calendar as CalendarComponent, TimeSlotPill } from '@/components/ui';
 import { formatPrice } from '@/lib/i18n';
-import { convertFromIDR } from '@/lib/fx';
 import { PickupAddonsStep } from '@/components/features/PickupAddonsStep';
 import { normalizeAddons } from '@/lib/addons';
 import {
-  calculateTotalPrice,
+  computeQuote,
   isDateAvailable,
-  getAvailableSlots,
+  isSlotBookable,
+  parseSlotHour,
+  NIGHT_SURCHARGE_FROM_HOUR,
 } from '@/lib/pricing';
-import { mockVehicleClasses, mockPickupZones } from '@/data/mockExperiences';
-import type { VentureItem, VehicleClassType, SlotTime } from '@/types/venture';
+import type {
+  Addon,
+  PickupZone,
+  SlotTime,
+  VehicleClass,
+  VehicleClassType,
+  VentureItem,
+} from '@/types/venture';
 import { cn } from '@/utils/cn';
 
 export interface BookingConfig {
@@ -21,8 +28,11 @@ export interface BookingConfig {
   date: Date | null;
   slot: SlotTime | null;
   adults: number;
-  transfer: 'NONE' | VehicleClassType;
+  vehicleClassType: VehicleClassType | null;
   zoneId: string | null;
+  hotelAddress: string;
+  isTba: boolean;
+  couponCode: string;
   addonIds: string[];
   customerName: string;
   customerEmail: string;
@@ -30,424 +40,528 @@ export interface BookingConfig {
   countryCode: string;
 }
 
+export interface AppliedCoupon {
+  code: string;
+  label: string;
+  discountPercent: number;
+}
+
 interface ExperienceBookingWidgetProps {
   venture: VentureItem;
   config: BookingConfig;
+  zones: PickupZone[];
+  vehicleClasses: VehicleClass[];
+  appliedCoupon: AppliedCoupon | null;
+  onCouponChange: (coupon: AppliedCoupon | null) => void;
   onChange: (patch: Partial<BookingConfig>) => void;
   onBook: () => void;
   isBooking: boolean;
 }
+
+const MAX_GUESTS = 10;
 
 const QUICK_DATES = [
   { label: 'Today', offset: 0 },
   { label: 'Tomorrow', offset: 1 },
 ];
 
+/** Local-date key (never toISOString — that shifts the day across timezones). */
+export function toDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function ExperienceBookingWidget({
   venture,
   config,
+  zones,
+  vehicleClasses,
+  appliedCoupon,
+  onCouponChange,
   onChange,
   onBook,
   isBooking,
 }: ExperienceBookingWidgetProps) {
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [showBreakdown, setShowBreakdown] = useState(false);
-  const [usdEstimate, setUsdEstimate] = useState<string | null>(null);
+  const [couponInput, setCouponInput] = useState('');
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
 
   const variant = useMemo(
-    () => venture.variants?.find((v) => v.id === config.variantId) ?? venture.variants?.[0] ?? null,
-    [venture.variants, config.variantId],
+    () => venture.variants?.find((item) => item.id === config.variantId) ?? venture.variants?.[0] ?? null,
+    [venture.variants, config.variantId]
   );
+
+  const fulfillmentMode = variant?.fulfillmentMode ?? 'SELF_DRIVE';
+  const needsPickup = fulfillmentMode !== 'SELF_DRIVE';
+  const needsVehicle = fulfillmentMode === 'PRIVATE_TRANSFER';
 
   const priceTiers = useMemo(() => {
     if (variant?.priceTiers?.length) return variant.priceTiers;
     return [{ minPax: 1, maxPax: venture.maxParticipants, pricePerPax: venture.priceIdr }];
   }, [variant, venture.priceIdr, venture.maxParticipants]);
 
-  const fulfillmentMode = config.transfer === 'NONE' ? 'SELF_DRIVE' : 'PRIVATE_TRANSFER';
-  const vehicleClass = config.transfer === 'NONE' ? null : mockVehicleClasses.find((c) => c.name === config.transfer) ?? null;
-  const zone = fulfillmentMode === 'PRIVATE_TRANSFER' ? mockPickupZones.find((z) => z.id === config.zoneId) ?? null : null;
-
-  const selectedAddons = useMemo(
-    () =>
-      normalizeAddons(variant?.addons).filter(
-        (a) => config.addonIds.includes(a.id) && !(a.requiresTransfer && fulfillmentMode !== 'PRIVATE_TRANSFER'),
-      ),
-    [variant, config.addonIds, fulfillmentMode],
+  const zone = useMemo(
+    () => (needsPickup ? zones.find((item) => item.id === config.zoneId) ?? null : null),
+    [needsPickup, zones, config.zoneId]
+  );
+  const vehicleClass = useMemo(
+    () => (needsVehicle ? vehicleClasses.find((item) => item.name === config.vehicleClassType) ?? null : null),
+    [needsVehicle, vehicleClasses, config.vehicleClassType]
   );
 
-  const total = useMemo(
+  const selectedAddons: Addon[] = useMemo(
     () =>
-      calculateTotalPrice(priceTiers, config.adults, fulfillmentMode, {
+      normalizeAddons(variant?.addons).filter(
+        (addon) => config.addonIds.includes(addon.id) && !(addon.requiresTransfer && !needsPickup)
+      ),
+    [variant, config.addonIds, needsPickup]
+  );
+
+  const dateKey = config.date ? toDateKey(config.date) : null;
+  const promoActive = Boolean(
+    variant?.promoPriceIdr && variant.promoPriceIdr > 0 && variant.promoPriceIdr < Math.min(...priceTiers.map((tier) => tier.pricePerPax))
+  );
+
+  const quote = useMemo(
+    () =>
+      computeQuote({
+        priceTiers,
+        paxCount: config.adults,
+        fulfillmentMode,
+        promoPriceIdr: variant?.promoPriceIdr ?? null,
+        coupon: appliedCoupon
+          ? { ...appliedCoupon, isActive: true, minPax: 1, usedCount: 0 }
+          : null,
+        slotTimeLabel: config.slot?.time ?? null,
         zone,
         vehicleClass,
         selectedAddons,
       }),
-    [priceTiers, config.adults, fulfillmentMode, zone, vehicleClass, selectedAddons],
+    [priceTiers, config.adults, fulfillmentMode, variant, appliedCoupon, config.slot, zone, vehicleClass, selectedAddons]
   );
 
-  // FX estimate (display only)
+  const dateBlocked = dateKey && variant ? !isDateAvailable(variant, dateKey) : false;
+
+  const slotOptions = useMemo(() => {
+    if (!variant || !dateKey || dateBlocked) return [];
+    return (variant.slotTimes ?? []).map((slot) => {
+      const available = slot.maxCapacity - slot.currentBookings;
+      const enoughCapacity = slot.isAvailable && available >= config.adults;
+      const withinCutoff = isSlotBookable(dateKey, slot.time, fulfillmentMode);
+      return { slot, available, enabled: enoughCapacity && withinCutoff };
+    });
+  }, [variant, dateKey, dateBlocked, config.adults, fulfillmentMode]);
+
+  // Keep the selected slot valid when the guest count or date changes.
   useEffect(() => {
-    let cancelled = false;
-    convertFromIDR(total.totalPriceIdr, 'USD')
-      .then((usd) => {
-        if (!cancelled) setUsdEstimate(`≈ US$${usd.toLocaleString('en-US')}`);
-      })
-      .catch(() => setUsdEstimate(null));
-    return () => {
-      cancelled = true;
-    };
-  }, [total.totalPriceIdr]);
+    if (!config.slot || !dateKey) return;
+    const stillValid = slotOptions.some(
+      (option) => option.slot.id === config.slot?.id && option.enabled
+    );
+    if (!stillValid) onChange({ slot: null });
+  }, [config.slot, dateKey, slotOptions, onChange]);
 
-  const dateStr = config.date ? config.date.toISOString().split('T')[0] : null;
-  const dateBlocked = dateStr && variant ? !isDateAvailable(variant, dateStr) : false;
-  const slots = useMemo(
-    () => (variant && !dateBlocked ? getAvailableSlots(variant, config.adults) : []),
-    [variant, dateBlocked, config.adults],
-  );
+  const maxGuests = Math.min(MAX_GUESTS, venture.maxParticipants);
+  const guestCountTouched = config.adults > venture.minParticipants;
 
-  const isCustomQuote = fulfillmentMode === 'PRIVATE_TRANSFER' && zone?.isCustomQuote === true;
+  const missing: string[] = [];
+  if (!config.date) missing.push('Pick an adventure date');
+  if (!config.slot) missing.push('Choose a departure time');
+  if (needsPickup && !config.zoneId) missing.push('Select a pickup area');
+  if (needsPickup && !config.isTba && !config.hotelAddress.trim()) {
+    missing.push('Add your hotel/villa address or mark it TBA');
+  }
+  if (needsVehicle && !config.vehicleClassType) missing.push('Choose a vehicle class');
+  if (!config.customerName.trim()) missing.push('Enter the lead guest name');
+  if (!config.customerEmail.trim()) missing.push('Enter an email for the e-voucher');
+  if (!config.customerWhatsApp.trim()) missing.push('Enter a WhatsApp number');
+  const canContinue = missing.length === 0;
 
-  const handleTransferChange = (value: 'NONE' | VehicleClassType) => {
-    if (value === 'NONE') {
-      // Dependent matrix: reset zone + transfer-required combos
-      onChange({
-        transfer: 'NONE',
-        zoneId: null,
-        addonIds: config.addonIds.filter((id) => {
-          const addon = normalizeAddons(variant?.addons).find((a) => a.id === id);
-          return addon ? !addon.requiresTransfer : false;
-        }),
+  const applyCoupon = async () => {
+    const code = couponInput.trim().toUpperCase();
+    if (!code || couponLoading) return;
+    setCouponLoading(true);
+    setCouponError(null);
+    try {
+      const response = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, paxCount: config.adults, promoActive }),
       });
-    } else {
-      onChange({ transfer: value, zoneId: config.zoneId ?? 'zone-1' });
+      const payload = await response.json();
+      if (payload.success && payload.data) {
+        onCouponChange(payload.data);
+        onChange({ couponCode: payload.data.code });
+        setCouponInput('');
+      } else {
+        onCouponChange(null);
+        onChange({ couponCode: '' });
+        setCouponError(payload.error?.message ?? 'This coupon cannot be used');
+      }
+    } catch {
+      onCouponChange(null);
+      setCouponError('Could not validate the coupon. Please try again.');
+    } finally {
+      setCouponLoading(false);
     }
   };
 
-  const handleToggleAddon = (addonId: string) => {
-    if (config.addonIds.includes(addonId)) {
-      onChange({ addonIds: config.addonIds.filter((id) => id !== addonId) });
-    } else {
-      onChange({ addonIds: [...config.addonIds, addonId] });
-    }
+  const removeCoupon = () => {
+    onCouponChange(null);
+    setCouponError(null);
+    onChange({ couponCode: '' });
   };
 
-  const requestQuoteUrl = `https://wa.me/?text=${encodeURIComponent(
-    `Request Quote: ${venture.title} (${variant?.title ?? ''}) — ${config.adults} pax, ${vehicleClass?.label ?? ''}, ${zone?.name ?? ''}`,
-  )}`;
+  const toggleAddon = (addonId: string) => {
+    onChange({
+      addonIds: config.addonIds.includes(addonId)
+        ? config.addonIds.filter((id) => id !== addonId)
+        : [...config.addonIds, addonId],
+    });
+  };
 
   return (
-    <div className="space-y-5" id="package-options">
-      {/* Step A — Package Type */}
-      <div>
-        <h3 className="font-heading text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">1 · Package Type</h3>
-        <div className="space-y-2">
-          {(venture.variants ?? []).map((v) => {
-            const active = v.id === variant?.id;
-            const tier = v.priceTiers[v.priceTiers.length - 1];
-            return (
-              <button
-                key={v.id}
-                type="button"
-                onClick={() => onChange({ variantId: v.id, slot: null })}
-                className={cn(
-                  'w-full text-left p-4 rounded-xl border-2 transition-all min-h-[44px]',
-                  active ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300',
-                )}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-900">{v.title}</span>
-                      {v.badge && (
-                        <span className="px-2 py-0.5 text-xs font-semibold bg-yellow-400 text-yellow-900 rounded">
-                          {v.badge}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-600 mt-1">{v.shortDescription}</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <span className="block text-xs text-gray-500">from</span>
-                    <span className="font-heading font-bold tabular-nums text-blue-600">{formatPrice(tier.pricePerPax)}</span>
-                    <span className="block text-xs text-gray-400">/pax</span>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Step B — Date & Time */}
-      <div>
-        <h3 className="font-heading text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">2 · Date & Time</h3>
-        <div className="flex gap-2 mb-3">
-          {QUICK_DATES.map((q) => {
-            const d = new Date();
-            d.setDate(d.getDate() + q.offset);
-            const active = config.date?.toDateString() === d.toDateString();
-            return (
-              <button
-                key={q.label}
-                type="button"
-                onClick={() => onChange({ date: d, slot: null })}
-                className={cn(
-                  'px-4 py-2.5 rounded-lg text-sm font-medium border-2 transition-all min-h-[44px]',
-                  active ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300',
-                )}
-              >
-                {q.label}
-              </button>
-            );
-          })}
-          <button
-            type="button"
-            onClick={() => setShowCalendar(!showCalendar)}
-            className={cn(
-              'px-4 py-2.5 rounded-lg text-sm font-medium border-2 transition-all flex items-center gap-1.5 min-h-[44px]',
-              showCalendar ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300',
-            )}
-          >
-            <Calendar className="w-4 h-4" />
-            Calendar
-          </button>
-        </div>
-
-        {showCalendar && (
-          <div className="mb-3 p-3 border border-gray-200 rounded-xl">
-            <CalendarComponent
-              selectedDate={config.date}
-              onDateSelect={(date) => onChange({ date, slot: null })}
-              blackoutDates={variant?.blackoutDates ?? []}
-              minDate={new Date()}
-            />
-          </div>
-        )}
-
-        {dateBlocked && (
-          <p className="text-sm text-red-600 mb-2">Selected date is not available. Please pick another date.</p>
-        )}
-
-        {slots.length > 0 && (
-          <div className="grid grid-cols-3 gap-2">
-            {slots.map((s) => {
-              const slot: SlotTime = {
-                id: `slot-${s.time.replace(/\s|:/g, '')}`,
-                variantId: variant?.id ?? '',
-                time: s.time,
-                maxCapacity: s.capacity,
-                currentBookings: s.booked,
-                isAvailable: true,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              };
-              return (
-                <TimeSlotCard
-                  key={slot.id}
-                  slot={slot}
-                  isSelected={config.slot?.time === s.time}
-                  onSelect={(sel) => onChange({ slot: sel })}
-                />
-              );
-            })}
-          </div>
-        )}
-        {!config.date && (
-          <p className="text-sm text-gray-400 flex items-center gap-1.5">
-            <Clock className="w-4 h-4" /> Pick a date to see available times
-          </p>
-        )}
-      </div>
-
-      {/* Step C — Travellers */}
-      <div>
-        <h3 className="font-heading text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">3 · Travellers</h3>
-        <Stepper
-          label="Adults"
-          value={config.adults}
-          min={venture.minParticipants}
-          max={venture.maxParticipants}
-          onChange={(v) => onChange({ adults: v })}
-        />
-      </div>
-
-      {/* Step D — Transport */}
-      <div>
-        <h3 className="font-heading text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-          <Car className="w-4 h-4" /> 4 · Transport
+    <div className="space-y-6 pb-2" id="package-options">
+      {/* 1 · Guest counter */}
+      <section>
+        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+          <Users className="h-4 w-4" /> 1 · Guests
         </h3>
-        <div className="space-y-2">
-          <button
-            type="button"
-            onClick={() => handleTransferChange('NONE')}
-            className={cn(
-              'w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all min-h-[44px]',
-              config.transfer === 'NONE' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300',
-            )}
-          >
-            <div className="text-left">
-              <span className="font-semibold text-gray-900 block">No Transfer</span>
-              <span className="text-xs text-gray-500">Meeting Point Only</span>
-            </div>
-            <span className="font-heading font-bold tabular-nums text-gray-900">Rp 0</span>
-          </button>
+        <div className="rounded-xl border border-neutral-200 p-4">
+          <Stepper
+            label="Participants"
+            value={config.adults}
+            min={Math.max(1, venture.minParticipants)}
+            max={maxGuests}
+            onChange={(value) => onChange({ adults: value })}
+          />
+          <p className="mt-2 text-xs text-neutral-500">
+            {guestCountTouched ? `${config.adults} guests` : `Price is shown per guest · up to ${maxGuests} guests`}
+          </p>
+        </div>
+      </section>
 
-          {mockVehicleClasses.map((c) => {
-            const active = config.transfer === c.name;
+      {/* 2 · Mini calendar */}
+      <section>
+        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+          <CalendarDays className="h-4 w-4" /> 2 · Date
+        </h3>
+        <div className="mb-3 flex gap-2">
+          {QUICK_DATES.map((quick) => {
+            const date = new Date();
+            date.setDate(date.getDate() + quick.offset);
+            const active = config.date?.toDateString() === date.toDateString();
             return (
               <button
-                key={c.id}
+                key={quick.label}
                 type="button"
-                onClick={() => handleTransferChange(c.name)}
+                onClick={() => onChange({ date, slot: null })}
                 className={cn(
-                  'w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all min-h-[44px]',
-                  active ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300',
+                  'min-h-[44px] rounded-lg border-2 px-4 text-sm font-medium transition-colors',
+                  active
+                    ? 'border-neutral-900 bg-neutral-900 text-white'
+                    : 'border-neutral-200 text-neutral-600 hover:border-neutral-400'
                 )}
               >
-                <div className="text-left">
-                  <span className="font-semibold text-gray-900 block">{c.label}</span>
-                  {c.description && <span className="text-xs text-gray-500">{c.description}</span>}
-                </div>
-                <span className="font-heading font-bold tabular-nums text-gray-900">
-                  {c.deltaIdr > 0 ? `+ ${formatPrice(c.deltaIdr)}/vehicle` : 'Included'}
-                </span>
+                {quick.label}
               </button>
             );
           })}
         </div>
+        <div className="rounded-xl border border-neutral-200 p-3">
+          <CalendarComponent
+            selectedDate={config.date}
+            onDateSelect={(date) => onChange({ date, slot: null })}
+            blackoutDates={variant?.blackoutDates ?? []}
+            minDate={new Date()}
+          />
+        </div>
+        {dateBlocked && (
+          <p className="mt-2 text-sm text-red-600">This date is not available. Please pick another day.</p>
+        )}
+      </section>
 
-        {/* Zone picker — revealed when transfer selected */}
-        {config.transfer !== 'NONE' && (
-          <div className="mt-3">
-            <label htmlFor="zone-picker" className="text-xs font-medium text-gray-500 block mb-2">
-              Pickup Area
-            </label>
-            <select
-              id="zone-picker"
-              value={config.zoneId ?? ''}
-              onChange={(e) => onChange({ zoneId: e.target.value })}
-              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-700"
-            >
-              <option value="" disabled>Select area…</option>
-              {mockPickupZones.map((z) => (
-                <option key={z.id} value={z.id}>
-                  {z.name}
-                  {z.isCustomQuote ? ' (Custom Quote)' : z.surchargeIdr > 0 ? ` (+${formatPrice(z.surchargeIdr)}/vehicle)` : ' (Included)'}
-                </option>
-              ))}
-            </select>
+      {/* 3 · Departure slots */}
+      <section>
+        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+          <Clock className="h-4 w-4" /> 3 · Departure time
+        </h3>
+        {!config.date && (
+          <p className="text-sm text-neutral-400">Pick a date to see available times</p>
+        )}
+        {config.date && slotOptions.length === 0 && (
+          <p className="text-sm text-neutral-500">No departures left for this date. Try another day.</p>
+        )}
+        {slotOptions.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {slotOptions.map(({ slot, available, enabled }) => (
+              <TimeSlotPill
+                key={slot.id}
+                label={slot.time}
+                spotsLeft={available}
+                selected={config.slot?.id === slot.id}
+                disabled={!enabled}
+                onSelect={() => onChange({ slot })}
+              />
+            ))}
           </div>
         )}
-      </div>
+        {parseSlotHour(config.slot?.time) !== null &&
+          (parseSlotHour(config.slot?.time) as number) >= NIGHT_SURCHARGE_FROM_HOUR && (
+            <p className="mt-2 text-xs text-neutral-500">
+              Evening departure · +{formatPrice(50_000)} per guest applies
+            </p>
+          )}
+      </section>
 
-      {/* Step E — Combo Add-ons (dependent, normalized) */}
+      {/* 4 · Pickup details (conditional) */}
+      {needsPickup && (
+        <section>
+          <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+            <MapPin className="h-4 w-4" /> 4 · Pickup
+          </h3>
+          <div className="space-y-3 rounded-xl border border-neutral-200 p-4">
+            <div>
+              <label htmlFor="pickup-zone" className="mb-1.5 block text-xs font-medium text-neutral-500">
+                Pickup area
+              </label>
+              <select
+                id="pickup-zone"
+                value={config.zoneId ?? ''}
+                onChange={(event) => onChange({ zoneId: event.target.value })}
+                className="min-h-[44px] w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900"
+              >
+                <option value="" disabled>
+                  Select your area…
+                </option>
+                {zones.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                    {item.isCustomQuote
+                      ? ' (custom quote)'
+                      : item.surchargeIdr > 0
+                        ? ` (+${formatPrice(item.surchargeIdr)}${fulfillmentMode === 'SHARED_TRANSFER' ? '/guest' : '/vehicle'})`
+                        : ' (included)'}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="hotel-address" className="mb-1.5 block text-xs font-medium text-neutral-500">
+                Hotel or villa address
+              </label>
+              <input
+                id="hotel-address"
+                type="text"
+                value={config.hotelAddress}
+                disabled={config.isTba}
+                onChange={(event) => onChange({ hotelAddress: event.target.value })}
+                placeholder={config.isTba ? 'To be confirmed by H-1' : 'e.g. Villa Melati, Jl. Raya Seminyak'}
+                className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900 disabled:bg-neutral-100 disabled:text-neutral-400"
+              />
+              <label className="mt-2 flex min-h-[44px] items-center gap-2 text-sm text-neutral-700">
+                <input
+                  type="checkbox"
+                  checked={config.isTba}
+                  onChange={(event) => onChange({ isTba: event.target.checked })}
+                  className="h-5 w-5 rounded border-neutral-300"
+                />
+                Address TBA — I&apos;ll confirm by H-1
+              </label>
+            </div>
+
+            {needsVehicle && (
+              <div>
+                <span className="mb-2 block text-xs font-medium text-neutral-500">Vehicle class</span>
+                <div className="space-y-2">
+                  {vehicleClasses.map((item) => {
+                    const active = config.vehicleClassType === item.name;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => onChange({ vehicleClassType: item.name })}
+                        className={cn(
+                          'flex min-h-[44px] w-full items-center justify-between rounded-lg border-2 px-3 py-2 text-left transition-colors',
+                          active ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:border-neutral-400'
+                        )}
+                      >
+                        <span>
+                          <span className="block text-sm font-semibold text-neutral-900">{item.label}</span>
+                          <span className="text-xs text-neutral-500">
+                            {item.description ?? `Up to ${item.vehicleMaxPax} guests`}
+                          </span>
+                        </span>
+                        <span className="text-sm font-semibold tabular-nums text-neutral-900">
+                          {item.deltaIdr > 0 ? `+${formatPrice(item.deltaIdr)}` : 'Included'}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* 5 · Coupon */}
+      <section>
+        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+          <Tag className="h-4 w-4" /> Promo code
+        </h3>
+        {appliedCoupon ? (
+          <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50 px-3 py-2.5">
+            <span className="text-sm text-green-800">
+              <strong>{appliedCoupon.code}</strong> applied · −{appliedCoupon.discountPercent}%
+            </span>
+            <button
+              type="button"
+              onClick={removeCoupon}
+              className="min-h-[44px] px-2 text-sm font-medium text-green-800 underline"
+            >
+              Remove
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={couponInput}
+              onChange={(event) => setCouponInput(event.target.value.toUpperCase())}
+              placeholder="Enter code"
+              className="min-h-[44px] flex-1 rounded-lg border border-neutral-300 px-3 text-sm uppercase outline-none focus:border-neutral-900"
+            />
+            <button
+              type="button"
+              onClick={applyCoupon}
+              disabled={couponLoading || couponInput.trim().length < 3}
+              className="min-h-[44px] rounded-lg border-2 border-neutral-900 px-4 text-sm font-semibold text-neutral-900 disabled:border-neutral-200 disabled:text-neutral-400"
+            >
+              {couponLoading ? '…' : 'Apply'}
+            </button>
+          </div>
+        )}
+        {couponError && <p className="mt-2 text-sm text-red-600">{couponError}</p>}
+      </section>
+
+      {/* 6 · Add-ons */}
       <PickupAddonsStep
         addons={variant?.addons}
         variantId={variant?.id ?? ''}
         fulfillmentMode={fulfillmentMode}
         selectedAddonIds={config.addonIds}
-        onToggle={handleToggleAddon}
+        onToggle={toggleAddon}
       />
 
-      <div className="space-y-3 rounded-xl border border-gray-200 p-4">
-        <div>
-          <h3 className="font-heading text-base font-semibold text-gray-900">Contact details</h3>
-          <p className="mt-1 text-xs text-gray-500">We use these details for your booking confirmation.</p>
-        </div>
-        <input
-          aria-label="Full name"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-600"
-          onChange={(event) => onChange({ customerName: event.target.value })}
-          placeholder="Full name"
-          required
-          type="text"
-          value={config.customerName}
-        />
-        <input
-          aria-label="Email address"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-600"
-          onChange={(event) => onChange({ customerEmail: event.target.value })}
-          placeholder="Email address"
-          required
-          type="email"
-          value={config.customerEmail}
-        />
-        <div className="grid grid-cols-[5rem_1fr] gap-2">
+      {/* 7 · Contact details */}
+      <section>
+        <h3 className="mb-3 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+          7 · Who is coming?
+        </h3>
+        <div className="space-y-2.5 rounded-xl border border-neutral-200 p-4">
           <input
-            aria-label="Country code"
-            className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm uppercase outline-none focus:border-blue-600"
-            maxLength={2}
-            onChange={(event) => onChange({ countryCode: event.target.value.toUpperCase() })}
-            placeholder="ID"
-            required
-            value={config.countryCode}
+            aria-label="Full name"
+            className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+            onChange={(event) => onChange({ customerName: event.target.value })}
+            placeholder="Full name"
+            type="text"
+            value={config.customerName}
           />
           <input
-            aria-label="WhatsApp number"
-            className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-600"
-            onChange={(event) => onChange({ customerWhatsApp: event.target.value })}
-            placeholder="WhatsApp number"
-            required
-            type="tel"
-            value={config.customerWhatsApp}
+            aria-label="Email address"
+            className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+            onChange={(event) => onChange({ customerEmail: event.target.value })}
+            placeholder="Email for the e-voucher"
+            type="email"
+            value={config.customerEmail}
           />
-        </div>
-      </div>
-
-      {/* Real-time Total */}
-      <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-        <button
-          type="button"
-          onClick={() => setShowBreakdown(!showBreakdown)}
-          className="w-full flex items-center justify-between"
-        >
-          <span className="text-sm font-medium text-gray-600">Total Price</span>
-          <span className="text-right">
-            <span className="block font-heading text-2xl font-bold tabular-nums text-blue-600">{formatPrice(total.totalPriceIdr)}</span>
-            {usdEstimate && <span className="text-xs text-gray-500">{usdEstimate}</span>}
-          </span>
-        </button>
-        {showBreakdown && (
-          <div className="mt-3 pt-3 border-t border-gray-200 space-y-1.5 text-sm">
-            <div className="flex justify-between text-gray-600">
-              <span>Base ({config.adults} pax × {formatPrice(total.pricePerPax)})</span>
-              <span>{formatPrice(total.totalPrice)}</span>
-            </div>
-            {total.transfer.totalFeeIdr > 0 && (
-              <div className="flex justify-between text-gray-600">
-                <span>Transfer ({total.transfer.vehicleCount} × {formatPrice(total.transfer.feePerVehicleIdr)})</span>
-                <span>{formatPrice(total.transfer.totalFeeIdr)}</span>
-              </div>
-            )}
-            {total.addonsTotalIdr > 0 && (
-              <div className="flex justify-between text-gray-600">
-                <span>Combos &amp; Add-ons ({config.addonIds.length})</span>
-                <span>{formatPrice(total.addonsTotalIdr)}</span>
-              </div>
-            )}
+          <div className="grid grid-cols-[5rem_1fr] gap-2">
+            <input
+              aria-label="Country code"
+              className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-sm uppercase outline-none focus:border-neutral-900"
+              maxLength={2}
+              onChange={(event) => onChange({ countryCode: event.target.value.toUpperCase() })}
+              placeholder="ID"
+              value={config.countryCode}
+            />
+            <input
+              aria-label="WhatsApp number"
+              className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+              onChange={(event) => onChange({ customerWhatsApp: event.target.value })}
+              placeholder="WhatsApp number"
+              type="tel"
+              value={config.customerWhatsApp}
+            />
           </div>
+        </div>
+      </section>
+
+      {/* Sticky summary + Next */}
+      <div className="sticky bottom-0 -mx-4 -mb-4 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
+        <div className="mb-2 space-y-1 text-sm">
+          <div className="flex justify-between text-neutral-600">
+            <span>
+              {config.adults} × {formatPrice(quote.unitPricePerPaxIdr)}
+              {quote.promoActive && (
+                <span className="ml-2 text-xs line-through">{formatPrice(quote.listPricePerPaxIdr)}</span>
+              )}
+            </span>
+            <span className="tabular-nums">{formatPrice(quote.subtotalIdr)}</span>
+          </div>
+          {quote.discountIdr > 0 && (
+            <div className="flex justify-between text-green-700">
+              <span>Discount {appliedCoupon ? `(${appliedCoupon.code})` : '(promo price)'}</span>
+              <span className="tabular-nums">−{formatPrice(quote.discountIdr)}</span>
+            </div>
+          )}
+          {quote.nightSurchargeIdr > 0 && (
+            <div className="flex justify-between text-neutral-600">
+              <span>Evening surcharge</span>
+              <span className="tabular-nums">{formatPrice(quote.nightSurchargeIdr)}</span>
+            </div>
+          )}
+          {quote.transfer.totalFeeIdr > 0 && (
+            <div className="flex justify-between text-neutral-600">
+              <span>
+                {fulfillmentMode === 'SHARED_TRANSFER'
+                  ? 'Shared shuttle'
+                  : `Private transfer (${quote.transfer.vehicleCount} vehicle${quote.transfer.vehicleCount > 1 ? 's' : ''})`}
+              </span>
+              <span className="tabular-nums">{formatPrice(quote.transfer.totalFeeIdr)}</span>
+            </div>
+          )}
+          {quote.addonsTotalIdr > 0 && (
+            <div className="flex justify-between text-neutral-600">
+              <span>Add-ons</span>
+              <span className="tabular-nums">{formatPrice(quote.addonsTotalIdr)}</span>
+            </div>
+          )}
+          <div className="flex items-center justify-between border-t border-neutral-100 pt-1.5">
+            <span className="text-sm font-medium text-neutral-900">Total</span>
+            <span className="font-heading text-xl font-bold tabular-nums text-neutral-900">
+              {formatPrice(quote.totalPriceIdr)}
+            </span>
+          </div>
+        </div>
+
+        <Button
+          onClick={onBook}
+          disabled={!canContinue || isBooking}
+          fullWidth
+          size="lg"
+          className="!rounded-xl !bg-neutral-900 hover:!bg-neutral-800 disabled:!bg-neutral-300"
+        >
+          {isBooking ? 'Processing…' : 'Next'}
+        </Button>
+
+        {!canContinue && (
+          <p className="mt-1.5 text-center text-xs text-neutral-500">{missing[0]}</p>
         )}
       </div>
-
-      {/* CTA */}
-      {isCustomQuote ? (
-        <a
-          href={requestQuoteUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block w-full text-center px-6 py-3.5 font-heading font-semibold uppercase tracking-wider text-lg rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors min-h-[44px]"
-        >
-          Request Quote (Outer Area)
-        </a>
-      ) : (
-        <Button onClick={onBook} disabled={isBooking || !config.date || !config.slot || !config.customerName || !config.customerEmail || !config.customerWhatsApp} fullWidth size="lg">
-          {isBooking ? 'Processing…' : 'Book Now'}
-        </Button>
-      )}
-      {!config.slot && config.date && !isCustomQuote && (
-        <p className="text-xs text-gray-400 text-center">Select a time slot to continue</p>
-      )}
     </div>
   );
 }

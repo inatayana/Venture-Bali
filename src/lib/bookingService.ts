@@ -3,25 +3,15 @@ import { prisma } from '@/lib/prisma';
 import type { BookingInput } from '@/lib/bookingSchema';
 import type { Addon, VehicleClass } from '@/types/venture';
 import {
+  COUPON_REJECTION_MESSAGES,
   computeQuote,
-  getCouponRejection,
-  isBookable,
   isDateAvailable,
+  isSlotBookable,
   validateAddonModeCombinations,
-  type CouponRejectionReason,
 } from '@/lib/pricing';
 
 const PENDING_HOLD_MINUTES = 15;
 const SERIALIZATION_RETRY_LIMIT = 3;
-
-const COUPON_REJECTION_MESSAGES: Record<CouponRejectionReason, string> = {
-  COUPON_INACTIVE: 'This coupon is not active',
-  COUPON_NOT_STARTED: 'This coupon is not valid yet',
-  COUPON_EXPIRED: 'This coupon has expired',
-  COUPON_MIN_PAX: 'This coupon requires more guests',
-  COUPON_EXHAUSTED: 'This coupon has reached its usage limit',
-  COUPON_NOT_APPLICABLE_ON_PROMO: 'This coupon cannot be combined with an active promo price',
-};
 
 export class BookingServiceError extends Error {
   constructor(
@@ -119,16 +109,6 @@ async function createBookingInTransaction(
   if (input.couponCode && !coupon) {
     throw new BookingServiceError('VALIDATION_ERROR', 'Coupon code not found');
   }
-  if (coupon) {
-    const rejection = getCouponRejection(
-      coupon,
-      input.paxCount,
-      variant.promoPriceIdr !== null && variant.promoPriceIdr > 0,
-    );
-    if (rejection) {
-      throw new BookingServiceError('VALIDATION_ERROR', COUPON_REJECTION_MESSAGES[rejection]);
-    }
-  }
 
   const availableAddons = variant.addons.map(toAddon);
   const selectedAddons = availableAddons.filter((addon) => input.selectedAddons.includes(addon.id));
@@ -140,9 +120,7 @@ async function createBookingInTransaction(
     throw new BookingServiceError('VALIDATION_ERROR', 'Some selected add-ons require a transfer package');
   }
 
-  const [year, month, day] = input.bookingDate.split('-').map(Number);
-  const activityTime = new Date(Date.UTC(year, month - 1, day));
-  if (!isBookable(activityTime, input.fulfillmentMode, new Date(), zone)) {
+  if (!isSlotBookable(input.bookingDate, slot.time, input.fulfillmentMode, new Date())) {
     throw new BookingServiceError('CUT_OFF', 'Booking cut-off has passed for this slot');
   }
 
@@ -174,6 +152,13 @@ async function createBookingInTransaction(
     vehicleClass: vehicleClass ? toVehicleClass(vehicleClass) : null,
     selectedAddons,
   });
+
+  if (input.couponCode && breakdown.couponRejection) {
+    throw new BookingServiceError(
+      'VALIDATION_ERROR',
+      COUPON_REJECTION_MESSAGES[breakdown.couponRejection],
+    );
+  }
 
   const customer = await tx.customer.upsert({
     where: { email: input.customerEmail.toLowerCase() },

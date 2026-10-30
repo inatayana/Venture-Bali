@@ -252,6 +252,16 @@ export type CouponRejectionReason =
   | 'COUPON_EXHAUSTED'
   | 'COUPON_NOT_APPLICABLE_ON_PROMO';
 
+/** Customer-facing copy for every rejection, shared by the API and the UI. */
+export const COUPON_REJECTION_MESSAGES: Record<CouponRejectionReason, string> = {
+  COUPON_INACTIVE: 'This coupon is not active',
+  COUPON_NOT_STARTED: 'This coupon is not valid yet',
+  COUPON_EXPIRED: 'This coupon has expired',
+  COUPON_MIN_PAX: 'This coupon requires more guests',
+  COUPON_EXHAUSTED: 'This coupon has reached its usage limit',
+  COUPON_NOT_APPLICABLE_ON_PROMO: 'This coupon cannot be combined with an active promo price',
+};
+
 export interface CouponRule {
   code: string;
   discountPercent: number;
@@ -490,4 +500,35 @@ export function isBookable(
 
   // activityTime is expected already shifted to WITA frame by caller
   return nowWita.getTime() <= deadline.getTime();
+}
+
+/**
+ * Slot-level cut-off check used by the UI and the booking service.
+ * Unlike `isBookable` (which only sees the activity date) this accounts for
+ * the departure hour, so a 08:00 slot today is correctly rejected while a
+ * 17:00 slot today may still be bookable for SELF_DRIVE.
+ */
+export function isSlotBookable(
+  bookingDate: string, // YYYY-MM-DD
+  slotLabel: string,
+  fulfillmentMode: FulfillmentMode,
+  now: Date = new Date()
+): boolean {
+  const hour = parseSlotHour(slotLabel);
+  if (hour === null) return true;
+
+  const [year, month, day] = bookingDate.split('-').map(Number);
+  if (!year || !month || !day) return true;
+
+  const dayStartWita = Date.UTC(year, month - 1, day);
+  const activityWita = dayStartWita + hour * 60 * 60 * 1000;
+  const nowWita = getNowWita(now).getTime();
+
+  if (fulfillmentMode === 'SELF_DRIVE') {
+    return activityWita - nowWita >= 2 * 60 * 60 * 1000;
+  }
+
+  // Transfers: deadline is 22:00 WITA on D-1.
+  const deadline = dayStartWita - 24 * 60 * 60 * 1000 + 22 * 60 * 60 * 1000;
+  return nowWita <= deadline;
 }

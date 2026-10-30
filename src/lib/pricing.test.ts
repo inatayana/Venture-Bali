@@ -14,6 +14,7 @@ import {
   getCouponRejection,
   parseSlotHour,
   calculateSharedTransferFee,
+  isSlotBookable,
   NIGHT_SURCHARGE_IDR,
   type CouponRule,
 } from './pricing';
@@ -382,5 +383,18 @@ describe('Promo, coupon & night surcharge engine', () => {
       2,
     );
     expect(slots[0].id).toBe('clx123');
+  });
+
+  it('applies the cut-off at the departure hour, not at midnight', () => {
+    // now = 18:00 WITA on 2026-10-31
+    const now = new Date('2026-10-31T10:00:00.000Z');
+
+    expect(isSlotBookable('2026-10-31', '08:00 AM', 'SELF_DRIVE', now)).toBe(false);
+    expect(isSlotBookable('2026-10-31', '08:00 PM', 'SELF_DRIVE', now)).toBe(true);
+
+    // Transfers for tomorrow are still inside the 22:00 D-1 deadline…
+    expect(isSlotBookable('2026-11-01', '08:00 AM', 'SHARED_TRANSFER', now)).toBe(true);
+    // …but a transfer for today is already closed.
+    expect(isSlotBookable('2026-10-31', '08:00 AM', 'PRIVATE_TRANSFER', now)).toBe(false);
   });
 });
