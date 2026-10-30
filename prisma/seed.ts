@@ -258,6 +258,20 @@ async function seedVentures(
       },
     });
 
+    // Remove variants that no longer exist in the catalogue, but never delete
+    // one that already has bookings (that would cascade and erase history).
+    const seededTitles = v.variants.map((variant) => variant.title);
+    const removed = await prisma.variant.deleteMany({
+      where: {
+        ventureId: venture.id,
+        title: { notIn: seededTitles },
+        bookings: { none: {} },
+      },
+    });
+    if (removed.count > 0) {
+      console.log(`  ↳ ${v.slug}: removed ${removed.count} stale variant(s)`);
+    }
+
     // Variants — identified by (ventureId, title)
     for (const variantSeed of v.variants) {
       const existingVariant = await prisma.variant.findFirst({
