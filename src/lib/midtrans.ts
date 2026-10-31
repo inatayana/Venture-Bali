@@ -117,15 +117,21 @@ export async function createSnapTransaction(
 }
 
 export async function verifyWebhookSignature(payload: MidtransWebhookPayload): Promise<boolean> {
-  const { serverKey } = getMidtransConfig();
-  const { createHash } = await import('crypto');
+  // Webhook verification only needs the server key. Using getMidtransConfig()
+  // here made the endpoint require the client key too, which a headless
+  // deployment does not need.
+  const serverKey = process.env.MIDTRANS_SERVER_KEY;
+  if (!serverKey) return false;
+
+  const { createHash, timingSafeEqual } = await import('crypto');
 
   // Midtrans signature key verification
   // signature_key = SHA512(order_id + status_code + gross_amount + server_key)
   const signatureString = `${payload.order_id}${payload.status_code}${payload.gross_amount}${serverKey}`;
-  const expectedSignature = createHash('sha512').update(signatureString).digest('hex');
-
-  return expectedSignature === payload.signature_key;
+  const expected = Buffer.from(createHash('sha512').update(signatureString).digest('hex'));
+  const provided = Buffer.from(payload.signature_key ?? '');
+  if (provided.length !== expected.length) return false;
+  return timingSafeEqual(provided, expected);
 }
 
 export function mapTransactionStatus(status: string, fraudStatus?: string): 'PENDING' | 'PAID' | 'CANCELLED' | 'FAILED' {
