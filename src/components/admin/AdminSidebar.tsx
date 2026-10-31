@@ -9,6 +9,7 @@ import {
   CalendarCheck,
   ClipboardList,
   Sparkles,
+  BarChart3,
   ExternalLink,
   LogOut,
 } from 'lucide-react';
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { href: '/admin/operations', label: 'Operations', icon: ClipboardList },
   { href: '/admin/ventures', label: 'Ventures', icon: Map },
   { href: '/admin/bookings', label: 'Bookings', icon: CalendarCheck },
+  { href: '/admin/reports', label: 'Revenue', icon: BarChart3 },
   { href: '/admin/content', label: 'AI Content', icon: Sparkles },
 ];
 

@@ -75,12 +75,20 @@ export default async function AdminVenturesPage() {
                       <span className="text-gray-400"> ({venture.reviewCount})</span>
                     </td>
                     <td className="px-4 py-3">
-                      <Link
-                        href={`/experiences/${venture.id}/${venture.slug}`}
-                        className="text-blue-600 hover:underline text-xs"
-                      >
-                        View
-                      </Link>
+                      <div className="flex items-center gap-3">
+                        <Link
+                          href={`/admin/ventures/${venture.id}`}
+                          className="text-blue-600 hover:underline text-xs font-medium"
+                        >
+                          Manage
+                        </Link>
+                        <Link
+                          href={`/experiences/${venture.id}/${venture.slug}`}
+                          className="text-gray-500 hover:underline text-xs"
+                        >
+                          View
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}
