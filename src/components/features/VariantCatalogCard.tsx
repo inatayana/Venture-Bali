@@ -33,7 +33,8 @@ export function VariantCatalogCard({
   onOpenDetails,
   fallbackImageUrl,
 }: VariantCatalogCardProps) {
-  const { listPriceIdr, promoPriceIdr, priceIdr } = getVariantPriceDisplay(variant);
+  const { listPriceIdr, promoPriceIdr, priceIdr, lowestTierMinPax } =
+    getVariantPriceDisplay(variant);
   const pickup = getVariantPickupDisplay(variant);
   const inclusions = variant.inclusions ?? [];
   const addonCount = variant.addons?.length ?? 0;
@@ -132,6 +133,9 @@ export function VariantCatalogCard({
               {formatPrice(priceIdr)}
             </span>
             <span className="text-xs text-neutral-500">/ guest</span>
+            {lowestTierMinPax > 1 && (
+              <span className="text-xs text-neutral-400">· {lowestTierMinPax}+</span>
+            )}
           </div>
           <p className="text-xs text-neutral-500">
             {variant.minimumSpendIdr ? (

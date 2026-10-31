@@ -49,6 +49,14 @@ describe('getVariantPriceDisplay', () => {
     expect(display.listPriceIdr).toBe(0);
     expect(display.promoPriceIdr).toBeNull();
     expect(display.priceIdr).toBe(0);
+    expect(display.lowestTierMinPax).toBe(1);
+  });
+
+  it('reports the min pax of the cheapest tier', () => {
+    const display = getVariantPriceDisplay(buildVariant());
+
+    // The Rp 350.000 tier starts at 3 guests.
+    expect(display.lowestTierMinPax).toBe(3);
   });
 });
 

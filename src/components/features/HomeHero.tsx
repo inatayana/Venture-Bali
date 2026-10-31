@@ -1,0 +1,62 @@
+import { CheckCircle, ShieldCheck, Sparkles, Wallet } from 'lucide-react';
+
+const TRUST_POINTS = [
+  { icon: Sparkles, label: 'Instant confirmation' },
+  { icon: ShieldCheck, label: '80% refund ≥24h' },
+  { icon: Wallet, label: 'Secure checkout · VISA / QRIS' },
+];
+
+/**
+ * Home hero — preview only.
+ *
+ * Dark band with the brand accent so the catalogue opens with energy instead of
+ * dropping straight into a grid. Purely presentational: no data, no state.
+ */
+export function HomeHero() {
+  return (
+    <section className="relative overflow-hidden bg-brand-ink text-white">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full bg-brand/25 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-40 left-1/3 h-80 w-80 rounded-full bg-brand/10 blur-3xl"
+      />
+
+      <div className="container relative mx-auto px-4 py-10 sm:py-16">
+        <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+          Bali · 9 adventure categories
+        </p>
+
+        <h2 className="mt-4 max-w-2xl font-heading text-4xl font-bold uppercase leading-[1.05] tracking-tight sm:text-5xl">
+          Book the{' '}
+          <span className="bg-brand px-2 text-brand-ink">adrenaline</span>
+          <br className="hidden sm:block" /> skip the queue.
+        </h2>
+
+        <p className="mt-3 max-w-xl text-sm text-white/70 sm:text-base">
+          Rafting, ATV, tubing and trekking across Bali — instant confirmation,
+          free reschedule up to 24 hours before, run by licensed local operators.
+        </p>
+
+        <ul className="mt-6 flex flex-wrap gap-2 text-xs">
+          {TRUST_POINTS.map(({ icon: Icon, label }) => (
+            <li
+              key={label}
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-white/85"
+            >
+              <Icon className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
+              {label}
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-6 hidden items-center gap-1.5 text-[11px] text-white/50 sm:inline-flex">
+          <CheckCircle className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
+          Prices in IDR · USD shown for reference
+        </p>
+      </div>
+    </section>
+  );
+}
