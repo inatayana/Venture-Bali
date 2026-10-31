@@ -4,6 +4,7 @@ pnpm-lockfile
 
 # Next.js
 .next
+.next-dev
 out
 *.local
 
