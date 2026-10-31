@@ -96,6 +96,11 @@ describe('bookingSchema', () => {
     expect(result.couponCode).toBe('TRYBALI2026');
   });
 
+  it('accepts a booking without billing details', () => {
+    const result = bookingSchema.safeParse({ ...baseBooking, billingAddress: undefined });
+    expect(result.success).toBe(true);
+  });
+
   it('requires the booking terms and the safety waiver', () => {
     expect(bookingSchema.safeParse({ ...baseBooking, termsAccepted: false }).success).toBe(false);
     expect(bookingSchema.safeParse({ ...baseBooking, waiverAccepted: false }).success).toBe(false);

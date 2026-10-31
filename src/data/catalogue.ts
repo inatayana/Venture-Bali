@@ -546,7 +546,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'EASY',
     suitableFor: ['First-timers', 'Couples', 'Families'],
     imageUrl: '/images/atv-ubud.svg',
-    gallery: ['/images/atv-ubud.svg', '/images/atv-ubud-2.svg', '/images/atv-ubud-3.svg'],
+    gallery: ['/images/atv-ubud.svg', '/images/atv-ubud-2.svg', '/images/atv-ubud-3.svg', '/images/atv-ubud-4.svg'],
     rating: 4.8,
     locationKey: 'ubud',
     variants: [
@@ -629,7 +629,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'MODERATE',
     suitableFor: ['Groups', 'Team building', 'Active travellers'],
     imageUrl: '/images/rafting.svg',
-    gallery: ['/images/rafting.svg', '/images/rafting-2.svg', '/images/rafting-3.svg'],
+    gallery: ['/images/rafting.svg', '/images/rafting-2.svg', '/images/rafting-3.svg', '/images/rafting-4.svg'],
     rating: 4.7,
     locationKey: 'ubud',
     variants: [
@@ -712,7 +712,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'EASY',
     suitableFor: ['Families', 'Children', 'Relaxed groups'],
     imageUrl: '/images/tubing.svg',
-    gallery: ['/images/tubing.svg', '/images/tubing-2.svg', '/images/tubing-3.svg'],
+    gallery: ['/images/tubing.svg', '/images/tubing-2.svg', '/images/tubing-3.svg', '/images/tubing-4.svg'],
     rating: 4.6,
     locationKey: 'ubud',
     variants: [
@@ -862,7 +862,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'MODERATE',
     suitableFor: ['Active travellers', 'Groups', 'Couples'],
     imageUrl: '/images/cycling.svg',
-    gallery: ['/images/cycling.svg', '/images/cycling-2.svg', '/images/cycling-3.svg'],
+    gallery: ['/images/cycling.svg', '/images/cycling-2.svg', '/images/cycling-3.svg', '/images/cycling-4.svg'],
     rating: 4.7,
     locationKey: 'jatiluwih',
     variants: [
@@ -946,7 +946,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'CHALLENGING',
     suitableFor: ['Hikers', 'Sunrise lovers', 'Active travellers'],
     imageUrl: '/images/mount-batur.svg',
-    gallery: ['/images/mount-batur.svg', '/images/mount-batur-2.svg', '/images/mount-batur-3.svg'],
+    gallery: ['/images/mount-batur.svg', '/images/mount-batur-2.svg', '/images/mount-batur-3.svg', '/images/mount-batur-4.svg'],
     rating: 4.9,
     locationKey: 'kintamani',
     variants: [
@@ -1029,7 +1029,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'EASY',
     suitableFor: ['Groups', 'Team building', 'Active travellers'],
     imageUrl: '/images/water-sports.svg',
-    gallery: ['/images/water-sports.svg', '/images/water-sports-2.svg', '/images/water-sports-3.svg'],
+    gallery: ['/images/water-sports.svg', '/images/water-sports-2.svg', '/images/water-sports-3.svg', '/images/water-sports-4.svg'],
     rating: 4.5,
     locationKey: 'blue-lagoon',
     variants: [
@@ -1114,7 +1114,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'EASY',
     suitableFor: ['Families', 'Beginners', 'Marine life lovers'],
     imageUrl: '/images/nusa-penida.svg',
-    gallery: ['/images/nusa-penida.svg', '/images/nusa-penida-2.svg', '/images/nusa-penida-3.svg'],
+    gallery: ['/images/nusa-penida.svg', '/images/nusa-penida-2.svg', '/images/nusa-penida-3.svg', '/images/nusa-penida-4.svg'],
     rating: 4.7,
     locationKey: 'nusa-penida',
     variants: [
@@ -1197,7 +1197,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'CHALLENGING',
     suitableFor: ['Adrenaline seekers', 'Strong swimmers', 'Active groups'],
     imageUrl: '/images/canyoning.svg',
-    gallery: ['/images/canyoning.svg', '/images/canyoning-2.svg', '/images/canyoning-3.svg'],
+    gallery: ['/images/canyoning.svg', '/images/canyoning-2.svg', '/images/canyoning-3.svg', '/images/canyoning-4.svg'],
     rating: 4.8,
     locationKey: 'sayan',
     variants: [
@@ -1281,7 +1281,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'MODERATE',
     suitableFor: ['Families', 'Groups', 'First-time visitors'],
     imageUrl: '/images/combo.svg',
-    gallery: ['/images/combo.svg', '/images/combo-2.svg', '/images/combo-3.svg'],
+    gallery: ['/images/combo.svg', '/images/combo-2.svg', '/images/combo-3.svg', '/images/combo-4.svg'],
     rating: 4.9,
     locationKey: 'ubud',
     variants: [

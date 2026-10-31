@@ -62,19 +62,16 @@ function buildInitialConfig(venture: VentureItem): BookingConfig {
     customerEmail: '',
     customerWhatsApp: '',
     countryCode: 'ID',
-    billingName: '',
-    billingStreet: '',
-    billingCity: '',
-    billingProvince: '',
-    billingPostalCode: '',
-    billingCountry: 'ID',
     termsAccepted: false,
     waiverAccepted: false,
   };
 }
 
 export function ExperienceDetailClient({ venture, zones, vehicleClasses }: ExperienceDetailClientProps) {
-  const gallery = venture.gallery.length > 0 ? venture.gallery : [venture.imageUrl];
+  const gallery = useMemo(
+    () => (venture.gallery.length > 0 ? venture.gallery : [venture.imageUrl]),
+    [venture.gallery, venture.imageUrl]
+  );
   const [activeImage, setActiveImage] = useState(gallery[0] ?? venture.imageUrl);
   const [config, setConfig] = useState<BookingConfig>(() => buildInitialConfig(venture));
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
@@ -89,6 +86,13 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
     () => venture.variants?.find((item) => item.id === config.variantId) ?? venture.variants?.[0] ?? null,
     [venture.variants, config.variantId]
   );
+
+  // The active image always sits in the large slot; the rest fill the three
+  // small tiles (a variant image may not be part of the venture gallery).
+  const orderedGallery = useMemo(() => {
+    const pool = [activeImage, ...gallery.filter((image) => image !== activeImage)];
+    return pool.slice(0, 4);
+  }, [activeImage, gallery]);
 
   const estimate = useMemo(() => {
     const tiers = selectedVariant?.priceTiers?.length
@@ -192,14 +196,6 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
           customerEmail: config.customerEmail,
           customerWhatsApp: toInternationalPhone(findCountry(config.countryCode).dial, config.customerWhatsApp),
           countryCode: config.countryCode,
-          billingAddress: {
-            name: config.billingName.trim() || config.customerName,
-            street: config.billingStreet,
-            city: config.billingCity,
-            province: config.billingProvince || undefined,
-            postalCode: config.billingPostalCode,
-            countryCode: config.billingCountry || config.countryCode,
-          },
           termsAccepted: config.termsAccepted,
           waiverAccepted: config.waiverAccepted,
         }),
@@ -349,56 +345,69 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
 
           {/* RIGHT — hero, header and all scrollable content */}
           <div className="space-y-6">
-            <div className="flex gap-2">
-              <div className="hidden w-20 shrink-0 flex-col gap-2 sm:flex">
-                {gallery.map((image, index) => (
-                  <button
-                    key={`${image}-${index}`}
-                    type="button"
-                    onClick={() => setActiveImage(image)}
-                    className={cn(
-                      'relative h-16 w-20 overflow-hidden rounded-lg border-2 transition-colors',
-                      activeImage === image
-                        ? 'border-neutral-900'
-                        : 'border-transparent opacity-80 hover:opacity-100'
-                    )}
-                    aria-label={`Show gallery image ${index + 1}`}
-                    aria-pressed={activeImage === image}
-                  >
-                    <Image src={image} alt="" fill sizes="80px" className="object-cover" />
-                  </button>
-                ))}
-              </div>
-
-              <div className="relative min-w-0 flex-1 overflow-hidden rounded-2xl">
-                <div className="relative h-60 w-full bg-neutral-200 sm:h-80">
-                  <Image
-                    src={activeImage}
-                    alt={venture.title}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 760px"
-                    className="object-cover"
-                    priority
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-2 overflow-x-auto pb-1 sm:hidden">
-              {gallery.map((image, index) => (
+            {/* Desktop: asymmetric gallery — one large photo plus three tiles */}
+            <div className="hidden sm:grid sm:h-[440px] sm:grid-cols-2 sm:grid-rows-3 sm:gap-2">
+              {orderedGallery.map((image, index) => (
                 <button
-                  key={`mobile-${image}-${index}`}
+                  key={`${image}-${index}`}
                   type="button"
                   onClick={() => setActiveImage(image)}
                   className={cn(
-                    'relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2',
-                    activeImage === image ? 'border-neutral-900' : 'border-transparent opacity-80'
+                    'group relative overflow-hidden rounded-2xl bg-neutral-100',
+                    index === 0 && 'row-span-3'
                   )}
-                  aria-label={`Show gallery image ${index + 1}`}
+                  aria-label={index === 0 ? 'Main product photo' : `View photo ${index + 1}`}
+                  aria-pressed={activeImage === image}
                 >
-                  <Image src={image} alt="" fill sizes="80px" className="object-cover" />
+                  <Image
+                    src={image}
+                    alt={index === 0 ? venture.title : ''}
+                    fill
+                    sizes={index === 0 ? '(max-width: 1024px) 100vw, 760px' : '380px'}
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    priority={index === 0}
+                  />
+                  <span className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/5" />
                 </button>
               ))}
+            </div>
+
+            {/* Mobile: hero image plus a thumbnail row */}
+            <div className="sm:hidden">
+              <button
+                type="button"
+                onClick={() => setActiveImage(orderedGallery[0] ?? venture.imageUrl)}
+                className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-neutral-100"
+                aria-label="Main product photo"
+              >
+                <Image
+                  src={orderedGallery[0] ?? venture.imageUrl}
+                  alt={venture.title}
+                  fill
+                  sizes="100vw"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  priority
+                />
+              </button>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {orderedGallery.slice(1).map((image, index) => (
+                  <button
+                    key={`mobile-${image}-${index}`}
+                    type="button"
+                    onClick={() => setActiveImage(image)}
+                    className="group relative aspect-square overflow-hidden rounded-xl bg-neutral-100"
+                    aria-label={`View photo ${index + 2}`}
+                  >
+                    <Image
+                      src={image}
+                      alt=""
+                      fill
+                      sizes="120px"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-3">
