@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { generateQRCodeDataURL } from '@/lib/voucher';
 
 export async function GET(
   _request: NextRequest,
@@ -14,6 +15,7 @@ export async function GET(
         slotTime: true,
         pickupZone: true,
         vehicleClass: true,
+        vouchers: true,
       },
     });
 
@@ -24,7 +26,17 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, data: booking });
+    // The QR is only rendered for a settled booking that already has a voucher.
+    const voucher = booking.vouchers[0] ?? null;
+    const qrCodeDataUrl =
+      booking.paymentStatus === 'PAID' && voucher
+        ? await generateQRCodeDataURL(voucher.qrCodeData, { width: 384 })
+        : null;
+
+    return NextResponse.json({
+      success: true,
+      data: { ...booking, voucher, qrCodeDataUrl },
+    });
   } catch (error) {
     console.error('Booking fetch error:', error);
     return NextResponse.json(

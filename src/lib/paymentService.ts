@@ -1,10 +1,12 @@
-import { Prisma, type Booking, type Payment } from '@prisma/client';
+import { Prisma, type Payment } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import {
   mapTransactionStatus,
   verifyWebhookSignature,
   type MidtransWebhookPayload,
 } from '@/lib/midtrans';
+import { generateQRCodeData } from '@/lib/voucher';
+import { notifyBookingPaid } from '@/lib/notifications';
 
 export class PaymentServiceError extends Error {
   constructor(
@@ -15,21 +17,13 @@ export class PaymentServiceError extends Error {
   }
 }
 
-function generateVoucherQrData(booking: Booking): string {
-  return JSON.stringify({
-    bookingId: booking.id,
-    bookingCode: booking.bookingCode,
-    paxCount: booking.paxCount,
-    bookingDate: booking.bookingDate,
-  });
-}
-
 /**
  * Process a Midtrans webhook notification end-to-end:
  * 1. Verify SHA512 signature against server key
  * 2. Locate the Payment record by midtransOrderId
  * 3. Validate gross_amount matches the stored record
  * 4. Update payment + booking status; issue voucher on PAID
+ * 5. Send the booking confirmation (WhatsApp + email) after the commit
  *
  * Idempotent: repeated notifications for the same state are no-ops.
  */
@@ -66,7 +60,7 @@ export async function processMidtransWebhook(
     transactionTime && !Number.isNaN(transactionTime.getTime()) ? transactionTime : null;
 
   try {
-    return await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const updated = await tx.payment.updateMany({
         where: { id: payment.id, status: payment.status },
         data: {
@@ -102,7 +96,7 @@ export async function processMidtransWebhook(
           const voucher = await tx.voucher.create({
             data: {
               bookingId: payment.bookingId,
-              qrCodeData: generateVoucherQrData(payment.booking),
+              qrCodeData: generateQRCodeData(payment.booking.bookingCode),
               status: 'ACTIVE',
             },
           });
@@ -112,6 +106,18 @@ export async function processMidtransWebhook(
 
       return { paymentStatus, voucherIssued };
     });
+
+    if (result.paymentStatus === 'PAID') {
+      // Never let a notification failure break the webhook response: the
+      // payment is already settled, and the notification can be retried.
+      try {
+        await notifyBookingPaid(payment.bookingId);
+      } catch (error) {
+        console.error('Booking confirmation notification failed:', error);
+      }
+    }
+
+    return result;
   } catch (error) {
     console.error('Webhook transaction failed:', error);
     throw new PaymentServiceError('PROCESSING_ERROR', 'Failed to process webhook notification');
