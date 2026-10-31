@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { whatsappClient } from '@/lib/whatsapp';
+import { verifyMetaSignature } from '@/lib/webhookSignature';
 import { handleAgentMessage } from '@/lib/agent-service';
 import {
   appendHistory,
@@ -84,8 +85,27 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  let rawBody: string;
   try {
-    const body = await request.json();
+    rawBody = await request.text();
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+
+  const appSecret = process.env.WHATSAPP_APP_SECRET;
+  if (appSecret) {
+    const signature = request.headers.get('x-hub-signature-256');
+    if (!verifyMetaSignature(rawBody, signature, appSecret)) {
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    }
+  } else if (process.env.NODE_ENV === 'production') {
+    // Fail closed: an unsigned endpoint would let anyone forge guest messages.
+    console.error('WHATSAPP_APP_SECRET is not configured — refusing webhook calls');
+    return NextResponse.json({ error: 'Webhook is not configured' }, { status: 503 });
+  }
+
+  try {
+    const body = JSON.parse(rawBody);
     const entries = whatsappClient.parseWebhook(body);
 
     for (const entry of entries) {

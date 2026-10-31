@@ -41,7 +41,7 @@ export function Stepper({
             'border-2 transition-colors',
             value <= min
               ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-              : 'border-blue-600 text-blue-600 hover:bg-blue-50 active:bg-blue-100'
+              : 'border-neutral-900 text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200'
           )}
           aria-label={`Decrease ${label}`}
         >
@@ -59,7 +59,7 @@ export function Stepper({
             'border-2 transition-colors',
             value >= max
               ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-              : 'border-blue-600 text-blue-600 hover:bg-blue-50 active:bg-blue-100'
+              : 'border-neutral-900 text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200'
           )}
           aria-label={`Increase ${label}`}
         >

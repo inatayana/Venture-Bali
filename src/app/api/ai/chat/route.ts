@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { handleAgentMessage } from '@/lib/agent-service';
+import { formatAgentReply } from '@/lib/agentReply';
 import {
   appendHistory,
   loadAgentSession,
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      data: result,
+      data: { ...result, reply: formatAgentReply(result) },
       sessionId: state.sessionId,
     });
   } catch (error) {
