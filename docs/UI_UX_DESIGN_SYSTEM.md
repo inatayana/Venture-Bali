@@ -156,6 +156,12 @@ Langkah konfigurasi (berlaku untuk desktop inline & mobile bottom sheet):
 - **Real-Time Price Calculation**: Total = (Base × Pax) + Transfer Fee + (Combo × Pax). Re-render instan saat pax/transport/combo berubah + **estimasi FX** (mis. "≈ US$98.50"). Detail breakdown expandable sebelum CTA.
 - **CTA**: "Book Now" di dalam widget (desktop) / footer bottom sheet (mobile). Zone Outer → CTA berubah "Request Quote" (WhatsApp).
 
+**Package selector — two-tier interaksi (v3.1.0, Airbnb Services style):**
+
+- **Tier 1 — Package card** (`VariantCatalogCard`): foto persegi di kiri, judul + badge, deskripsi maksimal 2 baris, chip durasi / transport / jumlah fasilitas, lalu baris harga `From … / guest` + minimum spend + tombol `Select` dan `Show dates`. Hover elevation halus; klik card membuka detail.
+- **Tier 2 — Detail modal** (`VariantDetailModal`): backdrop gelap + `backdrop-blur`; di desktop split 2 kolom (foto kiri, deskripsi lengkap + include/exclude + harga kanan) dengan CTA "Show dates" menempel di bawah; di mobile satu kolom scrollable agar thumb-friendly. Tutup lewat tombol X, klik backdrop, atau Escape (focus trap + body scroll lock).
+- **Promo**: paket dengan promo price menampilkan badge "Promo" / "Promo price applied"; kupon `TRYBALI2026` hanya ditampilkan pada paket harga list karena promo dan kupon tidak stacking (BOOKING_ARCHITECTURE §5). Foto paket yang kosong memakai foto utama produk.
+
 ### Section 4: Detailed Activity Information (What To Expect)
 - Description + visual itinerary timeline + What's Included/Excluded 2 kolom + Things to Know (accordion) + FAQ.
 
