@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Clock, MapPin, Tag, Users } from 'lucide-react';
+import { CalendarDays, Clock, Lock, MapPin, Shield, Tag, Users } from 'lucide-react';
 import { Button, Stepper, Calendar as CalendarComponent, TimeSlotPill } from '@/components/ui';
 import { formatPrice } from '@/lib/i18n';
+import { getBookingProgress } from '@/lib/bookingProgress';
 import { PickupAddonsStep } from '@/components/features/PickupAddonsStep';
 import { normalizeAddons } from '@/lib/addons';
 import { COUNTRIES, countryLabel, findCountry } from '@/lib/countries';
@@ -242,8 +243,40 @@ export function ExperienceBookingWidget({
     });
   };
 
+  const progress = getBookingProgress(config, needsPickup);
+
   return (
     <div className="space-y-6 pb-2" id="package-options">
+      {/* Booking progress: guests → date & time → pickup → confirm */}
+      <div className="flex items-center gap-1.5" aria-label="Booking progress">
+        {progress.steps.map((step, index) => (
+          <div key={step.key} className="flex-1">
+            <span
+              className={cn(
+                'block h-1.5 rounded-full transition-colors',
+                step.done
+                  ? 'bg-brand-ink'
+                  : index === progress.activeIndex
+                    ? 'bg-brand'
+                    : 'bg-neutral-200'
+              )}
+            />
+            <span
+              className={cn(
+                'mt-1 block text-[10px] font-semibold uppercase tracking-wide',
+                step.done
+                  ? 'text-neutral-900'
+                  : index === progress.activeIndex
+                    ? 'text-neutral-900'
+                    : 'text-neutral-400'
+              )}
+            >
+              {step.label}
+            </span>
+          </div>
+        ))}
+      </div>
+
       {/* 1 · Guest counter */}
       <section>
         <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
@@ -714,7 +747,7 @@ export function ExperienceBookingWidget({
           disabled={!canContinue || isBooking}
           fullWidth
           size="lg"
-          className="!rounded-xl !bg-neutral-900 hover:!bg-neutral-800 disabled:!bg-neutral-300"
+          className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500"
         >
           {isBooking ? 'Processing…' : 'Next'}
         </Button>
@@ -722,6 +755,15 @@ export function ExperienceBookingWidget({
         {!canContinue && (
           <p className="mt-1.5 text-center text-xs text-neutral-500">{missing[0]}</p>
         )}
+
+        <p className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-neutral-500">
+          <span className="inline-flex items-center gap-1">
+            <Shield className="h-3 w-3" aria-hidden="true" /> 80% refund ≥24h
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Lock className="h-3 w-3" aria-hidden="true" /> Secure checkout
+          </span>
+        </p>
       </div>
     </div>
   );
