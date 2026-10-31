@@ -64,7 +64,7 @@ export function Calendar({
         <button
           type="button"
           onClick={handlePrev}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="p-3 rounded-lg hover:bg-gray-100 transition-colors"
           aria-label="Previous month"
         >
           <ChevronLeft className="w-5 h-5 text-gray-600" />
@@ -75,7 +75,7 @@ export function Calendar({
         <button
           type="button"
           onClick={handleNext}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="p-3 rounded-lg hover:bg-gray-100 transition-colors"
           aria-label="Next month"
         >
           <ChevronRight className="w-5 h-5 text-gray-600" />

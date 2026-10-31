@@ -19,7 +19,7 @@ interface SnapWindow {
 const MIDTRANS_SNAP_SANDBOX = 'https://app.sandbox.midtrans.com/snap/snap.js';
 const MIDTRANS_SNAP_PRODUCTION = 'https://app.midtrans.com/snap/snap.js';
 
-const BOOKING_TOTAL_MULTIPLIER = 1.1;
+// Prices are all-in IDR integers; Midtrans charges booking.totalPrice exactly.
 
 function loadSnapScript(clientKey: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -135,7 +135,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     );
   }
 
-  const totalWithFees = Math.round(booking.totalPrice * BOOKING_TOTAL_MULTIPLIER);
+  const amountDue = booking.totalPrice;
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -184,17 +184,23 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
               </div>
 
               <div className="pt-4 border-t border-gray-200 space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">{formatPrice(booking.totalPrice)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Tax &amp; Fees</span>
-                  <span className="font-medium">{formatPrice(totalWithFees - booking.totalPrice)}</span>
-                </div>
+                {booking.discountIdr > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">
+                      Discount{booking.appliedCouponCode ? ` (${booking.appliedCouponCode})` : ''}
+                    </span>
+                    <span className="font-medium text-green-700">−{formatPrice(booking.discountIdr)}</span>
+                  </div>
+                )}
+                {booking.nightSurchargeIdr > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Evening surcharge</span>
+                    <span className="font-medium">{formatPrice(booking.nightSurchargeIdr)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between pt-4 border-t border-gray-200">
                   <span className="text-lg font-semibold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-blue-600">{formatPrice(totalWithFees)}</span>
+                  <span className="text-2xl font-bold text-blue-600">{formatPrice(amountDue)}</span>
                 </div>
               </div>
             </div>
@@ -238,7 +244,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                       Processing...
                     </>
                   ) : (
-                    `Pay ${formatPrice(totalWithFees)}`
+                    `Pay ${formatPrice(amountDue)}`
                   )}
                 </Button>
               </div>

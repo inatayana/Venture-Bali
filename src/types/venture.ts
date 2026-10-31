@@ -6,7 +6,7 @@
 
 // ============ ENUMS ============
 
-export type FulfillmentMode = 'SELF_DRIVE' | 'PRIVATE_TRANSFER';
+export type FulfillmentMode = 'SELF_DRIVE' | 'SHARED_TRANSFER' | 'PRIVATE_TRANSFER';
 export type Difficulty = 'EASY' | 'MODERATE' | 'CHALLENGING';
 export type PickupZoneType = 'ZONE_1' | 'ZONE_2' | 'ZONE_3' | 'ZONE_4';
 export type VehicleClassType = 'STANDARD_SUV' | 'PREMIUM_MPV' | 'MINIVAN';
@@ -188,10 +188,33 @@ export interface Variant {
   title: string;
   shortDescription: string;
   badge?: string;
+  transportBadge?: string;
+  duration?: string;
+  fulfillmentMode: FulfillmentMode;
+  promoPriceIdr?: number;
+  operationNotes?: string;
+  sortOrder: number;
   priceTiers: PriceTier[];
   blackoutDates: string[];
   slotTimes?: SlotTime[];
   addons?: Addon[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ============ PROMO & COUPON ============
+
+export interface Coupon {
+  id: string;
+  code: string;
+  label: string;
+  discountPercent: number;
+  minPax: number;
+  validFrom?: Date;
+  validUntil?: Date;
+  isActive: boolean;
+  usageLimit?: number;
+  usedCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -214,9 +237,13 @@ export interface Booking {
   vehicleClassId?: string;
   vehicleClass?: VehicleClass;
   hotelAddress?: string;
+  isTba: boolean;
   paxCount: number;
   vehicleCount: number;
   zoneSurchargeIdr: number;
+  nightSurchargeIdr: number;
+  discountIdr: number;
+  appliedCouponCode?: string;
   selectedAddons?: { id: string; name: string; price: number }[];
   totalPrice: number;
   paymentStatus: PaymentStatus;
@@ -332,6 +359,14 @@ export interface APIResponse<T> {
 
 // ============ SIMPLIFIED VENTURE ITEM (for list views) ============
 
+export interface ReviewSummary {
+  id: string;
+  rating: number;
+  comment: string;
+  author: string;
+  createdAt: Date;
+}
+
 export interface VentureItem extends Omit<Venture, 'location'> {
   variants: Variant[];
   description: string;
@@ -340,6 +375,7 @@ export interface VentureItem extends Omit<Venture, 'location'> {
   minParticipants: number;
   maxParticipants: number;
   reviewCount: number;
+  reviewList?: ReviewSummary[];
   isAvailable: boolean;
   location: string;
 }

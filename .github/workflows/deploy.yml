@@ -1,0 +1,52 @@
+name: Deploy to Vercel
+
+# Deploys the app to Vercel on every push to main, applies pending Prisma
+# migrations, then triggers the Vercel production deployment.
+#
+# Required repository secrets (see docs/DEPLOYMENT_STRATEGY.md §2.4):
+#   DATABASE_URL, VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+#   (plus every production value listed in .env.example — set them in the
+#    Vercel dashboard, not here)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Migrate & Deploy
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Apply database migrations
+        run: npm run db:deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'

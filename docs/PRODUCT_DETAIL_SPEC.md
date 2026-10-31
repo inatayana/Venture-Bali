@@ -71,7 +71,7 @@ PickupZone (standalone) ◄── Booking (fulfillmentMode + pickupZoneId)
 
 Diproduksi booking form / agent tools; tervalidasi zod (`src/lib/schemas/booking.ts`):
 
-- venture slug, variantId, date (ISO), paxCount, `fulfillmentMode`, pickupZoneId (wajib saat TRANSFER), hotelAddress (saat pickup), selectedAddons.
+- venture slug, variantId, date (ISO), paxCount, `fulfillmentMode` (SELF_DRIVE / SHARED_TRANSFER / PRIVATE_TRANSFER), pickupZoneId (wajib saat transfer), hotelAddress atau `isTba` (wajib saat transfer), selectedAddons, couponCode (opsional).
 - Price WAJIB dihitung ulang server-side: tier lookup + zone surcharge × `vehicleCount = ceil(pax/vehicleMaxPax)`.
 - Cut-off dicek server: Self Drive H-2; Transfer 22:00 WITA D-1.
 

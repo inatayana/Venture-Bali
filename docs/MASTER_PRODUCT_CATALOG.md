@@ -1,7 +1,10 @@
 # Venture Bali — Master Product Catalog
 
-> **Version:** 1.0.0
-> **Status:** Launch blueprint. Data produk aktual (single source of truth) hidup di database/seed JSON (`prisma/seed/*.json`); dokumen ini mendefinisikan struktur, jumlah, dan urutan peluncuran.
+> **Version:** 1.1.0
+> **Status:** Launch blueprint. Dokumen ini mendefinisikan struktur, jumlah, dan urutan peluncuran.
+> Data produk aktual (single source of truth) hidup di database — di-seed oleh `prisma/seed.ts`.
+> Seed saat ini berisi **1 produk per mega category (9 produk)** sebagai baseline struktural;
+> blueprint 166 produk di bawah adalah target ramifications yang di-seed bertahap.
 
 ## 1. Product System (Final Constitution)
 

@@ -11,6 +11,7 @@ datasource db {
 
 enum FulfillmentMode {
   SELF_DRIVE
+  SHARED_TRANSFER
   PRIVATE_TRANSFER
 }
 
@@ -188,6 +189,8 @@ model Venture {
   gallery           Json
   videoUrl          String?
   rating            Float      @default(5.0)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   @@index([slug])
   @@index([tenantId])
@@ -208,6 +211,18 @@ model Variant {
   title            String
   shortDescription String
   badge            String?
+  /// Transport / tier badge shown on the catalogue card (📍 / 🚐 / 🚗 / 🏛️).
+  transportBadge   String?
+  /// Human-readable duration for this variant, e.g. "3 hrs".
+  duration         String?
+  /// Fulfillment mode this variant sells. The UI derives pickup steps from it.
+  fulfillmentMode  FulfillmentMode @default(SELF_DRIVE)
+  /// List price per pax is stored in PriceTier; this is the active promo price (IDR).
+  /// When set (and lower than the tier price) the UI renders a strikethrough price.
+  promoPriceIdr    Int?
+  /// Operational notes shown under the price, e.g. "After 7 PM: +Rp50.000/pax".
+  operationNotes   String?
+  sortOrder        Int         @default(0)
   priceTiers       PriceTier[] @relation("VariantToPriceTier")
   blackoutDates    Json
   slotTimes        SlotTime[]  @relation("SlotTimeToVariant")
@@ -262,6 +277,23 @@ model Addon {
 
 // ============ BOOKING & PAYMENT MODELS ============
 
+model Coupon {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  label           String
+  discountPercent Int
+  minPax          Int       @default(1)
+  validFrom       DateTime?
+  validUntil      DateTime?
+  isActive        Boolean   @default(true)
+  usageLimit      Int?
+  usedCount       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([isActive])
+}
+
 model Booking {
   id               String          @id @default(cuid())
   bookingCode      String          @unique
@@ -278,9 +310,16 @@ model Booking {
   vehicleClassId   String?
   vehicleClass     VehicleClass?   @relation(fields: [vehicleClassId], references: [id])
   hotelAddress     String?
+  /// True when the guest will confirm the pickup address by H-1 (TBA flow).
+  isTba            Boolean         @default(false)
   paxCount         Int
   vehicleCount     Int             @default(1)
   zoneSurchargeIdr Int             @default(0)
+  /// Night-slot surcharge captured at booking time (IDR).
+  nightSurchargeIdr Int            @default(0)
+  /// Total discount captured at booking time (promo or coupon, never both).
+  discountIdr      Int             @default(0)
+  appliedCouponCode String?
   selectedAddons   Json
   totalPrice       Int
   paymentStatus    PaymentStatus
@@ -406,4 +445,33 @@ model NotificationLog {
   @@index([customerId])
   @@index([type])
   @@index([status])
+}
+
+// ============ AI AGENT MODELS ============
+
+/// A conversation with the customer service agent.
+/// One row per channel user, so the agent keeps its context between turns.
+model AgentSession {
+  id           String   @id @default(cuid())
+  /// Stable identifier, e.g. "wa_628123456789" or "tg_12345".
+  sessionKey   String   @unique
+  channel      String
+  language     String   @default("id")
+  userId       String?
+  phone        String?
+  /// The current product the conversation is about.
+  productId    String?
+  variantId    String?
+  paxCount     Int?
+  bookingDate  String?
+  /// The detected intent of the last turn.
+  intent       String?
+  /// Recent turns, oldest first, as a JSON array of { role, text }.
+  history      Json     @default("[]")
+  lastActiveAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([channel])
+  @@index([lastActiveAt])
 }

@@ -37,7 +37,7 @@ export function Stepper({
           onClick={handleDecrement}
           disabled={value <= min}
           className={cn(
-            'w-10 h-10 rounded-full flex items-center justify-center',
+            'w-11 h-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center',
             'border-2 transition-colors',
             value <= min
               ? 'border-gray-200 text-gray-300 cursor-not-allowed'
@@ -55,7 +55,7 @@ export function Stepper({
           onClick={handleIncrement}
           disabled={value >= max}
           className={cn(
-            'w-10 h-10 rounded-full flex items-center justify-center',
+            'w-11 h-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center',
             'border-2 transition-colors',
             value >= max
               ? 'border-gray-200 text-gray-300 cursor-not-allowed'

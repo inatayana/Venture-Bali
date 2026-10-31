@@ -1,22 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, Calendar, Users, Clock, Download, QrCode, Shield } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Calendar, Users, Clock, Printer, Shield, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { formatPrice } from '@/lib/i18n';
 import type { Booking } from '@/types/venture';
-import { generateVoucherId, generateQRCodeData, generateQRCodeDataURL } from '@/lib/voucher';
 
 interface VoucherPageProps {
   params: Promise<{ bookingId: string }>;
 }
 
+const STATUS_LABEL: Record<Booking['paymentStatus'], string> = {
+  PAID: 'Paid',
+  PENDING: 'Awaiting payment',
+  CANCELLED: 'Cancelled',
+  FAILED: 'Payment failed',
+};
+
 export default function VoucherPage({ params }: VoucherPageProps) {
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
-  const [showPDF, setShowPDF] = useState(false);
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -39,14 +43,6 @@ export default function VoucherPage({ params }: VoucherPageProps) {
     fetchBooking();
   }, [params]);
 
-  useEffect(() => {
-    if (booking) {
-      const voucherId = generateVoucherId(booking.id);
-      const qrData = generateQRCodeData(voucherId, booking.bookingCode);
-      generateQRCodeDataURL(qrData).then(setQrCodeUrl);
-    }
-  }, [booking]);
-
   if (loading) {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -60,9 +56,7 @@ export default function VoucherPage({ params }: VoucherPageProps) {
       <main className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
+            <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Voucher Not Found</h1>
           <p className="text-gray-500 mb-6">{error || 'Invalid voucher'}</p>
@@ -74,39 +68,46 @@ export default function VoucherPage({ params }: VoucherPageProps) {
     );
   }
 
-  const voucherId = generateVoucherId(booking.id);
+  const isPaid = booking.paymentStatus === 'PAID';
+  const voucherId = booking.bookingCode;
 
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6">
-        <a href="/" className="inline-flex items-center gap-2 text-blue-600 mb-4">
+        <a href="/" className="inline-flex items-center gap-2 text-blue-600 mb-4 print:hidden">
           <ArrowLeft className="w-4 h-4" />
           Back to adventures
         </a>
 
         <div className="max-w-2xl mx-auto">
-          {/* Voucher Card */}
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
+            <div className={`text-white p-6 ${isPaid ? 'bg-gradient-to-r from-blue-600 to-blue-800' : 'bg-gradient-to-r from-amber-500 to-amber-700'}`}>
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm opacity-90">E-VOUCHER</span>
                 <span className="text-sm opacity-90">{voucherId}</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-                  <CheckCircle className="w-7 h-7" />
+                  {isPaid ? <CheckCircle className="w-7 h-7" /> : <Clock className="w-7 h-7" />}
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold">Booking Confirmed!</h1>
+                  <h1 className="text-2xl font-bold">
+                    {isPaid ? 'Booking confirmed!' : 'Awaiting payment'}
+                  </h1>
                   <p className="opacity-90">{booking.bookingCode}</p>
                 </div>
               </div>
             </div>
 
-            {/* Content */}
             <div className="p-6 space-y-6">
-              {/* Activity Info */}
+              {!isPaid && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                  We are still waiting for the payment confirmation from Midtrans. Your voucher
+                  becomes valid as soon as the payment settles. Keep this page and refresh it in a
+                  few moments.
+                </div>
+              )}
+
               <div className="bg-gray-50 rounded-xl p-5">
                 <h2 className="text-xl font-bold text-gray-900 mb-2">{booking.variant?.title ?? 'Adventure Booking'}</h2>
                 <div className="grid grid-cols-3 gap-4 text-sm">
@@ -132,86 +133,77 @@ export default function VoucherPage({ params }: VoucherPageProps) {
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* QR Code */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
-                <h3 className="text-sm font-medium text-gray-500 mb-4 uppercase tracking-wide">Show this QR code at the venue</h3>
-                {qrCodeUrl ? (
-                  <img src={qrCodeUrl} alt="Voucher QR Code" className="w-48 h-48 mx-auto" />
-                ) : (
-                  <div className="w-48 h-48 mx-auto bg-gray-100 rounded-lg flex items-center justify-center">
-                    <QrCode className="w-12 h-12 text-gray-400" />
-                  </div>
+                {booking.fulfillmentMode !== 'SELF_DRIVE' && (
+                  <p className="mt-3 text-xs text-gray-500">
+                    Pickup: {booking.isTba ? 'To be confirmed by H-1' : booking.hotelAddress || 'Hotel pickup'}
+                  </p>
                 )}
-                <p className="mt-4 text-sm text-gray-500">Voucher ID: {voucherId}</p>
               </div>
 
-              {/* Important Info */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
+                <h3 className="text-sm font-medium text-gray-500 mb-2 uppercase tracking-wide">
+                  {isPaid ? 'Show this booking code at the venue' : 'Pending booking code'}
+                </h3>
+                <p className="font-mono text-2xl font-bold tracking-widest text-gray-900">
+                  {booking.bookingCode}
+                </p>
+                <p className="mt-2 text-xs text-gray-500">
+                  A scannable QR code is issued with the production e-voucher.
+                </p>
+              </div>
+
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                 <h3 className="font-medium text-amber-800 mb-2 flex items-center gap-2">
-                  <Shield className="w-4 h-4" /> Important Reminders
+                  <Shield className="w-4 h-4" /> Important reminders
                 </h3>
                 <ul className="text-sm text-amber-700 space-y-1">
-                  <li>• Present this QR code at the meeting point</li>
-                  <li>• Arrive 15 minutes before scheduled time</li>
-                  <li>• Bring valid ID for verification</li>
+                  <li>• Present this booking code at the meeting point</li>
+                  <li>• Arrive 15 minutes before the scheduled time</li>
+                  <li>• Bring a valid ID for verification</li>
                   <li>• This voucher is valid for one-time use only</li>
                 </ul>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
-                <Button variant="outline" onClick={() => setShowPDF(true)} fullWidth>
-                  <Download className="w-4 h-4 mr-2" />
-                  Download PDF
-                </Button>
-                <Button variant="primary" fullWidth>
-                  Add to Wallet
+              <div className="flex gap-3 pt-4 border-t border-gray-200 print:hidden">
+                <Button variant="outline" onClick={() => window.print()} fullWidth>
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print / Save as PDF
                 </Button>
               </div>
             </div>
           </div>
 
-          {/* Payment Info */}
           <div className="mt-6 bg-white rounded-xl shadow-md p-5">
-            <h3 className="font-semibold text-gray-900 mb-3">Payment Summary</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">Payment summary</h3>
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-gray-600">Activity</span><span className="font-medium">{formatPrice(booking.totalPrice)}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Tax & Fees (10%)</span><span className="font-medium">{formatPrice(Math.round(booking.totalPrice * 0.1))}</span></div>
+              {booking.discountIdr > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">
+                    Discount{booking.appliedCouponCode ? ` (${booking.appliedCouponCode})` : ''}
+                  </span>
+                  <span className="font-medium text-green-700">−{formatPrice(booking.discountIdr)}</span>
+                </div>
+              )}
+              {booking.nightSurchargeIdr > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Evening surcharge</span>
+                  <span className="font-medium">{formatPrice(booking.nightSurchargeIdr)}</span>
+                </div>
+              )}
               <div className="flex justify-between pt-2 border-t border-gray-200 text-lg font-bold">
-                <span className="text-gray-900">Total Paid</span>
-                <span className="text-blue-600">{formatPrice(Math.round(booking.totalPrice * 1.1))}</span>
+                <span className="text-gray-900">Total</span>
+                <span className="text-blue-600">{formatPrice(booking.totalPrice)}</span>
               </div>
-              <p className="text-xs text-gray-500 mt-3">Payment Status: <span className="font-medium text-green-600">PAID</span></p>
+              <p className="text-xs text-gray-500 mt-3">
+                Payment status:{' '}
+                <span className={`font-medium ${isPaid ? 'text-green-600' : 'text-amber-600'}`}>
+                  {STATUS_LABEL[booking.paymentStatus]}
+                </span>
+              </p>
             </div>
           </div>
         </div>
       </div>
-
-      {/* PDF Modal */}
-      {showPDF && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="font-semibold">E-Voucher PDF</h3>
-              <Button variant="ghost" size="sm" onClick={() => setShowPDF(false)}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </Button>
-            </div>
-            <div className="p-6">
-              <p className="text-gray-600 mb-4">PDF generation will be implemented with a PDF library (pdfkit/puppeteer) in production.</p>
-              <div className="bg-gray-50 rounded-lg p-4 font-mono text-sm">
-                Voucher ID: {voucherId}<br />
-                Booking: {booking.bookingCode}<br />
-                Activity: {booking.variant?.title ?? 'Adventure Booking'}<br />
-                Date: {new Date(booking.bookingDate).toLocaleDateString()}<br />
-                Total: {formatPrice(Math.round(booking.totalPrice * 1.1))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

@@ -10,6 +10,13 @@ import {
   validateAddonModeCombinations,
   isBookable,
   getNowWita,
+  computeQuote,
+  getCouponRejection,
+  parseSlotHour,
+  calculateSharedTransferFee,
+  isSlotBookable,
+  NIGHT_SURCHARGE_IDR,
+  type CouponRule,
 } from './pricing';
 import type { Addon, PickupZone, VehicleClass } from '@/types/venture';
 
@@ -261,8 +268,7 @@ describe('Transfer & Combo Engine (Klook-style)', () => {
     });
   });
 
-  describe('cut-off rules (WITA UTC+8)', () => {
-    // WITA-shifted frame: nowWita = now + 8h. Use activity times already in WITA frame.
+  describe('cut-off rules (WITA UTC+8)', () => {    // WITA-shifted frame: nowWita = now + 8h. Use activity times already in WITA frame.
     const activity = new Date('2026-09-05T08:00:00.000Z'); // slot 08:00 WITA-frame
 
     it('SELF_DRIVE bookable ≥2h before', () => {
@@ -286,5 +292,109 @@ describe('Transfer & Combo Engine (Klook-style)', () => {
       const now = new Date('2026-09-05T00:00:00.000Z');
       expect(getNowWita(now).toISOString()).toBe('2026-09-05T08:00:00.000Z');
     });
+  });
+});
+
+describe('Promo, coupon & night surcharge engine', () => {
+  const zone: PickupZone = {
+    id: 'zone-2', name: 'South 1', areaType: 'ZONE_2', surchargeIdr: 224000,
+    isCustomQuote: false, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date(),
+  };
+  const suv: VehicleClass = {
+    id: 'vc-suv', name: 'STANDARD_SUV', label: 'Standard SUV', vehicleMaxPax: 4,
+    deltaIdr: 0, sortOrder: 1, isActive: true, createdAt: new Date(), updatedAt: new Date(),
+  };
+  const tiers = [{ minPax: 1, maxPax: 10, pricePerPax: 470000 }];
+  const coupon: CouponRule = {
+    code: 'TRYBALI2026', discountPercent: 40, minPax: 1, isActive: true, usedCount: 0,
+  };
+
+  it('renders the list price as the strikethrough anchor when a promo is active', () => {
+    const quote = computeQuote({ priceTiers: tiers, paxCount: 1, fulfillmentMode: 'SELF_DRIVE', promoPriceIdr: 376000 });
+    expect(quote.listPricePerPaxIdr).toBe(470000);
+    expect(quote.unitPricePerPaxIdr).toBe(376000);
+    expect(quote.promoActive).toBe(true);
+    expect(quote.discountIdr).toBe(94000);
+    expect(quote.totalPriceIdr).toBe(376000);
+  });
+
+  it('ignores a promo that is not below the list price', () => {
+    const quote = computeQuote({ priceTiers: tiers, paxCount: 1, fulfillmentMode: 'SELF_DRIVE', promoPriceIdr: 500000 });
+    expect(quote.promoActive).toBe(false);
+    expect(quote.totalPriceIdr).toBe(470000);
+  });
+
+  it('applies a valid coupon to list-price bookings', () => {
+    const quote = computeQuote({ priceTiers: tiers, paxCount: 2, fulfillmentMode: 'SELF_DRIVE', coupon });
+    expect(quote.couponCode).toBe('TRYBALI2026');
+    expect(quote.discountIdr).toBe(376000); // 40% of 940.000
+    expect(quote.totalPriceIdr).toBe(564000);
+  });
+
+  it('never stacks a coupon on top of an active promo', () => {
+    const quote = computeQuote({
+      priceTiers: tiers, paxCount: 1, fulfillmentMode: 'SELF_DRIVE',
+      promoPriceIdr: 376000, coupon,
+    });
+    expect(quote.couponRejection).toBe('COUPON_NOT_APPLICABLE_ON_PROMO');
+    expect(quote.couponCode).toBeNull();
+    expect(quote.totalPriceIdr).toBe(376000);
+  });
+
+  it('rejects inactive, expired, min-pax and exhausted coupons', () => {
+    const now = new Date('2026-06-01T00:00:00.000Z');
+    expect(getCouponRejection({ ...coupon, isActive: false }, 1, false, now)).toBe('COUPON_INACTIVE');
+    expect(getCouponRejection({ ...coupon, validUntil: '2026-05-01' }, 1, false, now)).toBe('COUPON_EXPIRED');
+    expect(getCouponRejection({ ...coupon, validFrom: '2026-07-01' }, 1, false, now)).toBe('COUPON_NOT_STARTED');
+    expect(getCouponRejection({ ...coupon, minPax: 4 }, 2, false, now)).toBe('COUPON_MIN_PAX');
+    expect(getCouponRejection({ ...coupon, usageLimit: 5, usedCount: 5 }, 1, false, now)).toBe('COUPON_EXHAUSTED');
+    expect(getCouponRejection(coupon, 1, false, now)).toBeNull();
+  });
+
+  it('adds the night surcharge per guest from 19:00', () => {
+    expect(parseSlotHour('07:00 PM')).toBe(19);
+    expect(parseSlotHour('06:00 PM')).toBe(18);
+    expect(parseSlotHour('19:30')).toBe(19);
+    expect(parseSlotHour('06:00 AM')).toBe(6);
+
+    const night = computeQuote({ priceTiers: tiers, paxCount: 2, fulfillmentMode: 'SELF_DRIVE', slotTimeLabel: '07:00 PM' });
+    expect(night.nightSurchargeIdr).toBe(NIGHT_SURCHARGE_IDR * 2);
+
+    const day = computeQuote({ priceTiers: tiers, paxCount: 2, fulfillmentMode: 'SELF_DRIVE', slotTimeLabel: '03:00 PM' });
+    expect(day.nightSurchargeIdr).toBe(0);
+  });
+
+  it('charges shared transfer per pax without a vehicle class', () => {
+    const fee = calculateSharedTransferFee(3, zone);
+    expect(fee.vehicleCount).toBe(1);
+    expect(fee.vehicleClassDeltaIdr).toBe(0);
+    expect(fee.totalFeeIdr).toBe(224000 * 3);
+  });
+
+  it('keeps private transfer priced per vehicle', () => {
+    const quote = computeQuote({ priceTiers: tiers, paxCount: 5, fulfillmentMode: 'PRIVATE_TRANSFER', zone, vehicleClass: suv });
+    expect(quote.transfer.vehicleCount).toBe(2);
+    expect(quote.transfer.totalFeeIdr).toBe(224000 * 2);
+  });
+
+  it('keeps the database slot id so the booking API can persist it', () => {
+    const slots = getAvailableSlots(
+      { slotTimes: [{ id: 'clx123', time: '08:00 AM', maxCapacity: 10, currentBookings: 0, isAvailable: true }] },
+      2,
+    );
+    expect(slots[0].id).toBe('clx123');
+  });
+
+  it('applies the cut-off at the departure hour, not at midnight', () => {
+    // now = 18:00 WITA on 2026-10-31
+    const now = new Date('2026-10-31T10:00:00.000Z');
+
+    expect(isSlotBookable('2026-10-31', '08:00 AM', 'SELF_DRIVE', now)).toBe(false);
+    expect(isSlotBookable('2026-10-31', '08:00 PM', 'SELF_DRIVE', now)).toBe(true);
+
+    // Transfers for tomorrow are still inside the 22:00 D-1 deadline…
+    expect(isSlotBookable('2026-11-01', '08:00 AM', 'SHARED_TRANSFER', now)).toBe(true);
+    // …but a transfer for today is already closed.
+    expect(isSlotBookable('2026-10-31', '08:00 AM', 'PRIVATE_TRANSFER', now)).toBe(false);
   });
 });

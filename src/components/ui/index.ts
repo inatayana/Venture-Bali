@@ -6,6 +6,7 @@ export { Skeleton, CardSkeleton } from './Skeleton';
 export { Stepper } from './Stepper';
 export { Calendar } from './Calendar';
 export { TimeSlotCard } from './TimeSlotCard';
+export { TimeSlotPill } from './TimeSlotPill';
 export { BottomSheet } from './BottomSheet';
 export { CurrencySwitcher } from './CurrencySwitcher';
 export { LanguageToggle } from './LanguageToggle';

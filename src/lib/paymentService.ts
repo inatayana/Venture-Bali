@@ -86,6 +86,15 @@ export async function processMidtransWebhook(
         data: { paymentStatus },
       });
 
+      if (paymentStatus === 'PAID' && payment.booking.appliedCouponCode) {
+        // The coupon quota was checked at booking time; consume it once, when
+        // the payment actually settles (guarded by the optimistic update above).
+        await tx.coupon.updateMany({
+          where: { code: payment.booking.appliedCouponCode },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
+
       let voucherIssued = false;
       if (paymentStatus === 'PAID') {
         const existingVoucher = await tx.voucher.findUnique({ where: { bookingId: payment.bookingId } });

@@ -15,14 +15,34 @@ async function getExperienceSlugs(): Promise<Array<{ id: string; slug: string }>
   }
 }
 
+async function getArticleSlugs(): Promise<string[]> {
+  try {
+    const articles = await prisma.article.findMany({
+      where: { publishedAt: { not: null } },
+      select: { slug: true },
+    });
+    return articles.map((article) => article.slug);
+  } catch (error) {
+    console.error('Prisma query failed, falling back to empty list:', error);
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl();
   const slugs = await getExperienceSlugs();
+  const articleSlugs = await getArticleSlugs();
 
   const experienceUrls: MetadataRoute.Sitemap = slugs.map(({ id, slug }) => ({
     url: `${baseUrl}/experiences/${id}/${slug}`,
     changeFrequency: 'weekly',
     priority: 0.8,
+  }));
+
+  const blogUrls: MetadataRoute.Sitemap = articleSlugs.map((slug) => ({
+    url: `${baseUrl}/blog/${slug}`,
+    changeFrequency: 'weekly',
+    priority: 0.7,
   }));
 
   return [
@@ -32,6 +52,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 1,
     },
+    {
+      url: `${baseUrl}/blog`,
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
     ...experienceUrls,
+    ...blogUrls,
   ];
 }

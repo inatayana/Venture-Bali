@@ -29,4 +29,61 @@ describe('bookingSchema', () => {
 
     expect(result.success).toBe(false);
   });
+
+  it('requires a pickup area and an address (or TBA) for transfer bookings', () => {
+    const missingZone = bookingSchema.safeParse({ ...baseBooking, fulfillmentMode: 'SHARED_TRANSFER', hotelAddress: 'Villa A' });
+    expect(missingZone.success).toBe(false);
+
+    const missingAddress = bookingSchema.safeParse({ ...baseBooking, fulfillmentMode: 'SHARED_TRANSFER', pickupZoneId: 'zone-2' });
+    expect(missingAddress.success).toBe(false);
+
+    const tba = bookingSchema.safeParse({
+      ...baseBooking,
+      fulfillmentMode: 'SHARED_TRANSFER',
+      pickupZoneId: 'zone-2',
+      isTba: true,
+    });
+    expect(tba.success).toBe(true);
+  });
+
+  it('accepts shared transfer without a vehicle class', () => {
+    const result = bookingSchema.safeParse({
+      ...baseBooking,
+      fulfillmentMode: 'SHARED_TRANSFER',
+      pickupZoneId: 'zone-2',
+      hotelAddress: 'Villa A, Seminyak',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a vehicle class on shared transfer', () => {
+    const result = bookingSchema.safeParse({
+      ...baseBooking,
+      fulfillmentMode: 'SHARED_TRANSFER',
+      pickupZoneId: 'zone-2',
+      hotelAddress: 'Villa A',
+      vehicleClassType: 'STANDARD_SUV',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('requires a vehicle class for private transfer', () => {
+    const result = bookingSchema.safeParse({
+      ...baseBooking,
+      fulfillmentMode: 'PRIVATE_TRANSFER',
+      pickupZoneId: 'zone-2',
+      hotelAddress: 'Villa A',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('caps a single booking at 10 guests', () => {
+    const result = bookingSchema.safeParse({ ...baseBooking, paxCount: 11 });
+    expect(result.success).toBe(false);
+  });
+
+  it('normalises coupon codes to uppercase', () => {
+    const result = bookingSchema.parse({ ...baseBooking, couponCode: ' trybali2026 ' });
+    expect(result.couponCode).toBe('TRYBALI2026');
+  });
 });
