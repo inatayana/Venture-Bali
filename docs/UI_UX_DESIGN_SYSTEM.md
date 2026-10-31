@@ -263,11 +263,9 @@ SATU bottom sheet dengan 3 step di dalamnya (bukan sheet terpisah):
 - Scroll horizontal pada mobile, wrap pada desktop.
 
 ### Sort Options
-- "Recommended" (default)
-- "Price: Low to High"
-- "Price: High to Low"
-- "Rating"
-- "Duration"
+- Trigger: tombol pill dengan icon sort + label urutan aktif (label disembunyikan di mobile, tinggal icon) dan chevron.
+- Klik trigger membuka popup "Sort by" (bukan `<select>` native); opsi aktif ditandai centang biru. Tutup dengan klik luar, Escape, atau setelah memilih.
+- Pilihan: "Recommended" (default), "Price: Low to High", "Price: High to Low", "Rating", "Duration".
 
 ### Filter Panel (Bottom Sheet)
 - **Transfer**: Self Drive / Private Transfer
