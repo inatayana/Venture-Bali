@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { VentureCard, SearchBar, FilterChips } from '@/components/ui';
 import { CATEGORY_FILTERS, resolveCategory } from '@/lib/taxonomy';
+import { SortMenu } from '@/components/features/SortMenu';
 import type { VentureItem } from '@/types/venture';
 
 const CATEGORIES = CATEGORY_FILTERS;
@@ -88,18 +89,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
             selectedCategory={selectedCategory}
             onSelect={setSelectedCategory}
           />
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="shrink-0 px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-700"
-            aria-label="Sort adventures"
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+          <SortMenu value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
         </div>
       </div>
 
