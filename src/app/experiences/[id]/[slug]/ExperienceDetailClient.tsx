@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import {
   Star,
@@ -84,6 +84,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [detailVariantId, setDetailVariantId] = useState<string | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [mobileSlideIndex, setMobileSlideIndex] = useState(0);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [promoVisible, setPromoVisible] = useState(true);
   const [wishlisted, setWishlisted] = useState(false);
@@ -105,6 +106,22 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
     const pool = [activeImage, ...gallery.filter((image) => image !== activeImage)];
     return pool.slice(0, 4);
   }, [activeImage, gallery]);
+
+  const gallerySliderRef = useRef<HTMLDivElement>(null);
+
+  const handleGalleryScroll = useCallback(() => {
+    const slider = gallerySliderRef.current;
+    if (!slider || slider.clientWidth === 0) return;
+    const next = Math.round(slider.scrollLeft / slider.clientWidth);
+    const last = Math.max(0, orderedGallery.length - 1);
+    setMobileSlideIndex(Math.min(last, Math.max(0, next)));
+  }, [orderedGallery.length]);
+
+  // Selecting another package swaps the lead photo: go back to the first slide.
+  useEffect(() => {
+    gallerySliderRef.current?.scrollTo({ left: 0 });
+    setMobileSlideIndex(0);
+  }, [activeImage]);
 
   const estimate = useMemo(() => {
     const tiers = selectedVariant?.priceTiers?.length
@@ -433,42 +450,53 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
               ))}
             </div>
 
-            {/* Mobile: hero image plus a thumbnail row */}
-            <div className="sm:hidden">
-              <button
-                type="button"
-                onClick={() => setLightboxIndex(0)}
-                className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-neutral-100"
-                aria-label="Main product photo"
+            {/* Mobile: swipeable gallery slider (no thumbnail row) */}
+            <div className="relative sm:hidden">
+              <div
+                ref={gallerySliderRef}
+                onScroll={handleGalleryScroll}
+                role="group"
+                aria-roledescription="carousel"
+                aria-label={`${venture.title} photos`}
+                className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl bg-neutral-100 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
-                <Image
-                  src={orderedGallery[0] ?? venture.imageUrl}
-                  alt={venture.title}
-                  fill
-                  sizes="100vw"
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  priority
-                />
-              </button>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {orderedGallery.slice(1).map((image, index) => (
+                {orderedGallery.map((image, index) => (
                   <button
                     key={`mobile-${image}-${index}`}
                     type="button"
-                    onClick={() => setLightboxIndex(index + 1)}
-                    className="group relative aspect-square overflow-hidden rounded-xl bg-neutral-100"
-                    aria-label={`View photo ${index + 2}`}
+                    onClick={() => setLightboxIndex(index)}
+                    className="relative aspect-[4/3] w-full shrink-0 snap-center overflow-hidden"
+                    aria-label={`Open photo ${index + 1} of ${orderedGallery.length}`}
                   >
                     <Image
                       src={image}
-                      alt=""
+                      alt={index === 0 ? venture.title : `${venture.title} — photo ${index + 1}`}
                       fill
-                      sizes="120px"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      sizes="100vw"
+                      className="object-cover"
+                      priority={index === 0}
                     />
                   </button>
                 ))}
               </div>
+
+              <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-neutral-950/55 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-white backdrop-blur">
+                {Math.min(mobileSlideIndex + 1, orderedGallery.length)} / {orderedGallery.length}
+              </span>
+
+              {orderedGallery.length > 1 && (
+                <div className="mt-2.5 flex items-center justify-center gap-1.5" aria-hidden="true">
+                  {orderedGallery.map((image, index) => (
+                    <span
+                      key={`dot-${image}-${index}`}
+                      className={cn(
+                        'h-1.5 rounded-full transition-all duration-300',
+                        index === mobileSlideIndex ? 'w-5 bg-neutral-900' : 'w-1.5 bg-neutral-300'
+                      )}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="space-y-3">

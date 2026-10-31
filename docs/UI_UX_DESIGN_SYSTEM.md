@@ -135,6 +135,12 @@ Aturan penerapan:
 - **PDP**: bar sticky setinggi 56px berisi tombol "All adventures", breadcrumb `Home › Kategori › Nama produk`, dan harga paket terpilih per guest (desktop). Bar tetap terlihat saat scroll, jadi user bisa kembali atau pindah halaman tanpa scroll ke atas.
 - Booking card kolom kiri (desktop) memakai `top: 76px` agar tidak tertutup bar; anchor section memakai `scroll-padding-top` 4.5rem.
 
+### Hero Gallery
+- **Desktop**: mosaic asimetris (1 foto besar + 3 tile) seperti sebelumnya.
+- **Mobile**: slider swipe (`scroll-snap`) satu foto 4:3 penuh dengan badge `1 / 4` dan dot indicator; baris thumbnail kecil di bawah hero **tidak** ditampilkan agar header konten berikutnya naik.
+- **Lightbox**: foto besar + tombol panah + counter `n of m`; strip thumbnail di bagian bawah dihapus (mode "all photos" tetap tersedia lewat tombol grid).
+
+
 ### Section 2: Klook-style "Package Options" Widget ⚡ CORE BOOKING ENGINE
 
 **Desktop**: Inline Configurator Card di kolom kanan sticky — SEMUA langkah terlihat di satu card, tanpa modal.

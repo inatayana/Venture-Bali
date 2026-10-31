@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ArrowLeft, ChevronLeft, ChevronRight, LayoutGrid, X } from 'lucide-react';
-import { cn } from '@/utils/cn';
 
 interface ProductLightboxProps {
   images: string[];
@@ -153,66 +152,43 @@ export function ProductLightbox({ images, index, title, onClose, onChange }: Pro
           </div>
         </div>
       ) : (
-        <>
-          <div
-            className="relative flex min-h-0 flex-1 items-center justify-center px-2"
-            onClick={(event) => event.stopPropagation()}
-          >
-            {hasMany && (
-              <button
-                type="button"
-                onClick={() => go(index - 1)}
-                className="absolute left-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/25 sm:left-4"
-                aria-label="Previous photo"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-            )}
+        <div
+          className="relative flex min-h-0 flex-1 items-center justify-center px-2 pb-[calc(1.25rem+env(safe-area-inset-bottom))]"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {hasMany && (
+            <button
+              type="button"
+              onClick={() => go(index - 1)}
+              className="absolute left-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/25 sm:left-4"
+              aria-label="Previous photo"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+          )}
 
-            <div className="relative h-full w-full max-w-5xl">
-              <Image
-                src={current}
-                alt={`${title} — photo ${index + 1}`}
-                fill
-                sizes="100vw"
-                className="object-contain"
-                priority
-              />
-            </div>
-
-            {hasMany && (
-              <button
-                type="button"
-                onClick={() => go(index + 1)}
-                className="absolute right-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/25 sm:right-4"
-                aria-label="Next photo"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button>
-            )}
+          <div className="relative h-full w-full max-w-5xl">
+            <Image
+              src={current}
+              alt={`${title} — photo ${index + 1}`}
+              fill
+              sizes="100vw"
+              className="object-contain"
+              priority
+            />
           </div>
 
-          <div
-            className="flex shrink-0 justify-center gap-2 overflow-x-auto px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3"
-            onClick={(event) => event.stopPropagation()}
-          >
-            {images.map((image, imageIndex) => (
-              <button
-                key={`${image}-${imageIndex}`}
-                type="button"
-                onClick={() => onChange(imageIndex)}
-                className={cn(
-                  'relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-opacity',
-                  imageIndex === index ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'
-                )}
-                aria-label={`View photo ${imageIndex + 1}`}
-                aria-current={imageIndex === index}
-              >
-                <Image src={image} alt="" fill sizes="64px" className="object-cover" />
-              </button>
-            ))}
-          </div>
-        </>
+          {hasMany && (
+            <button
+              type="button"
+              onClick={() => go(index + 1)}
+              className="absolute right-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/25 sm:right-4"
+              aria-label="Next photo"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
