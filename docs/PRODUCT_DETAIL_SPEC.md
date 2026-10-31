@@ -42,15 +42,17 @@ PickupZone (standalone) ◄── Booking (fulfillmentMode + pickupZoneId)
 
 ## 3. Variant & Pricing (semua harga Int IDR)
 
-- `Variant`: `title`, `shortDescription`, `badge?`, `priceTiers[]`, `blackoutDates[]`, `slotTimes[]`, `addons[]`. Mode fulfillment TIDAK lagi di Variant (pindah ke Booking).
+- `Variant`: `title`, `shortDescription`, `badge?`, `transportBadge?`, `duration?`, `fulfillmentMode`, `pickupZoneId?`, `promoPriceIdr?`, `minimumSpendIdr?`, `operationNotes?`, `inclusions[]`, `exclusions[]`, `priceTiers[]`, `blackoutDates[]`, `slotTimes[]`, `addons[]`.
+- `fulfillmentMode` ada di **Variant** (satu paket menjual satu mode). Booking menyalin mode dari paket; `bookingService` menolak mode yang tidak cocok dengan paket.
+- `pickupZoneId` (opsional) mengunci area pickup untuk paket seperti "South Bali: Shared Pickup". Surcharge **tidak** dimasukkan ke `priceTiers` — tetap dihitung `computeQuote` sekali (lihat BOOKING_ARCHITECTURE §1 "Zone-locked packages").
 - `PriceTier`: `minPax`, `maxPax`, `pricePerPax` (Int IDR). Tiers tidak overlap; `minPax <= maxPax`.
 - `SlotTime`: `time`, `maxCapacity`, `currentBookings`, `isAvailable`.
 - `Addon`: `name`, `price` (Int IDR), `description?`, `requiresTransfer` (Boolean, default false — combo hanya bisa saat PRIVATE_TRANSFER), `isCombo` (Boolean, default false — dikelompokkan sebagai combo add-on di UI).
 
 ## 4. Fulfillment & Pickup Zones & Vehicle Class
 
-- Enum `FulfillmentMode`: `SELF_DRIVE` (default) | `PRIVATE_TRANSFER` — di level **Booking**, bukan Variant (1 produk = 2 opsi, bukan SKU terpisah).
-- Model `PickupZone`: `name`, `areaType` (**`ZONE_1`..`ZONE_4`**), `surchargeIdr` (Int, per vehicle), `isCustomQuote` (Zone 4), `vehicleMaxPax` (default 4), `isActive`.
+- Enum `FulfillmentMode`: `SELF_DRIVE` (default) | `SHARED_TRANSFER` | `PRIVATE_TRANSFER` — dipilih lewat paket (variant), bukan produk terpisah; tersimpan juga di level **Booking** untuk operasi.
+- Model `PickupZone`: `name`, `areaType` (**`ZONE_1`..`ZONE_4`**), `surchargeIdr` (Int; dikalikan pax untuk shared, per kendaraan untuk private), `isCustomQuote` (Zone 4), `vehicleMaxPax` (default 4), `isActive`.
 - Model `VehicleClass` (fleet, Klook-style): `name` (`STANDARD_SUV` | `PREMIUM_MPV` | `MINIVAN`), `label` display generik tanpa nama vendor (mis. "Standard SUV · 4 pax"), `vehicleMaxPax` (4/6/12), `deltaIdr` (Int, per kendaraan, di atas zone surcharge), `isActive`. Kelas hanya relevan untuk `PRIVATE_TRANSFER`.
 - `Booking.vehicleClassId`: wajib terisi saat `PRIVATE_TRANSFER`; `null` untuk `SELF_DRIVE`.
 - Matrix zone: lihat `docs/BOOKING_ARCHITECTURE.md` §3.

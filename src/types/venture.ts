@@ -202,6 +202,15 @@ export interface Addon {
   updatedAt: Date;
 }
 
+export interface VariantPickupZone {
+  id: string;
+  name: string;
+  areaType: PickupZoneType;
+  surchargeIdr: number;
+  isCustomQuote: boolean;
+  vehicleMaxPax: number;
+}
+
 export interface Variant {
   id: string;
   ventureId: string;
@@ -217,6 +226,13 @@ export interface Variant {
   inclusions?: string[];
   exclusions?: string[];
   minimumSpendIdr?: number;
+  /**
+   * Zone-locked pickup. When set, this package already sells pickup from that
+   * zone: the booking sheet preselects and locks it, and the pricing engine
+   * still applies the zone surcharge once (docs/BOOKING_ARCHITECTURE.md §1).
+   */
+  pickupZoneId?: string;
+  pickupZone?: VariantPickupZone;
   sortOrder: number;
   priceTiers: PriceTier[];
   blackoutDates: string[];

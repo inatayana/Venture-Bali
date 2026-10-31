@@ -10,6 +10,13 @@
 
 DILARANG membuat produk (SKU) terpisah untuk pickup dan non-pickup. Setiap produk memuat opsi booking pada PDP; varian boleh mengemas mode + durasi + aktivitas sebagai **variant** di bawah satu produk.
 
+### Zone-locked packages (v1.3.0)
+- Varian boleh menyimpan `pickupZoneId` untuk mengunci area pickup, mis. "South Bali: Shared Pickup" → Zone 2.
+- Efeknya: sheet booking otomatis memilih zona itu (`config.zoneId`), menampilkan baris zona read-only (nama + surcharge) dan tetap memberi tombol **Change** kalau tamu menginap di area lain.
+- **Surcharge tetap dihitung sekali** oleh `computeQuote` (shared: per pax, private: per kendaraan). Harga tier **tidak** boleh sudah memasukkan surcharge — kalau dimasukkan, terjadi double charge.
+- Kartu paket menampilkan ringkasan pickup (`Ubud · Pickup included`, `South Bali · +Rp 224.000/guest`), sehingga selisih harga antar area transparan sebelum checkout.
+- Admin dapat mengelola ini lewat CRUD paket (mode + locked zone + price tier) di `/admin/ventures/[id]`; paket dengan booking tidak bisa dihapus.
+
 | | SELF DRIVE (default) | SHARED TRANSFER | PRIVATE TRANSFER |
 |---|---|---|---|
 | Cara datang | Meet at activity location | Hotel shuttle pool (shared) | Private hotel pickup & drop-off |

@@ -1,3 +1,4 @@
+import { formatPrice } from '@/lib/i18n';
 import type { Variant } from '@/types/venture';
 
 export interface VariantPriceDisplay {
@@ -38,3 +39,45 @@ export function getVariantPriceDisplay(variant: Variant): VariantPriceDisplay {
 export function couponAppliesTo(variant: Variant): boolean {
   return getVariantPriceDisplay(variant).promoPriceIdr === null;
 }
+
+export interface VariantPickupDisplay {
+  /** Short region label, e.g. "Ubud" or "South Bali". */
+  label: string;
+  /** What the pickup costs on top of the list price. */
+  detail: string;
+}
+
+const AREA_LABELS: Record<string, string> = {
+  ZONE_1: 'Ubud',
+  ZONE_2: 'South Bali',
+  ZONE_3: 'Nusa Dua / Uluwatu',
+  ZONE_4: 'Outer Bali',
+};
+
+/**
+ * Human summary of how the guest reaches the activity: the locked pickup zone
+ * (with its surcharge) for pickup packages, or the meeting point for self drive.
+ * Returns null for transfer packages without a locked zone — the area is chosen
+ * at checkout there.
+ */
+export function getVariantPickupDisplay(variant: Variant): VariantPickupDisplay | null {
+  const zone = variant.pickupZone;
+
+  if (zone) {
+    const label = AREA_LABELS[zone.areaType] ?? zone.name;
+    const detail = zone.isCustomQuote
+      ? 'Custom quote'
+      : zone.surchargeIdr > 0
+        ? `+${formatPrice(zone.surchargeIdr)}/${variant.fulfillmentMode === 'SHARED_TRANSFER' ? 'guest' : 'vehicle'}`
+        : 'Pickup included';
+
+    return { label, detail };
+  }
+
+  if (variant.fulfillmentMode === 'SELF_DRIVE') {
+    return { label: 'Meeting point', detail: 'Make your own way' };
+  }
+
+  return null;
+}
+

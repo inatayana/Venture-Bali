@@ -106,4 +106,25 @@ describe('VariantCatalogCard', () => {
 
     expect(screen.getByAltText(baseVariant.title)).toBeInTheDocument();
   });
+
+  it('shows the locked pickup area and its surcharge', () => {
+    renderCard({
+      variant: {
+        ...baseVariant,
+        fulfillmentMode: 'SHARED_TRANSFER',
+        pickupZoneId: 'zone-2',
+        pickupZone: {
+          id: 'zone-2',
+          name: 'South 1 — Kuta, Seminyak, Canggu, Sanur',
+          areaType: 'ZONE_2',
+          surchargeIdr: 224000,
+          isCustomQuote: false,
+          vehicleMaxPax: 6,
+        },
+      },
+    });
+
+    expect(screen.getByText('South Bali')).toBeInTheDocument();
+    expect(screen.getByText(/\+Rp\s?224\.000\/guest/)).toBeInTheDocument();
+  });
 });

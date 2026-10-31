@@ -1,9 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { CalendarDays, Check, Clock, ImageIcon } from 'lucide-react';
+import { CalendarDays, Check, Clock, ImageIcon, MapPin } from 'lucide-react';
 import { formatPrice } from '@/lib/i18n';
-import { getVariantPriceDisplay } from '@/lib/variantDisplay';
+import { getVariantPickupDisplay, getVariantPriceDisplay } from '@/lib/variantDisplay';
 import type { Variant } from '@/types/venture';
 import { cn } from '@/utils/cn';
 
@@ -34,6 +34,7 @@ export function VariantCatalogCard({
   fallbackImageUrl,
 }: VariantCatalogCardProps) {
   const { listPriceIdr, promoPriceIdr, priceIdr } = getVariantPriceDisplay(variant);
+  const pickup = getVariantPickupDisplay(variant);
   const inclusions = variant.inclusions ?? [];
   const addonCount = variant.addons?.length ?? 0;
   const openDetails = onOpenDetails ?? onSelect;
@@ -135,16 +136,22 @@ export function VariantCatalogCard({
           <p className="text-xs text-neutral-500">
             {variant.minimumSpendIdr ? (
               <>Minimum {formatPrice(variant.minimumSpendIdr)} to book</>
-            ) : variant.fulfillmentMode === 'PRIVATE_TRANSFER' ? (
-              'Private car included for your group'
             ) : addonCount > 0 ? (
               <>
                 {addonCount} add-on{addonCount > 1 ? 's' : ''} available
               </>
-            ) : (
+            ) : !pickup ? (
               'No minimum spend'
-            )}
+            ) : null}
           </p>
+          {pickup && (
+            <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-neutral-500">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
+              <span className="font-medium text-neutral-700">{pickup.label}</span>
+              <span aria-hidden="true">·</span>
+              {pickup.detail}
+            </p>
+          )}
         </div>
 
         <div className="flex w-full items-center gap-2 sm:w-auto">

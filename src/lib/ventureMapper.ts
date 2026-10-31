@@ -41,6 +41,7 @@ export const ventureWithRelations = {
       priceTiers: { orderBy: { minPax: 'asc' } },
       slotTimes: { orderBy: { time: 'asc' } },
       addons: true,
+      pickupZone: true,
     },
     orderBy: { sortOrder: 'asc' },
   },
@@ -242,6 +243,17 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
         return list.length > 0 ? list : ventureExclusions;
       })(),
       minimumSpendIdr: variant.minimumSpendIdr ?? undefined,
+      pickupZoneId: variant.pickupZoneId ?? undefined,
+      pickupZone: variant.pickupZone
+        ? {
+            id: variant.pickupZone.id,
+            name: variant.pickupZone.name,
+            areaType: variant.pickupZone.areaType,
+            surchargeIdr: variant.pickupZone.surchargeIdr,
+            isCustomQuote: variant.pickupZone.isCustomQuote,
+            vehicleMaxPax: variant.pickupZone.vehicleMaxPax,
+          }
+        : undefined,
       sortOrder: variant.sortOrder,
       priceTiers: variant.priceTiers.map((tier) => ({
         minPax: tier.minPax,

@@ -88,6 +88,11 @@ export const mockLocations = LOCATIONS.map((loc, index) => ({
 
 const locationIdByKey = new Map(mockLocations.map((loc, index) => [LOCATIONS[index].key, loc.id]));
 
+/** Zone lookup used by zone-locked packages in the mock catalogue. */
+const mockPickupZoneByAreaType = new Map(
+  mockPickupZones.map((zone) => [zone.areaType, zone] as const)
+);
+
 // ============ CATALOGUE -> PRISMA SHAPE ============
 
 /**
@@ -159,6 +164,12 @@ function toPrismaShape(venture: VentureSeed): VentureWithRelations {
       inclusions: variant.inclusions ?? [],
       exclusions: variant.exclusions ?? [],
       minimumSpendIdr: variant.minimumSpendIdr ?? null,
+      pickupZoneId: variant.pickupZoneAreaType
+        ? mockPickupZoneByAreaType.get(variant.pickupZoneAreaType)?.id ?? null
+        : null,
+      pickupZone: variant.pickupZoneAreaType
+        ? mockPickupZoneByAreaType.get(variant.pickupZoneAreaType) ?? null
+        : null,
       sortOrder: variant.sortOrder ?? variantIndex,
       blackoutDates: variant.blackoutDates,
       createdAt: MOCK_NOW,

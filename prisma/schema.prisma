@@ -126,6 +126,9 @@ model PickupZone {
   vehicleMaxPax Int            @default(4)
   isActive      Boolean        @default(true)
   bookings      Booking[]
+  /// Packages that are sold with pickup locked to this zone (see
+  /// docs/BOOKING_ARCHITECTURE.md §1 "zone-locked packages").
+  variants      Variant[]      @relation("PickupZoneToVariant")
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -247,6 +250,11 @@ model Variant {
   exclusions       Json        @default("[]")
   /// Optional minimum spend for this package (IDR). Enforced by computeQuote.
   minimumSpendIdr  Int?
+  /// Zone-locked pickup. When set, the package already sells pickup from this
+  /// zone: the booking sheet preselects and locks it, and the zone surcharge is
+  /// still applied once by the pricing engine (never baked into the tier price).
+  pickupZoneId     String?
+  pickupZone       PickupZone? @relation("PickupZoneToVariant", fields: [pickupZoneId], references: [id], onDelete: SetNull)
   sortOrder        Int         @default(0)
   priceTiers       PriceTier[] @relation("VariantToPriceTier")
   blackoutDates    Json
@@ -257,6 +265,7 @@ model Variant {
   updatedAt        DateTime    @updatedAt
 
   @@index([ventureId])
+  @@index([pickupZoneId])
 }
 
 model PriceTier {
