@@ -1,4 +1,4 @@
-import { normaliseSlotTime, slotInputSchema } from './adminVentureSchema';
+import { adminVariantSchema, normaliseSlotTime, slotInputSchema } from './adminVentureSchema';
 import { summariseRevenue } from './revenue';
 
 describe('admin slot input', () => {
@@ -48,5 +48,54 @@ describe('revenue summary', () => {
     expect(summary.totalRevenue).toBe(0);
     expect(summary.averageBookingValue).toBe(0);
     expect(summary.byDate).toEqual([]);
+  });
+});
+
+describe('admin variant input', () => {
+  const base = {
+    title: 'South Bali: Shared Pickup',
+    shortDescription: 'Shared hotel shuttle from Kuta, Seminyak, Canggu or Sanur',
+    fulfillmentMode: 'SHARED_TRANSFER' as const,
+    pickupZoneId: 'zone-2',
+    priceTiers: [{ minPax: 1, maxPax: 10, pricePerPax: 450000 }],
+  };
+
+  it('accepts a zone-locked package', () => {
+    const parsed = adminVariantSchema.safeParse(base);
+    expect(parsed.success).toBe(true);
+  });
+
+  it('rejects a pickup zone on a self-drive package', () => {
+    const parsed = adminVariantSchema.safeParse({
+      ...base,
+      fulfillmentMode: 'SELF_DRIVE',
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.errors[0].path).toEqual(['pickupZoneId']);
+    }
+  });
+
+  it('rejects overlapping price tiers', () => {
+    const parsed = adminVariantSchema.safeParse({
+      ...base,
+      priceTiers: [
+        { minPax: 1, maxPax: 4, pricePerPax: 450000 },
+        { minPax: 3, maxPax: 10, pricePerPax: 400000 },
+      ],
+    });
+    expect(parsed.success).toBe(false);
+  });
+
+  it('rejects a tier whose max pax is below its min pax', () => {
+    const parsed = adminVariantSchema.safeParse({
+      ...base,
+      priceTiers: [{ minPax: 5, maxPax: 2, pricePerPax: 450000 }],
+    });
+    expect(parsed.success).toBe(false);
+  });
+
+  it('requires at least one price tier', () => {
+    expect(adminVariantSchema.safeParse({ ...base, priceTiers: [] }).success).toBe(false);
   });
 });

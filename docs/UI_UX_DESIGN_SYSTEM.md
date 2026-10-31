@@ -169,6 +169,8 @@ Langkah konfigurasi (berlaku untuk desktop inline & mobile bottom sheet):
 - **Tier 1 — Package card** (`VariantCatalogCard`): foto persegi di kiri, judul + badge, deskripsi maksimal 2 baris, chip durasi / transport / jumlah fasilitas, lalu baris harga `From … / guest` + minimum spend + tombol `Select` dan `Show dates`. Hover elevation halus; klik card membuka detail.
 - **Tier 2 — Detail modal** (`VariantDetailModal`): backdrop gelap + `backdrop-blur`; di desktop split 2 kolom (foto kiri, deskripsi lengkap + include/exclude + harga kanan) dengan CTA "Show dates" menempel di bawah; di mobile satu kolom scrollable agar thumb-friendly. Tutup lewat tombol X, klik backdrop, atau Escape (focus trap + body scroll lock).
 - **Promo**: paket dengan promo price menampilkan badge "Promo" / "Promo price applied"; kupon `TRYBALI2026` hanya ditampilkan pada paket harga list karena promo dan kupon tidak stacking (BOOKING_ARCHITECTURE §5). Foto paket yang kosong memakai foto utama produk.
+- **Pickup di kartu**: baris kecil di bawah harga, mis. `Ubud · Pickup included` atau `South Bali · +Rp 224.000/guest`; self drive menampilkan `Meeting point · Make your own way`. Modal detail memakai baris yang sama di dalam blok harga.
+- **Admin**: paket (variant) bisa dibuat/diubah/dihapus dari `/admin/ventures/[id]` — judul, deskripsi, mode, locked pickup zone, durasi, badge, minimum spend, sort order, dan price tier. Paket yang sudah punya booking tidak bisa dihapus.
 
 ### Section 4: Detailed Activity Information (What To Expect)
 - Description + visual itinerary timeline + What's Included/Excluded 2 kolom + Things to Know (accordion) + FAQ.

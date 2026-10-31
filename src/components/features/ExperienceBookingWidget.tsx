@@ -100,6 +100,17 @@ export function ExperienceBookingWidget({
   const needsPickup = fulfillmentMode !== 'SELF_DRIVE';
   const needsVehicle = fulfillmentMode === 'PRIVATE_TRANSFER';
 
+  // Zone-locked packages (e.g. "South Bali: Shared Pickup") preselect their zone.
+  // The customer can still switch area, but the package intent stays visible.
+  const lockedZone = variant?.pickupZone ?? null;
+  const [zoneOverride, setZoneOverride] = useState(false);
+
+  useEffect(() => {
+    setZoneOverride(false);
+  }, [variant?.id]);
+
+  const zoneLocked = Boolean(lockedZone) && !zoneOverride;
+
   const priceTiers = useMemo(() => {
     if (variant?.priceTiers?.length) return variant.priceTiers;
     return [{ minPax: 1, maxPax: venture.maxParticipants, pricePerPax: venture.priceIdr }];
@@ -333,29 +344,54 @@ export function ExperienceBookingWidget({
           </h3>
           <div className="space-y-3 rounded-xl border border-neutral-200 p-4">
             <div>
-              <label htmlFor="pickup-zone" className="mb-1.5 block text-xs font-medium text-neutral-500">
+              <span className="mb-1.5 block text-xs font-medium text-neutral-500">
                 Pickup area
-              </label>
-              <select
-                id="pickup-zone"
-                value={config.zoneId ?? ''}
-                onChange={(event) => onChange({ zoneId: event.target.value })}
-                className="min-h-[44px] w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900"
-              >
-                <option value="" disabled>
-                  Select your area…
-                </option>
-                {zones.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                    {item.isCustomQuote
-                      ? ' (custom quote)'
-                      : item.surchargeIdr > 0
-                        ? ` (+${formatPrice(item.surchargeIdr)}${fulfillmentMode === 'SHARED_TRANSFER' ? '/guest' : '/vehicle'})`
-                        : ' (included)'}
+              </span>
+
+              {zoneLocked && lockedZone ? (
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-neutral-900">
+                      {lockedZone.name}
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      {lockedZone.isCustomQuote
+                        ? 'Custom quote — confirmed by WhatsApp'
+                        : lockedZone.surchargeIdr > 0
+                          ? `+${formatPrice(lockedZone.surchargeIdr)}${fulfillmentMode === 'SHARED_TRANSFER' ? '/guest' : '/vehicle'}`
+                          : 'Included in this package'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setZoneOverride(true)}
+                    className="min-h-[44px] shrink-0 text-sm font-semibold text-neutral-900 underline"
+                  >
+                    Change
+                  </button>
+                </div>
+              ) : (
+                <select
+                  id="pickup-zone"
+                  value={config.zoneId ?? ''}
+                  onChange={(event) => onChange({ zoneId: event.target.value })}
+                  className="min-h-[44px] w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900"
+                >
+                  <option value="" disabled>
+                    Select your area…
                   </option>
-                ))}
-              </select>
+                  {zones.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                      {item.isCustomQuote
+                        ? ' (custom quote)'
+                        : item.surchargeIdr > 0
+                          ? ` (+${formatPrice(item.surchargeIdr)}${fulfillmentMode === 'SHARED_TRANSFER' ? '/guest' : '/vehicle'})`
+                          : ' (included)'}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <div>
@@ -425,6 +461,10 @@ export function ExperienceBookingWidget({
               <button
                 type="button"
                 onClick={() => {
+                  if (zoneLocked) {
+                    setZoneOverride(true);
+                    return;
+                  }
                   document.getElementById('pickup-step')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   document.getElementById('pickup-zone')?.focus();
                 }}

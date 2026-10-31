@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { CalendarDays, Check, Clock, ImageIcon, Info, Sparkles, Tag, X } from 'lucide-react';
+import { CalendarDays, Check, Clock, ImageIcon, Info, MapPin, Sparkles, Tag, X } from 'lucide-react';
 import { formatPrice } from '@/lib/i18n';
-import { couponAppliesTo, getVariantPriceDisplay } from '@/lib/variantDisplay';
+import { couponAppliesTo, getVariantPickupDisplay, getVariantPriceDisplay } from '@/lib/variantDisplay';
 import type { Variant } from '@/types/venture';
 
 export interface VariantPromo {
@@ -107,6 +107,7 @@ export function VariantDetailModal({
   const exclusions = variant.exclusions ?? [];
   const addonCount = variant.addons?.length ?? 0;
   const showCoupon = couponAppliesTo(variant);
+  const pickup = getVariantPickupDisplay(variant);
   const imageUrl = variant.imageUrl ?? fallbackImageUrl;
 
   return (
@@ -211,16 +212,23 @@ export function VariantDetailModal({
               <p className="mt-1 text-xs text-neutral-600">
                 {variant.minimumSpendIdr ? (
                   <>Minimum {formatPrice(variant.minimumSpendIdr)} to book</>
-                ) : variant.fulfillmentMode === 'PRIVATE_TRANSFER' ? (
-                  'Private car included for your group'
                 ) : addonCount > 0 ? (
                   <>
                     {addonCount} add-on{addonCount > 1 ? 's' : ''} available
                   </>
-                ) : (
+                ) : !pickup ? (
                   'No minimum spend'
-                )}
+                ) : null}
               </p>
+
+              {pickup && (
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-neutral-600">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
+                  <span className="font-medium text-neutral-800">{pickup.label}</span>
+                  <span aria-hidden="true">·</span>
+                  {pickup.detail}
+                </p>
+              )}
 
               {showCoupon ? (
                 <p className="mt-2.5 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-800 ring-1 ring-neutral-200">

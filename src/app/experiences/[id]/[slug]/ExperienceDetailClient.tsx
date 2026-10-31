@@ -181,7 +181,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
       ...prev,
       variantId,
       slot: null,
-      zoneId: null,
+      zoneId: selected?.pickupZoneId ?? null,
       vehicleClassType: null,
       hotelAddress: '',
       isTba: false,

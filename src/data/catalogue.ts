@@ -385,6 +385,11 @@ export type VariantSeed = {
   minimumSpendIdr?: number | null;
   /** Derived from the title when omitted (Private Transfer / Shared Transfer / else Self Drive). */
   fulfillmentMode?: 'SELF_DRIVE' | 'SHARED_TRANSFER' | 'PRIVATE_TRANSFER';
+  /**
+   * Locks the package to a pickup zone (areaType). The booking sheet preselects
+   * that zone; the zone surcharge is still applied once by the pricing engine.
+   */
+  pickupZoneAreaType?: 'ZONE_1' | 'ZONE_2' | 'ZONE_3' | 'ZONE_4';
   /** Flat promo price per pax (IDR). Replaces the tier price when lower. */
   promoPriceIdr?: number | null;
   operationNotes?: string | null;
@@ -635,8 +640,12 @@ export const VENTURES: VentureSeed[] = [
     variants: [
       {
         title: 'Self Drive',
-        shortDescription: 'Arrive at the river gate and join the group departure',
+        shortDescription: 'Come to the meeting point at the river gate and join the group departure',
         badge: null,
+        transportBadge: '📍 Meeting Point',
+        imageUrl: '/images/rafting.svg',
+        duration: '3 hours',
+        fulfillmentMode: 'SELF_DRIVE',
         priceTiers: [
           { minPax: 1, maxPax: 1, pricePerPax: 450000 },
           { minPax: 2, maxPax: 2, pricePerPax: 400000 },
@@ -645,11 +654,58 @@ export const VENTURES: VentureSeed[] = [
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
+        sortOrder: 1,
       },
       {
-        title: 'Private Transfer',
-        shortDescription: 'Round-trip hotel pickup and drop-off included',
+        title: 'Ubud: Shared Pickup',
+        shortDescription: 'Shared hotel shuttle in the Ubud & Gianyar area, no extra pickup fee',
+        badge: null,
+        transportBadge: '🚐 Shared Transfer',
+        imageUrl: '/images/rafting-2.svg',
+        duration: '3 hours',
+        fulfillmentMode: 'SHARED_TRANSFER',
+        pickupZoneAreaType: 'ZONE_1',
+        operationNotes: 'Shared shuttle departs from Ubud & Gianyar hotels at a fixed time',
+        priceTiers: [
+          { minPax: 1, maxPax: 1, pricePerPax: 450000 },
+          { minPax: 2, maxPax: 2, pricePerPax: 400000 },
+          { minPax: 3, maxPax: 4, pricePerPax: 375000 },
+          { minPax: 5, maxPax: 10, pricePerPax: 350000 },
+        ],
+        blackoutDates: [],
+        addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
+        sortOrder: 2,
+      },
+      {
+        title: 'South Bali: Shared Pickup',
+        shortDescription: 'Shared hotel shuttle from Kuta, Seminyak, Canggu or Sanur',
+        badge: null,
+        transportBadge: '🚐 Shared Transfer',
+        imageUrl: '/images/rafting-3.svg',
+        duration: '3 hours',
+        fulfillmentMode: 'SHARED_TRANSFER',
+        pickupZoneAreaType: 'ZONE_2',
+        operationNotes: 'South Bali pickup adds Rp 224.000 per guest, charged once at checkout',
+        priceTiers: [
+          { minPax: 1, maxPax: 1, pricePerPax: 450000 },
+          { minPax: 2, maxPax: 2, pricePerPax: 400000 },
+          { minPax: 3, maxPax: 4, pricePerPax: 375000 },
+          { minPax: 5, maxPax: 10, pricePerPax: 350000 },
+        ],
+        blackoutDates: [],
+        addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
+        sortOrder: 3,
+      },
+      {
+        title: 'Ubud: Private Transfer',
+        shortDescription: 'Private car and driver for your group, door to door in the Ubud area',
         badge: 'Most Popular',
+        transportBadge: '🚗 Private Transfer',
+        imageUrl: '/images/rafting-4.svg',
+        duration: '3 hours',
+        fulfillmentMode: 'PRIVATE_TRANSFER',
+        pickupZoneAreaType: 'ZONE_1',
+        operationNotes: 'Private vehicle class is selected at checkout',
         priceTiers: [
           { minPax: 1, maxPax: 1, pricePerPax: 650000 },
           { minPax: 2, maxPax: 2, pricePerPax: 600000 },
@@ -658,6 +714,27 @@ export const VENTURES: VentureSeed[] = [
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH, ADDON_BUFFET],
+        sortOrder: 4,
+      },
+      {
+        title: 'South Bali: Private Transfer',
+        shortDescription: 'Private car and driver from Kuta, Seminyak, Canggu or Sanur',
+        badge: null,
+        transportBadge: '🚗 Private Transfer',
+        imageUrl: '/images/rafting.svg',
+        duration: '3 hours',
+        fulfillmentMode: 'PRIVATE_TRANSFER',
+        pickupZoneAreaType: 'ZONE_2',
+        operationNotes: 'South Bali pickup adds Rp 224.000 per vehicle, charged once at checkout',
+        priceTiers: [
+          { minPax: 1, maxPax: 1, pricePerPax: 650000 },
+          { minPax: 2, maxPax: 2, pricePerPax: 600000 },
+          { minPax: 3, maxPax: 4, pricePerPax: 575000 },
+          { minPax: 5, maxPax: 10, pricePerPax: 550000 },
+        ],
+        blackoutDates: [],
+        addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH, ADDON_BUFFET],
+        sortOrder: 5,
       },
     ],
   },

@@ -126,9 +126,10 @@ async function seedLocations() {
   return map;
 }
 
-async function seedPickupZones() {
+async function seedPickupZones(): Promise<Map<string, string>> {
+  const zoneIds = new Map<string, string>();
   for (const zone of PICKUP_ZONES) {
-    await prisma.pickupZone.upsert({
+    const record = await prisma.pickupZone.upsert({
       where: { name: zone.name },
       update: {
         areaType: zone.areaType,
@@ -146,8 +147,10 @@ async function seedPickupZones() {
         isActive: true,
       },
     });
+    zoneIds.set(zone.areaType, record.id);
   }
   console.log(`✓ Pickup zones: ${PICKUP_ZONES.length}`);
+  return zoneIds;
 }
 
 async function seedVehicleClasses() {
@@ -199,6 +202,7 @@ async function seedCoupons() {
 async function seedVentures(
   tenantId: string,
   locationIds: Map<string, string>,
+  pickupZoneIds: Map<string, string>,
 ) {
   for (const v of VENTURES) {
     const locationId = locationIds.get(v.locationKey) ?? null;
@@ -304,6 +308,9 @@ async function seedVentures(
               imageUrl: variantSeed.imageUrl ?? null,
               duration: variantSeed.duration ?? v.duration,
               fulfillmentMode: resolveFulfillmentMode(variantSeed),
+              pickupZoneId: variantSeed.pickupZoneAreaType
+                ? pickupZoneIds.get(variantSeed.pickupZoneAreaType) ?? null
+                : null,
               promoPriceIdr: variantSeed.promoPriceIdr ?? null,
               operationNotes: variantSeed.operationNotes ?? null,
               inclusions: (variantSeed.inclusions ?? []) as unknown as Prisma.InputJsonValue,
@@ -324,6 +331,9 @@ async function seedVentures(
               imageUrl: variantSeed.imageUrl ?? null,
               duration: variantSeed.duration ?? v.duration,
               fulfillmentMode: resolveFulfillmentMode(variantSeed),
+              pickupZoneId: variantSeed.pickupZoneAreaType
+                ? pickupZoneIds.get(variantSeed.pickupZoneAreaType) ?? null
+                : null,
               promoPriceIdr: variantSeed.promoPriceIdr ?? null,
               operationNotes: variantSeed.operationNotes ?? null,
               inclusions: (variantSeed.inclusions ?? []) as unknown as Prisma.InputJsonValue,
@@ -386,9 +396,9 @@ async function main() {
 
   const tenant = await seedTenant();
   const locationIds = await seedLocations();
-  await seedPickupZones();
+  const zoneIds = await seedPickupZones();
   await seedVehicleClasses();
-  await seedVentures(tenant.id, locationIds);
+  await seedVentures(tenant.id, locationIds, zoneIds);
   await seedCoupons();
 
   console.log('\n✅ Seed completed successfully.');

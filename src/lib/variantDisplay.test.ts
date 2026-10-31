@@ -1,4 +1,5 @@
-import { couponAppliesTo, getVariantPriceDisplay } from './variantDisplay';
+import { couponAppliesTo, getVariantPickupDisplay, getVariantPriceDisplay } from './variantDisplay';
+import { formatPrice } from './i18n';
 import type { Variant } from '@/types/venture';
 
 function buildVariant(overrides: Partial<Variant> = {}): Variant {
@@ -58,5 +59,98 @@ describe('couponAppliesTo', () => {
 
   it('is false when a promo price is already applied', () => {
     expect(couponAppliesTo(buildVariant({ promoPriceIdr: 300000 }))).toBe(false);
+  });
+});
+
+describe('getVariantPickupDisplay', () => {
+  it('points self-drive packages at the meeting point', () => {
+    expect(getVariantPickupDisplay(buildVariant())).toEqual({
+      label: 'Meeting point',
+      detail: 'Make your own way',
+    });
+  });
+
+  it('returns null for transfers whose area is picked at checkout', () => {
+    expect(
+      getVariantPickupDisplay(
+        buildVariant({ fulfillmentMode: 'SHARED_TRANSFER', pickupZone: undefined })
+      )
+    ).toBeNull();
+  });
+
+  it('summarises a free pickup zone as included', () => {
+    expect(
+      getVariantPickupDisplay(
+        buildVariant({
+          fulfillmentMode: 'SHARED_TRANSFER',
+          pickupZoneId: 'zone-1',
+          pickupZone: {
+            id: 'zone-1',
+            name: 'Core Area — Ubud & Gianyar',
+            areaType: 'ZONE_1',
+            surchargeIdr: 0,
+            isCustomQuote: false,
+            vehicleMaxPax: 6,
+          },
+        })
+      )
+    ).toEqual({ label: 'Ubud', detail: 'Pickup included' });
+  });
+
+  it('shows the per-guest surcharge for shared pickup', () => {
+    expect(
+      getVariantPickupDisplay(
+        buildVariant({
+          fulfillmentMode: 'SHARED_TRANSFER',
+          pickupZoneId: 'zone-2',
+          pickupZone: {
+            id: 'zone-2',
+            name: 'South 1 — Kuta, Seminyak, Canggu, Sanur',
+            areaType: 'ZONE_2',
+            surchargeIdr: 224000,
+            isCustomQuote: false,
+            vehicleMaxPax: 6,
+          },
+        })
+      )
+    ).toEqual({ label: 'South Bali', detail: `+${formatPrice(224000)}/guest` });
+  });
+
+  it('shows the per-vehicle surcharge for private pickup', () => {
+    expect(
+      getVariantPickupDisplay(
+        buildVariant({
+          fulfillmentMode: 'PRIVATE_TRANSFER',
+          pickupZoneId: 'zone-2',
+          pickupZone: {
+            id: 'zone-2',
+            name: 'South 1 — Kuta, Seminyak, Canggu, Sanur',
+            areaType: 'ZONE_2',
+            surchargeIdr: 224000,
+            isCustomQuote: false,
+            vehicleMaxPax: 6,
+          },
+        })
+      )
+    ).toEqual({ label: 'South Bali', detail: `+${formatPrice(224000)}/vehicle` });
+  });
+
+  it('flags custom-quote zones', () => {
+    expect(
+      getVariantPickupDisplay(
+        buildVariant({
+          fulfillmentMode: 'SHARED_TRANSFER',
+          pickupZoneId: 'zone-4',
+          pickupZone: {
+            id: 'zone-4',
+            name: 'Outer — Amed, Lovina, Pemuteran, Tulamben',
+            areaType: 'ZONE_4',
+            surchargeIdr: 0,
+            isCustomQuote: true,
+            vehicleMaxPax: 6,
+          },
+        })
+      )
+    ).toEqual({ label: 'Outer Bali', detail: 'Custom quote' });
   });
 });
