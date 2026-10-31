@@ -6,6 +6,7 @@ import { Button, Stepper, Calendar as CalendarComponent, TimeSlotPill } from '@/
 import { formatPrice } from '@/lib/i18n';
 import { PickupAddonsStep } from '@/components/features/PickupAddonsStep';
 import { normalizeAddons } from '@/lib/addons';
+import { COUNTRIES, countryLabel, findCountry } from '@/lib/countries';
 import {
   computeQuote,
   isDateAvailable,
@@ -174,6 +175,8 @@ export function ExperienceBookingWidget({
 
   const maxGuests = Math.min(MAX_GUESTS, venture.maxParticipants);
   const guestCountTouched = config.adults > venture.minParticipants;
+  const dialCode = findCountry(config.countryCode).dial;
+  const whatsappDigits = config.customerWhatsApp.replace(/\D/g, '');
 
   const missing: string[] = [];
   if (!config.date) missing.push('Pick an adventure date');
@@ -186,6 +189,7 @@ export function ExperienceBookingWidget({
   if (!config.customerName.trim()) missing.push('Enter the lead guest name');
   if (!config.customerEmail.trim()) missing.push('Enter an email for the e-voucher');
   if (!config.customerWhatsApp.trim()) missing.push('Enter a WhatsApp number');
+  else if (whatsappDigits.length < 6) missing.push('Enter a valid WhatsApp number');
   if (!config.billingStreet.trim()) missing.push('Add your billing street address');
   if (!config.billingCity.trim()) missing.push('Add your billing city');
   if (!config.billingPostalCode.trim()) missing.push('Add your billing postal code');
@@ -540,23 +544,46 @@ export function ExperienceBookingWidget({
             type="email"
             value={config.customerEmail}
           />
-          <div className="grid grid-cols-[5rem_1fr] gap-2">
-            <input
-              aria-label="Country code"
-              className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-sm uppercase outline-none focus:border-neutral-900"
-              maxLength={2}
-              onChange={(event) => onChange({ countryCode: event.target.value.toUpperCase() })}
-              placeholder="ID"
+          <div>
+            <label htmlFor="guest-country" className="mb-1.5 block text-xs font-medium text-neutral-500">
+              Country
+            </label>
+            <select
+              id="guest-country"
               value={config.countryCode}
-            />
-            <input
-              aria-label="WhatsApp number"
-              className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
-              onChange={(event) => onChange({ customerWhatsApp: event.target.value })}
-              placeholder="WhatsApp number"
-              type="tel"
-              value={config.customerWhatsApp}
-            />
+              onChange={(event) => onChange({ countryCode: event.target.value })}
+              className="min-h-[44px] w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+            >
+              {COUNTRIES.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {countryLabel(country)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="guest-whatsapp" className="mb-1.5 block text-xs font-medium text-neutral-500">
+              WhatsApp number
+            </label>
+            <div className="flex">
+              <span className="flex min-h-[44px] items-center rounded-l-lg border border-r-0 border-neutral-300 bg-neutral-50 px-3 text-sm font-medium text-neutral-700">
+                +{dialCode}
+              </span>
+              <input
+                id="guest-whatsapp"
+                aria-label="WhatsApp number"
+                className="min-h-[44px] w-full rounded-r-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+                inputMode="tel"
+                onChange={(event) => onChange({ customerWhatsApp: event.target.value })}
+                placeholder="812 3456 7890"
+                type="tel"
+                value={config.customerWhatsApp}
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-neutral-500">
+              Used for pickup coordination and your e-voucher.
+            </p>
           </div>
         </div>
       </section>
@@ -597,15 +624,19 @@ export function ExperienceBookingWidget({
               value={config.billingPostalCode}
             />
           </div>
-          <div className="grid grid-cols-[5rem_1fr] gap-2">
-            <input
-              aria-label="Billing country code"
-              className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-sm uppercase outline-none focus:border-neutral-900"
-              maxLength={2}
-              onChange={(event) => onChange({ billingCountry: event.target.value.toUpperCase() })}
-              placeholder="ID"
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <select
+              aria-label="Billing country"
+              className="min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+              onChange={(event) => onChange({ billingCountry: event.target.value })}
               value={config.billingCountry}
-            />
+            >
+              {COUNTRIES.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {countryLabel(country)}
+                </option>
+              ))}
+            </select>
             <input
               aria-label="Billing province"
               className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"

@@ -45,3 +45,6 @@ out/
 # Local dev server logs
 dev.out.txt
 dev.err.txt
+
+# Local test output
+.test-out.txt

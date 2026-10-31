@@ -11,6 +11,7 @@ import {
   CheckCircle,
   Shield,
   Share2,
+  Heart,
   Wallet,
   ChevronDown,
   ChevronUp,
@@ -28,6 +29,8 @@ import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
 import { REFUND_WINDOWS } from '@/lib/refundUtils';
 import { computeQuote } from '@/lib/pricing';
+import { findCountry } from '@/lib/countries';
+import { toInternationalPhone } from '@/lib/phone';
 import type { PickupZone, Variant, VehicleClass, VentureItem } from '@/types/venture';
 import { cn } from '@/utils/cn';
 
@@ -79,6 +82,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [promoVisible, setPromoVisible] = useState(true);
+  const [wishlisted, setWishlisted] = useState(false);
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
 
   const selectedVariant = useMemo(
@@ -104,6 +108,8 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
     (patch: Partial<BookingConfig>) => setConfig((prev) => ({ ...prev, ...patch })),
     []
   );
+
+  const closeSheet = useCallback(() => setIsSheetOpen(false), []);
 
   useEffect(() => {
     try {
@@ -184,7 +190,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
           selectedAddons: config.addonIds,
           customerName: config.customerName,
           customerEmail: config.customerEmail,
-          customerWhatsApp: config.customerWhatsApp,
+          customerWhatsApp: toInternationalPhone(findCountry(config.countryCode).dial, config.customerWhatsApp),
           countryCode: config.countryCode,
           billingAddress: {
             name: config.billingName.trim() || config.customerName,
@@ -231,6 +237,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
       )}`;
 
   const selectedPrice = estimate.unitPricePerPaxIdr;
+  const serviceType = selectedVariant?.fulfillmentMode === 'SELF_DRIVE' ? 'Meeting point' : 'Hotel pickup available';
 
   return (
     <main className="min-h-screen bg-white pb-28 lg:pb-10">
@@ -248,9 +255,100 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[45%_1fr] lg:items-start">
-          {/* LEFT — gallery, title and the sticky pricing card */}
-          <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(340px,380px)_1fr] lg:items-start">
+          {/* LEFT — sticky booking card (desktop only) */}
+          <aside className="hidden lg:sticky lg:top-6 lg:block">
+            <div className="rounded-2xl border border-neutral-200 p-5 shadow-sm">
+              <p className="text-xs uppercase tracking-wider text-neutral-500">
+                {selectedVariant ? 'Selected package' : 'Starting price'}
+              </p>
+              <p className="mt-0.5 font-heading text-base font-bold text-neutral-900">
+                {selectedVariant?.title ?? venture.title}
+              </p>
+
+              <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span className="text-xs font-medium text-neutral-500">From</span>
+                {estimate.promoActive && (
+                  <span className="text-sm tabular-nums text-neutral-400 line-through">
+                    {formatPrice(estimate.listPricePerPaxIdr)}
+                  </span>
+                )}
+                <span className="font-heading text-3xl font-bold tabular-nums text-neutral-900">
+                  {formatPrice(selectedPrice)}
+                </span>
+                <span className="text-sm text-neutral-500">/ guest</span>
+              </div>
+
+              {selectedVariant?.minimumSpendIdr ? (
+                <p className="mt-1 text-xs font-medium text-neutral-600">
+                  Minimum {formatPrice(selectedVariant.minimumSpendIdr)} to book
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-neutral-500">No minimum spend</p>
+              )}
+
+              <div className="mt-3 rounded-xl bg-neutral-50 px-3 py-2">
+                <Stepper
+                  label="Guests"
+                  value={config.adults}
+                  min={Math.max(1, venture.minParticipants)}
+                  max={Math.min(10, venture.maxParticipants)}
+                  onChange={(value) => patchConfig({ adults: value })}
+                />
+              </div>
+
+              <div className="mt-3 space-y-1 text-sm text-neutral-600">
+                <div className="flex justify-between">
+                  <span>
+                    {config.adults} × {formatPrice(estimate.unitPricePerPaxIdr)}
+                  </span>
+                  <span className="tabular-nums">{formatPrice(estimate.subtotalIdr)}</span>
+                </div>
+                {estimate.discountIdr > 0 && (
+                  <div className="flex justify-between text-green-700">
+                    <span>Promo savings</span>
+                    <span className="tabular-nums">−{formatPrice(estimate.discountIdr)}</span>
+                  </div>
+                )}
+                {estimate.minimumTopUpIdr > 0 && (
+                  <div className="flex justify-between">
+                    <span>Minimum spend top-up</span>
+                    <span className="tabular-nums">{formatPrice(estimate.minimumTopUpIdr)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-3 flex items-center justify-between border-t border-neutral-200 pt-3">
+                <span className="text-sm font-medium text-neutral-900">Estimated total</span>
+                <span className="font-heading text-xl font-bold tabular-nums text-neutral-900">
+                  {formatPrice(estimate.totalPriceIdr)}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => selectedVariant && openBooking(selectedVariant.id)}
+                className="mt-3 min-h-[48px] w-full rounded-xl bg-neutral-900 text-sm font-semibold text-white transition-colors hover:bg-neutral-800"
+              >
+                Show dates
+              </button>
+              <p className="mt-2 text-center text-xs text-neutral-500">
+                Pickup and add-ons are added in the next step.
+              </p>
+
+              <div className="mt-3 space-y-1.5 border-t border-neutral-100 pt-3 text-xs text-neutral-500">
+                <p className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" /> {CANCELLATION.description} · reschedule free ≥24h
+                </p>
+                <p className="flex items-center gap-2">
+                  <Wallet className="h-4 w-4" /> Secure checkout · {PAYMENT_LOGOS.join(' / ')}
+                </p>
+              </div>
+            </div>
+          </aside>
+
+          {/* RIGHT — hero, header and all scrollable content */}
+          <div className="space-y-6">
             <div className="flex gap-2">
               <div className="hidden w-20 shrink-0 flex-col gap-2 sm:flex">
                 {gallery.map((image, index) => (
@@ -278,24 +376,11 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
                     src={activeImage}
                     alt={venture.title}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 560px"
+                    sizes="(max-width: 1024px) 100vw, 760px"
                     className="object-cover"
                     priority
                   />
                 </div>
-                <button
-                  type="button"
-                  onClick={share}
-                  className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 shadow transition-colors hover:bg-white"
-                  aria-label="Share this adventure"
-                >
-                  <Share2 className="h-5 w-5 text-neutral-700" />
-                </button>
-                {shareState === 'copied' && (
-                  <span className="absolute bottom-3 right-3 rounded-full bg-neutral-900 px-3 py-1 text-xs text-white">
-                    Link copied
-                  </span>
-                )}
               </div>
             </div>
 
@@ -318,19 +403,50 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
 
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="rounded-full bg-neutral-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
+                  {venture.category}
+                </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-3 py-1 font-medium text-neutral-700">
                   <MapPin className="h-3.5 w-3.5" /> {venture.location || 'Bali'}
                 </span>
-                {venture.badge && (
-                  <span className="rounded-full bg-neutral-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
-                    {venture.badge}
-                  </span>
-                )}
+                <span className="text-xs text-neutral-500">{serviceType}</span>
               </div>
 
-              <h1 className="font-heading text-2xl font-bold leading-tight text-neutral-900 md:text-3xl">
-                {venture.title}
-              </h1>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h1 className="font-heading text-2xl font-bold leading-tight text-neutral-900 md:text-3xl">
+                    {venture.title}
+                  </h1>
+                  <p className="mt-1 text-sm leading-relaxed text-neutral-600">
+                    {venture.shortDescription ?? venture.description}
+                  </p>
+                </div>
+
+                <div className="flex shrink-0 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setWishlisted((prev) => !prev)}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
+                    aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+                    aria-pressed={wishlisted}
+                  >
+                    <Heart
+                      className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-600')}
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={share}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
+                    aria-label="Share this adventure"
+                  >
+                    <Share2 className="h-5 w-5 text-neutral-600" />
+                  </button>
+                </div>
+              </div>
+              {shareState === 'copied' && (
+                <p className="text-xs font-medium text-green-700">Link copied to clipboard.</p>
+              )}
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-600">
                 <span className="inline-flex items-center gap-1">
@@ -361,89 +477,6 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
               </div>
             </div>
 
-            {/* Sticky pricing box (desktop) */}
-            <div className="hidden lg:sticky lg:top-6 lg:block">
-              <div className="rounded-2xl border border-neutral-200 p-5 shadow-sm">
-                <p className="text-xs uppercase tracking-wider text-neutral-500">Selected package</p>
-                <p className="mt-0.5 font-heading text-base font-bold text-neutral-900">
-                  {selectedVariant?.title ?? 'Choose a package'}
-                </p>
-
-                <div className="mt-2 flex items-baseline gap-2">
-                  {estimate.promoActive && (
-                    <span className="text-sm tabular-nums text-neutral-400 line-through">
-                      {formatPrice(estimate.listPricePerPaxIdr)}
-                    </span>
-                  )}
-                  <span className="font-heading text-3xl font-bold tabular-nums text-neutral-900">
-                    {formatPrice(selectedPrice)}
-                  </span>
-                  <span className="text-sm text-neutral-500">/ guest</span>
-                </div>
-
-                <div className="mt-3 rounded-xl bg-neutral-50 px-3 py-2">
-                  <Stepper
-                    label="Guests"
-                    value={config.adults}
-                    min={Math.max(1, venture.minParticipants)}
-                    max={Math.min(10, venture.maxParticipants)}
-                    onChange={(value) => patchConfig({ adults: value })}
-                  />
-                </div>
-
-                <div className="mt-3 space-y-1 text-sm text-neutral-600">
-                  <div className="flex justify-between">
-                    <span>
-                      {config.adults} × {formatPrice(estimate.unitPricePerPaxIdr)}
-                    </span>
-                    <span className="tabular-nums">{formatPrice(estimate.subtotalIdr)}</span>
-                  </div>
-                  {estimate.discountIdr > 0 && (
-                    <div className="flex justify-between text-green-700">
-                      <span>Promo savings</span>
-                      <span className="tabular-nums">−{formatPrice(estimate.discountIdr)}</span>
-                    </div>
-                  )}
-                  {estimate.minimumTopUpIdr > 0 && (
-                    <div className="flex justify-between">
-                      <span>Minimum spend top-up</span>
-                      <span className="tabular-nums">{formatPrice(estimate.minimumTopUpIdr)}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-3 flex items-center justify-between border-t border-neutral-200 pt-3">
-                  <span className="text-sm font-medium text-neutral-900">Estimated total</span>
-                  <span className="font-heading text-xl font-bold tabular-nums text-neutral-900">
-                    {formatPrice(estimate.totalPriceIdr)}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => selectedVariant && openBooking(selectedVariant.id)}
-                  className="mt-3 min-h-[48px] w-full rounded-xl bg-neutral-900 text-sm font-semibold text-white transition-colors hover:bg-neutral-800"
-                >
-                  Choose date
-                </button>
-                <p className="mt-2 text-center text-xs text-neutral-500">
-                  Pickup and add-ons are added in the next step.
-                </p>
-
-                <div className="mt-3 space-y-1.5 border-t border-neutral-100 pt-3 text-xs text-neutral-500">
-                  <p className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" /> {CANCELLATION.description} · reschedule free ≥24h
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <Wallet className="h-4 w-4" /> Secure checkout · {PAYMENT_LOGOS.join(' / ')}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT — package matrix, safety, provider, reviews, coverage, terms */}
-          <div className="space-y-6">
             <section id="packages">
               <h2 className="mb-1 font-heading text-lg font-bold text-neutral-900">Choose your package</h2>
               <p className="mb-3 text-sm text-neutral-500">
@@ -755,14 +788,14 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
             onClick={() => selectedVariant && openBooking(selectedVariant.id)}
             className="min-h-[44px] shrink-0 rounded-xl bg-neutral-900 px-5 text-sm font-semibold text-white"
           >
-            Choose date
+            Show dates
           </button>
         </div>
       </div>
 
       <BottomSheet
         isOpen={isSheetOpen}
-        onClose={() => setIsSheetOpen(false)}
+        onClose={closeSheet}
         title={selectedVariant?.title ?? 'Book your adventure'}
         className="sm:max-w-lg h-[92vh] sm:h-auto"
       >
