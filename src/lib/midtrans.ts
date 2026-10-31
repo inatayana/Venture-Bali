@@ -18,6 +18,13 @@ export interface SnapTransactionRequest {
     first_name: string;
     email: string;
     phone: string;
+    billing_address?: {
+      first_name?: string;
+      address?: string;
+      city?: string;
+      postal_code?: string;
+      country_code?: string;
+    };
   };
   item_details?: Array<{
     id: string;

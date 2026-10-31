@@ -128,3 +128,11 @@ Kebijakan pembatalan mengikuti `docs/REFUND_POLICY.md` v2 dan **satu-satunya imp
 - Kegagalan notifikasi **tidak pernah** menggagalkan webhook pembayaran atau cron; error hanya dicatat.
 - Cron diamankan dengan header `Authorization: Bearer $CRON_SECRET`; tanpa secret yang cocok responsnya 401.
 - QR voucher mengarah ke halaman verifikasi publik `/voucher/verify/[bookingCode]` (read-only, `noindex`), bukan ke data internal.
+
+## 9. Legal acceptance & billing
+
+- Checkout wajib mencentang **Booking Terms** (`/terms`) dan **Activity Safety Waiver** (`/waiver`). Server menolak booking tanpa keduanya (`zod literal true`).
+- Acceptance disimpan per booking: `termsAcceptedAt`, `waiverAcceptedAt`, `waiverVersion` — versi mengikuti `src/lib/legal.ts` (`TERMS_VERSION`, `WAIVER_VERSION`).
+- Billing address wajib (nama, street, city, postal code, country) dan disimpan di `Booking.billingAddress`, lalu diteruskan ke Midtrans sebagai `customer_details.billing_address`.
+- `item_details` Snap dipecah per komponen (paket, evening surcharge, transfer, add-on) dan **selalu berjumlah sama dengan `totalPrice`**; bila baris lama tidak bisa dipecah, dipakai satu baris jujur.
+- Teks legal masih **DRAFT** (`docs/TERMS.md`, `docs/SAFETY_WAIVER.md`) dan wajib direview counsel Indonesia sebelum publish.

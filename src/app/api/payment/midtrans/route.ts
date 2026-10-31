@@ -5,6 +5,8 @@ import { createSnapTransaction, type SnapTransactionRequest } from '@/lib/midtra
 import { getHoldMinutes, isHoldActive } from '@/lib/bookingLifecycle';
 import { PaymentServiceError } from '@/lib/paymentService';
 import type { PaymentStatus } from '@prisma/client';
+import { billingAddressSchema } from '@/lib/bookingSchema';
+import { buildSnapItems, toSnapBillingAddress } from '@/lib/snapBilling';
 
 const paymentSchema = z.object({
   bookingId: z.string().min(1, 'Booking ID is required'),
@@ -16,6 +18,11 @@ interface BookingWithCustomer {
   totalPrice: number;
   paymentStatus: PaymentStatus;
   expiresAt: Date | null;
+  paxCount: number;
+  nightSurchargeIdr: number;
+  zoneSurchargeIdr: number;
+  selectedAddons: unknown;
+  billingAddress: unknown;
   customer: { name: string; email: string; whatsapp: string };
   variant: { title: string } | null;
 }
@@ -74,6 +81,18 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const billing = billingAddressSchema.safeParse(booking.billingAddress);
+    const addons = Array.isArray(booking.selectedAddons)
+      ? booking.selectedAddons.filter(
+          (item): item is { id: string; name: string; price: number } =>
+            typeof item === 'object' &&
+            item !== null &&
+            typeof (item as Record<string, unknown>).id === 'string' &&
+            typeof (item as Record<string, unknown>).name === 'string' &&
+            typeof (item as Record<string, unknown>).price === 'number',
+        )
+      : [];
+
     const snapRequest: SnapTransactionRequest = {
       transaction_details: {
         order_id: booking.bookingCode,
@@ -83,15 +102,17 @@ export async function POST(request: NextRequest) {
         first_name: booking.customer.name,
         email: booking.customer.email,
         phone: booking.customer.whatsapp,
+        ...(billing.success ? { billing_address: toSnapBillingAddress(billing.data) } : {}),
       },
-      item_details: [
-        {
-          id: booking.id,
-          price: booking.totalPrice,
-          quantity: 1,
-          name: booking.variant?.title ?? 'Venture Bali Booking',
-        },
-      ],
+      item_details: buildSnapItems({
+        id: booking.id,
+        variantTitle: booking.variant?.title ?? 'Venture Bali Booking',
+        paxCount: booking.paxCount,
+        totalPrice: booking.totalPrice,
+        nightSurchargeIdr: booking.nightSurchargeIdr,
+        zoneSurchargeIdr: booking.zoneSurchargeIdr,
+        selectedAddons: addons,
+      }),
       credit_card: {
         secure: true,
       },

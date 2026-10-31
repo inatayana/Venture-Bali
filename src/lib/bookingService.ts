@@ -10,6 +10,7 @@ import {
   validateAddonModeCombinations,
 } from '@/lib/pricing';
 import { holdExpiresAt } from '@/lib/bookingLifecycle';
+import { WAIVER_VERSION } from '@/lib/legal';
 
 const SERIALIZATION_RETRY_LIMIT = 3;
 
@@ -195,6 +196,10 @@ async function createBookingInTransaction(
       paymentStatus: 'PENDING',
       lifecycleStatus: 'AWAITING_PAYMENT',
       expiresAt: holdExpiresAt(),
+      termsAcceptedAt: new Date(),
+      waiverAcceptedAt: new Date(),
+      waiverVersion: WAIVER_VERSION,
+      billingAddress: input.billingAddress as unknown as Prisma.InputJsonValue,
     },
   });
 }
