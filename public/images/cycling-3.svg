@@ -1,0 +1,15 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#92400e"/>
+      <stop offset="55%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fef3c7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <circle cx="920" cy="200" r="90" fill="#fde68a" opacity="0.9"/>
+  <path d="M0 640 L240 420 L480 640 L720 380 L980 640 L1200 500 L1200 800 L0 800 Z" fill="#0f172a" opacity="0.32"/>
+  <path d="M0 720 L320 580 L640 720 L920 570 L1200 700 L1200 800 L0 800 Z" fill="#0f172a" opacity="0.45"/>
+  <text x="600" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="bold" fill="#ffffff" opacity="0.95">Terraces to Coast</text>
+  <text x="600" y="432" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" fill="#ffffff" opacity="0.85">Bali adventure gallery</text>
+</svg>

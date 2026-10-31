@@ -116,6 +116,12 @@ export interface ItineraryItem {
   activity: string;
 }
 
+export interface MeetingPoint {
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
 export interface Venture {
   id: string;
   slug: string;
@@ -127,6 +133,7 @@ export interface Venture {
   shortDescription?: string;
   duration: string;
   badge?: string;
+  meetingPoint?: MeetingPoint;
   highlights: string[];
   inclusions: string[];
   exclusions: string[];
@@ -190,6 +197,7 @@ export interface Variant {
   shortDescription: string;
   badge?: string;
   transportBadge?: string;
+  imageUrl?: string;
   duration?: string;
   fulfillmentMode: FulfillmentMode;
   promoPriceIdr?: number;

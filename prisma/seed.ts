@@ -25,6 +25,7 @@ import {
   COUPONS,
   DEFAULT_SLOTS,
   LOCATIONS,
+  MEETING_POINTS,
   PICKUP_ZONES,
   TENANT_DOMAIN,
   TENANT_NAME,
@@ -200,6 +201,7 @@ async function seedVentures(
 ) {
   for (const v of VENTURES) {
     const locationId = locationIds.get(v.locationKey) ?? null;
+    const meetingPoint = MEETING_POINTS[v.slug] ?? null;
 
     const venture = await prisma.venture.upsert({
       where: { slug: v.slug },
@@ -209,6 +211,9 @@ async function seedVentures(
         shortDescription: v.shortDescription,
         duration: v.duration,
         badge: v.badge,
+        meetingPoint: meetingPoint?.name ?? null,
+        meetingPointLat: meetingPoint?.latitude ?? null,
+        meetingPointLng: meetingPoint?.longitude ?? null,
         highlights: v.highlights as unknown as Prisma.InputJsonValue,
         inclusions: v.inclusions as unknown as Prisma.InputJsonValue,
         exclusions: v.exclusions as unknown as Prisma.InputJsonValue,
@@ -236,6 +241,9 @@ async function seedVentures(
         shortDescription: v.shortDescription,
         duration: v.duration,
         badge: v.badge,
+        meetingPoint: meetingPoint?.name ?? null,
+        meetingPointLat: meetingPoint?.latitude ?? null,
+        meetingPointLng: meetingPoint?.longitude ?? null,
         highlights: v.highlights as unknown as Prisma.InputJsonValue,
         inclusions: v.inclusions as unknown as Prisma.InputJsonValue,
         exclusions: v.exclusions as unknown as Prisma.InputJsonValue,
@@ -285,6 +293,7 @@ async function seedVentures(
               shortDescription: variantSeed.shortDescription,
               badge: variantSeed.badge,
               transportBadge: variantSeed.transportBadge ?? null,
+              imageUrl: variantSeed.imageUrl ?? null,
               duration: variantSeed.duration ?? v.duration,
               fulfillmentMode: resolveFulfillmentMode(variantSeed),
               promoPriceIdr: variantSeed.promoPriceIdr ?? null,
@@ -301,6 +310,7 @@ async function seedVentures(
               shortDescription: variantSeed.shortDescription,
               badge: variantSeed.badge,
               transportBadge: variantSeed.transportBadge ?? null,
+              imageUrl: variantSeed.imageUrl ?? null,
               duration: variantSeed.duration ?? v.duration,
               fulfillmentMode: resolveFulfillmentMode(variantSeed),
               promoPriceIdr: variantSeed.promoPriceIdr ?? null,

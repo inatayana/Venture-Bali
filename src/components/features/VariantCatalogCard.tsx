@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Clock } from 'lucide-react';
 import { formatPrice } from '@/lib/i18n';
 import type { Variant } from '@/types/venture';
@@ -8,6 +9,8 @@ interface VariantCatalogCardProps {
   /** Product-level inclusions shown as the "what you get" bullets. */
   inclusions: string[];
   onShowDates: () => void;
+  /** Clicking the card syncs the gallery image and highlights the package. */
+  onFocus?: () => void;
   active?: boolean;
 }
 
@@ -17,13 +20,14 @@ function lowestListPrice(variant: Variant): number {
 }
 
 /**
- * One interactive row of the variant catalogue: transport icon, duration,
+ * One interactive row of the variant catalogue: transport thumbnail, duration,
  * inclusions, strikethrough anchoring and a per-row "Show dates" action.
  */
 export function VariantCatalogCard({
   variant,
   inclusions,
   onShowDates,
+  onFocus,
   active = false,
 }: VariantCatalogCardProps) {
   const listPrice = lowestListPrice(variant);
@@ -33,21 +37,36 @@ export function VariantCatalogCard({
       : null;
   const price = promoPrice ?? listPrice;
   const bullets = inclusions.slice(0, 3);
+  const isGroupPriced = variant.fulfillmentMode === 'PRIVATE_TRANSFER';
 
   return (
     <div
+      onClick={onFocus}
       className={cn(
         'rounded-2xl border-2 bg-white p-4 transition-colors',
-        active ? 'border-neutral-900' : 'border-neutral-200'
+        active ? 'border-neutral-900' : 'border-neutral-200',
+        onFocus && 'cursor-pointer hover:border-neutral-400'
       )}
     >
       <div className="flex items-start gap-3">
-        <span
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-lg"
-          aria-hidden="true"
-        >
-          {variant.transportBadge?.split(' ')[0] ?? '📍'}
-        </span>
+        {variant.imageUrl ? (
+          <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-neutral-100">
+            <Image
+              src={variant.imageUrl}
+              alt={variant.title}
+              fill
+              sizes="44px"
+              className="object-cover"
+            />
+          </span>
+        ) : (
+          <span
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-lg"
+            aria-hidden="true"
+          >
+            {variant.transportBadge?.split(' ')[0] ?? '📍'}
+          </span>
+        )}
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -98,12 +117,17 @@ export function VariantCatalogCard({
                   {formatPrice(price)}
                 </span>
               </div>
-              <span className="text-xs text-neutral-500">per guest</span>
+              <span className="text-xs text-neutral-500">
+                {isGroupPriced ? 'per guest · car & driver for your group' : 'per guest'}
+              </span>
             </div>
 
             <button
               type="button"
-              onClick={onShowDates}
+              onClick={(event) => {
+                event.stopPropagation();
+                onShowDates();
+              }}
               className="min-h-[44px] rounded-xl bg-neutral-900 px-5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 active:bg-black"
             >
               Show dates

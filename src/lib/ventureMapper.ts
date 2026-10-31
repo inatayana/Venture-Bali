@@ -183,6 +183,13 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
     shortDescription: venture.shortDescription ?? undefined,
     duration: venture.duration,
     badge: venture.badge ?? undefined,
+    meetingPoint: venture.meetingPoint
+      ? {
+          name: venture.meetingPoint,
+          latitude: venture.meetingPointLat ?? 0,
+          longitude: venture.meetingPointLng ?? 0,
+        }
+      : undefined,
 
     highlights: asStringArray(venture.highlights),
     inclusions: asStringArray(venture.inclusions),
@@ -216,6 +223,7 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
       shortDescription: variant.shortDescription,
       badge: variant.badge ?? undefined,
       transportBadge: variant.transportBadge ?? undefined,
+      imageUrl: variant.imageUrl ?? undefined,
       duration: variant.duration ?? undefined,
       fulfillmentMode: variant.fulfillmentMode,
       promoPriceIdr: variant.promoPriceIdr ?? undefined,

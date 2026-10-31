@@ -181,6 +181,10 @@ model Venture {
   shortDescription  String?
   duration          String
   badge             String?
+  /// Where guests meet for SELF_DRIVE packages.
+  meetingPoint      String?
+  meetingPointLat   Float?
+  meetingPointLng   Float?
   highlights        Json
   inclusions        Json
   exclusions        Json
@@ -223,6 +227,8 @@ model Variant {
   badge            String?
   /// Transport / tier badge shown on the catalogue card (📍 / 🚐 / 🚗 / 🏛️).
   transportBadge   String?
+  /// Optional image used by the gallery when this package is selected.
+  imageUrl         String?
   /// Human-readable duration for this variant, e.g. "3 hrs".
   duration         String?
   /// Fulfillment mode this variant sells. The UI derives pickup steps from it.
