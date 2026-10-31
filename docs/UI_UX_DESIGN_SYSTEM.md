@@ -39,7 +39,12 @@ Hirarki ukuran mobile:
 Aturan penerapan:
 - Heading kategori/paket gunakan utility `.heading-caps` (ALL-CAPS + letter-spacing 0.05em) agar terlihat premium.
 - Angka harga gunakan `tabular-nums` agar tidak bergeser saat pax berubah.
-- **Warna brand (design token Tailwind)**: `ink` `#1A1A1A` (teks utama), `jungle` `#1E3A2B` (aksen/latar gelap), `sand` `#E5DFD5` (latar terang). Hindari warna neon.
+- **Warna brand = satu variabel CSS**: `src/styles/globals.css` → `--brand` (default `255 238 0` = #FFEE00) dan `--brand-ink` (default `0 0 0` = #000000). Tailwind memetakannya ke utility `brand` / `brand-ink`; mengubah satu baris itu mengganti seluruh UI (tombol, chip aktif, badge, wordmark, garis header, ring fokus). Nilai ditulis sebagai kanal RGB agar `bg-brand/30` tetap bekerja. Token lain: `ink` `#1A1A1A`, `jungle` `#1E3A2B`, `sand` `#E5DFD5`.
+- **Aturan kontras kuning–hitam** (v1.4.0): `brand` hanya boleh dipakai sebagai **latar dengan teks hitam** atau **teks di atas hitam**. Jangan pernah memakai `brand` sebagai warna teks di atas putih (kontras ±1.1:1).
+  - Aksen: wordmark (BALI di-highlight), garis 2px bawah header sticky, chip kategori aktif (`bg-brand-ink text-brand`), badge paket/promo, pill kategori, kode promo.
+  - CTA utama: `bg-brand-ink text-brand` (`Button` variant primary, "Show dates", "Create package").
+  - Status fungsional tetap semantik: hijau = included/instant, merah = error/hapus; `brand` bukan pengganti warna status.
+  - Area admin masih memakai aksen biru; belum termasuk rebrand ini.
 
 ### Trust & Conversion Signals
 - **Payment badges**: logo VISA, Mastercard, GoPay, QRIS visible di bawah harga.

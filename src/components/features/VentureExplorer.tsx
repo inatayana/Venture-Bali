@@ -118,7 +118,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
               setSelectedCategory(null);
               setSortBy('recommended');
             }}
-            className="px-4 py-2 text-sm font-medium text-blue-600 hover:underline"
+            className="px-4 py-2 text-sm font-medium text-brand-ink hover:underline"
           >
             Reset Filters
           </button>

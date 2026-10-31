@@ -16,7 +16,7 @@ export function PromoBanner({ code, label, onDismiss }: PromoBannerProps) {
       <p className="text-sm">
         <span className="font-semibold">{label}</span>{' '}
         <span className="text-white/70">· use code</span>{' '}
-        <span className="rounded bg-white/15 px-1.5 py-0.5 font-mono text-xs font-bold tracking-wide">
+        <span className="rounded bg-brand px-1.5 py-0.5 font-mono text-xs font-bold tracking-wide text-brand-ink">
           {code}
         </span>
       </p>

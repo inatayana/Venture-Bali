@@ -126,7 +126,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   if (loading) {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-brand-ink" />
       </main>
     );
   }
@@ -138,7 +138,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
           <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Booking Not Found</h1>
           <p className="text-gray-500 mb-6">{error || 'Invalid booking session'}</p>
-          <a href="/" className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
+          <a href="/" className="inline-block px-6 py-3 bg-brand-ink text-brand rounded-lg font-medium hover:bg-neutral-900">
             Back to Home
           </a>
         </div>
@@ -151,7 +151,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6">
-        <a href="/" className="inline-flex items-center gap-2 text-blue-600 mb-4">
+        <a href="/" className="inline-flex items-center gap-2 text-brand-ink mb-4">
           <ArrowLeft className="w-4 h-4" />
           Back to adventures
         </a>
@@ -211,7 +211,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                 )}
                 <div className="flex justify-between pt-4 border-t border-gray-200">
                   <span className="text-lg font-semibold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-blue-600">{formatPrice(amountDue)}</span>
+                  <span className="text-2xl font-bold text-brand-ink">{formatPrice(amountDue)}</span>
                 </div>
               </div>
             </div>
@@ -225,7 +225,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
               <div className="space-y-4">
                 <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
                   <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
-                    <CreditCard className="w-6 h-6 text-blue-600" />
+                    <CreditCard className="w-6 h-6 text-brand-ink" />
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900">Midtrans Snap</h3>

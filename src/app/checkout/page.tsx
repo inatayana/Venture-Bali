@@ -22,7 +22,7 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800"
+          className="inline-flex items-center gap-2 text-brand-ink hover:underline"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to adventures
@@ -45,7 +45,7 @@ export default function CheckoutPage() {
                   <p className="text-gray-500 mb-4">No items selected</p>
                   <Link
                     href="/"
-                    className="text-blue-600 hover:underline font-medium"
+                    className="text-brand-ink hover:underline font-medium"
                   >
                     Browse Adventures
                   </Link>
@@ -108,7 +108,7 @@ export default function CheckoutPage() {
                       <span className="text-lg font-semibold text-gray-900">
                         Total
                       </span>
-                      <span className="text-2xl font-bold text-blue-600">
+                      <span className="text-2xl font-bold text-brand-ink">
                         {formatPrice(getTotalPrice() * 1.1)}
                       </span>
                     </div>

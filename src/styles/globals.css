@@ -3,6 +3,21 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /*
+     * BRAND "MAIN" COLOUR — the only place to change the theme.
+     *
+     * Values are space-separated RGB channels so Tailwind can apply opacity
+     * utilities (e.g. `bg-brand/30`). Change the accent here and every
+     * `brand` utility across the app follows.
+     *
+     *   brand      : accent (default #FFEE00)
+     *   brand-ink  : the ink paired with the accent (default #000000)
+     */
+    --brand: 255 238 0;
+    --brand-ink: 0 0 0;
+  }
+
   /* Keep anchor targets (e.g. #packages, #reviews) clear of the sticky bar. */
   html {
     scroll-padding-top: 4.5rem;

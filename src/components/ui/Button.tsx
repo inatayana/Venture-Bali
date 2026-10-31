@@ -10,13 +10,13 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles = {
   primary:
-    'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 disabled:bg-blue-300',
+    'bg-brand-ink text-brand hover:bg-neutral-900 active:bg-neutral-800 disabled:bg-neutral-400 disabled:text-neutral-700',
   secondary:
     'bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800 disabled:bg-gray-300',
   outline:
-    'border-2 border-blue-600 text-blue-600 hover:bg-blue-50 active:bg-blue-100 disabled:border-blue-300 disabled:text-blue-300',
+    'border-2 border-brand-ink text-brand-ink hover:bg-brand active:bg-brand/80 disabled:border-neutral-300 disabled:text-neutral-400',
   ghost:
-    'text-blue-600 hover:bg-blue-50 active:bg-blue-100 disabled:text-blue-300',
+    'text-brand-ink hover:bg-brand/40 active:bg-brand/60 disabled:text-neutral-400',
   danger:
     'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:bg-red-300',
 };
@@ -51,7 +51,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           // Base styles
           'inline-flex items-center justify-center font-heading font-semibold uppercase tracking-wider rounded-lg',
           'transition-colors duration-200',
-          'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
+          'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand',
           'disabled:cursor-not-allowed disabled:opacity-70',
           // Variant
           variantStyles[variant],

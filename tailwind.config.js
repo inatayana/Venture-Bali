@@ -15,6 +15,16 @@ module.exports = {
         ink: '#1A1A1A',
         jungle: '#1E3A2B',
         sand: '#E5DFD5',
+        /**
+         * Brand tokens are driven by the CSS variables in src/styles/globals.css
+         * (`--brand`, `--brand-ink`). Wrapping them in rgb(... / <alpha-value>)
+         * keeps opacity utilities like `bg-brand/30` working.
+         *
+         * Contrast rule: `brand` is only used as a background with black text,
+         * or as text on the paired ink.
+         */
+        brand: 'rgb(var(--brand) / <alpha-value>)',
+        'brand-ink': 'rgb(var(--brand-ink) / <alpha-value>)',
       },
       keyframes: {
         'slide-up': {

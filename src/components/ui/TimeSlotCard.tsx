@@ -27,14 +27,14 @@ export function TimeSlotCard({
         'flex flex-col items-center p-4 rounded-xl border-2 transition-all min-w-[100px]',
         isSoldOut && 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed',
         !isSoldOut && !isSelected && 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50',
-        isSelected && 'border-blue-600 bg-blue-50 ring-2 ring-blue-200',
+        isSelected && 'border-brand-ink bg-brand/30 ring-2 ring-brand',
         className
       )}
       aria-label={`${slot.time}, ${isSoldOut ? 'sold out' : `${spotsLeft} spots available`}`}
     >
       <span className={cn(
         'text-lg font-bold',
-        isSoldOut ? 'text-gray-400' : isSelected ? 'text-blue-600' : 'text-gray-900'
+        isSoldOut ? 'text-gray-400' : isSelected ? 'text-brand-ink' : 'text-gray-900'
       )}>
         {slot.time}
       </span>

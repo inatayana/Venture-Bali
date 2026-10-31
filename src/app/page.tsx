@@ -8,10 +8,10 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-40 border-b border-neutral-200/80 bg-white/90 shadow-sm backdrop-blur">
+      <header className="sticky top-0 z-40 bg-white/95 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
         <div className="container mx-auto flex items-center gap-3 px-4 py-3">
-          <h1 className="font-heading text-2xl font-bold uppercase tracking-wider text-blue-600">
-            Venture Bali
+          <h1 className="font-heading text-2xl font-bold uppercase tracking-wider text-brand-ink">
+            Venture <span className="bg-brand px-1 text-brand-ink">Bali</span>
           </h1>
           <p className="hidden truncate text-xs text-gray-500 sm:block">
             Discover amazing adventures in Bali

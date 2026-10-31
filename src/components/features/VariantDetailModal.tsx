@@ -156,7 +156,7 @@ export function VariantDetailModal({
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-neutral-950/60 via-neutral-950/5 to-neutral-950/15" />
 
             {variant.badge && (
-              <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-neutral-900 shadow-sm">
+              <span className="absolute left-4 top-4 rounded-full bg-brand px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-ink shadow-sm">
                 {variant.badge}
               </span>
             )}
@@ -304,7 +304,7 @@ export function VariantDetailModal({
             <button
               type="button"
               onClick={onShowDates}
-              className="inline-flex min-h-[48px] shrink-0 items-center gap-2 rounded-xl bg-neutral-900 px-5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800"
+              className="inline-flex min-h-[48px] shrink-0 items-center gap-2 rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand transition-colors hover:bg-neutral-900"
             >
               <CalendarDays className="h-4 w-4" />
               Show dates
