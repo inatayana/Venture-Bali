@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { AdminLoginForm } from '@/components/admin/AdminLoginForm';
 import { ADMIN_SESSION_COOKIE, verifySessionToken } from '@/lib/adminSession';
-import { cookies } from 'next/headers';
 
 export const metadata: Metadata = {
   title: 'Operator Sign In | Venture Bali',
@@ -11,6 +11,11 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * The sign-in page lives in its own route-group branch so it does NOT inherit
+ * `app/admin/layout.tsx` — that layout redirects unauthenticated visitors to
+ * this very page, which used to create an infinite redirect loop.
+ */
 export default async function AdminLoginPage() {
   const token = cookies().get(ADMIN_SESSION_COOKIE)?.value;
   const session = await verifySessionToken(token);

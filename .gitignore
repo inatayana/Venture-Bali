@@ -41,3 +41,7 @@ out/
 
 # API keys
 *-api-keys.txt
+
+# Local dev server logs
+dev.out.txt
+dev.err.txt
