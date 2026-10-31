@@ -33,3 +33,28 @@ We use **GitHub Flow** for continuous delivery.
 5. Automated checks (lint, type-check, tests)
 6. Merge via "Squash and merge"
 7. Delete branch after merge
+
+## 2. Local Build Output Directories
+
+| Command | Output directory | Purpose |
+|---------|------------------|---------|
+| `npm run dev` | `.next-dev` | Hot reload, never deployed |
+| `npm run build` + `npm start` | `.next` | Production build (Vercel / VPS) |
+
+`next.config.js` selects `distDir` per Next.js phase, so the dev server and a
+production server can run at the same time without touching each other's files.
+
+**Never** point both at the same directory. `next dev` rewrites `.next` on
+startup; a production server booted from that directory then answers HTTP 500 on
+every route with `Could not find a production build in the '.next' directory`.
+
+```bash
+# Production build + server (keeps Vercel's expected `.next` output)
+npm run build
+npm start -- -p 3001
+
+# Dev server, in parallel (writes to `.next-dev`)
+npm run dev -- -p 3002
+```
+
+Both output directories are git-ignored.
