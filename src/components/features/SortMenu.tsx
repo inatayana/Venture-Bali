@@ -56,7 +56,7 @@ export function SortMenu({ value, options, onChange, className }: SortMenuProps)
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label={`Sort adventures (now ${active?.label ?? 'Recommended'})`}
-        className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50 sm:px-3"
+        className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 text-sm font-medium text-gray-700 transition-colors hover:border-brand-ink hover:bg-brand/20 sm:px-3"
       >
         <ArrowUpDown className="h-4 w-4 shrink-0 text-gray-400" aria-hidden="true" />
         <span className="hidden max-w-[8.5rem] truncate sm:inline">{active?.label}</span>
@@ -94,7 +94,7 @@ export function SortMenu({ value, options, onChange, className }: SortMenuProps)
                 )}
               >
                 <span className="flex-1">{option.label}</span>
-                {isSelected && <Check className="h-4 w-4 shrink-0 text-blue-600" aria-hidden="true" />}
+                {isSelected && <Check className="h-4 w-4 shrink-0 text-brand-ink" aria-hidden="true" />}
               </button>
             );
           })}

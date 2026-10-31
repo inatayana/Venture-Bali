@@ -85,15 +85,15 @@ export function CategoryQuickMenu({ currentCategory }: CategoryQuickMenuProps) {
                 onClick={() => setIsOpen(false)}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'flex items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-neutral-50',
-                  isActive ? 'font-semibold text-neutral-900' : 'text-neutral-700'
+                  'flex items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-brand/25',
+                  isActive ? 'bg-brand/30 font-semibold text-neutral-900' : 'text-neutral-700'
                 )}
               >
                 <span className="text-lg leading-none" aria-hidden="true">
                   {category.emoji}
                 </span>
                 <span className="flex-1">{category.short}</span>
-                {isActive && <Check className="h-4 w-4 text-green-600" aria-hidden="true" />}
+                {isActive && <Check className="h-4 w-4 text-brand-ink" aria-hidden="true" />}
               </a>
             );
           })}

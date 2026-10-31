@@ -17,13 +17,14 @@ describe('Button Component', () => {
 
   it('applies variant styles correctly', () => {
     const { rerender } = render(<Button variant="primary">Primary</Button>);
-    expect(screen.getByRole('button')).toHaveClass('bg-blue-600');
+    expect(screen.getByRole('button')).toHaveClass('bg-brand-ink');
+    expect(screen.getByRole('button')).toHaveClass('text-brand');
 
     rerender(<Button variant="danger">Danger</Button>);
     expect(screen.getByRole('button')).toHaveClass('bg-red-600');
 
     rerender(<Button variant="outline">Outline</Button>);
-    expect(screen.getByRole('button')).toHaveClass('border-blue-600');
+    expect(screen.getByRole('button')).toHaveClass('border-brand-ink');
   });
 
   it('applies size styles correctly', () => {

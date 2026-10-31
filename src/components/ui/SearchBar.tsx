@@ -23,7 +23,7 @@ export function SearchBar({
     <div
       className={cn(
         'relative flex items-center rounded-xl border-2 transition-colors',
-        isFocused ? 'border-blue-600 bg-white' : 'border-gray-200 bg-gray-50',
+        isFocused ? 'border-brand-ink bg-white' : 'border-gray-200 bg-gray-50',
         className
       )}
     >

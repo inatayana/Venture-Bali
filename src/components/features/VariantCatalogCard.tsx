@@ -68,7 +68,7 @@ export function VariantCatalogCard({
           )}
 
           {promoPriceIdr !== null && (
-            <span className="absolute left-1.5 top-1.5 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-green-700 shadow-sm">
+            <span className="absolute left-1.5 top-1.5 rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-ink shadow-sm">
               Promo
             </span>
           )}
@@ -77,7 +77,7 @@ export function VariantCatalogCard({
         <div className="min-w-0 flex-1">
           <div className="min-w-0">
             {variant.badge && (
-              <span className="mb-1 inline-block rounded-full bg-neutral-900 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              <span className="mb-1 inline-block rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-ink">
                 {variant.badge}
               </span>
             )}
@@ -164,7 +164,7 @@ export function VariantCatalogCard({
             className={cn(
               'inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold transition-colors sm:flex-none',
               selected
-                ? 'border-2 border-green-600 bg-green-50 text-green-800'
+                ? 'border-2 border-brand-ink bg-brand text-brand-ink'
                 : 'border-2 border-neutral-200 text-neutral-800 hover:border-neutral-400 hover:bg-white'
             )}
           >
@@ -177,7 +177,7 @@ export function VariantCatalogCard({
               event.stopPropagation();
               onShowDates();
             }}
-            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-4 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 sm:flex-none"
+            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-ink px-4 text-sm font-semibold text-brand transition-colors hover:bg-neutral-900 sm:flex-none"
           >
             <CalendarDays className="h-4 w-4" />
             Show dates

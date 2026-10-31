@@ -65,14 +65,14 @@ export function PickupAddonsStep({
               className={cn(
                 'w-full flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all text-left min-h-[44px]',
                 addon.isDisabled && 'opacity-50 cursor-not-allowed border-gray-100',
-                !addon.isDisabled && checked && 'border-blue-600 bg-blue-50',
+                !addon.isDisabled && checked && 'border-brand-ink bg-brand/40',
                 !addon.isDisabled && !checked && 'border-gray-200 hover:border-gray-300',
               )}
             >
               <span
                 className={cn(
                   'w-5 h-5 rounded border-2 flex items-center justify-center shrink-0',
-                  checked ? 'bg-blue-600 border-blue-600' : 'border-gray-300',
+                  checked ? 'bg-brand-ink border-brand-ink text-brand' : 'border-gray-300',
                 )}
               >
                 {checked && <Check className="w-3.5 h-3.5 text-white" />}
@@ -89,7 +89,7 @@ export function PickupAddonsStep({
                 )}
                 {addon.isDisabled && <span className="text-xs text-amber-700">Requires hotel transfer</span>}
               </div>
-              <span className={cn('font-heading text-sm font-bold tabular-nums shrink-0', addon.isDisabled ? 'text-gray-400' : 'text-blue-600')}>
+              <span className={cn('font-heading text-sm font-bold tabular-nums shrink-0', addon.isDisabled ? 'text-gray-400' : 'text-brand-ink')}>
                 + {formatPrice(addon.price)}/pax
               </span>
             </button>

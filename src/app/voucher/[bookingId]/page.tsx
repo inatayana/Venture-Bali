@@ -66,7 +66,7 @@ export default function VoucherPage({ params }: VoucherPageProps) {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Voucher Not Found</h1>
           <p className="text-gray-500 mb-6">{error || 'Invalid voucher'}</p>
-          <a href="/" className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
+          <a href="/" className="inline-block px-6 py-3 bg-brand-ink text-brand rounded-lg font-medium hover:bg-neutral-900">
             Back to Home
           </a>
         </div>
@@ -80,14 +80,14 @@ export default function VoucherPage({ params }: VoucherPageProps) {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6">
-        <a href="/" className="inline-flex items-center gap-2 text-blue-600 mb-4 print:hidden">
+        <a href="/" className="inline-flex items-center gap-2 text-brand-ink mb-4 print:hidden">
           <ArrowLeft className="w-4 h-4" />
           Back to adventures
         </a>
 
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-            <div className={`text-white p-6 ${isPaid ? 'bg-gradient-to-r from-blue-600 to-blue-800' : 'bg-gradient-to-r from-amber-500 to-amber-700'}`}>
+            <div className={`text-white p-6 ${isPaid ? 'bg-gradient-to-r from-black to-neutral-800' : 'bg-gradient-to-r from-amber-500 to-amber-700'}`}>
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm opacity-90">E-VOUCHER</span>
                 <span className="text-sm opacity-90">{voucherId}</span>
@@ -118,21 +118,21 @@ export default function VoucherPage({ params }: VoucherPageProps) {
                 <h2 className="text-xl font-bold text-gray-900 mb-2">{booking.variant?.title ?? 'Adventure Booking'}</h2>
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div className="flex items-center gap-2 text-gray-600">
-                    <Calendar className="w-4 h-4 text-blue-600" />
+                    <Calendar className="w-4 h-4 text-brand-ink" />
                     <div>
                       <p className="text-xs text-gray-500">Date</p>
                       <p className="font-medium">{new Date(booking.bookingDate).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
-                    <Clock className="w-4 h-4 text-blue-600" />
+                    <Clock className="w-4 h-4 text-brand-ink" />
                     <div>
                       <p className="text-xs text-gray-500">Time</p>
                       <p className="font-medium">{booking.slotTime?.time || 'TBA'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
-                    <Users className="w-4 h-4 text-blue-600" />
+                    <Users className="w-4 h-4 text-brand-ink" />
                     <div>
                       <p className="text-xs text-gray-500">Guests</p>
                       <p className="font-medium">{booking.paxCount}</p>
@@ -214,7 +214,7 @@ export default function VoucherPage({ params }: VoucherPageProps) {
               )}
               <div className="flex justify-between pt-2 border-t border-gray-200 text-lg font-bold">
                 <span className="text-gray-900">Total</span>
-                <span className="text-blue-600">{formatPrice(booking.totalPrice)}</span>
+                <span className="text-brand-ink">{formatPrice(booking.totalPrice)}</span>
               </div>
               <p className="text-xs text-gray-500 mt-3">
                 Payment status:{' '}

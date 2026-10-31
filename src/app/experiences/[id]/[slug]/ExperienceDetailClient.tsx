@@ -274,7 +274,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
   return (
     <main className="min-h-screen bg-white pb-28 lg:pb-10">
       {/* Sticky product bar: back link + breadcrumb stay reachable while scrolling */}
-      <div className="sticky top-0 z-40 border-b border-neutral-200/80 bg-white/90 backdrop-blur">
+      <div className="sticky top-0 z-40 bg-white/95 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4">
           <a
             href="/"
@@ -404,7 +404,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
               <button
                 type="button"
                 onClick={() => selectedVariant && openBooking(selectedVariant.id)}
-                className="mt-3 min-h-[48px] w-full rounded-xl bg-neutral-900 text-sm font-semibold text-white transition-colors hover:bg-neutral-800"
+                className="mt-3 min-h-[48px] w-full rounded-xl bg-brand-ink text-sm font-semibold text-brand transition-colors hover:bg-neutral-900"
               >
                 Show dates
               </button>
@@ -446,7 +446,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                     priority={index === 0}
                   />
-                  <span className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/5" />
+                  <span className="pointer-events-none absolute inset-0 bg-brand-ink/0 transition-colors duration-300 group-hover:bg-brand-ink/5" />
                 </button>
               ))}
             </div>
@@ -502,7 +502,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
 
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="rounded-full bg-neutral-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
+                <span className="rounded-full bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-ink">
                   {venture.category}
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-3 py-1 font-medium text-neutral-700">
@@ -887,7 +887,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
           <button
             type="button"
             onClick={() => selectedVariant && openBooking(selectedVariant.id)}
-            className="min-h-[44px] shrink-0 rounded-xl bg-neutral-900 px-5 text-sm font-semibold text-white"
+            className="min-h-[44px] shrink-0 rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand"
           >
             Show dates
           </button>

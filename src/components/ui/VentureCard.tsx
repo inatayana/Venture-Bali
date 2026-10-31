@@ -125,7 +125,7 @@ export function VentureCard({
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div>
             <span className="text-xs text-gray-500 block">From</span>
-            <span className="font-heading text-xl font-bold tabular-nums text-blue-600">
+            <span className="font-heading text-xl font-bold tabular-nums text-brand-ink">
               {formatPrice(venture.priceIdr)}
             </span>
             <span className="text-xs text-gray-500"> / person</span>

@@ -31,8 +31,8 @@ export function FilterChips({
         className={cn(
           'shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap',
           selectedCategory === null
-            ? 'bg-blue-600 text-white shadow-md'
-            : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
+            ? 'bg-brand-ink text-brand shadow-md'
+            : 'bg-white text-gray-600 border border-gray-200 hover:border-brand-ink'
         )}
         role="tab"
         aria-selected={selectedCategory === null}
@@ -47,8 +47,8 @@ export function FilterChips({
           className={cn(
             'shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap',
             cat === selectedCategory
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
+              ? 'bg-brand-ink text-brand shadow-md'
+              : 'bg-white text-gray-600 border border-gray-200 hover:border-brand-ink'
           )}
           role="tab"
           aria-selected={cat === selectedCategory}
