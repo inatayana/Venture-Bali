@@ -64,6 +64,14 @@ function buildInitialConfig(venture: VentureItem): BookingConfig {
     customerEmail: '',
     customerWhatsApp: '',
     countryCode: 'ID',
+    billingName: '',
+    billingStreet: '',
+    billingCity: '',
+    billingProvince: '',
+    billingPostalCode: '',
+    billingCountry: 'ID',
+    termsAccepted: false,
+    waiverAccepted: false,
   };
 }
 
@@ -194,6 +202,16 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
           customerEmail: config.customerEmail,
           customerWhatsApp: config.customerWhatsApp,
           countryCode: config.countryCode,
+          billingAddress: {
+            name: config.billingName.trim() || config.customerName,
+            street: config.billingStreet,
+            city: config.billingCity,
+            province: config.billingProvince || undefined,
+            postalCode: config.billingPostalCode,
+            countryCode: config.billingCountry || config.countryCode,
+          },
+          termsAccepted: config.termsAccepted,
+          waiverAccepted: config.waiverAccepted,
         }),
       });
       const data = await response.json();

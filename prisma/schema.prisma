@@ -339,6 +339,11 @@ model Booking {
   selectedAddons   Json
   totalPrice       Int
   paymentStatus    PaymentStatus
+  /// Legal acceptance captured at checkout (versioned for audits).
+  termsAcceptedAt  DateTime?
+  waiverAcceptedAt DateTime?
+  waiverVersion    String?
+  billingAddress   Json?
   /// Operational lifecycle used by the field-team job order.
   lifecycleStatus  BookingLifecycle @default(AWAITING_PAYMENT)
   /// End of the temporary inventory hold. Null once paid or for legacy rows.

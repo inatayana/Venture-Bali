@@ -10,6 +10,15 @@ const baseBooking = {
   customerName: 'Made Wijaya',
   customerEmail: 'made@example.com',
   customerWhatsApp: '+628123456789',
+  billingAddress: {
+    name: 'Made Wijaya',
+    street: 'Jl. Raya Seminyak 12',
+    city: 'Badung',
+    postalCode: '80361',
+    countryCode: 'ID',
+  },
+  termsAccepted: true,
+  waiverAccepted: true,
 };
 
 describe('bookingSchema', () => {
@@ -85,5 +94,25 @@ describe('bookingSchema', () => {
   it('normalises coupon codes to uppercase', () => {
     const result = bookingSchema.parse({ ...baseBooking, couponCode: ' trybali2026 ' });
     expect(result.couponCode).toBe('TRYBALI2026');
+  });
+
+  it('requires the booking terms and the safety waiver', () => {
+    expect(bookingSchema.safeParse({ ...baseBooking, termsAccepted: false }).success).toBe(false);
+    expect(bookingSchema.safeParse({ ...baseBooking, waiverAccepted: false }).success).toBe(false);
+    expect(bookingSchema.safeParse({ ...baseBooking, termsAccepted: undefined }).success).toBe(false);
+  });
+
+  it('requires a complete billing address', () => {
+    const missingStreet = bookingSchema.safeParse({
+      ...baseBooking,
+      billingAddress: { ...baseBooking.billingAddress, street: '' },
+    });
+    expect(missingStreet.success).toBe(false);
+
+    const missingPostal = bookingSchema.safeParse({
+      ...baseBooking,
+      billingAddress: { name: 'Made', street: 'Jl. Raya 1', city: 'Badung', countryCode: 'ID' },
+    });
+    expect(missingPostal.success).toBe(false);
   });
 });

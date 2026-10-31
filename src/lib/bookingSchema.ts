@@ -1,5 +1,14 @@
 import { z } from 'zod';
 
+export const billingAddressSchema = z.object({
+  name: z.string().trim().min(2, 'Billing name is required').max(120),
+  street: z.string().trim().min(4, 'Billing street is required').max(200),
+  city: z.string().trim().min(2, 'Billing city is required').max(120),
+  province: z.string().trim().max(120).optional(),
+  postalCode: z.string().trim().min(3, 'Postal code is required').max(12),
+  countryCode: z.string().trim().regex(/^[A-Z]{2}$/, 'Country code must be a two-letter ISO code').default('ID'),
+});
+
 export const bookingSchema = z
   .object({
     ventureId: z.string().min(1, 'Venture ID is required'),
@@ -23,6 +32,13 @@ export const bookingSchema = z
     customerEmail: z.string().trim().email('Invalid email format').max(320),
     customerWhatsApp: z.string().trim().min(10, 'WhatsApp number required').max(32),
     countryCode: z.string().trim().regex(/^[A-Z]{2}$/, 'Country code must be a two-letter ISO code').default('ID'),
+    billingAddress: billingAddressSchema,
+    termsAccepted: z.literal(true, {
+      errorMap: () => ({ message: 'You must accept the booking terms' }),
+    }),
+    waiverAccepted: z.literal(true, {
+      errorMap: () => ({ message: 'You must accept the activity safety waiver' }),
+    }),
   })
   .superRefine((value, ctx) => {
     const needsPickup = value.fulfillmentMode !== 'SELF_DRIVE';

@@ -48,6 +48,10 @@ const booking: Booking = {
   paymentStatus: 'PENDING',
   lifecycleStatus: 'AWAITING_PAYMENT',
   expiresAt: null,
+  termsAcceptedAt: null,
+  waiverAcceptedAt: null,
+  waiverVersion: null,
+  billingAddress: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };

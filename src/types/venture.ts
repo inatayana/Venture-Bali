@@ -122,6 +122,15 @@ export interface MeetingPoint {
   longitude: number;
 }
 
+export interface BillingAddress {
+  name: string;
+  street: string;
+  city: string;
+  province?: string;
+  postalCode: string;
+  countryCode: string;
+}
+
 export interface Venture {
   id: string;
   slug: string;
@@ -256,6 +265,10 @@ export interface Booking {
   selectedAddons?: { id: string; name: string; price: number }[];
   totalPrice: number;
   paymentStatus: PaymentStatus;
+  termsAcceptedAt?: Date;
+  waiverAcceptedAt?: Date;
+  waiverVersion?: string;
+  billingAddress?: BillingAddress;
   lifecycleStatus: BookingLifecycle;
   expiresAt?: Date;
   payment?: Payment;

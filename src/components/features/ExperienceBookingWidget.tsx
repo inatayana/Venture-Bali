@@ -38,6 +38,14 @@ export interface BookingConfig {
   customerEmail: string;
   customerWhatsApp: string;
   countryCode: string;
+  billingName: string;
+  billingStreet: string;
+  billingCity: string;
+  billingProvince: string;
+  billingPostalCode: string;
+  billingCountry: string;
+  termsAccepted: boolean;
+  waiverAccepted: boolean;
 }
 
 export interface AppliedCoupon {
@@ -177,6 +185,11 @@ export function ExperienceBookingWidget({
   if (!config.customerName.trim()) missing.push('Enter the lead guest name');
   if (!config.customerEmail.trim()) missing.push('Enter an email for the e-voucher');
   if (!config.customerWhatsApp.trim()) missing.push('Enter a WhatsApp number');
+  if (!config.billingStreet.trim()) missing.push('Add your billing street address');
+  if (!config.billingCity.trim()) missing.push('Add your billing city');
+  if (!config.billingPostalCode.trim()) missing.push('Add your billing postal code');
+  if (!config.termsAccepted) missing.push('Accept the booking terms to continue');
+  if (!config.waiverAccepted) missing.push('Accept the safety waiver to continue');
   const canContinue = missing.length === 0;
 
   const applyCoupon = async () => {
@@ -545,6 +558,93 @@ export function ExperienceBookingWidget({
             />
           </div>
         </div>
+      </section>
+
+      {/* 8 · Billing & consent */}
+      <section>
+        <h3 className="mb-3 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+          8 · Billing &amp; consent
+        </h3>
+        <div className="space-y-2.5 rounded-xl border border-neutral-200 p-4">
+          <input
+            aria-label="Billing name"
+            className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+            onChange={(event) => onChange({ billingName: event.target.value })}
+            placeholder="Billing name (same as lead guest if empty)"
+            value={config.billingName}
+          />
+          <input
+            aria-label="Billing street address"
+            className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+            onChange={(event) => onChange({ billingStreet: event.target.value })}
+            placeholder="Street address"
+            value={config.billingStreet}
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              aria-label="Billing city"
+              className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+              onChange={(event) => onChange({ billingCity: event.target.value })}
+              placeholder="City"
+              value={config.billingCity}
+            />
+            <input
+              aria-label="Billing postal code"
+              className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+              onChange={(event) => onChange({ billingPostalCode: event.target.value })}
+              placeholder="Postal code"
+              value={config.billingPostalCode}
+            />
+          </div>
+          <div className="grid grid-cols-[5rem_1fr] gap-2">
+            <input
+              aria-label="Billing country code"
+              className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-sm uppercase outline-none focus:border-neutral-900"
+              maxLength={2}
+              onChange={(event) => onChange({ billingCountry: event.target.value.toUpperCase() })}
+              placeholder="ID"
+              value={config.billingCountry}
+            />
+            <input
+              aria-label="Billing province"
+              className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+              onChange={(event) => onChange({ billingProvince: event.target.value })}
+              placeholder="Province (optional)"
+              value={config.billingProvince}
+            />
+          </div>
+        </div>
+
+        <label className="mt-3 flex min-h-[44px] items-start gap-2 text-sm text-neutral-700">
+          <input
+            type="checkbox"
+            checked={config.termsAccepted}
+            onChange={(event) => onChange({ termsAccepted: event.target.checked })}
+            className="mt-0.5 h-5 w-5 shrink-0 rounded border-neutral-300"
+          />
+          <span>
+            I accept the{' '}
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-medium underline">
+              booking terms
+            </a>
+            , including the cancellation and no-show policy.
+          </span>
+        </label>
+        <label className="mt-1 flex min-h-[44px] items-start gap-2 text-sm text-neutral-700">
+          <input
+            type="checkbox"
+            checked={config.waiverAccepted}
+            onChange={(event) => onChange({ waiverAccepted: event.target.checked })}
+            className="mt-0.5 h-5 w-5 shrink-0 rounded border-neutral-300"
+          />
+          <span>
+            I accept the{' '}
+            <a href="/waiver" target="_blank" rel="noopener noreferrer" className="font-medium underline">
+              activity safety waiver
+            </a>{' '}
+            and confirm the participant is medically fit.
+          </span>
+        </label>
       </section>
 
       {/* Sticky summary + Next */}
