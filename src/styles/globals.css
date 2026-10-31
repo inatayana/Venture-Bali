@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* Keep anchor targets (e.g. #packages, #reviews) clear of the sticky bar. */
+  html {
+    scroll-padding-top: 4.5rem;
+  }
+}
+
 @layer components {
   .heading-caps {
     @apply font-heading font-semibold uppercase tracking-wider;

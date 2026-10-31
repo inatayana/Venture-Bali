@@ -14,6 +14,7 @@ import {
   Heart,
   Wallet,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
   BadgeCheck,
 } from 'lucide-react';
@@ -254,14 +255,58 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
 
   return (
     <main className="min-h-screen bg-white pb-28 lg:pb-10">
-      <div className="mx-auto max-w-7xl px-4 py-4">
-        <a
-          href="/"
-          className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-neutral-900"
-        >
-          <ArrowLeft className="h-4 w-4" /> All adventures
-        </a>
+      {/* Sticky product bar: back link + breadcrumb stay reachable while scrolling */}
+      <div className="sticky top-0 z-40 border-b border-neutral-200/80 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4">
+          <a
+            href="/"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-100"
+            aria-label="Back to all adventures"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">All adventures</span>
+          </a>
 
+          <nav
+            aria-label="Breadcrumb"
+            className="min-w-0 flex-1 border-l border-neutral-200 pl-3"
+          >
+            <ol className="flex min-w-0 items-center gap-1.5 text-xs">
+              <li className="hidden shrink-0 sm:block">
+                <a href="/" className="text-neutral-500 transition-colors hover:text-neutral-900">
+                  Home
+                </a>
+              </li>
+              <li aria-hidden="true" className="hidden shrink-0 text-neutral-300 sm:block">
+                <ChevronRight className="h-3.5 w-3.5" />
+              </li>
+              <li className="hidden shrink-0 sm:block">
+                <span className="text-neutral-500">{venture.category}</span>
+              </li>
+              <li aria-hidden="true" className="hidden shrink-0 text-neutral-300 sm:block">
+                <ChevronRight className="h-3.5 w-3.5" />
+              </li>
+              <li className="min-w-0">
+                <span
+                  className="block truncate font-medium text-neutral-800"
+                  aria-current="page"
+                >
+                  {venture.title}
+                </span>
+              </li>
+            </ol>
+          </nav>
+
+          <div className="hidden shrink-0 items-baseline gap-1 pl-3 lg:flex">
+            <span className="font-heading text-base font-bold tabular-nums text-neutral-900">
+              {formatPrice(selectedPrice)}
+            </span>
+            <span className="text-xs text-neutral-500">/guest</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 pb-4 pt-4">
         {promoVisible && (
           <div className="mb-4">
             <PromoBanner code={PROMO_CODE} label={`Launch offer — ${PROMO_DISCOUNT_PERCENT}% off with code`} onDismiss={dismissPromo} />
@@ -270,7 +315,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(340px,380px)_1fr] lg:items-start">
           {/* LEFT — sticky booking card (desktop only) */}
-          <aside className="hidden lg:sticky lg:top-6 lg:block">
+          <aside className="hidden lg:sticky lg:top-[76px] lg:block">
             <div className="rounded-2xl border border-neutral-200 p-5 shadow-sm">
               <p className="text-xs uppercase tracking-wider text-neutral-500">
                 {selectedVariant ? 'Selected package' : 'Starting price'}

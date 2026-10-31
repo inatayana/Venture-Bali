@@ -130,9 +130,10 @@ Aturan penerapan:
 | 5 | Customer Reviews & Media Proof (ratings breakdown, foto/video review) | `#reviews` |
 | 6 | Location / Meeting Point Map & Related Adventures | `#location` |
 
-### Sticky Anchor Nav Bar (Quick Scroll)
-- Sub-header sticky muncul saat scroll melewati hero: `[Package Options] | [What To Expect] | [Reviews] | [Location]`.
-- Anchor aktif di-highlight (scroll-spy). Tap = smooth scroll, tanpa reload.
+### Sticky Header & Breadcrumb Bar
+- **Home**: brand header menempel di atas (`sticky top-0`, backdrop blur) saat halaman di-scroll, dengan tinggi ringkas agar grid produk tetap terlihat.
+- **PDP**: bar sticky setinggi 56px berisi tombol "All adventures", breadcrumb `Home › Kategori › Nama produk`, dan harga paket terpilih per guest (desktop). Bar tetap terlihat saat scroll, jadi user bisa kembali atau pindah halaman tanpa scroll ke atas.
+- Booking card kolom kiri (desktop) memakai `top: 76px` agar tidak tertutup bar; anchor section memakai `scroll-padding-top` 4.5rem.
 
 ### Section 2: Klook-style "Package Options" Widget ⚡ CORE BOOKING ENGINE
 
