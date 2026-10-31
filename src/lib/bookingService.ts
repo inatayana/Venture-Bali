@@ -9,8 +9,8 @@ import {
   isSlotBookable,
   validateAddonModeCombinations,
 } from '@/lib/pricing';
+import { holdExpiresAt } from '@/lib/bookingLifecycle';
 
-const PENDING_HOLD_MINUTES = 15;
 const SERIALIZATION_RETRY_LIMIT = 3;
 
 export class BookingServiceError extends Error {
@@ -28,9 +28,6 @@ function generateBookingCode(): string {
   return `BK-${timestamp}-${random}`;
 }
 
-function getPendingHoldStartedAt(now: Date): Date {
-  return new Date(now.getTime() - PENDING_HOLD_MINUTES * 60 * 1000);
-}
 
 export async function createPersistedBooking(input: BookingInput): Promise<PrismaBooking> {
   for (let attempt = 0; attempt < SERIALIZATION_RETRY_LIMIT; attempt += 1) {
@@ -132,7 +129,7 @@ async function createBookingInTransaction(
       bookingDate: input.bookingDate,
       OR: [
         { paymentStatus: 'PAID' },
-        { paymentStatus: 'PENDING', createdAt: { gte: getPendingHoldStartedAt(new Date()) } },
+        { paymentStatus: 'PENDING', expiresAt: { gt: new Date() } },
       ],
     },
     _sum: { paxCount: true },
@@ -196,6 +193,8 @@ async function createBookingInTransaction(
       selectedAddons: selectedAddons.map((addon) => ({ id: addon.id, name: addon.name, price: addon.price })),
       totalPrice: breakdown.totalPriceIdr,
       paymentStatus: 'PENDING',
+      lifecycleStatus: 'AWAITING_PAYMENT',
+      expiresAt: holdExpiresAt(),
     },
   });
 }

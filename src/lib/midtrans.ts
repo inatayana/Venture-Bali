@@ -28,6 +28,11 @@ export interface SnapTransactionRequest {
   credit_card?: {
     secure: boolean;
   };
+  /** Snap closes the payment session after this window. */
+  expiry?: {
+    unit: 'minutes' | 'hours' | 'days';
+    duration: number;
+  };
 }
 
 export interface SnapResponse {

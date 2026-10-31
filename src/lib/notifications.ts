@@ -16,6 +16,7 @@
 import { prisma } from '@/lib/prisma';
 import { whatsappClient } from '@/lib/whatsapp';
 import { getBaseUrl } from '@/lib/seo';
+import { buildCustomerBookingsUrl } from '@/lib/customerLink';
 
 export type NotificationChannel = 'WHATSAPP' | 'EMAIL';
 
@@ -82,6 +83,8 @@ function pickupLine(booking: BookingForNotification): string {
 }
 
 export function buildConfirmationText(booking: BookingForNotification): string {
+  const manageUrl = buildCustomerBookingsUrl(booking.customer.id);
+
   return [
     `Booking confirmed — ${booking.variant.title}`,
     `Code: ${booking.bookingCode}`,
@@ -91,6 +94,7 @@ export function buildConfirmationText(booking: BookingForNotification): string {
     pickupLine(booking),
     '',
     `Voucher & QR: ${voucherUrl(booking.bookingCode)}`,
+    ...(manageUrl ? [`Manage your bookings: ${manageUrl}`] : []),
   ].join('\n');
 }
 
@@ -111,6 +115,7 @@ function emailHtml(
   booking: BookingForNotification,
   options: { title: string; intro: string },
 ): string {
+  const manageUrl = buildCustomerBookingsUrl(booking.customer.id);
   const rows = [
     ['Booking code', booking.bookingCode],
     ['Activity', booking.variant.title],
@@ -136,6 +141,11 @@ function emailHtml(
       <p style="text-align:center">
         <a href="${voucherUrl(booking.bookingCode)}" style="display:inline-block;background:#111827;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none">Open my voucher</a>
       </p>
+      ${
+        manageUrl
+          ? `<p style="text-align:center;font-size:13px"><a href="${manageUrl}" style="color:#4b5563">Manage my bookings</a></p>`
+          : ''
+      }
       <p style="font-size:12px;color:#9ca3af">Venture Bali · instant confirmation · mobile-first booking</p>
     </div>
   `;

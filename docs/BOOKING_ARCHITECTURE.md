@@ -94,8 +94,18 @@ Aturan checkout (server):
 
 - `Booking` adalah source of truth untuk reservation; UI mock dan in-memory state tidak boleh dipakai untuk membuat atau membaca booking produksi.
 - Server mengunci `SlotTime` dan menghitung pax pada kombinasi tanggal + slot di dalam transaksi PostgreSQL `Serializable` sebelum membuat booking baru.
-- Booking dengan status `PAID` selalu memakai capacity. Booking `PENDING` memakai capacity selama 15 menit sebagai payment hold; hold yang lebih lama tidak lagi menghitung availability.
+- Hold inventaris dimulai **saat booking dibuat** (Step 2 hybrid checkout), bukan saat payment sheet dibuka — menutup celah oversell antara pengisian data tamu dan pembayaran.
+- `Booking.expiresAt` = sekarang + `BOOKING_HOLD_MINUTES` (default **10 menit**). Booking `PENDING` hanya memakai capacity selama `expiresAt > now()`.
+- Payment session kadaluarsa **tidak boleh dibayar**: `/api/payment/midtrans` menolak dengan `410 HOLD_EXPIRED` dan membatalkan booking; Snap juga diberi `expiry` yang sama.
+- Cron `/api/cron/reap-holds` (setiap 10 menit) membatalkan booking `PENDING` yang lewat hold.
 - Harga, vehicle count, pickup surcharge, dan add-on yang dipilih selalu dihitung ulang dari data database di server. Nilai total dari browser tidak pernah dipercaya.
+
+### 5.2 Lifecycle & Job Order
+
+- `Booking.lifecycleStatus`: `AWAITING_PAYMENT` → `CONFIRMED` (webhook PAID) → `COMPLETED` (voucher di-redeem) | `NO_SHOW` | `CANCELLED`.
+- Manifest lapangan: `/admin/operations` per tanggal aktivitas, dikelompokkan per slot; menampilkan pax, varian, tier kendaraan, pickup/TBA, dan tombol WhatsApp.
+- Menutup job order (`POST /api/admin/bookings/[id]/status`) hanya boleh dari `CONFIRMED`; `COMPLETED` menandai voucher `REDEEMED` (`redeemedAt`, `redeemedBy`), `NO_SHOW` menandai voucher `CANCELLED` sesuai `docs/NO_SHOW_POLICY.md`.
+- Pembeli tetap **guest** (tanpa password). Setelah PAID, tautan magic yang ditandatangani (30 hari) dikirim lewat email/WhatsApp menuju `/my/bookings`.
 
 ## 6. Product Card Priority (listing)
 

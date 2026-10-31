@@ -201,6 +201,7 @@ export async function createBooking(state: AgentState): Promise<CreateBookingOut
     discountIdr: 0,
     totalPrice: tier ? tier.pricePerPax * pax : 0,
     paymentStatus: 'PENDING',
+    lifecycleStatus: 'AWAITING_PAYMENT',
     createdAt: new Date(),
     updatedAt: new Date(),
   };

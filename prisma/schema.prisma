@@ -41,6 +41,16 @@ enum PaymentStatus {
   FAILED
 }
 
+/// Operational lifecycle of a reservation, separate from the payment status.
+/// AWAITING_PAYMENT → CONFIRMED (paid) → COMPLETED (voucher redeemed) | NO_SHOW.
+enum BookingLifecycle {
+  AWAITING_PAYMENT
+  CONFIRMED
+  COMPLETED
+  NO_SHOW
+  CANCELLED
+}
+
 enum VoucherStatus {
   ACTIVE
   REDEEMED
@@ -323,6 +333,10 @@ model Booking {
   selectedAddons   Json
   totalPrice       Int
   paymentStatus    PaymentStatus
+  /// Operational lifecycle used by the field-team job order.
+  lifecycleStatus  BookingLifecycle @default(AWAITING_PAYMENT)
+  /// End of the temporary inventory hold. Null once paid or for legacy rows.
+  expiresAt        DateTime?
   payment          Payment?
   vouchers         Voucher[]
   createdAt        DateTime        @default(now())
@@ -335,6 +349,8 @@ model Booking {
   @@index([fulfillmentMode])
   @@index([pickupZoneId])
   @@index([vehicleClassId])
+  @@index([bookingDate, lifecycleStatus])
+  @@index([paymentStatus, expiresAt])
 }
 
 model Payment {

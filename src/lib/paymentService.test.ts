@@ -46,6 +46,8 @@ const booking: Booking = {
   selectedAddons: [],
   totalPrice: 836000,
   paymentStatus: 'PENDING',
+  lifecycleStatus: 'AWAITING_PAYMENT',
+  expiresAt: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -145,7 +147,7 @@ describe('processMidtransWebhook', () => {
     );
     expect(tx.booking.update).toHaveBeenCalledWith({
       where: { id: 'booking-001' },
-      data: { paymentStatus: 'PAID' },
+      data: { paymentStatus: 'PAID', lifecycleStatus: 'CONFIRMED', expiresAt: null },
     });
     expect(tx.voucher.create).toHaveBeenCalledWith({
       data: expect.objectContaining({ bookingId: 'booking-001', status: 'ACTIVE' }),

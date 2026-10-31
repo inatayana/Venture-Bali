@@ -50,6 +50,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
+  const [holdExpired, setHoldExpired] = useState(false);
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -62,6 +63,13 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
         const data = await response.json();
         if (data.success) {
           setBooking(data.data);
+          const expiresAt = data.data.expiresAt ? new Date(data.data.expiresAt) : null;
+          if (
+            data.data.paymentStatus === 'PENDING' &&
+            (!expiresAt || expiresAt.getTime() <= Date.now())
+          ) {
+            setHoldExpired(true);
+          }
         } else {
           throw new Error(data.error?.message || 'Failed to load booking');
         }
@@ -103,6 +111,9 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
           onPending: handlePaymentResult,
           onError: () => setPaying(false),
         });
+      } else if (data.error?.code === 'HOLD_EXPIRED') {
+        setHoldExpired(true);
+        setPaying(false);
       } else {
         throw new Error(data.error?.message || 'Failed to initialize payment');
       }
@@ -231,9 +242,25 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                   <span>PCI DSS Level 1 Certified</span>
                 </div>
 
+                {holdExpired && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                    <p className="font-semibold">Your reservation hold expired.</p>
+                    <p className="mt-1">
+                      We released the slot so it is not blocked for other guests. Pick the date and
+                      time again to start a fresh 10-minute hold.
+                    </p>
+                    <a
+                      href="/"
+                      className="mt-3 inline-flex min-h-[44px] items-center rounded-lg bg-neutral-900 px-4 font-semibold text-white"
+                    >
+                      Choose another slot
+                    </a>
+                  </div>
+                )}
+
                 <Button
                   onClick={handlePayWithMidtrans}
-                  disabled={paying}
+                  disabled={paying || holdExpired}
                   fullWidth
                   size="lg"
                   className="mt-6"

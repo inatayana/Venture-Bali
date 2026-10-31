@@ -403,6 +403,49 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
                 </div>
               </div>
 
+              {(venture.essentialInfo.perfectFor.length > 0 ||
+                venture.essentialInfo.whatToBring.length > 0 ||
+                venture.essentialInfo.knowBeforeYouGo.length > 0) && (
+                <div className="mt-5 grid gap-4 rounded-xl bg-neutral-50 p-4 sm:grid-cols-3">
+                  {venture.essentialInfo.perfectFor.length > 0 && (
+                    <div>
+                      <h3 className="mb-1.5 text-xs font-bold uppercase tracking-wider text-neutral-500">
+                        Perfect for
+                      </h3>
+                      <ul className="space-y-1 text-sm text-neutral-700">
+                        {venture.essentialInfo.perfectFor.map((item) => (
+                          <li key={item}>• {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {venture.essentialInfo.whatToBring.length > 0 && (
+                    <div>
+                      <h3 className="mb-1.5 text-xs font-bold uppercase tracking-wider text-neutral-500">
+                        What to bring
+                      </h3>
+                      <ul className="space-y-1 text-sm text-neutral-700">
+                        {venture.essentialInfo.whatToBring.map((item) => (
+                          <li key={item}>• {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {venture.essentialInfo.knowBeforeYouGo.length > 0 && (
+                    <div>
+                      <h3 className="mb-1.5 text-xs font-bold uppercase tracking-wider text-neutral-500">
+                        Know before you go
+                      </h3>
+                      <ul className="space-y-1 text-sm text-neutral-700">
+                        {venture.essentialInfo.knowBeforeYouGo.map((item) => (
+                          <li key={item}>• {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {faqs.length > 0 && (
                 <div className="mt-5 space-y-2">
                   <h3 className="text-sm font-semibold text-neutral-900">Things to know</h3>

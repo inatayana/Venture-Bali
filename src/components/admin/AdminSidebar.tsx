@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Map,
   CalendarCheck,
+  ClipboardList,
   Sparkles,
   ExternalLink,
   LogOut,
@@ -15,6 +16,7 @@ import { cn } from '@/utils/cn';
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/operations', label: 'Operations', icon: ClipboardList },
   { href: '/admin/ventures', label: 'Ventures', icon: Map },
   { href: '/admin/bookings', label: 'Bookings', icon: CalendarCheck },
   { href: '/admin/content', label: 'AI Content', icon: Sparkles },
