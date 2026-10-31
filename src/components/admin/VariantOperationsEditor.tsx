@@ -17,10 +17,13 @@ interface VariantOperationsEditorProps {
     id: string;
     title: string;
     fulfillmentMode: string;
+    pickupZoneName?: string | null;
     blackoutDates: string[];
     slotTimes: Slot[];
     addons: Addon[];
   };
+  /** Rendered on the right of the header — used for the package editor. */
+  headerAction?: React.ReactNode;
 }
 
 interface Addon {
@@ -40,7 +43,7 @@ const TIME_OPTIONS = Array.from({ length: 29 }, (_, index) => {
   return `${String(hour12).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${meridiem}`;
 });
 
-export function VariantOperationsEditor({ variant }: VariantOperationsEditorProps) {
+export function VariantOperationsEditor({ variant, headerAction }: VariantOperationsEditorProps) {
   const router = useRouter();
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -162,8 +165,10 @@ export function VariantOperationsEditor({ variant }: VariantOperationsEditorProp
           <h2 className="font-heading text-lg font-bold text-gray-900">{variant.title}</h2>
           <p className="text-xs text-gray-500">
             {variant.fulfillmentMode.replace('_', ' ').toLowerCase()} · {variant.slotTimes.length} departures
+            {variant.pickupZoneName ? ` · pickup: ${variant.pickupZoneName}` : ''}
           </p>
         </div>
+        {headerAction}
       </div>
 
       {error && (
