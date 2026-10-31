@@ -34,3 +34,13 @@ export const slotUpdateSchema = z.object({
 export const blackoutInputSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD'),
 });
+
+export const addonInputSchema = z.object({
+  name: z.string().trim().min(3, 'Add-on name is too short').max(80),
+  price: z.number().int().min(0, 'Price cannot be negative').max(20_000_000),
+  description: z.string().trim().max(200).optional(),
+  requiresTransfer: z.boolean().default(false),
+  isCombo: z.boolean().default(false),
+});
+
+export const addonUpdateSchema = addonInputSchema.partial();

@@ -142,6 +142,7 @@ export function ExperienceBookingWidget({
         coupon: appliedCoupon
           ? { ...appliedCoupon, isActive: true, minPax: 1, usedCount: 0 }
           : null,
+        minimumSpendIdr: variant?.minimumSpendIdr ?? null,
         slotTimeLabel: config.slot?.time ?? null,
         zone,
         vehicleClass,
@@ -663,6 +664,12 @@ export function ExperienceBookingWidget({
             <div className="flex justify-between text-green-700">
               <span>Discount {appliedCoupon ? `(${appliedCoupon.code})` : '(promo price)'}</span>
               <span className="tabular-nums">−{formatPrice(quote.discountIdr)}</span>
+            </div>
+          )}
+          {quote.minimumTopUpIdr > 0 && (
+            <div className="flex justify-between text-neutral-600">
+              <span>Minimum spend top-up</span>
+              <span className="tabular-nums">{formatPrice(quote.minimumTopUpIdr)}</span>
             </div>
           )}
           {quote.nightSurchargeIdr > 0 && (

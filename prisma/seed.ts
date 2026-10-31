@@ -27,6 +27,7 @@ import {
   LOCATIONS,
   MEETING_POINTS,
   PICKUP_ZONES,
+  SAFETY_INFO,
   TENANT_DOMAIN,
   TENANT_NAME,
   TENANT_THEME,
@@ -202,6 +203,7 @@ async function seedVentures(
   for (const v of VENTURES) {
     const locationId = locationIds.get(v.locationKey) ?? null;
     const meetingPoint = MEETING_POINTS[v.slug] ?? null;
+    const safety = SAFETY_INFO[v.slug] ?? null;
 
     const venture = await prisma.venture.upsert({
       where: { slug: v.slug },
@@ -214,6 +216,9 @@ async function seedVentures(
         meetingPoint: meetingPoint?.name ?? null,
         meetingPointLat: meetingPoint?.latitude ?? null,
         meetingPointLng: meetingPoint?.longitude ?? null,
+        minAge: safety?.minAge ?? null,
+        maxWeightKg: safety?.maxWeightKg ?? null,
+        safetyBriefing: safety?.briefing ?? null,
         highlights: v.highlights as unknown as Prisma.InputJsonValue,
         inclusions: v.inclusions as unknown as Prisma.InputJsonValue,
         exclusions: v.exclusions as unknown as Prisma.InputJsonValue,
@@ -244,6 +249,9 @@ async function seedVentures(
         meetingPoint: meetingPoint?.name ?? null,
         meetingPointLat: meetingPoint?.latitude ?? null,
         meetingPointLng: meetingPoint?.longitude ?? null,
+        minAge: safety?.minAge ?? null,
+        maxWeightKg: safety?.maxWeightKg ?? null,
+        safetyBriefing: safety?.briefing ?? null,
         highlights: v.highlights as unknown as Prisma.InputJsonValue,
         inclusions: v.inclusions as unknown as Prisma.InputJsonValue,
         exclusions: v.exclusions as unknown as Prisma.InputJsonValue,
@@ -298,6 +306,9 @@ async function seedVentures(
               fulfillmentMode: resolveFulfillmentMode(variantSeed),
               promoPriceIdr: variantSeed.promoPriceIdr ?? null,
               operationNotes: variantSeed.operationNotes ?? null,
+              inclusions: (variantSeed.inclusions ?? []) as unknown as Prisma.InputJsonValue,
+              exclusions: (variantSeed.exclusions ?? []) as unknown as Prisma.InputJsonValue,
+              minimumSpendIdr: variantSeed.minimumSpendIdr ?? null,
               sortOrder: variantSeed.sortOrder ?? 0,
               blackoutDates:
                 variantSeed.blackoutDates as unknown as Prisma.InputJsonValue,
@@ -315,6 +326,9 @@ async function seedVentures(
               fulfillmentMode: resolveFulfillmentMode(variantSeed),
               promoPriceIdr: variantSeed.promoPriceIdr ?? null,
               operationNotes: variantSeed.operationNotes ?? null,
+              inclusions: (variantSeed.inclusions ?? []) as unknown as Prisma.InputJsonValue,
+              exclusions: (variantSeed.exclusions ?? []) as unknown as Prisma.InputJsonValue,
+              minimumSpendIdr: variantSeed.minimumSpendIdr ?? null,
               sortOrder: variantSeed.sortOrder ?? 0,
               blackoutDates:
                 variantSeed.blackoutDates as unknown as Prisma.InputJsonValue,

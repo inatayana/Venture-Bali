@@ -143,6 +143,9 @@ export interface Venture {
   duration: string;
   badge?: string;
   meetingPoint?: MeetingPoint;
+  minAge?: number;
+  maxWeightKg?: number;
+  safetyBriefing?: string;
   highlights: string[];
   inclusions: string[];
   exclusions: string[];
@@ -211,6 +214,9 @@ export interface Variant {
   fulfillmentMode: FulfillmentMode;
   promoPriceIdr?: number;
   operationNotes?: string;
+  inclusions?: string[];
+  exclusions?: string[];
+  minimumSpendIdr?: number;
   sortOrder: number;
   priceTiers: PriceTier[];
   blackoutDates: string[];

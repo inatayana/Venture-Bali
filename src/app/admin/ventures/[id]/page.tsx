@@ -22,6 +22,7 @@ export default async function AdminVentureDetailPage({ params }: AdminVentureDet
         orderBy: { sortOrder: 'asc' },
         include: {
           slotTimes: { orderBy: { time: 'asc' } },
+          addons: { orderBy: { name: 'asc' } },
           _count: { select: { bookings: true } },
         },
       },
@@ -53,6 +54,13 @@ export default async function AdminVentureDetailPage({ params }: AdminVentureDet
               title: variant.title,
               fulfillmentMode: variant.fulfillmentMode,
               blackoutDates: asStringArray(variant.blackoutDates),
+              addons: variant.addons.map((addon) => ({
+                id: addon.id,
+                name: addon.name,
+                price: addon.price,
+                requiresTransfer: addon.requiresTransfer,
+                isCombo: addon.isCombo,
+              })),
               slotTimes: variant.slotTimes.map((slot) => ({
                 id: slot.id,
                 time: slot.time,

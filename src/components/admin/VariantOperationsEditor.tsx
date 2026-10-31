@@ -19,7 +19,16 @@ interface VariantOperationsEditorProps {
     fulfillmentMode: string;
     blackoutDates: string[];
     slotTimes: Slot[];
+    addons: Addon[];
   };
+}
+
+interface Addon {
+  id: string;
+  name: string;
+  price: number;
+  requiresTransfer: boolean;
+  isCombo: boolean;
 }
 
 const TIME_OPTIONS = Array.from({ length: 29 }, (_, index) => {
@@ -38,6 +47,9 @@ export function VariantOperationsEditor({ variant }: VariantOperationsEditorProp
   const [newTime, setNewTime] = useState('08:00 AM');
   const [newCapacity, setNewCapacity] = useState('10');
   const [blackoutDate, setBlackoutDate] = useState('');
+  const [addonName, setAddonName] = useState('');
+  const [addonPrice, setAddonPrice] = useState('');
+  const [addonRequiresTransfer, setAddonRequiresTransfer] = useState(false);
 
   const run = async (key: string, url: string, init: RequestInit): Promise<boolean> => {
     setPending(key);
@@ -112,6 +124,36 @@ export function VariantOperationsEditor({ variant }: VariantOperationsEditorProp
     run(`blackout-${date}`, `/api/admin/variants/${variant.id}/blackouts?date=${date}`, {
       method: 'DELETE',
     });
+
+  const addAddon = async () => {
+    const price = Number(addonPrice);
+    if (addonName.trim().length < 3) {
+      setError('Add-on name must be at least 3 characters');
+      return;
+    }
+    if (!Number.isInteger(price) || price < 0) {
+      setError('Add-on price must be a whole number of at least 0');
+      return;
+    }
+    const ok = await run('addon-add', `/api/admin/variants/${variant.id}/addons`, {
+      method: 'POST',
+      body: JSON.stringify({
+        name: addonName,
+        price,
+        requiresTransfer: addonRequiresTransfer,
+      }),
+    });
+    if (ok) {
+      setAddonName('');
+      setAddonPrice('');
+      setAddonRequiresTransfer(false);
+    }
+  };
+
+  const deleteAddon = (addon: Addon) => {
+    if (!window.confirm(`Delete the add-on "${addon.name}"?`)) return;
+    run(`addon-${addon.id}`, `/api/admin/addons/${addon.id}`, { method: 'DELETE' });
+  };
 
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-5">
@@ -277,6 +319,89 @@ export function VariantOperationsEditor({ variant }: VariantOperationsEditorProp
             onClick={addBlackout}
             disabled={pending === 'blackout-add'}
             className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-gray-300 px-4 text-sm font-semibold text-gray-800 disabled:opacity-50"
+          >
+            <Plus className="h-4 w-4" /> Add
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-5 border-t border-gray-100 pt-4">
+        <h3 className="text-sm font-semibold text-gray-900">Optional add-ons</h3>
+        <p className="mt-1 text-xs text-gray-500">
+          Photography, drone, gear rental or extra meals. Guests pick these in the booking sheet.
+        </p>
+
+        <div className="mt-2 overflow-x-auto">
+          <table className="w-full text-sm">
+            <tbody>
+              {variant.addons.length === 0 && (
+                <tr>
+                  <td className="py-2 text-xs text-gray-400">No add-ons for this package.</td>
+                </tr>
+              )}
+              {variant.addons.map((addon) => (
+                <tr key={addon.id} className="border-b border-gray-50 last:border-0">
+                  <td className="py-2 pr-2 text-gray-800">{addon.name}</td>
+                  <td className="py-2 pr-2 text-right tabular-nums text-gray-600">
+                    Rp {addon.price.toLocaleString('id-ID')}
+                  </td>
+                  <td className="py-2 pr-2 text-xs text-gray-500">
+                    {addon.requiresTransfer ? 'Transfer only' : 'Any package'}
+                    {addon.isCombo ? ' · Combo' : ''}
+                  </td>
+                  <td className="py-2 text-right">
+                    <button
+                      type="button"
+                      onClick={() => deleteAddon(addon)}
+                      disabled={pending === `addon-${addon.id}`}
+                      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600"
+                      aria-label={`Delete add-on ${addon.name}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-end gap-2">
+          <label className="text-xs font-medium text-gray-500">
+            Name
+            <input
+              type="text"
+              value={addonName}
+              onChange={(event) => setAddonName(event.target.value)}
+              placeholder="Drone footage"
+              className="mt-1 block min-h-[44px] w-44 rounded-lg border border-gray-200 px-2 text-sm text-gray-900"
+            />
+          </label>
+          <label className="text-xs font-medium text-gray-500">
+            Price (IDR)
+            <input
+              type="number"
+              min={0}
+              value={addonPrice}
+              onChange={(event) => setAddonPrice(event.target.value)}
+              placeholder="250000"
+              className="mt-1 block min-h-[44px] w-32 rounded-lg border border-gray-200 px-2 text-sm tabular-nums text-gray-900"
+            />
+          </label>
+          <label className="flex min-h-[44px] items-center gap-1.5 text-xs text-gray-600">
+            <input
+              type="checkbox"
+              checked={addonRequiresTransfer}
+              onChange={(event) => setAddonRequiresTransfer(event.target.checked)}
+              className="h-4 w-4 rounded border-gray-300"
+            />
+            Transfer only
+          </label>
+          <button
+            type="button"
+            onClick={addAddon}
+            disabled={pending === 'addon-add'}
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white disabled:opacity-50"
           >
             <Plus className="h-4 w-4" /> Add
           </button>
