@@ -7,6 +7,7 @@ import {
 } from '@/lib/midtrans';
 import { generateQRCodeData } from '@/lib/voucher';
 import { notifyBookingPaid } from '@/lib/notifications';
+import { lifecycleForPaymentStatus } from '@/lib/bookingLifecycle';
 
 export class PaymentServiceError extends Error {
   constructor(
@@ -77,7 +78,11 @@ export async function processMidtransWebhook(
 
       await tx.booking.update({
         where: { id: payment.bookingId },
-        data: { paymentStatus },
+        data: {
+          paymentStatus,
+          lifecycleStatus: lifecycleForPaymentStatus(paymentStatus),
+          ...(paymentStatus === 'PAID' ? { expiresAt: null } : {}),
+        },
       });
 
       if (paymentStatus === 'PAID' && payment.booking.appliedCouponCode) {

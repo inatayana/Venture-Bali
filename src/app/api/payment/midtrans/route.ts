@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { createSnapTransaction } from '@/lib/midtrans';
+import { createSnapTransaction, type SnapTransactionRequest } from '@/lib/midtrans';
+import { getHoldMinutes, isHoldActive } from '@/lib/bookingLifecycle';
 import { PaymentServiceError } from '@/lib/paymentService';
+import type { PaymentStatus } from '@prisma/client';
 
 const paymentSchema = z.object({
   bookingId: z.string().min(1, 'Booking ID is required'),
@@ -12,7 +14,8 @@ interface BookingWithCustomer {
   id: string;
   bookingCode: string;
   totalPrice: number;
-  paymentStatus: string;
+  paymentStatus: PaymentStatus;
+  expiresAt: Date | null;
   customer: { name: string; email: string; whatsapp: string };
   variant: { title: string } | null;
 }
@@ -43,6 +46,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (booking.paymentStatus === 'PENDING' && !isHoldActive(booking)) {
+      // The inventory hold is gone: the slot may already belong to someone else.
+      // Never let a stale session be paid.
+      await prisma.booking.updateMany({
+        where: { id: bookingId, paymentStatus: 'PENDING' },
+        data: { paymentStatus: 'CANCELLED', lifecycleStatus: 'CANCELLED', expiresAt: new Date() },
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'HOLD_EXPIRED',
+            message: 'Your reservation hold expired. Please choose the date and time again.',
+          },
+        },
+        { status: 410 },
+      );
+    }
+
     const existingPayment = await prisma.payment.findUnique({ where: { bookingId } });
     if (existingPayment?.snapToken && existingPayment.status !== 'FAILED') {
       return NextResponse.json({
@@ -52,7 +74,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const snapRequest = {
+    const snapRequest: SnapTransactionRequest = {
       transaction_details: {
         order_id: booking.bookingCode,
         gross_amount: booking.totalPrice,
@@ -72,6 +94,10 @@ export async function POST(request: NextRequest) {
       ],
       credit_card: {
         secure: true,
+      },
+      expiry: {
+        unit: 'minutes',
+        duration: getHoldMinutes(),
       },
     };
 

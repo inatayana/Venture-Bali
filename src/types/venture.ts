@@ -11,6 +11,7 @@ export type Difficulty = 'EASY' | 'MODERATE' | 'CHALLENGING';
 export type PickupZoneType = 'ZONE_1' | 'ZONE_2' | 'ZONE_3' | 'ZONE_4';
 export type VehicleClassType = 'STANDARD_SUV' | 'PREMIUM_MPV' | 'MINIVAN';
 export type PaymentStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'FAILED';
+export type BookingLifecycle = 'AWAITING_PAYMENT' | 'CONFIRMED' | 'COMPLETED' | 'NO_SHOW' | 'CANCELLED';
 export type VoucherStatus = 'ACTIVE' | 'REDEEMED' | 'EXPIRED' | 'CANCELLED';
 export type AdminRole = 'SUPER_ADMIN' | 'ADMIN' | 'EDITOR' | 'VIEWER';
 export type NotificationType = 'EMAIL' | 'WHATSAPP' | 'SMS';
@@ -247,6 +248,8 @@ export interface Booking {
   selectedAddons?: { id: string; name: string; price: number }[];
   totalPrice: number;
   paymentStatus: PaymentStatus;
+  lifecycleStatus: BookingLifecycle;
+  expiresAt?: Date;
   payment?: Payment;
   createdAt: Date;
   updatedAt: Date;
