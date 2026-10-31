@@ -346,7 +346,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
           {/* RIGHT — hero, header and all scrollable content */}
           <div className="space-y-6">
             {/* Desktop: asymmetric gallery — one large photo plus three tiles */}
-            <div className="hidden sm:grid sm:h-[440px] sm:grid-cols-2 sm:grid-rows-3 sm:gap-2">
+            <div className="hidden sm:grid sm:h-[440px] sm:grid-cols-[2fr_1fr] sm:grid-rows-3 sm:gap-2">
               {orderedGallery.map((image, index) => (
                 <button
                   key={`${image}-${index}`}
