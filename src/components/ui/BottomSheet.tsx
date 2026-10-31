@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
@@ -34,19 +34,22 @@ export function BottomSheet({
 }: BottomSheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
   const dragState = useRef<{ active: boolean; startY: number }>({ active: false, startY: 0 });
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleEscape = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    },
-    [onClose]
-  );
+  // Keep the latest callback without re-running the open/close effect.
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCloseRef.current();
+    };
 
     document.addEventListener('keydown', handleEscape);
     document.body.style.overflow = 'hidden';
@@ -85,7 +88,7 @@ export function BottomSheet({
       document.body.style.overflow = '';
       previousFocus.current?.focus();
     };
-  }, [isOpen, handleEscape]);
+  }, [isOpen]);
 
   const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
     dragState.current = { active: true, startY: event.clientY };
