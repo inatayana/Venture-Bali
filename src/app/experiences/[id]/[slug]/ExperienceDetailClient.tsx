@@ -46,6 +46,14 @@ interface ExperienceDetailClientProps {
 
 const PAYMENT_LOGOS = ['VISA', 'Mastercard', 'GoPay', 'QRIS'];
 const PROMO_CODE = 'TRYBALI2026';
+
+/** Anchor targets in the sticky PDP sub-nav. */
+const PDP_SECTIONS = [
+  { id: 'packages', label: 'Packages' },
+  { id: 'details', label: 'What to expect' },
+  { id: 'reviews', label: 'Reviews' },
+  { id: 'coverage', label: 'Location' },
+] as const;
 // Mirrors the launch coupon in src/data/catalogue.ts (display label only).
 const PROMO_DISCOUNT_PERCENT = 40;
 const PROMO_STORAGE_KEY = 'vb_promo_dismissed';
@@ -86,6 +94,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
   const [detailVariantId, setDetailVariantId] = useState<string | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [mobileSlideIndex, setMobileSlideIndex] = useState(0);
+  const [activeSection, setActiveSection] = useState<string>('packages');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [promoVisible, setPromoVisible] = useState(true);
   const [wishlisted, setWishlisted] = useState(false);
@@ -123,6 +132,27 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
     gallerySliderRef.current?.scrollTo({ left: 0 });
     setMobileSlideIndex(0);
   }, [activeImage]);
+
+  // Scroll-spy for the sticky PDP sub-nav.
+  useEffect(() => {
+    const sections = PDP_SECTIONS.map((section) => document.getElementById(section.id)).filter(
+      (element): element is HTMLElement => element !== null
+    );
+    if (sections.length === 0 || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActiveSection(visible[0].target.id);
+      },
+      { rootMargin: '-120px 0px -55% 0px', threshold: [0, 1] }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
 
   const estimate = useMemo(() => {
     const tiers = selectedVariant?.priceTiers?.length
@@ -324,6 +354,33 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
         </div>
       </div>
 
+      {/* Sticky section nav (scroll-spy) */}
+      <nav
+        aria-label="Page sections"
+        className="sticky top-14 z-30 border-b border-neutral-200 bg-white/95 backdrop-blur"
+      >
+        <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 py-1.5 scrollbar-hide">
+          {PDP_SECTIONS.map((section) => {
+            const isActive = activeSection === section.id;
+            return (
+              <a
+                key={section.id}
+                href={`#${section.id}`}
+                aria-current={isActive ? 'true' : undefined}
+                className={cn(
+                  'shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+                  isActive
+                    ? 'bg-brand-ink text-brand'
+                    : 'text-neutral-600 hover:bg-brand/25 hover:text-neutral-900'
+                )}
+              >
+                {section.label}
+              </a>
+            );
+          })}
+        </div>
+      </nav>
+
       <div className="mx-auto max-w-7xl px-4 pb-4 pt-4">
         {promoVisible && (
           <div className="mb-4">
@@ -333,7 +390,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(340px,380px)_1fr] lg:items-start">
           {/* LEFT — sticky booking card (desktop only) */}
-          <aside className="hidden lg:sticky lg:top-[76px] lg:block">
+          <aside className="hidden lg:sticky lg:top-[116px] lg:block">
             <div className="rounded-2xl border border-neutral-200 p-5 shadow-sm">
               <p className="text-xs uppercase tracking-wider text-neutral-500">
                 {selectedVariant ? 'Selected package' : 'Starting price'}
@@ -712,7 +769,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
               )}
             </section>
 
-            <section className="rounded-2xl border border-neutral-200 p-5">
+            <section id="details" className="scroll-mt-28 rounded-2xl border border-neutral-200 p-5">
               <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">What to expect</h2>
               <p className="mb-4 text-sm leading-relaxed text-neutral-600">{venture.description}</p>
 

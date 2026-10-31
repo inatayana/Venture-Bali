@@ -20,7 +20,7 @@
 
   /* Keep anchor targets (e.g. #packages, #reviews) clear of the sticky bar. */
   html {
-    scroll-padding-top: 4.5rem;
+    scroll-padding-top: 6.5rem;
   }
 }
 
