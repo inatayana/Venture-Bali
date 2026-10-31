@@ -10,7 +10,7 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants');
  * same time, and keep `.next` as the deploy output Vercel expects.
  */
 /** @type {(phase: string) => import('next').NextConfig} */
-const nextConfig = (phase) => ({
+const nextConfig = phase => ({
   distDir: phase === PHASE_DEVELOPMENT_SERVER ? '.next-dev' : '.next',
   reactStrictMode: true,
   images: {
