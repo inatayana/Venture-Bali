@@ -377,8 +377,30 @@ describe('Promo, coupon & night surcharge engine', () => {
     expect(quote.transfer.totalFeeIdr).toBe(224000 * 2);
   });
 
-  it('keeps the database slot id so the booking API can persist it', () => {
-    const slots = getAvailableSlots(
+  it('tops up to the package minimum spend after discounts', () => {
+    const quote = computeQuote({
+      priceTiers: tiers,
+      paxCount: 1,
+      fulfillmentMode: 'SELF_DRIVE',
+      promoPriceIdr: 376000,
+      minimumSpendIdr: 1200000,
+    });
+    expect(quote.minimumTopUpIdr).toBe(824000);
+    expect(quote.totalPriceIdr).toBe(1200000);
+  });
+
+  it('does not top up when the payable subtotal already meets the minimum', () => {
+    const quote = computeQuote({
+      priceTiers: tiers,
+      paxCount: 3,
+      fulfillmentMode: 'SELF_DRIVE',
+      minimumSpendIdr: 1200000,
+    });
+    expect(quote.minimumTopUpIdr).toBe(0);
+    expect(quote.totalPriceIdr).toBe(1410000);
+  });
+
+  it('keeps the database slot id so the booking API can persist it', () => {    const slots = getAvailableSlots(
       { slotTimes: [{ id: 'clx123', time: '08:00 AM', maxCapacity: 10, currentBookings: 0, isAvailable: true }] },
       2,
     );

@@ -271,6 +271,59 @@ export const MEETING_POINTS: Record<
   },
 };
 
+// ============ SAFETY GUIDELINES ============
+// Structured requirements per product, shown in the Safety & requirements card.
+export const SAFETY_INFO: Record<
+  string,
+  { minAge: number; maxWeightKg: number; briefing: string }
+> = {
+  'ubud-atv-jungle-ride': {
+    minAge: 12,
+    maxWeightKg: 120,
+    briefing: 'Helmet fitting and a full safety briefing before every ride. Closed shoes are required.',
+  },
+  'ayung-river-white-water-rafting': {
+    minAge: 7,
+    maxWeightKg: 120,
+    briefing: 'Life-jacket fitting and paddle briefing before launch. Swimming is not required but recommended.',
+  },
+  'ubud-river-tubing-adventure': {
+    minAge: 6,
+    maxWeightKg: 100,
+    briefing: 'Life-jacket and tube briefing at the river gate. Lifeguards are stationed at entry and exit.',
+  },
+  'kintamani-ubud-downhill-cycling': {
+    minAge: 12,
+    maxWeightKg: 110,
+    briefing: 'Helmet fitting and braking briefing before the descent. Moderate fitness required.',
+  },
+  'mount-batur-sunrise-trekking': {
+    minAge: 10,
+    maxWeightKg: 120,
+    briefing: 'Headlamp and trekking briefing at the trailhead. Basic fitness required for the sunrise ascent.',
+  },
+  'nusa-dua-water-sports-package': {
+    minAge: 10,
+    maxWeightKg: 100,
+    briefing: 'Life-jacket and equipment briefing before each activity. Some rides require swimming ability.',
+  },
+  'nusa-penida-snorkeling': {
+    minAge: 8,
+    maxWeightKg: 100,
+    briefing: 'Life-jacket and snorkel briefing before entering the water. Swimming ability recommended.',
+  },
+  'bali-waterfall-canyoning-adventure': {
+    minAge: 15,
+    maxWeightKg: 100,
+    briefing: 'Harness and rope briefing by certified guides. Strong fitness and comfort with heights required.',
+  },
+  'ubud-atv-ayung-rafting-combo': {
+    minAge: 12,
+    maxWeightKg: 110,
+    briefing: 'Separate safety briefings for the ATV and rafting sessions. Closed shoes and swimwear required.',
+  },
+};
+
 // ============ COUPONS ============
 export type CouponSeed = {
   code: string;
@@ -324,6 +377,12 @@ export type VariantSeed = {
   imageUrl?: string;
   /** Human duration for this variant; falls back to the venture duration. */
   duration?: string;
+  /** Package-level inclusions; empty falls back to the venture lists. */
+  inclusions?: string[];
+  /** Package-level exclusions; empty falls back to the venture lists. */
+  exclusions?: string[];
+  /** Optional minimum spend enforced by the pricing engine (IDR). */
+  minimumSpendIdr?: number | null;
   /** Derived from the title when omitted (Private Transfer / Shared Transfer / else Self Drive). */
   fulfillmentMode?: 'SELF_DRIVE' | 'SHARED_TRANSFER' | 'PRIVATE_TRANSFER';
   /** Flat promo price per pax (IDR). Replaces the tier price when lower. */
@@ -667,6 +726,8 @@ export const VENTURES: VentureSeed[] = [
         fulfillmentMode: 'SELF_DRIVE',
         promoPriceIdr: 300000,
         operationNotes: 'Meet at the Kelan river gate 15 minutes before departure',
+        inclusions: ['Tube, paddle and life jacket', 'Certified river guide', 'Lunch after the run', 'Activity insurance'],
+        exclusions: ['Hotel transfer', 'Personal expenses', 'Photos (available as add-on)'],
         sortOrder: 1,
         slots: toSlots(TUBING_SLOTS.THREE_HOURS),
         priceTiers: [
@@ -688,6 +749,8 @@ export const VENTURES: VentureSeed[] = [
         fulfillmentMode: 'SHARED_TRANSFER',
         promoPriceIdr: 440000,
         operationNotes: 'Shuttle fee is charged per guest; departure times are fixed',
+        inclusions: ['Tube, paddle and life jacket', 'Certified river guide', 'Lunch', 'Shared hotel shuttle', 'Activity insurance'],
+        exclusions: ['Personal expenses', 'Photos (available as add-on)'],
         sortOrder: 2,
         slots: toSlots(TUBING_SLOTS.FOUR_HOURS),
         priceTiers: [
@@ -709,6 +772,9 @@ export const VENTURES: VentureSeed[] = [
         fulfillmentMode: 'PRIVATE_TRANSFER',
         promoPriceIdr: 600000,
         operationNotes: 'Private vehicle class is selected at checkout',
+        inclusions: ['Tube, paddle and life jacket', 'Certified river guide', 'Lunch', 'Private car & driver', 'Activity insurance'],
+        exclusions: ['Personal expenses', 'Entrance fees'],
+        minimumSpendIdr: 1200000,
         sortOrder: 3,
         slots: toSlots(TUBING_SLOTS.FOUR_HOURS),
         priceTiers: [
@@ -730,6 +796,8 @@ export const VENTURES: VentureSeed[] = [
         fulfillmentMode: 'SELF_DRIVE',
         promoPriceIdr: null,
         operationNotes: 'Full-day bundle; the coupon applies because this package has no promo price',
+        inclusions: ['Tubing with guide and gear', 'Lunch', 'Temple visit', 'Rice terrace visit', 'Activity insurance'],
+        exclusions: ['Personal expenses', 'Temple donation'],
         sortOrder: 4,
         slots: toSlots(TUBING_SLOTS.SIX_HOURS),
         priceTiers: [

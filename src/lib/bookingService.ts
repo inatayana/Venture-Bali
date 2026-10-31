@@ -145,6 +145,7 @@ async function createBookingInTransaction(
     fulfillmentMode: input.fulfillmentMode,
     promoPriceIdr: variant.promoPriceIdr,
     coupon,
+    minimumSpendIdr: variant.minimumSpendIdr,
     slotTimeLabel: slot.time,
     zone,
     vehicleClass: vehicleClass ? toVehicleClass(vehicleClass) : null,

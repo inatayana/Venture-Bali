@@ -185,6 +185,10 @@ model Venture {
   meetingPoint      String?
   meetingPointLat   Float?
   meetingPointLng   Float?
+  /// Structured safety requirements shown on the product page.
+  minAge            Int?
+  maxWeightKg       Int?
+  safetyBriefing    String?
   highlights        Json
   inclusions        Json
   exclusions        Json
@@ -238,6 +242,11 @@ model Variant {
   promoPriceIdr    Int?
   /// Operational notes shown under the price, e.g. "After 7 PM: +Rp50.000/pax".
   operationNotes   String?
+  /// Package-level inclusions/exclusions; empty falls back to the venture lists.
+  inclusions       Json        @default("[]")
+  exclusions       Json        @default("[]")
+  /// Optional minimum spend for this package (IDR). Enforced by computeQuote.
+  minimumSpendIdr  Int?
   sortOrder        Int         @default(0)
   priceTiers       PriceTier[] @relation("VariantToPriceTier")
   blackoutDates    Json

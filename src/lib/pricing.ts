@@ -281,6 +281,8 @@ export interface QuoteInput {
   promoPriceIdr?: number | null;
   /** Coupon to validate. Promo prices and coupons never stack. */
   coupon?: CouponRule | null;
+  /** Optional minimum spend for the package (IDR); applied after discounts. */
+  minimumSpendIdr?: number | null;
   /** Slot label as stored ("07:00 PM"), used for the night surcharge. */
   slotTimeLabel?: string | null;
   zone?: PickupZone | null;
@@ -302,6 +304,8 @@ export interface QuoteBreakdown extends TotalPriceBreakdown {
   couponCode: string | null;
   couponRejection: CouponRejectionReason | null;
   nightSurchargeIdr: number;
+  /** Extra amount added to reach the package minimum spend. */
+  minimumTopUpIdr: number;
 }
 
 function toTime(value: Date | string | null | undefined): number | null {
@@ -396,6 +400,9 @@ export function computeQuote(input: QuoteInput): QuoteBreakdown {
   const nightSurchargeIdr =
     hour !== null && hour >= NIGHT_SURCHARGE_FROM_HOUR ? NIGHT_SURCHARGE_IDR * paxCount : 0;
 
+  const payableSubtotal = subtotalIdr - couponDiscountIdr;
+  const minimumTopUpIdr = Math.max(0, (input.minimumSpendIdr ?? 0) - payableSubtotal);
+
   const transfer =
     fulfillmentMode === 'PRIVATE_TRANSFER'
       ? calculateTransferFee(paxCount, input.zone ?? null, input.vehicleClass ?? null)
@@ -407,7 +414,7 @@ export function computeQuote(input: QuoteInput): QuoteBreakdown {
   const addonsTotalIdr = selectedAddons.reduce((sum, addon) => sum + addon.price, 0) * paxCount;
 
   const totalPriceIdr =
-    subtotalIdr - couponDiscountIdr + nightSurchargeIdr + transfer.totalFeeIdr + addonsTotalIdr;
+    payableSubtotal + minimumTopUpIdr + nightSurchargeIdr + transfer.totalFeeIdr + addonsTotalIdr;
 
   return {
     tier,
@@ -425,6 +432,7 @@ export function computeQuote(input: QuoteInput): QuoteBreakdown {
     couponCode,
     couponRejection,
     nightSurchargeIdr,
+    minimumTopUpIdr,
     transfer,
     addonsTotalIdr,
     totalPriceIdr,

@@ -171,6 +171,8 @@ export function deriveIsAvailable(venture: VentureWithRelations): boolean {
  */
 export function toVentureItem(venture: VentureWithRelations): VentureItem {
   const { min, max } = deriveParticipantBounds(venture);
+  const ventureInclusions = asStringArray(venture.inclusions);
+  const ventureExclusions = asStringArray(venture.exclusions);
 
   return {
     id: venture.id,
@@ -190,10 +192,13 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
           longitude: venture.meetingPointLng ?? 0,
         }
       : undefined,
+    minAge: venture.minAge ?? undefined,
+    maxWeightKg: venture.maxWeightKg ?? undefined,
+    safetyBriefing: venture.safetyBriefing ?? undefined,
 
     highlights: asStringArray(venture.highlights),
-    inclusions: asStringArray(venture.inclusions),
-    exclusions: asStringArray(venture.exclusions),
+    inclusions: ventureInclusions,
+    exclusions: ventureExclusions,
     itinerary: asItinerary(venture.itinerary),
     essentialInfo: asEssentialInfo(venture.essentialInfo),
     faqs: asFaqs(venture.faqs),
@@ -228,6 +233,15 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
       fulfillmentMode: variant.fulfillmentMode,
       promoPriceIdr: variant.promoPriceIdr ?? undefined,
       operationNotes: variant.operationNotes ?? undefined,
+      inclusions: (() => {
+        const list = asStringArray(variant.inclusions);
+        return list.length > 0 ? list : ventureInclusions;
+      })(),
+      exclusions: (() => {
+        const list = asStringArray(variant.exclusions);
+        return list.length > 0 ? list : ventureExclusions;
+      })(),
+      minimumSpendIdr: variant.minimumSpendIdr ?? undefined,
       sortOrder: variant.sortOrder,
       priceTiers: variant.priceTiers.map((tier) => ({
         minPax: tier.minPax,
