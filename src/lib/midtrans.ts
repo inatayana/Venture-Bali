@@ -47,6 +47,50 @@ export interface SnapResponse {
   redirect_url: string;
 }
 
+/** Shape Midtrans returns when a token request is rejected. */
+interface SnapErrorPayload {
+  status_code?: unknown;
+  status_message?: unknown;
+  error_messages?: unknown;
+  [key: string]: unknown;
+}
+
+function describeSnapError(body: unknown, httpStatus: number): string {
+  const payload = (body ?? {}) as SnapErrorPayload;
+  const statusCode =
+    typeof payload.status_code === 'string' && payload.status_code.length > 0
+      ? payload.status_code
+      : String(httpStatus);
+
+  let message = 'Unexpected response from Midtrans';
+  if (typeof payload.status_message === 'string' && payload.status_message.length > 0) {
+    message = payload.status_message;
+  } else if (Array.isArray(payload.error_messages) && payload.error_messages.length > 0) {
+    message = payload.error_messages.map(String).join('; ');
+  }
+
+  return `Midtrans API error: ${statusCode} - ${message}`;
+}
+
+/**
+ * Midtrans answers token requests with HTTP 200 even when the request was
+ * rejected (invalid keys, bad amount, …) and the real status code lives in the
+ * JSON body. Only a payload carrying both `token` and `redirect_url` is usable,
+ * so anything else must throw — otherwise the caller would store an empty token
+ * and the Snap popup would fail with a meaningless error.
+ */
+function parseSnapResponse(body: unknown, httpStatus: number, httpOk: boolean): SnapResponse {
+  const payload = (body ?? {}) as SnapErrorPayload;
+  const token = typeof payload.token === 'string' ? payload.token : '';
+  const redirectUrl = typeof payload.redirect_url === 'string' ? payload.redirect_url : '';
+
+  if (!httpOk || !token || !redirectUrl) {
+    throw new Error(describeSnapError(body, httpStatus));
+  }
+
+  return { token, redirect_url: redirectUrl };
+}
+
 export interface MidtransWebhookPayload {
   transaction_status: string;
   order_id: string;
@@ -108,12 +152,9 @@ export async function createSnapTransaction(
     body: JSON.stringify(request),
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(`Midtrans API error: ${response.status} - ${JSON.stringify(error)}`);
-  }
+  const body: unknown = await response.json().catch(() => null);
 
-  return response.json();
+  return parseSnapResponse(body, response.status, response.ok);
 }
 
 export async function verifyWebhookSignature(payload: MidtransWebhookPayload): Promise<boolean> {
