@@ -27,6 +27,7 @@ import {
 } from '@/components/features/ExperienceBookingWidget';
 import { VariantCatalogCard } from '@/components/features/VariantCatalogCard';
 import { VariantDetailModal } from '@/components/features/VariantDetailModal';
+import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
 import { ProductLightbox } from '@/components/features/ProductLightbox';
 import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
@@ -297,10 +298,10 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
               <li aria-hidden="true" className="hidden shrink-0 text-neutral-300 sm:block">
                 <ChevronRight className="h-3.5 w-3.5" />
               </li>
-              <li className="hidden shrink-0 sm:block">
-                <span className="text-neutral-500">{venture.category}</span>
+              <li className="shrink-0">
+                <CategoryQuickMenu currentCategory={venture.category} />
               </li>
-              <li aria-hidden="true" className="hidden shrink-0 text-neutral-300 sm:block">
+              <li aria-hidden="true" className="shrink-0 text-neutral-300">
                 <ChevronRight className="h-3.5 w-3.5" />
               </li>
               <li className="min-w-0">
