@@ -25,6 +25,7 @@ import {
   type BookingConfig,
 } from '@/components/features/ExperienceBookingWidget';
 import { VariantCatalogCard } from '@/components/features/VariantCatalogCard';
+import { VariantDetailModal } from '@/components/features/VariantDetailModal';
 import { ProductLightbox } from '@/components/features/ProductLightbox';
 import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
@@ -43,6 +44,8 @@ interface ExperienceDetailClientProps {
 
 const PAYMENT_LOGOS = ['VISA', 'Mastercard', 'GoPay', 'QRIS'];
 const PROMO_CODE = 'TRYBALI2026';
+// Mirrors the launch coupon in src/data/catalogue.ts (display label only).
+const PROMO_DISCOUNT_PERCENT = 40;
 const PROMO_STORAGE_KEY = 'vb_promo_dismissed';
 const CANCELLATION = REFUND_WINDOWS[0];
 
@@ -78,6 +81,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [isBooking, setIsBooking] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [detailVariantId, setDetailVariantId] = useState<string | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [promoVisible, setPromoVisible] = useState(true);
@@ -87,6 +91,11 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
   const selectedVariant = useMemo(
     () => venture.variants?.find((item) => item.id === config.variantId) ?? venture.variants?.[0] ?? null,
     [venture.variants, config.variantId]
+  );
+
+  const detailVariant = useMemo(
+    () => venture.variants?.find((item) => item.id === detailVariantId) ?? null,
+    [venture.variants, detailVariantId]
   );
 
   // The active image always sits in the large slot; the rest fill the three
@@ -137,6 +146,12 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
   const selectVariant = (item: Variant) => {
     if (item.imageUrl) setActiveImage(item.imageUrl);
     setConfig((prev) => ({ ...prev, variantId: item.id }));
+  };
+
+  /** Tier 1 card click: select the package and open its detail modal (Tier 2). */
+  const openVariantDetails = (item: Variant) => {
+    selectVariant(item);
+    setDetailVariantId(item.id);
   };
 
   const openBooking = (variantId: string) => {
@@ -249,7 +264,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
 
         {promoVisible && (
           <div className="mb-4">
-            <PromoBanner code={PROMO_CODE} label="Launch offer — 40% off with code" onDismiss={dismissPromo} />
+            <PromoBanner code={PROMO_CODE} label={`Launch offer — ${PROMO_DISCOUNT_PERCENT}% off with code`} onDismiss={dismissPromo} />
           </div>
         )}
 
@@ -500,6 +515,8 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
                     selected={item.id === selectedVariant?.id}
                     onSelect={() => selectVariant(item)}
                     onShowDates={() => openBooking(item.id)}
+                    onOpenDetails={() => openVariantDetails(item)}
+                    fallbackImageUrl={venture.imageUrl}
                   />
                 ))}
               </div>
@@ -802,6 +819,19 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
           </button>
         </div>
       </div>
+
+      <VariantDetailModal
+        variant={detailVariant}
+        isSelected={detailVariant !== null && detailVariant.id === selectedVariant?.id}
+        promo={{ code: PROMO_CODE, percent: PROMO_DISCOUNT_PERCENT }}
+        onClose={() => setDetailVariantId(null)}
+        onShowDates={() => {
+          if (!detailVariant) return;
+          setDetailVariantId(null);
+          openBooking(detailVariant.id);
+        }}
+        fallbackImageUrl={venture.imageUrl}
+      />
 
       <BottomSheet
         isOpen={isSheetOpen}
