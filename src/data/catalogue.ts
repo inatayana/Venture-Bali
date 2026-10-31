@@ -655,7 +655,7 @@ export const VENTURES: VentureSeed[] = [
     imageUrl: '/images/tubing.svg',
     gallery: ['/images/tubing.svg', '/images/tubing-2.svg', '/images/tubing-3.svg'],
     rating: 4.6,
-    locationKey: 'kintamani',
+    locationKey: 'ubud',
     variants: [
       {
         title: 'River Tubing with Meeting Point',

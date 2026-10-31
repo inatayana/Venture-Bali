@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import { barlowCondensed, plusJakartaSans } from '@/styles/fonts';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { PwaRegistration } from '@/components/PwaRegistration';
+import { ChatWidget } from '@/components/chat/ChatWidget';
 
 export const metadata: Metadata = {
   title: 'Venture Bali',
@@ -41,6 +42,7 @@ export default function RootLayout({
         {children}
         <PwaRegistration />
         <InstallPrompt />
+        <ChatWidget />
       </body>
     </html>
   );

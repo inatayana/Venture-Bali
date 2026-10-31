@@ -188,8 +188,24 @@ melanggar kontrak whitelabel.
 
 ---
 
-## 8. Checklist Sebelum Menambah Tool Baru
+## 8. Channel Setup (Web, Telegram, WhatsApp)
 
+| Channel | Endpoint | Auth / anti-spoofing |
+|---------|----------|----------------------|
+| Web chat | `POST /api/ai/chat` | Same-origin UI widget; session id in `localStorage` (`vb_chat_session`) |
+| WhatsApp | `POST /api/webhooks/whatsapp` | `X-Hub-Signature-256` HMAC-SHA256 over the **raw body** with `WHATSAPP_APP_SECRET`; rejects when the secret is set and the signature fails, and fails closed in production when unset |
+| Telegram | `POST /api/webhooks/telegram` | `X-Telegram-Bot-Api-Secret-Token` must equal `TELEGRAM_WEBHOOK_SECRET`; fails closed in production when unset |
+
+- **Web widget**: `src/components/chat/ChatWidget.tsx`, mounted globally in `src/app/layout.tsx` (hidden on `/admin`). The API returns a ready-to-render `data.reply` produced by `src/lib/agentReply.ts`; the widget never formats business rules itself.
+- **Telegram**: `telegram.parseWebhook` accepts the single update object Telegram sends (arrays still work for replay). Register the secret once:
+  ```bash
+  curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook" \
+    -d "url=https://<domain>/api/webhooks/telegram" \
+    -d "secret_token=$TELEGRAM_WEBHOOK_SECRET"
+  ```
+- **WhatsApp**: the GET handshake still requires `WHATSAPP_WEBHOOK_VERIFY_TOKEN`. Add `WHATSAPP_APP_SECRET` from Meta → App settings → Basic; without it production webhooks are refused (503) so nobody can forge guest messages.
+
+## 9. Checklist Sebelum Menambah Tool Baru
 - [ ] Tool membaca dari database, bukan dari konstanta
 - [ ] Ada test yang mengunci perilakunya
 - [ ] Deskripsi function declaration di `agent-service.ts` sesuai perilaku
@@ -199,7 +215,7 @@ melanggar kontrak whitelabel.
 
 ---
 
-## 9. Test
+## 10. Test
 
 ```bash
 npm test -- --ci

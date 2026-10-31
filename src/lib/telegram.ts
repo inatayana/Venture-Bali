@@ -143,11 +143,14 @@ export class TelegramClient {
   }
 
   /**
-   * Parse webhook payload
+   * Parse webhook payload.
+   * Telegram posts ONE update object per request; arrays are accepted too so
+   * batched replay/testing payloads keep working.
    */
   parseWebhook(body: unknown): TelegramUpdate[] {
-    if (!body || !Array.isArray(body)) return [];
-    return body as TelegramUpdate[];
+    if (!body || typeof body !== 'object') return [];
+    if (Array.isArray(body)) return body as TelegramUpdate[];
+    return [body as TelegramUpdate];
   }
 
   /**

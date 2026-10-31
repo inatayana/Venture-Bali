@@ -63,6 +63,18 @@ function formatResponse(data: unknown, nextAction: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
+    const provided = request.headers.get('x-telegram-bot-api-secret-token');
+
+    if (secret) {
+      if (provided !== secret) {
+        return NextResponse.json({ error: 'Invalid webhook secret' }, { status: 401 });
+      }
+    } else if (process.env.NODE_ENV === 'production') {
+      console.error('TELEGRAM_WEBHOOK_SECRET is not configured — refusing webhook calls');
+      return NextResponse.json({ error: 'Webhook is not configured' }, { status: 503 });
+    }
+
     const body = await request.json();
     const updates = telegramClient.parseWebhook(body);
 

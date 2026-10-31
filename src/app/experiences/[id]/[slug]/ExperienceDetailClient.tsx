@@ -350,7 +350,9 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
             <span className="inline-flex items-center gap-1">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
               <strong className="text-neutral-900">{venture.rating.toFixed(1)}</strong>
-              <span>· {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</span>
+              <span>
+                · {reviewCount > 0 ? `${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'}` : 'New'}
+              </span>
             </span>
             <span className="inline-flex items-center gap-1">
               <Clock className="h-4 w-4" /> {venture.duration}

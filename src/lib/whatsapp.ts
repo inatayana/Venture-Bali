@@ -154,17 +154,6 @@ export class WhatsAppClient {
   }
 
   /**
-   * Verify webhook signature
-   */
-  verifySignature(signature: string): boolean {
-    const expectedSignature = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || '';
-    if (!signature || !expectedSignature) return false;
-    
-    // Simple verification - in production use HMAC
-    return signature.includes(expectedSignature);
-  }
-
-  /**
    * Parse incoming webhook payload
    */
   parseWebhook(body: unknown): WhatsAppWebhookEntry[] {
