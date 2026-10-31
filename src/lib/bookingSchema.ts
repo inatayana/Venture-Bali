@@ -32,7 +32,7 @@ export const bookingSchema = z
     customerEmail: z.string().trim().email('Invalid email format').max(320),
     customerWhatsApp: z.string().trim().min(10, 'WhatsApp number required').max(32),
     countryCode: z.string().trim().regex(/^[A-Z]{2}$/, 'Country code must be a two-letter ISO code').default('ID'),
-    billingAddress: billingAddressSchema,
+    billingAddress: billingAddressSchema.optional(),
     termsAccepted: z.literal(true, {
       errorMap: () => ({ message: 'You must accept the booking terms' }),
     }),

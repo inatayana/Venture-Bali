@@ -39,12 +39,6 @@ export interface BookingConfig {
   customerEmail: string;
   customerWhatsApp: string;
   countryCode: string;
-  billingName: string;
-  billingStreet: string;
-  billingCity: string;
-  billingProvince: string;
-  billingPostalCode: string;
-  billingCountry: string;
   termsAccepted: boolean;
   waiverAccepted: boolean;
 }
@@ -190,9 +184,6 @@ export function ExperienceBookingWidget({
   if (!config.customerEmail.trim()) missing.push('Enter an email for the e-voucher');
   if (!config.customerWhatsApp.trim()) missing.push('Enter a WhatsApp number');
   else if (whatsappDigits.length < 6) missing.push('Enter a valid WhatsApp number');
-  if (!config.billingStreet.trim()) missing.push('Add your billing street address');
-  if (!config.billingCity.trim()) missing.push('Add your billing city');
-  if (!config.billingPostalCode.trim()) missing.push('Add your billing postal code');
   if (!config.termsAccepted) missing.push('Accept the booking terms to continue');
   if (!config.waiverAccepted) missing.push('Accept the safety waiver to continue');
   const canContinue = missing.length === 0;
@@ -525,7 +516,7 @@ export function ExperienceBookingWidget({
       {/* 7 · Contact details */}
       <section>
         <h3 className="mb-3 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
-          7 · Who is coming?
+          7 · Lead traveller
         </h3>
         <div className="space-y-2.5 rounded-xl border border-neutral-200 p-4">
           <input
@@ -586,97 +577,42 @@ export function ExperienceBookingWidget({
             </p>
           </div>
         </div>
-      </section>
 
-      {/* 8 · Billing & consent */}
-      <section>
-        <h3 className="mb-3 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
-          8 · Billing &amp; consent
-        </h3>
-        <div className="space-y-2.5 rounded-xl border border-neutral-200 p-4">
-          <input
-            aria-label="Billing name"
-            className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
-            onChange={(event) => onChange({ billingName: event.target.value })}
-            placeholder="Billing name (same as lead guest if empty)"
-            value={config.billingName}
-          />
-          <input
-            aria-label="Billing street address"
-            className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
-            onChange={(event) => onChange({ billingStreet: event.target.value })}
-            placeholder="Street address"
-            value={config.billingStreet}
-          />
-          <div className="grid grid-cols-2 gap-2">
+        <div className="mt-3 space-y-1 border-t border-neutral-100 pt-3">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+            Before you pay
+          </p>
+          <label className="flex min-h-[44px] items-start gap-2 text-sm text-neutral-700">
             <input
-              aria-label="Billing city"
-              className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
-              onChange={(event) => onChange({ billingCity: event.target.value })}
-              placeholder="City"
-              value={config.billingCity}
+              type="checkbox"
+              checked={config.termsAccepted}
+              onChange={(event) => onChange({ termsAccepted: event.target.checked })}
+              className="mt-0.5 h-5 w-5 shrink-0 rounded border-neutral-300"
             />
+            <span>
+              I accept the{' '}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-medium underline">
+                booking terms
+              </a>
+              , including the cancellation and no-show policy.
+            </span>
+          </label>
+          <label className="flex min-h-[44px] items-start gap-2 text-sm text-neutral-700">
             <input
-              aria-label="Billing postal code"
-              className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
-              onChange={(event) => onChange({ billingPostalCode: event.target.value })}
-              placeholder="Postal code"
-              value={config.billingPostalCode}
+              type="checkbox"
+              checked={config.waiverAccepted}
+              onChange={(event) => onChange({ waiverAccepted: event.target.checked })}
+              className="mt-0.5 h-5 w-5 shrink-0 rounded border-neutral-300"
             />
-          </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <select
-              aria-label="Billing country"
-              className="min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900 outline-none focus:border-neutral-900"
-              onChange={(event) => onChange({ billingCountry: event.target.value })}
-              value={config.billingCountry}
-            >
-              {COUNTRIES.map((country) => (
-                <option key={country.code} value={country.code}>
-                  {countryLabel(country)}
-                </option>
-              ))}
-            </select>
-            <input
-              aria-label="Billing province"
-              className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
-              onChange={(event) => onChange({ billingProvince: event.target.value })}
-              placeholder="Province (optional)"
-              value={config.billingProvince}
-            />
-          </div>
+            <span>
+              I accept the{' '}
+              <a href="/waiver" target="_blank" rel="noopener noreferrer" className="font-medium underline">
+                activity safety waiver
+              </a>{' '}
+              and confirm the participant is medically fit.
+            </span>
+          </label>
         </div>
-
-        <label className="mt-3 flex min-h-[44px] items-start gap-2 text-sm text-neutral-700">
-          <input
-            type="checkbox"
-            checked={config.termsAccepted}
-            onChange={(event) => onChange({ termsAccepted: event.target.checked })}
-            className="mt-0.5 h-5 w-5 shrink-0 rounded border-neutral-300"
-          />
-          <span>
-            I accept the{' '}
-            <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-medium underline">
-              booking terms
-            </a>
-            , including the cancellation and no-show policy.
-          </span>
-        </label>
-        <label className="mt-1 flex min-h-[44px] items-start gap-2 text-sm text-neutral-700">
-          <input
-            type="checkbox"
-            checked={config.waiverAccepted}
-            onChange={(event) => onChange({ waiverAccepted: event.target.checked })}
-            className="mt-0.5 h-5 w-5 shrink-0 rounded border-neutral-300"
-          />
-          <span>
-            I accept the{' '}
-            <a href="/waiver" target="_blank" rel="noopener noreferrer" className="font-medium underline">
-              activity safety waiver
-            </a>{' '}
-            and confirm the participant is medically fit.
-          </span>
-        </label>
       </section>
 
       {/* Sticky summary + Next */}

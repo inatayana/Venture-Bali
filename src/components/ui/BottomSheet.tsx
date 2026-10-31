@@ -91,6 +91,11 @@ export function BottomSheet({
   }, [isOpen]);
 
   const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    // Never start a drag from a button/link/input: pointer capture on the
+    // header would swallow the click on the close (X) button.
+    const target = event.target as HTMLElement;
+    if (target.closest('button, a, input, select, textarea, [role="button"]')) return;
+
     dragState.current = { active: true, startY: event.clientY };
     setIsDragging(true);
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -155,6 +160,7 @@ export function BottomSheet({
             <h2 className="text-lg font-bold text-neutral-900">{title}</h2>
             <button
               type="button"
+              onPointerDown={(event) => event.stopPropagation()}
               onClick={onClose}
               className="p-2 -mr-1 rounded-full hover:bg-neutral-100 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label="Close"
