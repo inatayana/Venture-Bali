@@ -25,6 +25,7 @@ import {
   type BookingConfig,
 } from '@/components/features/ExperienceBookingWidget';
 import { VariantCatalogCard } from '@/components/features/VariantCatalogCard';
+import { ProductLightbox } from '@/components/features/ProductLightbox';
 import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
 import { REFUND_WINDOWS } from '@/lib/refundUtils';
@@ -77,6 +78,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [isBooking, setIsBooking] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [promoVisible, setPromoVisible] = useState(true);
   const [wishlisted, setWishlisted] = useState(false);
@@ -351,13 +353,12 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
                 <button
                   key={`${image}-${index}`}
                   type="button"
-                  onClick={() => setActiveImage(image)}
+                  onClick={() => setLightboxIndex(index)}
                   className={cn(
                     'group relative overflow-hidden rounded-2xl bg-neutral-100',
                     index === 0 && 'row-span-3'
                   )}
                   aria-label={index === 0 ? 'Main product photo' : `View photo ${index + 1}`}
-                  aria-pressed={activeImage === image}
                 >
                   <Image
                     src={image}
@@ -376,7 +377,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
             <div className="sm:hidden">
               <button
                 type="button"
-                onClick={() => setActiveImage(orderedGallery[0] ?? venture.imageUrl)}
+                onClick={() => setLightboxIndex(0)}
                 className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-neutral-100"
                 aria-label="Main product photo"
               >
@@ -394,7 +395,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
                   <button
                     key={`mobile-${image}-${index}`}
                     type="button"
-                    onClick={() => setActiveImage(image)}
+                    onClick={() => setLightboxIndex(index + 1)}
                     className="group relative aspect-square overflow-hidden rounded-xl bg-neutral-100"
                     aria-label={`View photo ${index + 2}`}
                   >
@@ -820,6 +821,14 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
           isBooking={isBooking}
         />
       </BottomSheet>
+
+      <ProductLightbox
+        images={orderedGallery}
+        index={lightboxIndex}
+        title={venture.title}
+        onClose={() => setLightboxIndex(null)}
+        onChange={setLightboxIndex}
+      />
     </main>
   );
 }
