@@ -217,8 +217,61 @@ function toSlots(times: readonly string[]): SlotSeed[] {
   return times.map((time) => ({ time, maxCapacity: 10 }));
 }
 
-// ============ COUPONS ============
+// ============ MEETING POINTS ============
+// Exact base-camp locations for SELF_DRIVE guests. Generic place names only —
+// never vendor names (docs/OPERATION_CONTRACT.md).
+export const MEETING_POINTS: Record<
+  string,
+  { name: string; latitude: number; longitude: number }
+> = {
+  'ubud-atv-jungle-ride': {
+    name: 'Ubud ATV Base Camp — Payangan',
+    latitude: -8.435,
+    longitude: 115.272,
+  },
+  'ayung-river-white-water-rafting': {
+    name: 'Ayung River Base Camp — Kedewatan',
+    latitude: -8.478,
+    longitude: 115.247,
+  },
+  'ubud-river-tubing-adventure': {
+    name: 'Kelan River Base Camp — Tampaksiring',
+    latitude: -8.427,
+    longitude: 115.312,
+  },
+  'kintamani-ubud-downhill-cycling': {
+    name: 'Kintamani Cycling Start — Pinggan',
+    latitude: -8.317,
+    longitude: 115.33,
+  },
+  'mount-batur-sunrise-trekking': {
+    name: 'Mount Batur Trailhead — Toya Bungkah',
+    latitude: -8.253,
+    longitude: 115.397,
+  },
+  'nusa-dua-water-sports-package': {
+    name: 'Tanjung Benoa Water Sports Centre',
+    latitude: -8.756,
+    longitude: 115.211,
+  },
+  'nusa-penida-snorkeling': {
+    name: 'Toyapakeh Jetty — Nusa Penida',
+    latitude: -8.7,
+    longitude: 115.464,
+  },
+  'bali-waterfall-canyoning-adventure': {
+    name: 'Gitgit Canyoning Base — Buleleng',
+    latitude: -8.193,
+    longitude: 115.123,
+  },
+  'ubud-atv-ayung-rafting-combo': {
+    name: 'Ubud Combo Base Camp — Kedewatan',
+    latitude: -8.47,
+    longitude: 115.26,
+  },
+};
 
+// ============ COUPONS ============
 export type CouponSeed = {
   code: string;
   label: string;
@@ -267,6 +320,8 @@ export type VariantSeed = {
   badge: string | null;
   /** Transport / tier badge shown on the catalogue card. */
   transportBadge?: string;
+  /** Gallery image shown when this package is selected. */
+  imageUrl?: string;
   /** Human duration for this variant; falls back to the venture duration. */
   duration?: string;
   /** Derived from the title when omitted (Private Transfer / Shared Transfer / else Self Drive). */
@@ -432,7 +487,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'EASY',
     suitableFor: ['First-timers', 'Couples', 'Families'],
     imageUrl: '/images/atv-ubud.svg',
-    gallery: ['/images/atv-ubud.svg'],
+    gallery: ['/images/atv-ubud.svg', '/images/atv-ubud-2.svg', '/images/atv-ubud-3.svg'],
     rating: 4.8,
     locationKey: 'ubud',
     variants: [
@@ -515,7 +570,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'MODERATE',
     suitableFor: ['Groups', 'Team building', 'Active travellers'],
     imageUrl: '/images/rafting.svg',
-    gallery: ['/images/rafting.svg'],
+    gallery: ['/images/rafting.svg', '/images/rafting-2.svg', '/images/rafting-3.svg'],
     rating: 4.7,
     locationKey: 'ubud',
     variants: [
@@ -598,7 +653,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'EASY',
     suitableFor: ['Families', 'Children', 'Relaxed groups'],
     imageUrl: '/images/tubing.svg',
-    gallery: ['/images/tubing.svg'],
+    gallery: ['/images/tubing.svg', '/images/tubing-2.svg', '/images/tubing-3.svg'],
     rating: 4.6,
     locationKey: 'kintamani',
     variants: [
@@ -607,6 +662,7 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Gear, guide and lunch included. Make your own way to the river gate.',
         badge: null,
         transportBadge: '📍 Meeting Point',
+        imageUrl: '/images/tubing.svg',
         duration: '3 hrs',
         fulfillmentMode: 'SELF_DRIVE',
         promoPriceIdr: 300000,
@@ -627,6 +683,7 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Hotel shuttle pick-up and drop-off shared with other guests.',
         badge: null,
         transportBadge: '🚐 Shared Transfer',
+        imageUrl: '/images/tubing-2.svg',
         duration: '4 hrs',
         fulfillmentMode: 'SHARED_TRANSFER',
         promoPriceIdr: 440000,
@@ -647,6 +704,7 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Private car and driver for your group, door to door.',
         badge: 'Most Popular',
         transportBadge: '🚗 Private Transfer',
+        imageUrl: '/images/tubing-3.svg',
         duration: '4 hrs',
         fulfillmentMode: 'PRIVATE_TRANSFER',
         promoPriceIdr: 600000,
@@ -667,6 +725,7 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Tubing, lunch, plus temple and rice terrace visits in one day.',
         badge: null,
         transportBadge: '🏛️ Ubud Highlights',
+        imageUrl: '/images/tubing-2.svg',
         duration: '6 hrs',
         fulfillmentMode: 'SELF_DRIVE',
         promoPriceIdr: null,
@@ -735,7 +794,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'MODERATE',
     suitableFor: ['Active travellers', 'Groups', 'Couples'],
     imageUrl: '/images/cycling.svg',
-    gallery: ['/images/cycling.svg'],
+    gallery: ['/images/cycling.svg', '/images/cycling-2.svg', '/images/cycling-3.svg'],
     rating: 4.7,
     locationKey: 'jatiluwih',
     variants: [
@@ -819,7 +878,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'CHALLENGING',
     suitableFor: ['Hikers', 'Sunrise lovers', 'Active travellers'],
     imageUrl: '/images/mount-batur.svg',
-    gallery: ['/images/mount-batur.svg'],
+    gallery: ['/images/mount-batur.svg', '/images/mount-batur-2.svg', '/images/mount-batur-3.svg'],
     rating: 4.9,
     locationKey: 'kintamani',
     variants: [
@@ -902,7 +961,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'EASY',
     suitableFor: ['Groups', 'Team building', 'Active travellers'],
     imageUrl: '/images/water-sports.svg',
-    gallery: ['/images/water-sports.svg'],
+    gallery: ['/images/water-sports.svg', '/images/water-sports-2.svg', '/images/water-sports-3.svg'],
     rating: 4.5,
     locationKey: 'blue-lagoon',
     variants: [
@@ -987,7 +1046,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'EASY',
     suitableFor: ['Families', 'Beginners', 'Marine life lovers'],
     imageUrl: '/images/nusa-penida.svg',
-    gallery: ['/images/nusa-penida.svg'],
+    gallery: ['/images/nusa-penida.svg', '/images/nusa-penida-2.svg', '/images/nusa-penida-3.svg'],
     rating: 4.7,
     locationKey: 'nusa-penida',
     variants: [
@@ -1070,7 +1129,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'CHALLENGING',
     suitableFor: ['Adrenaline seekers', 'Strong swimmers', 'Active groups'],
     imageUrl: '/images/canyoning.svg',
-    gallery: ['/images/canyoning.svg'],
+    gallery: ['/images/canyoning.svg', '/images/canyoning-2.svg', '/images/canyoning-3.svg'],
     rating: 4.8,
     locationKey: 'sayan',
     variants: [
@@ -1154,7 +1213,7 @@ export const VENTURES: VentureSeed[] = [
     difficulty: 'MODERATE',
     suitableFor: ['Families', 'Groups', 'First-time visitors'],
     imageUrl: '/images/combo.svg',
-    gallery: ['/images/combo.svg'],
+    gallery: ['/images/combo.svg', '/images/combo-2.svg', '/images/combo-3.svg'],
     rating: 4.9,
     locationKey: 'ubud',
     variants: [

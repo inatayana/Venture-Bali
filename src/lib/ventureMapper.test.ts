@@ -20,6 +20,9 @@ function buildVenture(overrides: Partial<VentureWithRelations> = {}): VentureWit
     shortDescription: 'Guided ATV adventure through the jungles of Ubud.',
     duration: '2.5 hours',
     badge: 'Best Seller',
+    meetingPoint: 'Ubud ATV Base Camp — Payangan',
+    meetingPointLat: -8.435,
+    meetingPointLng: 115.272,
     highlights: ['Quad bike through rice paddies', 'Certified guide'],
     inclusions: ['ATV rental', 'Safety gear'],
     exclusions: ['Personal expenses'],
@@ -60,6 +63,13 @@ function buildVenture(overrides: Partial<VentureWithRelations> = {}): VentureWit
         title: 'Self Drive',
         shortDescription: 'Ride the ATV yourself',
         badge: null,
+        transportBadge: '📍 Meeting Point',
+        imageUrl: '/images/atv-ubud.svg',
+        duration: '2.5 hrs',
+        fulfillmentMode: 'SELF_DRIVE',
+        promoPriceIdr: null,
+        operationNotes: null,
+        sortOrder: 1,
         blackoutDates: ['2026-12-25'],
         createdAt: NOW,
         updatedAt: NOW,
@@ -249,6 +259,13 @@ describe('toVentureItem', () => {
   it('parses the JSON columns into typed structures', () => {
     const item = toVentureItem(buildVenture());
     expect(item.highlights).toEqual(['Quad bike through rice paddies', 'Certified guide']);
+    expect(item.meetingPoint).toEqual({
+      name: 'Ubud ATV Base Camp — Payangan',
+      latitude: -8.435,
+      longitude: 115.272,
+    });
+    expect(item.variants[0].imageUrl).toBe('/images/atv-ubud.svg');
+    expect(item.variants[0].duration).toBe('2.5 hrs');
     expect(item.inclusions).toEqual(['ATV rental', 'Safety gear']);
     expect(item.exclusions).toEqual(['Personal expenses']);
     expect(item.itinerary).toEqual([{ time: '08:00', activity: 'Safety briefing' }]);

@@ -26,7 +26,7 @@ import { VariantCatalogCard } from '@/components/features/VariantCatalogCard';
 import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
 import { REFUND_WINDOWS } from '@/lib/refundUtils';
-import type { PickupZone, VehicleClass, VentureItem } from '@/types/venture';
+import type { PickupZone, Variant, VehicleClass, VentureItem } from '@/types/venture';
 import { cn } from '@/utils/cn';
 
 interface ExperienceDetailClientProps {
@@ -68,6 +68,8 @@ function buildInitialConfig(venture: VentureItem): BookingConfig {
 }
 
 export function ExperienceDetailClient({ venture, zones, vehicleClasses }: ExperienceDetailClientProps) {
+  const gallery = venture.gallery.length > 0 ? venture.gallery : [venture.imageUrl];
+  const [activeImage, setActiveImage] = useState(gallery[0] ?? venture.imageUrl);
   const [config, setConfig] = useState<BookingConfig>(() => buildInitialConfig(venture));
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [isBooking, setIsBooking] = useState(false);
@@ -128,6 +130,9 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
   };
 
   const openBooking = (variantId: string) => {
+    const selected = venture.variants.find((item) => item.id === variantId);
+    if (selected?.imageUrl) setActiveImage(selected.imageUrl);
+
     setConfig((prev) => ({
       ...prev,
       variantId,
@@ -141,6 +146,12 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
     }));
     setAppliedCoupon(null);
     setIsSheetOpen(true);
+  };
+
+  /** Clicking a package card syncs the gallery without resetting the sheet. */
+  const focusVariant = (item: Variant) => {
+    if (item.imageUrl) setActiveImage(item.imageUrl);
+    setConfig((prev) => ({ ...prev, variantId: item.id }));
   };
 
   const share = async () => {
@@ -209,9 +220,11 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
     });
   }, [reviews]);
 
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    `${venture.location || venture.title} Bali`
-  )}`;
+  const mapsUrl = venture.meetingPoint
+    ? `https://www.google.com/maps/search/?api=1&query=${venture.meetingPoint.latitude},${venture.meetingPoint.longitude}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        `${venture.location || venture.title} Bali`
+      )}`;
 
   return (
     <main className="min-h-screen bg-white pb-28 lg:pb-0">
@@ -231,33 +244,71 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
           </div>
         )}
 
-        {/* Hero */}
-        <div className="relative mb-4 overflow-hidden rounded-2xl">
-          <div className="relative h-56 w-full bg-neutral-200 md:h-80">
-            <Image
-              src={venture.imageUrl}
-              alt={venture.title}
-              fill
-              sizes="(max-width: 768px) 100vw, 900px"
-              className="object-cover"
-              priority
-            />
+        {/* Hero gallery: vertical rail on desktop, thumbnails under the image on mobile */}
+        <div className="mb-4 flex gap-2 lg:gap-3">
+          <div className="hidden w-20 shrink-0 flex-col gap-2 lg:flex">
+            {gallery.map((image, index) => (
+              <button
+                key={`${image}-${index}`}
+                type="button"
+                onClick={() => setActiveImage(image)}
+                className={cn(
+                  'relative h-16 w-20 overflow-hidden rounded-lg border-2 transition-colors',
+                  activeImage === image ? 'border-neutral-900' : 'border-transparent opacity-80 hover:opacity-100'
+                )}
+                aria-label={`Show gallery image ${index + 1}`}
+                aria-pressed={activeImage === image}
+              >
+                <Image src={image} alt="" fill sizes="80px" className="object-cover" />
+              </button>
+            ))}
           </div>
-          <div className="absolute right-3 top-3 flex gap-2">
+
+          <div className="relative min-w-0 flex-1 overflow-hidden rounded-2xl">
+            <div className="relative h-56 w-full bg-neutral-200 md:h-96">
+              <Image
+                src={activeImage}
+                alt={venture.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 800px"
+                className="object-cover"
+                priority
+              />
+            </div>
+            <div className="absolute right-3 top-3 flex gap-2">
+              <button
+                type="button"
+                onClick={share}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 shadow transition-colors hover:bg-white"
+                aria-label="Share this adventure"
+              >
+                <Share2 className="h-5 w-5 text-neutral-700" />
+              </button>
+            </div>
+            {shareState === 'copied' && (
+              <span className="absolute bottom-3 right-3 rounded-full bg-neutral-900 px-3 py-1 text-xs text-white">
+                Link copied
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+          {gallery.map((image, index) => (
             <button
+              key={`mobile-${image}-${index}`}
               type="button"
-              onClick={share}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 shadow transition-colors hover:bg-white"
-              aria-label="Share this adventure"
+              onClick={() => setActiveImage(image)}
+              className={cn(
+                'relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-colors',
+                activeImage === image ? 'border-neutral-900' : 'border-transparent opacity-80'
+              )}
+              aria-label={`Show gallery image ${index + 1}`}
+              aria-pressed={activeImage === image}
             >
-              <Share2 className="h-5 w-5 text-neutral-700" />
+              <Image src={image} alt="" fill sizes="80px" className="object-cover" />
             </button>
-          </div>
-          {shareState === 'copied' && (
-            <span className="absolute bottom-3 right-3 rounded-full bg-neutral-900 px-3 py-1 text-xs text-white">
-              Link copied
-            </span>
-          )}
+          ))}
         </div>
 
         {/* Product header */}
@@ -339,7 +390,8 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
                     key={item.id}
                     variant={item}
                     inclusions={venture.inclusions}
-                    active={item.id === variant?.id && isSheetOpen}
+                    active={item.id === variant?.id}
+                    onFocus={() => focusVariant(item)}
                     onShowDates={() => openBooking(item.id)}
                   />
                 ))}
@@ -522,6 +574,19 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
               </div>
               <div className="mt-3 space-y-2">
                 <p className="text-sm text-neutral-600">{venture.location || 'Bali'}</p>
+                {venture.meetingPoint && (
+                  <div className="rounded-xl border border-neutral-200 p-3">
+                    <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                      Meeting point
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-neutral-900">
+                      {venture.meetingPoint.name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-neutral-500">
+                      For self-drive packages · transfers are picked up at your hotel
+                    </p>
+                  </div>
+                )}
                 <a
                   href={mapsUrl}
                   target="_blank"

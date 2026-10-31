@@ -318,7 +318,7 @@ export function ExperienceBookingWidget({
 
       {/* 4 · Pickup details (conditional) */}
       {needsPickup && (
-        <section>
+        <section id="pickup-step" className="scroll-mt-24">
           <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
             <MapPin className="h-4 w-4" /> 4 · Pickup
           </h3>
@@ -403,6 +403,53 @@ export function ExperienceBookingWidget({
                   })}
                 </div>
               </div>
+            )}
+          </div>
+
+          {(config.zoneId || config.hotelAddress.trim() || config.isTba) && (
+            <div className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-neutral-50 px-3 py-2">
+              <span className="min-w-0 truncate text-sm text-neutral-700">
+                <strong className="font-semibold">Pickup</strong> ·{' '}
+                {zone?.name ?? 'area not selected'} ·{' '}
+                {config.isTba ? 'address TBA by H-1' : config.hotelAddress || 'add an address'}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById('pickup-step')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  document.getElementById('pickup-zone')?.focus();
+                }}
+                className="min-h-[44px] shrink-0 text-sm font-semibold text-neutral-900 underline"
+              >
+                Change
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Self-drive: show the exact base-camp meeting point */}
+      {!needsPickup && (
+        <section>
+          <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+            <MapPin className="h-4 w-4" /> 4 · Meeting point
+          </h3>
+          <div className="rounded-xl border border-neutral-200 p-4">
+            <p className="text-sm font-semibold text-neutral-900">
+              {venture.meetingPoint?.name ?? venture.location}
+            </p>
+            <p className="mt-0.5 text-xs text-neutral-500">
+              Make your own way here · arrive 15 minutes before departure
+            </p>
+            {venture.meetingPoint && (
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${venture.meetingPoint.latitude},${venture.meetingPoint.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-neutral-900 underline"
+              >
+                <MapPin className="h-4 w-4" /> Open in Google Maps
+              </a>
             )}
           </div>
         </section>
@@ -528,8 +575,8 @@ export function ExperienceBookingWidget({
             <div className="flex justify-between text-neutral-600">
               <span>
                 {fulfillmentMode === 'SHARED_TRANSFER'
-                  ? 'Shared shuttle'
-                  : `Private transfer (${quote.transfer.vehicleCount} vehicle${quote.transfer.vehicleCount > 1 ? 's' : ''})`}
+                  ? 'Shared shuttle · per guest'
+                  : `Private transfer · per group (${quote.transfer.vehicleCount} vehicle${quote.transfer.vehicleCount > 1 ? 's' : ''})`}
               </span>
               <span className="tabular-nums">{formatPrice(quote.transfer.totalFeeIdr)}</span>
             </div>

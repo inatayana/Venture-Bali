@@ -1,6 +1,7 @@
 import {
   CATALOGUE_CATEGORIES,
   LOCATIONS,
+  MEETING_POINTS,
   PICKUP_ZONES,
   VEHICLE_CLASSES,
   VENTURES,
@@ -148,6 +149,18 @@ describe('catalogue', () => {
           expect(hour).toBeLessThanOrEqual(15);
         });
       });
+    });
+  });
+
+  it('gives every venture a gallery and an exact meeting point', () => {
+    VENTURES.forEach((venture) => {
+      expect(venture.gallery.length).toBeGreaterThanOrEqual(3);
+      expect(venture.gallery.every((image) => image.endsWith('.svg'))).toBe(true);
+
+      const meetingPoint = MEETING_POINTS[venture.slug];
+      expect(meetingPoint).toBeDefined();
+      expect(meetingPoint.latitude).toBeLessThan(-8);
+      expect(meetingPoint.longitude).toBeGreaterThan(114);
     });
   });
 
