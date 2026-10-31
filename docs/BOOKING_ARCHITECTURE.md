@@ -103,4 +103,18 @@ Urutan visual (OTA standard): **Title → Duration → Location → Instant tag 
 
 ## 7. Refund & No-Show
 
-Kebijakan pembatalan mengikuti `docs/REFUND_POLICY.md` (≥72h 100%, 48–72h 70%, 24–48h 30%, <24h 0%) dan `docs/NO_SHOW_POLICY.md`. Badge "Free Cancellation" hanya untuk produk yang mengikuti kebijakan tersebut.
+Kebijakan pembatalan mengikuti `docs/REFUND_POLICY.md` v2 dan **satu-satunya implementasi** `src/lib/refundUtils.ts`: ≥24 jam sebelum aktivitas → cancel fee 20% (refund 80%); <24 jam → tidak bisa cancel (0%). Reschedule gratis ≥24 jam. UI wajib membaca `REFUND_WINDOWS`, bukan menulis ulang angkanya.
+
+## 8. Notifications & Reminders
+
+| Event | Timing | Channel | Implementasi |
+|-------|--------|---------|--------------|
+| Booking settled (PAID) | Instan setelah webhook commit | WhatsApp + email | `notifyBookingPaid()` dipanggil di `processMidtransWebhook` |
+| Reminder H-24 | 09:00 WITA setiap hari | WhatsApp + email | Cron `GET /api/cron/reminders` (Vercel Cron `0 1 * * *`) |
+
+- Semua percobaan ditulis ke `NotificationLog` (status `SENT`/`FAILED`, `errorMessage`), termasuk saat kredensial belum dikonfigurasi.
+- Idempotensi memakai subject stabil (`Booking confirmed`, `Reminder H-24`) + status `SENT`; webhook berulang atau cron ganda tidak mengirim pesan dobel.
+- WhatsApp memakai Cloud API (`WHATSAPP_*`). Email memakai **Resend HTTP API via `fetch`** (`RESEND_API_KEY`, `EMAIL_FROM`) — tanpa SDK/dependency tambahan.
+- Kegagalan notifikasi **tidak pernah** menggagalkan webhook pembayaran atau cron; error hanya dicatat.
+- Cron diamankan dengan header `Authorization: Bearer $CRON_SECRET`; tanpa secret yang cocok responsnya 401.
+- QR voucher mengarah ke halaman verifikasi publik `/voucher/verify/[bookingCode]` (read-only, `noindex`), bukan ke data internal.

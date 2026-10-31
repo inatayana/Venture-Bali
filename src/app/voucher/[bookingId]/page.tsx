@@ -1,14 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { ArrowLeft, CheckCircle, Calendar, Users, Clock, Printer, Shield, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { formatPrice } from '@/lib/i18n';
-import type { Booking } from '@/types/venture';
+import type { Booking, Voucher } from '@/types/venture';
 
 interface VoucherPageProps {
   params: Promise<{ bookingId: string }>;
 }
+
+type VoucherBooking = Booking & {
+  qrCodeDataUrl?: string | null;
+  voucher?: Voucher | null;
+};
 
 const STATUS_LABEL: Record<Booking['paymentStatus'], string> = {
   PAID: 'Paid',
@@ -18,7 +24,7 @@ const STATUS_LABEL: Record<Booking['paymentStatus'], string> = {
 };
 
 export default function VoucherPage({ params }: VoucherPageProps) {
-  const [booking, setBooking] = useState<Booking | null>(null);
+  const [booking, setBooking] = useState<VoucherBooking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -142,14 +148,30 @@ export default function VoucherPage({ params }: VoucherPageProps) {
 
               <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
                 <h3 className="text-sm font-medium text-gray-500 mb-2 uppercase tracking-wide">
-                  {isPaid ? 'Show this booking code at the venue' : 'Pending booking code'}
+                  {isPaid ? 'Show this QR code at the venue' : 'Pending booking code'}
                 </h3>
-                <p className="font-mono text-2xl font-bold tracking-widest text-gray-900">
+                {isPaid && booking.qrCodeDataUrl ? (
+                  <Image
+                    src={booking.qrCodeDataUrl}
+                    alt={`Voucher QR code for ${booking.bookingCode}`}
+                    width={192}
+                    height={192}
+                    unoptimized
+                    className="mx-auto h-48 w-48"
+                  />
+                ) : (
+                  <p className="font-mono text-2xl font-bold tracking-widest text-gray-900">
+                    {booking.bookingCode}
+                  </p>
+                )}
+                <p className="mt-3 font-mono text-sm tracking-widest text-gray-600">
                   {booking.bookingCode}
                 </p>
-                <p className="mt-2 text-xs text-gray-500">
-                  A scannable QR code is issued with the production e-voucher.
-                </p>
+                {booking.voucher && (
+                  <p className="mt-1 text-xs text-gray-400">
+                    Voucher status: {booking.voucher.status}
+                  </p>
+                )}
               </div>
 
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
