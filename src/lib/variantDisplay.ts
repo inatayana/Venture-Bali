@@ -10,6 +10,8 @@ export interface VariantPriceDisplay {
   priceIdr: number;
   /** Rounded saving of the active promo, or null when no promo is active. */
   discountPercent: number | null;
+  /** Guests the `priceIdr` applies from (min pax of the cheapest tier). */
+  lowestTierMinPax: number;
 }
 
 /**
@@ -19,7 +21,12 @@ export interface VariantPriceDisplay {
  * only active when it is set and lower than the list price of every tier.
  */
 export function getVariantPriceDisplay(variant: Variant): VariantPriceDisplay {
-  const prices = (variant.priceTiers ?? []).map((tier) => tier.pricePerPax);
+  const tiers = variant.priceTiers ?? [];
+  const cheapest = tiers.reduce<{ minPax: number; pricePerPax: number } | null>(
+    (best, tier) => (!best || tier.pricePerPax < best.pricePerPax ? tier : best),
+    null
+  );
+  const prices = tiers.map((tier) => tier.pricePerPax);
   const listPriceIdr = prices.length > 0 ? Math.min(...prices) : 0;
   const promo = variant.promoPriceIdr ?? 0;
   const promoPriceIdr = promo > 0 && promo < listPriceIdr ? promo : null;
@@ -29,7 +36,13 @@ export function getVariantPriceDisplay(variant: Variant): VariantPriceDisplay {
       ? Math.round(((listPriceIdr - promoPriceIdr) / listPriceIdr) * 100)
       : null;
 
-  return { listPriceIdr, promoPriceIdr, priceIdr, discountPercent };
+  return {
+    listPriceIdr,
+    promoPriceIdr,
+    priceIdr,
+    discountPercent,
+    lowestTierMinPax: cheapest?.minPax ?? 1,
+  };
 }
 
 /**

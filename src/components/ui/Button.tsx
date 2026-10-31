@@ -51,7 +51,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           // Base styles
           'inline-flex items-center justify-center font-heading font-semibold uppercase tracking-wider rounded-lg',
           'transition-colors duration-200',
-          'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ink/70 focus-visible:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-70',
           // Variant
           variantStyles[variant],

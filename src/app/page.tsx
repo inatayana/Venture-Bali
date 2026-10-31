@@ -1,4 +1,5 @@
 import { VentureExplorer } from '@/components/features/VentureExplorer';
+import { HomeHero } from '@/components/features/HomeHero';
 import { loadVentures } from '@/lib/ventureService';
 
 export const revalidate = 60;
@@ -18,6 +19,8 @@ export default async function Home() {
           </p>
         </div>
       </header>
+
+      <HomeHero />
 
       <VentureExplorer ventures={ventures} />
 

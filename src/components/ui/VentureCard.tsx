@@ -30,12 +30,24 @@ const CATEGORY_STYLES: Record<string, string> = {
 
 const DEFAULT_CATEGORY_STYLE = 'bg-gray-100 text-gray-800';
 
+/** Cheapest tier across the package list — used for the "N+ guests" price hint. */
+function cheapestTier(venture: VentureItem) {
+  return (venture.variants ?? [])
+    .flatMap((variant) => variant.priceTiers)
+    .reduce<{ minPax: number; pricePerPax: number } | null>(
+      (best, tier) => (!best || tier.pricePerPax < best.pricePerPax ? tier : best),
+      null
+    );
+}
+
 export function VentureCard({
   venture,
   onSelect,
   href,
   className,
 }: VentureCardProps) {
+  const tierHint = cheapestTier(venture);
+
   const handleClick = () => {
     if (onSelect) {
       onSelect(venture.id);
@@ -73,7 +85,7 @@ export function VentureCard({
           {venture.category}
         </span>
         {venture.badge && (
-          <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full font-heading text-xs font-semibold uppercase tracking-wider bg-yellow-400 text-yellow-900">
+          <span className="absolute top-3 right-3 rounded-full bg-brand px-2.5 py-1 font-heading text-xs font-semibold uppercase tracking-wider text-brand-ink">
             {venture.badge}
           </span>
         )}
@@ -89,16 +101,15 @@ export function VentureCard({
           {venture.title}
         </h3>
 
-        <div className="flex items-center gap-2 mb-3">
-          <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-          <span className="text-xs text-green-700 font-medium">Instant Confirmation</span>
-        </div>
-
-        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600 mb-3">
           <div className="flex items-center gap-1">
             <MapPin className="w-4 h-4" aria-hidden="true" />
             <span className="line-clamp-1">{venture.location}</span>
           </div>
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">
+            <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
+            Instant Confirmation
+          </span>
         </div>
 
         <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
@@ -115,26 +126,30 @@ export function VentureCard({
               className="w-4 h-4 fill-yellow-400 text-yellow-400"
               aria-hidden="true"
             />
-            <span className="font-medium text-gray-900">
-              {venture.rating.toFixed(1)}
-            </span>
-            <span className="text-gray-500">({venture.reviewCount})</span>
+            {venture.reviewCount > 0 ? (
+              <>
+                <span className="font-medium text-gray-900">{venture.rating.toFixed(1)}</span>
+                <span className="text-gray-500">({venture.reviewCount})</span>
+              </>
+            ) : (
+              <span className="text-xs font-medium text-gray-500">New</span>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <div>
+        <div className="flex items-end justify-between gap-3 pt-4 border-t border-gray-100">
+          <div className="min-w-0">
             <span className="text-xs text-gray-500 block">From</span>
             <span className="font-heading text-xl font-bold tabular-nums text-brand-ink">
               {formatPrice(venture.priceIdr)}
             </span>
-            <span className="text-xs text-gray-500"> / person</span>
+            <span className="ml-1 text-xs text-gray-500">/guest</span>
+            {tierHint && tierHint.minPax > 1 && (
+              <span className="ml-1 text-xs text-gray-400">
+                · {tierHint.minPax}+ guests
+              </span>
+            )}
           </div>
-          {venture.badge && (
-            <span className="text-xs text-orange-600 font-medium bg-orange-50 px-2 py-1 rounded-full">
-              🔥 Trending
-            </span>
-          )}
         </div>
       </div>
     </>

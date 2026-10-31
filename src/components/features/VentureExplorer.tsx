@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { VentureCard, SearchBar, FilterChips } from '@/components/ui';
+import { VentureCard, SearchBar } from '@/components/ui';
 import { CATEGORY_FILTERS, resolveCategory } from '@/lib/taxonomy';
 import { SortMenu } from '@/components/features/SortMenu';
+import { CategoryTiles } from '@/components/features/CategoryTiles';
 import type { VentureItem } from '@/types/venture';
 
 const CATEGORIES = CATEGORY_FILTERS;
@@ -77,19 +78,34 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
     return result;
   }, [ventures, search, selectedCategory, sortBy]);
 
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const venture of ventures) {
+      const key = resolveCategory(venture.category)?.short ?? venture.category;
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return counts;
+  }, [ventures]);
+
   return (
     <section className="container mx-auto px-4 py-8">
       {/* Search & Filter */}
       <div className="mb-6 space-y-4">
         <SearchBar value={search} onChange={setSearch} />
 
-        <div className="flex items-center justify-between gap-4">
-          <FilterChips
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="font-heading text-xs font-bold uppercase tracking-[0.14em] text-gray-500">
+              Browse by category
+            </h2>
+            <SortMenu value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
+          </div>
+          <CategoryTiles
             categories={CATEGORIES}
             selectedCategory={selectedCategory}
             onSelect={setSelectedCategory}
+            counts={categoryCounts}
           />
-          <SortMenu value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
         </div>
       </div>
 
