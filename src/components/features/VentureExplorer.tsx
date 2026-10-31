@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { VentureCard, SearchBar, FilterChips } from '@/components/ui';
-import { CATEGORY_FILTERS } from '@/lib/taxonomy';
+import { CATEGORY_FILTERS, resolveCategory } from '@/lib/taxonomy';
 import type { VentureItem } from '@/types/venture';
 
 const CATEGORIES = CATEGORY_FILTERS;
@@ -27,6 +27,15 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('recommended');
+
+  // Deep link support: the PDP breadcrumb links to /?category=<slug>. Reading it
+  // after hydration keeps the homepage statically rendered.
+  useEffect(() => {
+    const slug = new URLSearchParams(window.location.search).get('category');
+    if (!slug) return;
+    const category = resolveCategory(slug);
+    if (category) setSelectedCategory(category.short);
+  }, []);
 
   const filteredVentures = useMemo(() => {
     let result = [...ventures];

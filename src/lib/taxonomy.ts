@@ -64,6 +64,8 @@ interface CategoryDescriptor {
   readonly canonical: MegaCategory;
   /** Short UI label */
   readonly short: MegaCategoryShortLabel;
+  /** Short emoji used by the category quick menu (breadcrumb dropdown). */
+  readonly emoji: string;
   /** URL / filter slug */
   readonly slug: MegaCategorySlug;
   /** Extra search terms that map to this category */
@@ -74,54 +76,63 @@ export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
   {
     canonical: 'ATV & Off-Road',
     short: 'ATV',
+    emoji: '🏍️',
     slug: 'atv',
     aliases: ['atv', 'quad bike', 'buggy', 'off-road', 'offroad', 'utv'],
   },
   {
     canonical: 'Rafting',
     short: 'Rafting',
+    emoji: '🛶',
     slug: 'rafting',
     aliases: ['rafting', 'white water', 'whitewater', 'river rafting'],
   },
   {
     canonical: 'River Tubing',
     short: 'Tubing',
+    emoji: '🛝',
     slug: 'tubing',
     aliases: ['tubing', 'water tubing', 'river tubing', 'cave tubing'],
   },
   {
     canonical: 'Cycling',
     short: 'Cycling',
+    emoji: '🚴',
     slug: 'cycling',
     aliases: ['cycling', 'bike', 'biking', 'downhill cycling', 'mountain bike'],
   },
   {
     canonical: 'Trekking & Hiking',
     short: 'Trekking',
+    emoji: '🥾',
     slug: 'trekking',
     aliases: ['trekking', 'hiking', 'trek', 'sunrise trek', 'volcano hike'],
   },
   {
     canonical: 'Water Sports',
     short: 'Water Sports',
+    emoji: '🏄',
     slug: 'water-sports',
     aliases: ['water sports', 'watersports', 'jet ski', 'jetski', 'banana boat', 'parasailing'],
   },
   {
     canonical: 'Snorkeling & Diving',
     short: 'Snorkeling',
+    emoji: '🤿',
     slug: 'snorkeling',
     aliases: ['snorkeling', 'snorkel', 'diving', 'scuba', 'freediving', 'manta'],
   },
   {
     canonical: 'Extreme Adventures',
     short: 'Extreme',
+    emoji: '⚡',
     slug: 'extreme',
     aliases: ['extreme', 'canyoning', 'zipline', 'paragliding', 'cliff jumping'],
   },
   {
     canonical: 'Adventure Combo Packages',
     short: 'Combo',
+    emoji: '🎯',
     slug: 'combo',
     aliases: ['combo', 'package', 'combo package', 'multi activity', 'full day'],
   },
