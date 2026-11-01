@@ -142,7 +142,7 @@ export function AiContentWizard() {
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Ubud Jungle ATV Ride through Rice Terraces and Waterfalls"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-600"
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
             />
             <p className="text-xs text-gray-400 mt-1">{title.length} / 60 characters</p>
           </div>
@@ -157,7 +157,7 @@ export function AiContentWizard() {
               value={primaryKeyword}
               onChange={(event) => setPrimaryKeyword(event.target.value)}
               placeholder="Ubud ATV"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-600"
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
             />
           </div>
 
@@ -169,7 +169,7 @@ export function AiContentWizard() {
               id="content-category"
               value={category}
               onChange={(event) => setCategory(event.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-blue-600"
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-brand-ink"
             >
               {CATEGORY_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -188,7 +188,7 @@ export function AiContentWizard() {
               value={destination}
               onChange={(event) => setDestination(event.target.value)}
               placeholder="Ubud"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-600"
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
             />
           </div>
 
@@ -200,7 +200,7 @@ export function AiContentWizard() {
               id="content-venture"
               value={ventureSlug}
               onChange={(event) => setVentureSlug(event.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-blue-600"
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-brand-ink"
             >
               <option value="">No product link</option>
               {ventures.map((venture) => (
@@ -219,7 +219,7 @@ export function AiContentWizard() {
               id="content-language"
               value={language}
               onChange={(event) => setLanguage(event.target.value as 'en' | 'id')}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-blue-600"
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-brand-ink"
             >
               <option value="en">English</option>
               <option value="id">Bahasa Indonesia</option>
@@ -254,7 +254,7 @@ export function AiContentWizard() {
         <button
           type="submit"
           disabled={isGenerating}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed min-h-[44px]"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-ink text-white font-medium text-sm hover:bg-neutral-800 disabled:opacity-60 disabled:cursor-not-allowed min-h-[44px]"
         >
           {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           {isGenerating ? 'Generating…' : 'Generate article'}
@@ -287,7 +287,7 @@ export function AiContentWizard() {
                     </span>
                   )}
                   {article.aiGenerated && (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand/40 text-neutral-900">
                       AI generated
                     </span>
                   )}

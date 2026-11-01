@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Admin Session
+ * BaliWild — Admin Session
  * ----------------------------
  * Signed, stateless session tokens for the operator panel.
  *

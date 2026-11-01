@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, CreditCard, Shield, CheckCircle, Loader2, Users, Calendar, Clock3 } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { formatPrice } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import type { Booking } from '@/types/venture';
@@ -187,10 +188,15 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6">
-        <a href="/" className="inline-flex items-center gap-2 text-brand-ink mb-4">
-          <ArrowLeft className="w-4 h-4" />
-          Back to adventures
-        </a>
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <a href="/" className="inline-flex items-center gap-2 text-brand-ink">
+            <ArrowLeft className="w-4 h-4" />
+            Back to adventures
+          </a>
+          <a href="/" aria-label="BaliWild home">
+            <BrandWordmark className="text-xl text-brand-ink" />
+          </a>
+        </div>
       </div>
 
       <div className="container mx-auto px-4 pb-12">
@@ -214,7 +220,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                       <div className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         <span>
-                          {new Date(booking.bookingDate).toLocaleDateString('id-ID', {
+                          {new Date(booking.bookingDate).toLocaleDateString('en-GB', {
                             weekday: 'short',
                             day: 'numeric',
                             month: 'short',

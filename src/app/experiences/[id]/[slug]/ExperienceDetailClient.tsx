@@ -19,6 +19,7 @@ import {
   BadgeCheck,
 } from 'lucide-react';
 import { BottomSheet, Stepper, VentureCard } from '@/components/ui';
+import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import {
   ExperienceBookingWidget,
   toDateKey,
@@ -67,7 +68,7 @@ const PDP_SECTIONS = [
 ] as const;
 // Mirrors the launch coupon in src/data/catalogue.ts (display label only).
 const PROMO_DISCOUNT_PERCENT = 40;
-const PROMO_STORAGE_KEY = 'vb_promo_dismissed';
+const PROMO_STORAGE_KEY = 'baliwild_promo_dismissed';
 const CANCELLATION = REFUND_WINDOWS[0];
 
 function buildInitialConfig(venture: VentureItem): BookingConfig {
@@ -396,6 +397,12 @@ export function ExperienceDetailClient({
               </li>
             </ol>
           </nav>
+
+          <div className="hidden shrink-0 items-center pl-3 md:flex">
+            <a href="/" aria-label="BaliWild home">
+              <BrandWordmark className="text-sm" />
+            </a>
+          </div>
 
           <div className="hidden shrink-0 items-baseline gap-1 pl-3 lg:flex">
             <span className="font-heading text-base font-bold tabular-nums text-neutral-900">

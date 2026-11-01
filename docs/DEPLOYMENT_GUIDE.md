@@ -1,4 +1,4 @@
-# Venture Bali — Deployment Guide
+# BaliWild — Deployment Guide
 
 > **Version:** 2.0.0
 > **Last Updated:** October 2026
@@ -168,23 +168,23 @@ from `src/lib/refundUtils.ts` — never from the model's memory. See
 A PostgreSQL container is used for local development:
 
 ```bash
-docker run -d --name venture-bali-pg \
+docker run -d --name baliwild-pg \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=venture_bali_dev \
+  -e POSTGRES_DB=baliwild_dev \
   -p 55432:5432 postgres:17-alpine
 ```
 
 `.env` for local development:
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:55432/venture_bali_dev?schema=public"
+DATABASE_URL="postgresql://postgres:postgres@localhost:55432/baliwild_dev?schema=public"
 ```
 
 Verify the seed landed correctly:
 
 ```bash
-psql -h localhost -p 55432 -U postgres -d venture_bali_dev -f scripts/verify-seed.sql
+psql -h localhost -p 55432 -U postgres -d baliwild_dev -f scripts/verify-seed.sql
 ```
 
 Expected: 9 `Venture`, 18 `Variant`, 72 `PriceTier`, 108 `SlotTime`, 48 `Addon`.

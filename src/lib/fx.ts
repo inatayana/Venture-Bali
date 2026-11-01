@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Multi-Currency Exchange Rate Service
+ * BaliWild — Multi-Currency Exchange Rate Service
  * Uses exchangerate-api.com for live rates.
  * Fallback to hardcoded rates if API unavailable.
  */

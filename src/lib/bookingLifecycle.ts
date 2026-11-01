@@ -1,5 +1,5 @@
 /**
- * Venture Bali — booking lifecycle & inventory holds
+ * BaliWild — booking lifecycle & inventory holds
  * ---------------------------------------------------
  * One place for the temporary hold that protects a slot while the guest pays,
  * and for the operational lifecycle used by the field-team job order.

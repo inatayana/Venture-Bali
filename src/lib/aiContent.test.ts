@@ -84,7 +84,7 @@ describe('validateGeneratedArticle', () => {
 
   it('rejects an article that mentions the brand', () => {
     const rejection = validateGeneratedArticle(
-      makeArticle({ content: `${'Adventure content. '.repeat(40)} Venture Bali is great.` }),
+      makeArticle({ content: `${'Adventure content. '.repeat(40)} BaliWild is great.` }),
       request
     );
     expect(rejection).toContain('brand name');

@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Agent Session Store
+ * BaliWild — Agent Session Store
  * -----------------------------------
  * Persists the customer service agent conversations in the database.
  *
@@ -9,7 +9,7 @@
  * in the `AgentSession` table keeps the context across turns and across
  * instances.
  *
- * Docs: Venture_Bali_PRD_PPS.md §10.3 (Session Management)
+ * Docs: BaliWild_PRD_PPS.md §10.3 (Session Management)
  */
 
 import { prisma } from '@/lib/prisma';

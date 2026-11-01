@@ -1,4 +1,4 @@
-# Venture Bali — Activity Safety Waiver / Release of Liability (DRAFT v1)
+# BaliWild — Activity Safety Waiver / Release of Liability (DRAFT v1)
 
 > **Status: DRAFT — pending legal review before launch.**
 > Operational copy lives in `src/lib/legal.ts` (rendered at `/waiver`).
@@ -16,7 +16,7 @@ I confirm I am physically able to participate and have disclosed any condition t
 I will wear the provided safety equipment, follow the safety briefing and follow the instructions of guides and safety staff at all times. I will not be under the influence of alcohol or drugs, nor operate equipment in a way that endangers others.
 
 ## 4. Release of liability
-To the fullest extent permitted by Indonesian law, I release the activity operator, its guides and staff, and Venture Bali from liability for loss, injury or damage arising from the ordinary risks of the activity. This release does not cover gross negligence or wilful misconduct and does not remove rights that Indonesian law does not allow to be excluded.
+To the fullest extent permitted by Indonesian law, I release the activity operator, its guides and staff, and BaliWild from liability for loss, injury or damage arising from the ordinary risks of the activity. This release does not cover gross negligence or wilful misconduct and does not remove rights that Indonesian law does not allow to be excluded.
 
 ## 5. Minors
 Participants under 18 must be accompanied by a parent or legal guardian, who accepts this waiver on their behalf and supervises them during the activity.

@@ -2,6 +2,7 @@ import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { HomeHero } from '@/components/features/HomeHero';
 import { TrustStrip } from '@/components/features/TrustStrip';
 import { SiteFooter } from '@/components/layout/SiteFooter';
+import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SearchProvider } from '@/components/search/SearchProvider';
 import { loadVentures } from '@/lib/ventureService';
@@ -33,15 +34,15 @@ export default async function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-neutral-50">
       <JsonLd data={generateWebsiteStructuredData(getBaseUrl())} />
       <header className="sticky top-0 z-40 bg-white/95 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
         <div className="container mx-auto flex items-center gap-3 px-4 py-3">
-          <h1 className="font-heading text-2xl font-bold uppercase tracking-wider text-brand-ink">
-            Venture <span className="bg-brand px-1 text-brand-ink">Bali</span>
-          </h1>
+          <p className="text-brand-ink">
+            <BrandWordmark className="text-2xl" />
+          </p>
           <p className="hidden truncate text-xs text-gray-500 sm:block">
-            Discover amazing adventures in Bali
+            Own the wild. Adventure, booked in minutes.
           </p>
         </div>
       </header>

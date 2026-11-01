@@ -1,19 +1,20 @@
 # AGENTS.md — Working Rules for All Agents
 
 > **Version:** 1.0.0
-> **Audience:** AI agents and human developers working on Venture Bali
+> **Audience:** AI agents and human developers working on BaliWild
 > **Status:** MUST FOLLOW. If a rule here conflicts with any other doc, this file wins.
 
 ## 1. Required Reading (in order)
 
 1. `docs/PROJECT_STRUCTURE.md` — folder layout, conventions, tech stack
 2. `docs/DEVELOPMENT_WORKFLOW.md` — Git flow, branch naming
-3. `Venture_Bali_PRD_PPS.md` — product requirements and phases
+3. `BaliWild_PRD_PPS.md` — product requirements and phases
 4. `docs/REFUND_POLICY.md`, `docs/NO_SHOW_POLICY.md` — business rules that affect code
 5. `docs/TECH_DECISION_LOG.md` — approved stack, database provider, deployment targets
 6. `docs/TEAM_WORKING_AGREEMENT.md` — single sources of truth, guardrails, DoD
 7. `docs/DEPLOYMENT_STRATEGY.md` — how the app is actually deployed (Vercel now, VPS later)
 8. `docs/AI_AGENT.md` — agent tools, session handling, content wizard rules
+9. `docs/BRAND_GUIDELINES.md` — BaliWild name, wordmark, palette, voice and migration checklist
 
 Do not start work before reading the section relevant to your task.
 
@@ -89,9 +90,9 @@ Examples:
 
 ## 9. Product Guardrails
 
-- Venture Bali ONLY sells the 9 adventure mega categories (`src/lib/taxonomy.ts`, `docs/SEO_TAXONOMY.md`). NEVER add hotels, flights, pure transport, or restaurants.
+- BaliWild ONLY sells the 9 adventure mega categories (`src/lib/taxonomy.ts`, `docs/SEO_TAXONOMY.md`). NEVER add hotels, flights, pure transport, or restaurants.
 - Product titles MUST pass `src/lib/titleValidator.ts` (45–60 chars, keyword in first 25, Title Case, forbidden words, no emoji) — see `docs/PRODUCT_TITLE_CONSTITUTION.md`.
-- NEVER expose "Venture Bali" brand name in product titles, meta titles, or slugs.
+- NEVER expose "BaliWild" brand name in product titles, meta titles, or slugs.
 - NEVER expose vendor/partner names or partnership structure to customers (see `docs/OPERATION_CONTRACT.md`).
 - Booking modes are Self Drive (default), Shared Transfer, and Private Transfer only — never separate products/SKUs (see `docs/BOOKING_ARCHITECTURE.md`).
 - All prices stored as IDR integers; USD is display-only via the config rate.

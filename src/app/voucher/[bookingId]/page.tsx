@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ArrowLeft, CheckCircle, Calendar, Users, Clock, Printer, Shield, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { formatPrice } from '@/lib/i18n';
 import type { Booking, Voucher } from '@/types/venture';
 
@@ -52,7 +53,7 @@ export default function VoucherPage({ params }: VoucherPageProps) {
   if (loading) {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-brand-ink border-t-transparent rounded-full" />
       </main>
     );
   }
@@ -80,10 +81,15 @@ export default function VoucherPage({ params }: VoucherPageProps) {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6">
-        <a href="/" className="inline-flex items-center gap-2 text-brand-ink mb-4 print:hidden">
-          <ArrowLeft className="w-4 h-4" />
-          Back to adventures
-        </a>
+        <div className="mb-4 flex items-center justify-between gap-4 print:hidden">
+          <a href="/" className="inline-flex items-center gap-2 text-brand-ink">
+            <ArrowLeft className="w-4 h-4" />
+            Back to adventures
+          </a>
+          <a href="/" aria-label="BaliWild home">
+            <BrandWordmark className="text-xl text-brand-ink" />
+          </a>
+        </div>
 
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">

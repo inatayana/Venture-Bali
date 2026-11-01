@@ -1,4 +1,4 @@
-# Venture Bali — Team Working Agreement
+# BaliWild — Team Working Agreement
 
 > **Version:** 1.0.0
 > **Last Updated:** October 2026
@@ -50,7 +50,7 @@ Sebelum mengerjakan sesuatu, **cek daftar ini**. Jangan mengarang aturan.
 | Aturan kerja agent & tim | `AGENTS.md` | menang atas semua dokumen lain |
 | Struktur folder & konvensi kode | `docs/PROJECT_STRUCTURE.md` | import order, route groups |
 | Alur git & branch | `docs/DEVELOPMENT_WORKFLOW.md` | nama branch, merge strategy |
-| Kebutuhan produk & fase | `Venture_Bali_PRD_PPS.md` | visi, misi, KPI |
+| Kebutuhan produk & fase | `BaliWild_PRD_PPS.md` | visi, misi, KPI |
 | **Keputusan teknologi** | `docs/TECH_DECISION_LOG.md` | stack, DB, deployment |
 | **Cara deploy** | `docs/DEPLOYMENT_STRATEGY.md` + `docs/DEPLOYMENT_GUIDE.md` | |
 | Aturan refund | `docs/REFUND_POLICY.md` | 20% cancel fee, <24 jam tidak bisa cancel |
@@ -73,7 +73,7 @@ Sebelum mengerjakan sesuatu, **cek daftar ini**. Jangan mengarang aturan.
    ❌ Jangan tambahkan hotel, flight, transport murni, atau restoran.
 2. **Judul produk** harus lolos `titleValidator` (45–60 karakter, keyword di 25
    karakter pertama, Title Case, tanpa kata terlarang, tanpa emoji).
-3. **Nama brand "Venture Bali"** tidak boleh muncul di judul produk, meta title,
+3. **Nama brand "BaliWild"** tidak boleh muncul di judul produk, meta title,
    maupun slug.
 4. **Nama vendor/partner tidak boleh** terlihat oleh customer.
 5. **Mode booking hanya dua:** `SELF_DRIVE` (default) dan `PRIVATE_TRANSFER`.
@@ -220,7 +220,7 @@ Developer  →  Tech Lead / Engineering Team  →  Owner
 - [ ] Baca `AGENTS.md` (wajib, menang atas segalanya)
 - [ ] Baca `docs/PROJECT_STRUCTURE.md`
 - [ ] Baca `docs/DEVELOPMENT_WORKFLOW.md`
-- [ ] Baca `Venture_Bali_PRD_PPS.md` (bagian relevan)
+- [ ] Baca `BaliWild_PRD_PPS.md` (bagian relevan)
 - [ ] Baca `docs/TECH_DECISION_LOG.md` dan `docs/DEPLOYMENT_STRATEGY.md`
 - [ ] Baca `docs/REFUND_POLICY.md` dan `docs/NO_SHOW_POLICY.md`
 - [ ] Setup lokal: `npm ci`, `cp .env.example .env`, `npm run db:generate`, `npm run db:seed`

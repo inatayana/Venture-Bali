@@ -1,5 +1,5 @@
 /**
- * Venture Bali — legal copy
+ * BaliWild — legal copy
  * --------------------------
  * DRAFT v1 (2026-11-01). These texts are rendered on /terms and /waiver and the
  * accepted version is stored on every booking (`waiverVersion`).
@@ -21,7 +21,7 @@ export const TERMS_SECTIONS: LegalSection[] = [
   {
     title: '1. About these terms',
     body: [
-      'Venture Bali is a booking platform for adventure activities in Bali, Indonesia. We arrange the reservation, payment and customer support; the activity itself is delivered by a licensed local activity partner.',
+      'BaliWild is a booking platform for adventure activities in Bali, Indonesia. We arrange the reservation, payment and customer support; the activity itself is delivered by a licensed local activity partner.',
       'By confirming a booking you agree to these terms, the cancellation policy and the activity safety waiver.',
     ],
   },
@@ -35,7 +35,7 @@ export const TERMS_SECTIONS: LegalSection[] = [
   {
     title: '3. Prices and payment',
     body: [
-      'All prices are in Indonesian Rupiah (IDR) and include the services listed on the package. Payments are processed by Midtrans (QRIS, virtual accounts, e-wallets and cards). Venture Bali never stores card numbers.',
+      'All prices are in Indonesian Rupiah (IDR) and include the services listed on the package. Payments are processed by Midtrans (QRIS, virtual accounts, e-wallets and cards). BaliWild never stores card numbers.',
       'A promotional price and a coupon code can never be combined. The amount shown at checkout is the amount charged.',
     ],
   },
@@ -119,7 +119,7 @@ export const WAIVER_SECTIONS: LegalSection[] = [
   {
     title: '4. Release of liability',
     body: [
-      'To the fullest extent permitted by Indonesian law, I release the activity operator, its guides and staff, and Venture Bali from liability for loss, injury or damage arising from the ordinary risks of the activity.',
+      'To the fullest extent permitted by Indonesian law, I release the activity operator, its guides and staff, and BaliWild from liability for loss, injury or damage arising from the ordinary risks of the activity.',
       'This release does not cover gross negligence or wilful misconduct, and it does not remove rights that Indonesian law does not allow to be excluded.',
     ],
   },

@@ -15,6 +15,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { BrandWordmark } from '@/components/layout/BrandWordmark';
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -44,11 +45,9 @@ export function AdminSidebar() {
 
   return (
     <aside className="w-56 shrink-0 border-r border-gray-200 bg-white min-h-screen hidden lg:flex lg:flex-col">
-      <div className="p-5 border-b border-gray-200">
-        <p className="font-heading text-xl font-bold uppercase tracking-wider text-blue-600">
-          Venture Bali
-        </p>
-        <p className="text-xs text-gray-500 mt-0.5">Operator Panel</p>
+      <div className="border-b border-gray-200 bg-brand-ink p-5 text-white">
+        <BrandWordmark className="text-xl" />
+        <p className="mt-1 text-xs text-white/50">Operator Panel</p>
       </div>
 
       <nav className="p-3 space-y-1 flex-1" aria-label="Admin navigation">
@@ -60,7 +59,9 @@ export function AdminSidebar() {
               href={href}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px]',
-                active ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
+                active
+                  ? 'bg-brand text-brand-ink'
+                  : 'text-gray-600 hover:bg-gray-50'
               )}
             >
               <Icon className="w-4 h-4" />

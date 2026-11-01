@@ -1,4 +1,4 @@
-# Venture Bali — No-Show Policy
+# BaliWild — No-Show Policy
 
 > **Version:** 2.0.0
 > **Status:** MUST FOLLOW.

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { WAIVER_SECTIONS, WAIVER_VERSION } from '@/lib/legal';
 
 export const metadata: Metadata = {
-  title: 'Safety waiver | Venture Bali',
+  title: 'Safety waiver | BaliWild',
   description: 'Activity safety waiver and release of liability for adventure activities.',
 };
 

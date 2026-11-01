@@ -8,9 +8,9 @@ import {
 } from './brand';
 import { resolveCategory } from './taxonomy';
 
-export type SupportedDomain = 'venture-bali.com' | 'localhost';
+export type SupportedDomain = 'baliwild.com' | 'localhost';
 
-const FALLBACK_BASE_URL = 'https://venture-bali.com';
+const FALLBACK_BASE_URL = 'https://baliwild.com';
 
 export function getBaseUrl(): string {
   return (process.env.NEXT_PUBLIC_APP_URL ?? FALLBACK_BASE_URL).replace(/\/$/, '');

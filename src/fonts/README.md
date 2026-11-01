@@ -1,4 +1,4 @@
-# Venture Bali — Fonts
+# BaliWild — Fonts
 
 The font files in this folder are **committed to the repository** and served
 from our own origin.

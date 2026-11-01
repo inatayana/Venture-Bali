@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Midtrans Snap Integration
+ * BaliWild — Midtrans Snap Integration
  * Handles payment token generation and webhook processing
  */
 

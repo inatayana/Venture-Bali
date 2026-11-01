@@ -22,9 +22,9 @@ describe('analytics track', () => {
     expect(typeof (window as TestWindow).dataLayer?.[0].timestamp).toBe('number');
   });
 
-  it('dispatches a vb:analytics event for other listeners', () => {
+  it('dispatches a baliwild:analytics event for other listeners', () => {
     const listener = jest.fn();
-    window.addEventListener('vb:analytics', listener);
+    window.addEventListener('baliwild:analytics', listener);
 
     track('select_package', { variant_id: 'var-1' });
 
@@ -32,7 +32,7 @@ describe('analytics track', () => {
     const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
     expect(detail).toMatchObject({ event: 'select_package', variant_id: 'var-1' });
 
-    window.removeEventListener('vb:analytics', listener);
+    window.removeEventListener('baliwild:analytics', listener);
   });
 
   it('creates the dataLayer queue when GTM has not loaded yet', () => {

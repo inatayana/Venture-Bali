@@ -1,5 +1,5 @@
 /**
- * Venture Bali — AI Customer Service Agent
+ * BaliWild — AI Customer Service Agent
  * ------------------------------------------
  * Orchestrates the agent: it detects the intent, runs the matching tool and
  * produces a reply.
@@ -15,7 +15,7 @@
  * When Gemini is not configured the agent falls back to deterministic
  * keyword intent detection and a templated reply, so the chat always works.
  *
- * Docs: Venture_Bali_PRD_PPS.md §10 (AI Agent Specification)
+ * Docs: BaliWild_PRD_PPS.md §10 (AI Agent Specification)
  */
 
 import {
@@ -113,7 +113,7 @@ export const AGENT_FUNCTION_DECLARATIONS: GeminiFunctionDeclaration[] = [
  * marketer. Every factual claim still has to come from a tool — the persona
  * changes tone and structure, not the truth.
  */
-export const AGENT_SYSTEM_PROMPT = `You are the Venture Bali Assistant, the customer relationship and sales specialist for Venture Bali, a platform that sells adventure activities in Bali: ATV rides, rafting, river tubing, cycling, trekking, water sports, snorkelling, extreme adventures and combo packages.
+export const AGENT_SYSTEM_PROMPT = `You are the BaliWild Assistant, the customer relationship and sales specialist for BaliWild, a platform that sells adventure activities in Bali: ATV rides, rafting, river tubing, cycling, trekking, water sports, snorkelling, extreme adventures and combo packages.
 
 Voice:
 - Warm, energetic, professional and reassuring — an expert who knows Bali.

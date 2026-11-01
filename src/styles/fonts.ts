@@ -1,7 +1,7 @@
 import localFont from 'next/font/local';
 
 /**
- * Venture Bali — Self-hosted fonts
+ * BaliWild — Self-hosted fonts
  * --------------------------------
  * The fonts are committed to the repository and served from our own origin
  * instead of being fetched from fonts.googleapis.com at build time.

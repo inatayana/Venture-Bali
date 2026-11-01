@@ -1,7 +1,7 @@
 import type { RefundCalculationResult } from '@/types/refund';
 
 /**
- * Venture Bali Refund Utilities
+ * BaliWild Refund Utilities
  * Implements the refund policy from docs/REFUND_POLICY.md
  *
  * Policy (v2):

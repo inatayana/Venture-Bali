@@ -1,5 +1,5 @@
 /**
- * Venture Bali AI Agent - Core Types
+ * BaliWild AI Agent - Core Types
  */
 
 import type { VentureItem, Variant, SlotTime, Booking } from '@/types/venture';

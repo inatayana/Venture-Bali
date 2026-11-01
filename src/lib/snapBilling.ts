@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Midtrans line items & billing address
+ * BaliWild — Midtrans line items & billing address
  * ----------------------------------------------------
  * Snap receipts should match what the guest saw at checkout: package, evening
  * surcharge, transfer and add-ons each get their own line. The sum always

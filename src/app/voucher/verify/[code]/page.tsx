@@ -8,7 +8,7 @@ interface VerifyPageProps {
 }
 
 export const metadata: Metadata = {
-  title: 'Voucher verification | Venture Bali',
+  title: 'Voucher verification | BaliWild',
   robots: { index: false, follow: false },
 };
 
@@ -102,7 +102,7 @@ export default async function VoucherVerifyPage({ params }: VerifyPageProps) {
 
         <p className="mt-4 flex items-center justify-center gap-2 text-xs text-neutral-500">
           <ShieldCheck className="h-4 w-4" />
-          Verified against the Venture Bali booking database
+          Verified against the BaliWild booking database
         </p>
       </div>
     </main>

@@ -109,7 +109,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!venture) {
     return {
-      title: 'Experience Not Found | Venture Bali',
+      title: 'Experience Not Found | BaliWild',
       description: 'The requested experience could not be found.',
     };
   }

@@ -74,7 +74,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
         className="relative hidden lg:block"
         aria-label="Search adventures"
       >
-        <div className="rounded-2xl border border-white/10 bg-[#111111]/65 p-4 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-[16px] transition-all duration-300 hover:border-brand/50 hover:shadow-[0_0_0_1px_rgba(255,238,0,0.3),0_30px_80px_-30px_rgba(0,0,0,0.9)]">
+        <div className="rounded-2xl border border-white/15 bg-[#111111]/15 p-4 backdrop-blur-[1px] [text-shadow:0_2px_6px_rgba(0,0,0,0.9)] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] transition-all duration-300 hover:border-brand/50 hover:bg-[#111111]/25 hover:shadow-[0_0_0_1px_rgba(255,238,0,0.3),0_30px_80px_-30px_rgba(0,0,0,0.9)]">
           {/* Destination */}
           <div className="relative">
             <button
@@ -93,7 +93,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
             </button>
 
             {openField === 'where' && (
-              <div className="absolute left-0 top-full z-40 mt-2 w-full overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl">
+              <div className="absolute left-0 top-full z-40 mt-2 w-full overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl [text-shadow:none]">
                 <div className="border-b border-neutral-100 p-2">
                   <input
                     autoFocus
@@ -168,7 +168,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
             </button>
 
             {openField === 'date' && (
-              <div className="absolute left-0 top-full z-40 mt-2 w-full rounded-xl border border-neutral-200 bg-white p-3 shadow-xl">
+              <div className="absolute left-0 top-full z-40 mt-2 w-full rounded-xl border border-neutral-200 bg-white p-3 shadow-xl [text-shadow:none]">
                 <CalendarComponent
                   selectedDate={date ? new Date(`${date}T00:00:00`) : null}
                   onDateSelect={(value) => {
@@ -235,7 +235,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           <button
             type="button"
             onClick={runSearch}
-            className="mt-2 inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-brand text-sm font-bold text-brand-ink transition-colors hover:bg-brand/90"
+            className="mt-2 inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-brand text-sm font-bold text-brand-ink [text-shadow:none] transition-colors hover:bg-brand/90"
           >
             <Search className="h-4 w-4" aria-hidden="true" />
             Search

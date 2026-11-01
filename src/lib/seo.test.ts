@@ -67,7 +67,7 @@ describe('generateVentureMetadata', () => {
   it('keeps the meta title under 60 characters and description under 155', () => {
     const metadata = generateVentureMetadata({
       venture: makeVenture(),
-      baseUrl: 'https://venture-bali.com',
+      baseUrl: 'https://baliwild.com',
     });
 
     expect(String(metadata.title).length).toBeLessThanOrEqual(60);
@@ -77,7 +77,7 @@ describe('generateVentureMetadata', () => {
   it('falls back to the product title when the brand suffix would overflow', () => {
     const metadata = generateVentureMetadata({
       venture: makeVenture({ title: 'A'.repeat(55) }),
-      baseUrl: 'https://venture-bali.com',
+      baseUrl: 'https://baliwild.com',
     });
 
     expect(metadata.title).toBe('A'.repeat(55));
@@ -87,7 +87,7 @@ describe('generateVentureMetadata', () => {
 describe('generateVentureStructuredData', () => {
   const data = generateVentureStructuredData({
     venture: makeVenture(),
-    baseUrl: 'https://venture-bali.com',
+    baseUrl: 'https://baliwild.com',
   }) as { '@graph': Array<Record<string, unknown>> };
 
   it('emits Product, TouristAttraction, BreadcrumbList and FAQPage', () => {
@@ -108,15 +108,15 @@ describe('generateVentureStructuredData', () => {
     expect(reviews).toHaveLength(2);
     expect((reviews[0].author as { name: string }).name).toBe('Nicholas');
     expect(product.image).toEqual([
-      'https://venture-bali.com/images/tubing.svg',
-      'https://venture-bali.com/images/tubing-2.svg',
+      'https://baliwild.com/images/tubing.svg',
+      'https://baliwild.com/images/tubing-2.svg',
     ]);
   });
 
   it('marks sold-out products and omits ratings when there are no reviews', () => {
     const empty = generateVentureStructuredData({
       venture: makeVenture({ isAvailable: false, reviewCount: 0, reviewList: [] }),
-      baseUrl: 'https://venture-bali.com',
+      baseUrl: 'https://baliwild.com',
     }) as { '@graph': Array<Record<string, unknown>> };
     const product = empty['@graph'].find((node) => node['@type'] === 'Product') as Record<
       string,
@@ -141,14 +141,14 @@ describe('generateVentureStructuredData', () => {
       'Ubud River Tubing Adventure with Lunch',
     ]);
     expect(breadcrumbs.itemListElement[1].item).toBe(
-      'https://venture-bali.com/?category=tubing'
+      'https://baliwild.com/?category=tubing'
     );
   });
 });
 
 describe('generateWebsiteStructuredData', () => {
   it('links the organization, website search and travel agency', () => {
-    const data = generateWebsiteStructuredData('https://venture-bali.com') as {
+    const data = generateWebsiteStructuredData('https://baliwild.com') as {
       '@graph': Array<Record<string, unknown>>;
     };
 
@@ -160,7 +160,7 @@ describe('generateWebsiteStructuredData', () => {
     expect(
       (data['@graph'][1].potentialAction as { target: { urlTemplate: string } }).target
         .urlTemplate
-    ).toBe('https://venture-bali.com/?q={search_term_string}');
+    ).toBe('https://baliwild.com/?q={search_term_string}');
   });
 });
 
@@ -176,14 +176,14 @@ describe('generateArticleStructuredData', () => {
         keywords: ['bali rafting'],
         tags: ['Rafting'],
       },
-      'https://venture-bali.com'
+      'https://baliwild.com'
     ) as { '@graph': Array<Record<string, unknown>> };
 
     const article = data['@graph'][0];
     expect(article['@type']).toBe('BlogPosting');
     expect(article.author).toMatchObject({ '@type': 'Organization' });
     expect(article.mainEntityOfPage).toMatchObject({
-      '@id': 'https://venture-bali.com/blog/bali-rafting-guide',
+      '@id': 'https://baliwild.com/blog/bali-rafting-guide',
     });
     expect(data['@graph'][1]['@type']).toBe('BreadcrumbList');
   });

@@ -1,4 +1,4 @@
-# Venture Bali — Technical SEO Strategy
+# BaliWild — Technical SEO Strategy
 
 > **Version:** 1.0.0 (Phase 1)
 > **Status:** Implemented for product pages, home and blog. Phase 2 is backlog.
@@ -7,34 +7,31 @@
 
 ## 1. Brand & domain
 
-The brand/domain decision is still open. All SEO-facing names live in
-`src/lib/brand.ts`, and every canonical, sitemap and QR URL comes from
-`NEXT_PUBLIC_APP_URL` (`src/lib/seo.ts#getBaseUrl`). Switching domains therefore
-means changing the env var and one constants file — not dozens of templates.
+**Decided:** the site now trades as **BaliWild** on **baliwild.com**. Every
+SEO-facing name lives in `src/lib/brand.ts`, and every canonical, sitemap and
+QR URL comes from `NEXT_PUBLIC_APP_URL` (`src/lib/seo.ts#getBaseUrl`).
 
-Current default: **Venture Bali** (`https://venture-bali.com` fallback).
+Brand line: **Own the wild.** Positioning: raw, confident Bali adventure —
+licensed local operators, instant confirmation, honest pricing.
 
-Recommendation, in order:
+Before switching the live host:
 
-1. **Keep the existing venture-bali.com** if it is already indexed and linked.
-   Domain names are a weak ranking factor; brand searches, content, reviews and
-   technical health matter more.
-2. **`baligoadventures.com`** only if BaliGO is the long-term parent brand and
-   this site is its travel vertical. Pros: brand transfer, cross-sell, clear
-   category. Cons: long, generic suffix, trademark/brand overlap with the other
-   BaliGO project.
-3. **A short standalone brand** (e.g. BaliWild, BaliTrails, GoBali) if the goal
-   is a globally pronounceable consumer brand rather than an exact-match domain.
-   Pick for recall and trust; do not pay a premium only for keywords.
+1. Point `NEXT_PUBLIC_APP_URL` at `https://baliwild.com` in production and
+   redeploy (Next bakes public env at build time).
+2. 301 every indexed `venture-bali.com` / `venturebali.com` URL to the matching
+   `baliwild.com` path. Keep the old host registered and verified in Search
+   Console for at least 12 months.
+3. Re-submit `/sitemap.xml` and check canonical tags on product, blog and home.
+4. Update Google Business Profile, email sender (`EMAIL_FROM`), WhatsApp
+   templates and any external booking links to the new brand.
 
-Before rebranding: check domain availability, trademark, and keep 301 redirects
-from the old host. Do not run two brands on the same inventory without deciding
-which domain is canonical.
+Domain names are a weak ranking factor; brand searches, content, reviews and
+technical health matter more. Do not run both brands on the same inventory.
 
 ## 2. Phase 1 — implemented
 
 ### Metadata
-- Product meta title is capped at **60 characters**: the ` | Venture Bali`
+- Product meta title is capped at **60 characters**: the ` | BaliWild`
   suffix is dropped when it would overflow (`generateVentureMetadata`).
 - Product meta description is capped at **155 characters**.
 - Blog meta title/description use the same limits and derive the canonical from

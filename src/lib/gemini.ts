@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Gemini Client
+ * BaliWild — Gemini Client
  * ----------------------------
  * A thin client for the Gemini REST API.
  *

@@ -1,5 +1,5 @@
 /**
- * Refund Policy Types for Venture Bali
+ * Refund Policy Types for BaliWild
  * Based on REFUND_POLICY.md
  */
 

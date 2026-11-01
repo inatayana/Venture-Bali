@@ -166,7 +166,7 @@ describe('Title Validator (PRODUCT_TITLE_CONSTITUTION.md)', () => {
 
     it('rejects the brand name in a title', () => {
       const result = validateVentureTitle({
-        title: 'Ubud Jungle ATV Ride with Venture Bali Private Transfer',
+        title: 'Ubud Jungle ATV Ride with BaliWild Private Transfer',
       });
       expect(result.valid).toBe(false);
       expect(result.errors.join(' ')).toContain('forbidden');
@@ -218,7 +218,7 @@ describe('Title Validator (PRODUCT_TITLE_CONSTITUTION.md)', () => {
       ['ubud_atv_ride', 'underscore'],
       ['-ubud-atv-', 'leading/trailing hyphen'],
       ['ubud--atv', 'double hyphen'],
-      ['venture-bali-atv', 'brand name'],
+      ['baliwild-atv', 'brand name'],
       ['', 'empty'],
     ])('rejects the slug "%s" (%s)', (slug) => {
       expect(isVentureSlugValid(slug)).toBe(false);

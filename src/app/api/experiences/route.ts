@@ -9,7 +9,7 @@ import { validateVentureTitle } from '@/lib/titleValidator';
 export const dynamic = 'force-dynamic';
 
 /** The tenant that owns the public catalogue. */
-const DEFAULT_TENANT_DOMAIN = 'venturebali.com';
+const DEFAULT_TENANT_DOMAIN = 'baliwild.com';
 
 /**
  * Schema for creating a venture.

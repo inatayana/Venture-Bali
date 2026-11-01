@@ -1,4 +1,4 @@
-# Venture Bali — AI Customer Service Agent
+# BaliWild — AI Customer Service Agent
 
 > **Version:** 1.0.0
 > **Last Updated:** October 2026

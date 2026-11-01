@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { TERMS_SECTIONS, TERMS_VERSION } from '@/lib/legal';
 
 export const metadata: Metadata = {
-  title: 'Booking terms | Venture Bali',
-  description: 'Terms of service for booking adventure activities with Venture Bali.',
+  title: 'Booking terms | BaliWild',
+  description: 'Terms of service for booking adventure activities with BaliWild.',
 };
 
 export default function TermsPage() {

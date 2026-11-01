@@ -1,5 +1,5 @@
 /**
- * Venture Bali i18n — EN/ID Language Toggle
+ * BaliWild i18n — EN/ID Language Toggle
  * Single source of truth untuk semua copy publik.
  */
 

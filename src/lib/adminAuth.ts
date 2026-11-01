@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Admin Password Hashing
+ * BaliWild — Admin Password Hashing
  * -------------------------------------
  * Password hashing for the operator panel, using scrypt from `node:crypto`.
  *

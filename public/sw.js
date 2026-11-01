@@ -1,4 +1,4 @@
-/* Venture Bali — service worker
+/* BaliWild — service worker
  *
  * Hand-written on purpose: the project avoids extra dependencies (AGENTS.md §4),
  * and this worker only needs to make the app installable and keep the shell
@@ -11,7 +11,7 @@
  * - Never caches /api, /admin, /checkout or /voucher (private data).
  */
 
-const VERSION = 'vb-v1';
+const VERSION = 'baliwild-v1';
 const SHELL_CACHE = `${VERSION}-shell`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const OFFLINE_URL = '/offline';

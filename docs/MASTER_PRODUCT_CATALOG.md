@@ -1,4 +1,4 @@
-# Venture Bali — Master Product Catalog
+# BaliWild — Master Product Catalog
 
 > **Version:** 1.1.0
 > **Status:** Launch blueprint. Dokumen ini mendefinisikan struktur, jumlah, dan urutan peluncuran.

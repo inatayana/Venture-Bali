@@ -1,14 +1,14 @@
-# Venture Bali - Project Structure & Conventions
+# BaliWild - Project Structure & Conventions
 
 > **Version:** 1.0.0
 > **Last Updated:** August 27, 2026
-> **Owner:** Venture Bali Engineering Team
+> **Owner:** BaliWild Engineering Team
 
-This document defines the folder structure, naming conventions, and architectural decisions for the Venture Bali platform.
+This document defines the folder structure, naming conventions, and architectural decisions for the BaliWild platform.
 
 ## Repository Overview
 
-Venture Bali is a multi-tenant OTA platform for adventure tourism in Bali.
+BaliWild is a multi-tenant OTA platform for adventure tourism in Bali.
 
 ### Tech Stack
 - **Framework:** Next.js 14+ (App Router)
@@ -23,7 +23,7 @@ Venture Bali is a multi-tenant OTA platform for adventure tourism in Bali.
 ## Folder Structure
 
 ```
-Venture-Bali/
+BaliWild/
 ├── docs/                              # Documentation
 │   ├── PRD_PPS.md
 │   ├── PROJECT_STRUCTURE.md

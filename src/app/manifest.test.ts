@@ -7,8 +7,8 @@ describe('PWA manifest', () => {
     expect(config.display).toBe('standalone');
     expect(config.start_url).toBe('/');
     expect(config.scope).toBe('/');
-    expect(config.name).toContain('Venture Bali');
-    expect(config.short_name).toBe('Venture Bali');
+    expect(config.name).toContain('BaliWild');
+    expect(config.short_name).toBe('BaliWild');
   });
 
   it('ships every icon size Android and iOS need', () => {
@@ -19,7 +19,7 @@ describe('PWA manifest', () => {
   });
 
   it('uses the brand theme colour', () => {
-    expect(config.theme_color).toBe('#111827');
-    expect(config.background_color).toBe('#ffffff');
+    expect(config.theme_color).toBe('#000000');
+    expect(config.background_color).toBe('#000000');
   });
 });

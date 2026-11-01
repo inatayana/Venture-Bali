@@ -1,8 +1,8 @@
 /**
- * Venture Bali — Create an operator account
+ * BaliWild — Create an operator account
  * -------------------------------------------
  * Usage:
- *   npm run admin:create -- operator@example.com "your password" [SUPER_ADMIN]
+ *   npm run admin:create -- operator@baliwild.com "your password" [SUPER_ADMIN]
  *
  * Stores a scrypt hash in the `AdminUser` table. The password is never
  * written to disk or logged.

@@ -26,7 +26,7 @@ export function TimeSlotCard({
       className={cn(
         'flex flex-col items-center p-4 rounded-xl border-2 transition-all min-w-[100px]',
         isSoldOut && 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed',
-        !isSoldOut && !isSelected && 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50',
+        !isSoldOut && !isSelected && 'border-gray-200 bg-white hover:border-brand hover:bg-brand/20',
         isSelected && 'border-brand-ink bg-brand/30 ring-2 ring-brand',
         className
       )}

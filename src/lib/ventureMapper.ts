@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Venture Mapper
+ * BaliWild — Venture Mapper
  * -------------------------------
  * Converts a Prisma `Venture` row (with relations) into the `VentureItem`
  * view model that the UI, SEO helpers and booking widget consume.

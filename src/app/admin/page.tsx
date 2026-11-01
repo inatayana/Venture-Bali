@@ -79,7 +79,7 @@ export default async function AdminDashboardPage() {
           <Link
             key={tile.label}
             href={tile.href}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:border-blue-200 transition-colors"
+            className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:border-brand transition-colors"
           >
             <p className="text-xs uppercase tracking-wider text-gray-500">{tile.label}</p>
             <p className="font-heading text-3xl font-bold text-gray-900 mt-1 tabular-nums">
@@ -92,7 +92,7 @@ export default async function AdminDashboardPage() {
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 lg:col-span-1">
           <p className="text-xs uppercase tracking-wider text-gray-500">Paid revenue</p>
-          <p className="font-heading text-2xl font-bold text-blue-600 mt-1 tabular-nums">
+          <p className="font-heading text-2xl font-bold text-brand-ink mt-1 tabular-nums">
             {formatPrice(stats.revenueIdr)}
           </p>
           <dl className="mt-4 space-y-1.5 text-sm">
@@ -114,7 +114,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-heading text-lg font-semibold text-gray-900">Recent bookings</h2>
-            <Link href="/admin/bookings" className="text-sm text-blue-600 hover:underline">
+            <Link href="/admin/bookings" className="text-sm text-brand-ink hover:underline">
               View all
             </Link>
           </div>

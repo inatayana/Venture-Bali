@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Prisma Seed Script
+ * BaliWild — Prisma Seed Script
  * -----------------------------------
  * Seeds base reference data and demo ventures for all 9 adventure mega categories.
  *
@@ -8,7 +8,7 @@
  *
  * Rules enforced (see AGENTS.md §9):
  *   - Only the 9 adventure mega categories are used.
- *   - "Venture Bali" brand name never appears in product titles or slugs.
+ *   - "BaliWild" brand name never appears in product titles or slugs.
  *   - Vendor / partner names are never exposed.
  *   - All prices are IDR integers.
  *
@@ -392,7 +392,7 @@ async function seedVentures(
 // ============ MAIN ============
 
 async function main() {
-  console.log('🌱 Seeding Venture Bali database...\n');
+  console.log('🌱 Seeding BaliWild database...\n');
 
   assertSeedCompliance(VENTURES);
 

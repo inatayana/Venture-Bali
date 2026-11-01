@@ -1,4 +1,4 @@
-# Venture Bali — Technology Decision Log
+# BaliWild — Technology Decision Log
 
 > **Version:** 1.0.0
 > **Last Updated:** October 2026
@@ -30,6 +30,31 @@
 | React + Vite SPA + Supabase on Hostinger Business | Requires full rewrite of server-side logic; not aligned with current codebase |
 | MySQL on Hostinger + Next.js SSR | Requires VPS anyway; schema migration from PostgreSQL adds risk |
 | Laravel + MySQL on Hostinger | Complete technology pivot; discards all existing TypeScript/Next.js work |
+
+---
+
+## 1.1 Brand & Domain: BaliWild / baliwild.com
+
+### Decision
+- Public brand: **BaliWild** (wordmark BALI + WILD, tagline **Own the wild.**).
+- Canonical domain: **https://baliwild.com** (`NEXT_PUBLIC_APP_URL`).
+- Palette: black `#000000` + Bali Flash Yellow `#FFEE00`, driven by
+  `--brand` / `--brand-ink`; the accent is never hardcoded in components.
+- All public brand strings live in `src/lib/brand.ts`.
+
+### Rationale
+1. The previous name read awkwardly for a global audience; BaliWild is short,
+   memorable and matches the existing “Own the wild!” voice.
+2. `baliwild.com` is owned and aligns with the adventure positioning.
+3. Centralising the name lets a future change be one constants file plus env,
+   rather than a template hunt.
+
+### Migration
+- Old hosts (`venture-bali.com` / `venturebali.com`) must 301 to the matching
+  `baliwild.com` path and stay registered for at least 12 months.
+- Tenant row, email sender, QR links, sitemap and canonical tags follow
+  `NEXT_PUBLIC_APP_URL`; rebuild after changing it because public env is baked
+  into the client bundle.
 
 ---
 
@@ -227,6 +252,6 @@ When implementing authentication:
 
 ---
 
-**Approved by:** Venture Bali Engineering Team
+**Approved by:** BaliWild Engineering Team
 **Date:** October 2026
 **Next Review:** January 2027
