@@ -93,8 +93,8 @@ Avoid:
 ## 8. Domain migration checklist
 
 - [ ] `NEXT_PUBLIC_APP_URL=https://baliwild.com` in production; rebuild.
-- [ ] 301 `venture-bali.com` / `venturebali.com` → matching `baliwild.com` path.
-- [ ] Keep the old host registered and verified in Search Console for 12 months.
+- [ ] No legacy domain owned — **no 301 needed**. If an old host is acquired
+      later, add a 301 to the matching `baliwild.com` path.
 - [ ] Re-submit `/sitemap.xml`; check canonical tags on home, PDP and blog.
 - [ ] Update `EMAIL_FROM`, WhatsApp templates, Google Business Profile and
       external booking links.

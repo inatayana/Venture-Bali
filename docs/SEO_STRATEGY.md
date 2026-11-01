@@ -18,9 +18,9 @@ Before switching the live host:
 
 1. Point `NEXT_PUBLIC_APP_URL` at `https://baliwild.com` in production and
    redeploy (Next bakes public env at build time).
-2. 301 every indexed `venture-bali.com` / `venturebali.com` URL to the matching
-   `baliwild.com` path. Keep the old host registered and verified in Search
-   Console for at least 12 months.
+2. No legacy domain is owned (`venture-bali.com` / `venturebali.com` were never
+   registered), so no 301 is needed. If a legacy host appears later, 301 it to
+   the matching `baliwild.com` path.
 3. Re-submit `/sitemap.xml` and check canonical tags on product, blog and home.
 4. Update Google Business Profile, email sender (`EMAIL_FROM`), WhatsApp
    templates and any external booking links to the new brand.
