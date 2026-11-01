@@ -9,6 +9,11 @@ export const BRAND_DOMAIN = 'baliwild.com';
 export const BRAND_TAGLINE = 'Own the wild.';
 export const BRAND_TITLE = `${BRAND_NAME} · ${BRAND_TAGLINE}`;
 export const BRAND_EDITORIAL_AUTHOR = 'BaliWild Editorial Team';
+export const BRAND_EMAIL_HELLO = 'hello@baliwild.com';
+export const BRAND_EMAIL_BOOKING = 'booking@baliwild.com';
+export const BRAND_EMAIL_SUPPORT = 'support@baliwild.com';
+export const BRAND_EMAIL_PARTNERS = 'partners@baliwild.com';
+export const BRAND_EMAIL_B2B = 'b2b@baliwild.com';
 export const BRAND_DESCRIPTION =
   'Raw Bali adventure, booked in minutes. ATV, rafting, tubing and trekking with licensed local operators — instant confirmation and free reschedule up to 24 hours before.';
 export const BRAND_SHORT_DESCRIPTION =

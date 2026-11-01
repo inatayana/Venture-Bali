@@ -68,7 +68,22 @@ Avoid:
 - Vendor/partner names.
 - Generic OTA filler (“book your dream adventure today!”).
 
-## 6. Imagery
+## 6. Email addresses
+
+| Address | Purpose | Public? |
+|---|---|---|
+| `hello@baliwild.com` | General enquiries, header/footer, social bio, Google Maps | Yes |
+| `booking@baliwild.com` | Transactional sender: confirmations, e-vouchers, invoices, payment receipts | No — system only |
+| `support@baliwild.com` | Complaints, reschedule, refund, on-trip emergency; `Reply-To` on transactional mail | Yes, for existing guests |
+| `partners@baliwild.com` | Tour agents, drivers, activity suppliers, OTA partnerships | Yes, in the partner link |
+| `b2b@baliwild.com` | Alias for the same partnership inbox | Optional |
+
+Rules:
+- `EMAIL_FROM` must use `booking@baliwild.com`; replies go to `support@`.
+- Never put `booking@` on a public page — it is a send-only mailbox.
+- Never use a personal Gmail address on the site or in email templates.
+
+## 7. Imagery
 
 - Real Bali landscapes, rivers, jungle, guides and guests in action.
 - Cinematic crops, dark enough on the copy side for white text.
@@ -76,7 +91,7 @@ Avoid:
   is intentionally translucent glass so the image remains the hero.
 - Never put text directly on a busy photo without the scrim.
 
-## 7. Where the brand must appear
+## 8. Where the brand must appear
 
 | Surface | File(s) |
 |---|---|
@@ -90,7 +105,7 @@ Avoid:
 | SEO / schema | `src/lib/seo.ts`, `src/lib/brand.ts` |
 | Icons | `public/icons/*` |
 
-## 8. Domain migration checklist
+## 9. Domain migration checklist
 
 - [ ] `NEXT_PUBLIC_APP_URL=https://baliwild.com` in production; rebuild.
 - [ ] No legacy domain owned — **no 301 needed**. If an old host is acquired

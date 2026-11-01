@@ -6,8 +6,10 @@ import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SearchProvider } from '@/components/search/SearchProvider';
 import { loadVentures } from '@/lib/ventureService';
+import { BRAND_EMAIL_HELLO } from '@/lib/brand';
 import { generateWebsiteStructuredData, getBaseUrl } from '@/lib/seo';
 import { MEGA_CATEGORIES } from '@/lib/taxonomy';
+import { Mail } from 'lucide-react';
 
 export const revalidate = 60;
 
@@ -37,13 +39,22 @@ export default async function Home() {
     <main className="min-h-screen bg-neutral-50">
       <JsonLd data={generateWebsiteStructuredData(getBaseUrl())} />
       <header className="sticky top-0 z-40 bg-white/95 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
-        <div className="container mx-auto flex items-center gap-3 px-4 py-3">
-          <p className="text-brand-ink">
-            <BrandWordmark className="text-2xl" />
-          </p>
-          <p className="hidden truncate text-xs text-gray-500 sm:block">
-            Own the wild. Adventure, booked in minutes.
-          </p>
+        <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <p className="shrink-0 text-brand-ink">
+              <BrandWordmark className="text-2xl" />
+            </p>
+            <p className="hidden truncate text-xs text-gray-500 sm:block">
+              Own the wild. Adventure, booked in minutes.
+            </p>
+          </div>
+          <a
+            href={`mailto:${BRAND_EMAIL_HELLO}`}
+            className="hidden shrink-0 items-center gap-1.5 text-xs font-semibold text-neutral-600 transition-colors hover:text-brand-ink md:inline-flex"
+          >
+            <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+            {BRAND_EMAIL_HELLO}
+          </a>
         </div>
       </header>
 

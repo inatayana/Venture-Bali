@@ -1,7 +1,12 @@
 import Link from 'next/link';
-import { MapPin, ShieldCheck, Sparkles } from 'lucide-react';
+import { Mail, MapPin, ShieldCheck, Sparkles } from 'lucide-react';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
+import {
+  BRAND_EMAIL_HELLO,
+  BRAND_EMAIL_PARTNERS,
+  BRAND_EMAIL_SUPPORT,
+} from '@/lib/brand';
 
 const PAYMENT_BADGES = ['VISA', 'Mastercard', 'GoPay', 'QRIS', 'Bank transfer'];
 
@@ -32,6 +37,12 @@ export function SiteFooter() {
             <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-white/50">
               <MapPin className="h-3.5 w-3.5" aria-hidden="true" /> Ubud, Gianyar · Bali, Indonesia
             </p>
+            <a
+              href={`mailto:${BRAND_EMAIL_HELLO}`}
+              className="mt-2 inline-flex items-center gap-1.5 text-xs text-white/60 transition-colors hover:text-brand"
+            >
+              <Mail className="h-3.5 w-3.5" aria-hidden="true" /> {BRAND_EMAIL_HELLO}
+            </a>
           </div>
 
           <div>
@@ -69,19 +80,35 @@ export function SiteFooter() {
             </h2>
             <ul className="mt-3 space-y-1.5 text-sm">
               <li>
-                <Link href="/terms" className="text-white/70 transition-colors hover:text-white">
+                <Link href="/terms" className="text-white/70 transition-colors hover:text-brand">
                   Booking terms
                 </Link>
               </li>
               <li>
-                <Link href="/waiver" className="text-white/70 transition-colors hover:text-white">
+                <Link href="/waiver" className="text-white/70 transition-colors hover:text-brand">
                   Safety waiver
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-white/70 transition-colors hover:text-white">
+                <Link href="/blog" className="text-white/70 transition-colors hover:text-brand">
                   Bali adventure guides
                 </Link>
+              </li>
+              <li>
+                <a
+                  href={`mailto:${BRAND_EMAIL_SUPPORT}`}
+                  className="text-white/70 transition-colors hover:text-brand"
+                >
+                  {BRAND_EMAIL_SUPPORT}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={`mailto:${BRAND_EMAIL_PARTNERS}`}
+                  className="text-white/70 transition-colors hover:text-brand"
+                >
+                  Partner with us · {BRAND_EMAIL_PARTNERS}
+                </a>
               </li>
             </ul>
           </div>
