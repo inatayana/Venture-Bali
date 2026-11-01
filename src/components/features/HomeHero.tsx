@@ -46,23 +46,29 @@ export function HomeHero({ hubs, suggestions, stats }: HomeHeroProps) {
       />
 
       <div className="container relative mx-auto px-4 pb-0 pt-10 sm:pt-16">
-        <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
-          Bali · 9 adventure categories
-        </p>
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:items-center lg:gap-12">
+          <div>
+            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+              Bali · 9 adventure categories
+            </p>
 
-        <h2 className="mt-4 max-w-3xl font-heading text-[clamp(1.15rem,6.2vw,3rem)] font-bold uppercase leading-[1.08] tracking-tight text-white">
-          <span className="block whitespace-nowrap">
-            Book the <RotatingKeyword />
-          </span>
-          <span className="mt-1 block">Own the wild!</span>
-        </h2>
+            <h2 className="mt-4 max-w-3xl font-heading text-[clamp(1.15rem,6.2vw,3rem)] font-bold uppercase leading-[1.08] tracking-tight text-white">
+              <span className="block whitespace-nowrap">
+                Book the <RotatingKeyword />
+              </span>
+              <span className="mt-1 block">Own the wild!</span>
+            </h2>
 
-        <p className="mt-3 max-w-xl text-sm text-white/70 sm:text-base">
-          Rafting, ATV, tubing and trekking across Bali — instant confirmation,
-          free reschedule up to 24 hours before, run by licensed local operators.
-        </p>
+            <p className="mt-3 max-w-xl text-sm text-white/70 sm:text-base">
+              Rafting, ATV, tubing and trekking across Bali — instant confirmation,
+              free reschedule up to 24 hours before, run by licensed local operators.
+            </p>
+          </div>
 
-        <HeroSearch hubs={hubs} suggestions={suggestions} />
+          <div className="mt-8 lg:mt-0">
+            <HeroSearch hubs={hubs} suggestions={suggestions} />
+          </div>
+        </div>
 
         <p className="mt-4 hidden items-center gap-1.5 text-[11px] text-white/50 sm:inline-flex">
           <CheckCircle className="h-3.5 w-3.5 text-brand" aria-hidden="true" />

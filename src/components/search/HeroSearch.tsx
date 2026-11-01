@@ -68,38 +68,39 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
 
   return (
     <>
-      {/* Desktop: floating glass card */}
+      {/* Desktop: vertical glass card */}
       <div
         ref={containerRef}
-        className="relative mt-6 hidden lg:block"
+        className="relative hidden lg:block"
         aria-label="Search adventures"
       >
-        <div className="flex items-center gap-1 rounded-2xl border border-white/15 bg-white/95 p-2 shadow-2xl backdrop-blur transition-all duration-300 hover:border-brand/60 hover:shadow-[0_0_0_1px_rgba(255,238,0,0.35),0_30px_60px_-30px_rgba(0,0,0,0.85)]">
-          <div className="relative flex-1">
+        <div className="rounded-2xl border border-white/15 bg-[#1A1A1A]/90 p-3 shadow-2xl backdrop-blur transition-all duration-300 hover:border-brand/60 hover:shadow-[0_0_0_1px_rgba(255,238,0,0.35),0_30px_60px_-30px_rgba(0,0,0,0.85)]">
+          {/* Destination */}
+          <div className="relative">
             <button
               type="button"
               onClick={() => setOpenField(openField === 'where' ? null : 'where')}
               aria-expanded={openField === 'where'}
-              className="w-full rounded-xl px-4 py-2.5 text-left transition-colors hover:bg-neutral-100"
+              className="w-full rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/5"
             >
-              <span className="block text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+              <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
                 Where
               </span>
-              <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-neutral-900">
-                <MapPin className="h-3.5 w-3.5 text-neutral-400" aria-hidden="true" />
+              <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-white">
+                <MapPin className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
                 {query.trim() || 'Anywhere in Bali'}
               </span>
             </button>
 
             {openField === 'where' && (
-              <div className="absolute left-0 top-full z-40 mt-2 w-80 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl">
+              <div className="absolute left-0 top-full z-40 mt-2 w-full overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl">
                 <div className="border-b border-neutral-100 p-2">
                   <input
                     autoFocus
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder="Search destinations or adventures…"
-                    className="min-h-[40px] w-full rounded-lg border border-neutral-200 px-3 text-sm outline-none focus:border-brand-ink"
+                    className="min-h-[40px] w-full rounded-lg border border-neutral-200 px-3 text-sm text-neutral-900 outline-none focus:border-brand-ink"
                   />
                 </div>
                 <div className="max-h-64 overflow-y-auto py-1">
@@ -147,26 +148,27 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
             )}
           </div>
 
-          <span className="h-8 w-px bg-neutral-200" aria-hidden="true" />
+          <div className="my-1 h-px bg-white/10" aria-hidden="true" />
 
-          <div className="relative flex-1">
+          {/* Date */}
+          <div className="relative">
             <button
               type="button"
               onClick={() => setOpenField(openField === 'date' ? null : 'date')}
               aria-expanded={openField === 'date'}
-              className="w-full rounded-xl px-4 py-2.5 text-left transition-colors hover:bg-neutral-100"
+              className="w-full rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/5"
             >
-              <span className="block text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+              <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
                 When
               </span>
-              <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-neutral-900">
-                <CalendarIcon className="h-3.5 w-3.5 text-neutral-400" aria-hidden="true" />
+              <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-white">
+                <CalendarIcon className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
                 {formatDateLabel(date)}
               </span>
             </button>
 
             {openField === 'date' && (
-              <div className="absolute left-0 top-full z-40 mt-2 w-80 rounded-xl border border-neutral-200 bg-white p-3 shadow-xl">
+              <div className="absolute left-0 top-full z-40 mt-2 w-full rounded-xl border border-neutral-200 bg-white p-3 shadow-xl">
                 <CalendarComponent
                   selectedDate={date ? new Date(`${date}T00:00:00`) : null}
                   onDateSelect={(value) => {
@@ -195,32 +197,35 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
             )}
           </div>
 
-          <span className="h-8 w-px bg-neutral-200" aria-hidden="true" />
+          <div className="my-1 h-px bg-white/10" aria-hidden="true" />
 
-          <div className="flex-1 px-4 py-1.5">
-            <span className="block text-[11px] font-bold uppercase tracking-wider text-neutral-500">
-              Guests
-            </span>
-            <div className="mt-0.5 flex items-center gap-2">
-              <Users className="h-3.5 w-3.5 text-neutral-400" aria-hidden="true" />
+          {/* Guests */}
+          <div className="flex items-center justify-between rounded-xl px-3 py-2.5">
+            <div>
+              <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
+                Guests
+              </span>
+              <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-white">
+                <Users className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
+                {pax} {pax === 1 ? 'guest' : 'guests'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setPax(pax - 1)}
                 disabled={pax <= 1}
                 aria-label="Fewer guests"
-                className="h-7 w-7 rounded-full border border-neutral-200 text-sm leading-none text-neutral-700 transition-colors hover:border-neutral-400 disabled:text-neutral-300"
+                className="h-8 w-8 rounded-full border border-white/20 text-sm leading-none text-white transition-colors hover:border-brand/60 disabled:text-white/30"
               >
                 −
               </button>
-              <span className="min-w-[64px] text-center text-sm font-medium tabular-nums text-neutral-900">
-                {pax} {pax === 1 ? 'guest' : 'guests'}
-              </span>
               <button
                 type="button"
                 onClick={() => setPax(pax + 1)}
                 disabled={pax >= 20}
                 aria-label="More guests"
-                className="h-7 w-7 rounded-full border border-neutral-200 text-sm leading-none text-neutral-700 transition-colors hover:border-neutral-400 disabled:text-neutral-300"
+                className="h-8 w-8 rounded-full border border-white/20 text-sm leading-none text-white transition-colors hover:border-brand/60 disabled:text-white/30"
               >
                 +
               </button>
@@ -230,7 +235,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           <button
             type="button"
             onClick={runSearch}
-            className="inline-flex min-h-[52px] shrink-0 items-center gap-2 rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand transition-colors hover:bg-neutral-900"
+            className="mt-2 inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-brand text-sm font-bold text-brand-ink transition-colors hover:bg-brand/90"
           >
             <Search className="h-4 w-4" aria-hidden="true" />
             Search
@@ -242,7 +247,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
       <button
         type="button"
         onClick={() => setIsSheetOpen(true)}
-        className="mt-5 flex w-full items-center gap-3 rounded-full border border-white/15 bg-white/95 px-4 py-3 text-left shadow-xl backdrop-blur lg:hidden"
+        className="flex w-full items-center gap-3 rounded-full border border-white/15 bg-white/95 px-4 py-3 text-left shadow-xl backdrop-blur lg:hidden"
       >
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-ink text-brand">
           <Search className="h-4 w-4" aria-hidden="true" />
