@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { CheckCircle, ShieldCheck, Sparkles, Star, Wallet } from 'lucide-react';
 import { HeroSearch, type HeroSuggestion } from '@/components/search/HeroSearch';
 import { RotatingKeyword } from '@/components/features/RotatingKeyword';
@@ -28,9 +29,22 @@ export function HomeHero({ hubs, suggestions, stats }: HomeHeroProps) {
     <section className="relative isolate overflow-hidden bg-brand-ink text-white">
       {/* Cinematic layer: drop /public/images/hero-bali.jpg to activate it; the
           scrim keeps headline contrast either way. */}
+      {/* Cinematic layer: the supplied Bali collage. Next/Image serves the
+          optimised format and marks it as the LCP image. */}
+      <div aria-hidden="true" className="absolute inset-0">
+        <Image
+          src="/images/hero-bali.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          quality={80}
+          className="object-cover object-center opacity-70"
+        />
+      </div>
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[url('/images/hero-bali.jpg')] bg-cover bg-center opacity-70"
+        className="absolute inset-0 bg-black/35 lg:bg-transparent"
       />
       {/* Editorial scrim: deep on the copy side, clear on the image side. */}
       <div
