@@ -114,6 +114,10 @@ export interface EssentialInfo {
 export interface ItineraryItem {
   time: string;
   activity: string;
+  /** Optional human label, e.g. "~40 mins drive + 15 mins briefing". */
+  duration?: string;
+  /** Numeric minutes, used to total the itinerary. */
+  durationMinutes?: number;
 }
 
 export interface MeetingPoint {

@@ -69,7 +69,15 @@ function asItinerary(value: unknown): ItineraryItem[] {
     if (!isRecord(item)) return [];
     const time = typeof item.time === 'string' ? item.time : null;
     const activity = typeof item.activity === 'string' ? item.activity : null;
-    return time !== null && activity !== null ? [{ time, activity }] : [];
+    if (time === null || activity === null) return [];
+
+    const duration = typeof item.duration === 'string' ? item.duration : undefined;
+    const durationMinutes =
+      typeof item.durationMinutes === 'number' && Number.isFinite(item.durationMinutes)
+        ? item.durationMinutes
+        : undefined;
+
+    return [{ time, activity, duration, durationMinutes }];
   });
 }
 

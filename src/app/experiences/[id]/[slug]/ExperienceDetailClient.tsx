@@ -32,6 +32,8 @@ import { SiteFooter } from '@/components/layout/SiteFooter';
 import { CollapsibleText } from '@/components/features/CollapsibleText';
 import { itineraryStepDisplay } from '@/lib/itineraryDisplay';
 import { clampText, HIGHLIGHT_MAX, HOOK_MAX } from '@/lib/contentLimits';
+import { formatDuration, totalDurationMinutes, TRANSFER_NOTE } from '@/lib/itineraryDuration';
+import { emphasiseLead } from '@/lib/emphasiseLead';
 import { ProductLightbox } from '@/components/features/ProductLightbox';
 import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
@@ -339,6 +341,7 @@ export function ExperienceDetailClient({
   const reviews = useMemo(() => venture.reviewList ?? [], [venture.reviewList]);
   const faqs = venture.faqs ?? [];
   const reviewCount = venture.reviewCount;
+  const itineraryTotal = totalDurationMinutes(venture.itinerary);
 
   const histogram = useMemo(
     () =>
@@ -820,24 +823,30 @@ export function ExperienceDetailClient({
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 {venture.essentialInfo.whatToBring.length > 0 && (
                   <div>
-                    <h3 className="mb-1.5 text-xs font-bold uppercase tracking-wider text-neutral-500">
+                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-neutral-900">
                       What to bring
                     </h3>
-                    <ul className="space-y-1 text-sm text-neutral-700">
+                    <ul className="space-y-1.5 text-sm text-neutral-700">
                       {venture.essentialInfo.whatToBring.map((item) => (
-                        <li key={item}>• {item}</li>
+                        <li key={item} className="flex items-start gap-2">
+                          <span aria-hidden="true" className="text-neutral-400">•</span>
+                          <span>{emphasiseLead(item)}</span>
+                        </li>
                       ))}
                     </ul>
                   </div>
                 )}
                 {venture.essentialInfo.knowBeforeYouGo.length > 0 && (
                   <div>
-                    <h3 className="mb-1.5 text-xs font-bold uppercase tracking-wider text-neutral-500">
+                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-neutral-900">
                       Know before you go
                     </h3>
-                    <ul className="space-y-1 text-sm text-neutral-700">
+                    <ul className="space-y-1.5 text-sm text-neutral-700">
                       {venture.essentialInfo.knowBeforeYouGo.map((item) => (
-                        <li key={item}>• {item}</li>
+                        <li key={item} className="flex items-start gap-2">
+                          <span aria-hidden="true" className="text-neutral-400">•</span>
+                          <span>{emphasiseLead(item)}</span>
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -892,9 +901,15 @@ export function ExperienceDetailClient({
                           >
                             {index + 1}
                           </span>
-                          <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
-                            {item.time}
-                          </p>
+                          {(item.durationMinutes || item.duration) && (
+                            <p className="text-[11px] font-semibold text-neutral-500">
+                              <span className="uppercase tracking-wide">Duration:</span>{' '}
+                              <span className="tabular-nums">
+                                {item.duration ??
+                                  formatDuration(item.durationMinutes ?? 0)}
+                              </span>
+                            </p>
+                          )}
                           <p className="mt-0.5 text-sm font-semibold leading-snug text-neutral-900">
                             {step.title}
                           </p>
@@ -907,6 +922,17 @@ export function ExperienceDetailClient({
                       );
                     })}
                   </ol>
+                  {itineraryTotal !== null && (
+                    <div className="mt-4 rounded-xl bg-neutral-50 px-3.5 py-3">
+                      <p className="text-xs font-semibold text-neutral-900">
+                        Total estimated duration:{' '}
+                        <span className="tabular-nums">{formatDuration(itineraryTotal)}</span>
+                      </p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-neutral-500">
+                        {TRANSFER_NOTE}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </section>
