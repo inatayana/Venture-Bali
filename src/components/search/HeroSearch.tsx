@@ -171,14 +171,16 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
 
             {openField === 'date' && (
               <div className="absolute left-0 top-full z-40 mt-2 w-full rounded-xl border border-neutral-200 bg-white p-3 shadow-xl [text-shadow:none]">
-                <CalendarComponent
-                  selectedDate={date ? new Date(`${date}T00:00:00`) : null}
-                  onDateSelect={(value) => {
-                    setDate(toDateKey(value));
-                    setOpenField(null);
-                  }}
-                  minDate={new Date()}
-                />
+                <div className="rounded-xl border border-neutral-200 p-2 dark:border-white/10">
+                  <CalendarComponent
+                    selectedDate={date ? new Date(`${date}T00:00:00`) : null}
+                    onDateSelect={(value) => {
+                      setDate(toDateKey(value));
+                      setOpenField(null);
+                    }}
+                    minDate={new Date()}
+                  />
+                </div>
                 <div className="mt-2 flex items-center justify-between">
                   <button
                     type="button"
@@ -359,11 +361,13 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
             <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-neutral-500">
               {t('searchWhen')}
             </span>
-            <CalendarComponent
-              selectedDate={date ? new Date(`${date}T00:00:00`) : null}
-              onDateSelect={(value) => setDate(toDateKey(value))}
-              minDate={new Date()}
-            />
+            <div className="rounded-xl border border-neutral-200 p-2 dark:border-white/10">
+              <CalendarComponent
+                selectedDate={date ? new Date(`${date}T00:00:00`) : null}
+                onDateSelect={(value) => setDate(toDateKey(value))}
+                minDate={new Date()}
+              />
+            </div>
             {date && (
               <button
                 type="button"
