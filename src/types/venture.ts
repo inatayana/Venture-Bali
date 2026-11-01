@@ -425,5 +425,7 @@ export interface VentureItem extends Omit<Venture, 'location'> {
   reviewCount: number;
   reviewList?: ReviewSummary[];
   isAvailable: boolean;
+  /** Paid guests booked for this month (social proof). */
+  bookedThisMonth?: number;
   location: string;
 }

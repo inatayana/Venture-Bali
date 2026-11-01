@@ -1,4 +1,4 @@
-import { buildConfirmationText, buildReminderText, getWitaDateKey } from './notifications';
+import { buildConfirmationText, buildReminderText, buildReviewRequestText, getWitaDateKey } from './notifications';
 
 const booking = {
   id: 'booking-1',
@@ -61,5 +61,15 @@ describe('notification templates', () => {
     expect(text).toContain('tomorrow');
     expect(text).toContain('BK-TEST-001');
     expect(text).toContain('arrive 15 minutes early');
+  });
+});
+
+describe('buildReviewRequestText', () => {
+  it('links straight to the review form', () => {
+    const text = buildReviewRequestText(booking as never, 'https://venturebali.com/review/b1?token=abc');
+
+    expect(text).toContain('How was your');
+    expect(text).toContain('https://venturebali.com/review/b1?token=abc');
+    expect(text).toContain('BK-TEST-001');
   });
 });

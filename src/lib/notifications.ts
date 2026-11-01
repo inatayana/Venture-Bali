@@ -16,7 +16,7 @@
 import { prisma } from '@/lib/prisma';
 import { whatsappClient } from '@/lib/whatsapp';
 import { getBaseUrl } from '@/lib/seo';
-import { buildCustomerBookingsUrl } from '@/lib/customerLink';
+import { buildCustomerBookingsUrl, createCustomerLinkToken } from '@/lib/customerLink';
 
 export type NotificationChannel = 'WHATSAPP' | 'EMAIL';
 
@@ -109,6 +109,38 @@ export function buildReminderText(booking: BookingForNotification, hoursBefore: 
     'Please arrive 15 minutes early and bring valid ID.',
     `Voucher & QR: ${voucherUrl(booking.bookingCode)}`,
   ].join('\n');
+}
+
+export function buildReviewRequestText(
+  booking: BookingForNotification,
+  reviewUrl: string
+): string {
+  return [
+    `How was your ${booking.variant.title}?`,
+    `Trip date: ${formatLongDate(booking.bookingDate)}`,
+    '',
+    'Tell other travellers what to expect — it takes a minute and helps our local guides.',
+    `Leave a review: ${reviewUrl}`,
+    '',
+    `Booking: ${booking.bookingCode}`,
+  ].join('\n');
+}
+
+function reviewRequestEmailHtml(booking: BookingForNotification, reviewUrl: string): string {
+  return `
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#111827">
+      <h1 style="font-size:22px">How was your trip?</h1>
+      <p>Hi ${escapeHtml(booking.customer.name)}, thanks for joining ${escapeHtml(booking.variant.title)}
+      on ${escapeHtml(formatLongDate(booking.bookingDate))}.</p>
+      <p>Tell other travellers what to expect — it takes a minute and helps our local guides.</p>
+      <p>
+        <a href="${reviewUrl}" style="display:inline-block;background:#000000;color:#FFEE00;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:700">
+          Leave a review
+        </a>
+      </p>
+      <p style="color:#6b7280;font-size:12px">Booking ${escapeHtml(booking.bookingCode)}</p>
+    </div>
+  `.trim();
 }
 
 function emailHtml(
@@ -324,6 +356,46 @@ export async function sendBookingReminder(bookingId: string): Promise<Notificati
       REMINDER_SUBJECT,
       text,
       reminderEmailHtml(entity),
+    ),
+  ]);
+
+  return results;
+}
+
+const REVIEW_SUBJECT = 'How was your trip?';
+
+/**
+ * Ask a guest for a review the day after the trip.
+ *
+ * Uses the same magic link the booking history uses, so no account is needed.
+ * Idempotent per booking (NotificationLog subject) and skipped when a review
+ * already exists.
+ */
+export async function sendReviewRequest(bookingId: string): Promise<NotificationResult[]> {
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: { ...bookingInclude(), review: { select: { id: true } } },
+  });
+
+  if (!booking || booking.paymentStatus !== 'PAID' || booking.review) return [];
+  if (await alreadyNotified(bookingId, REVIEW_SUBJECT)) return [];
+
+  const token = createCustomerLinkToken(booking.customer.id);
+  if (!token) return [];
+
+  const reviewUrl = `${getBaseUrl()}/review/${booking.id}?token=${token}`;
+  const entity = booking as unknown as BookingForNotification;
+  const text = buildReviewRequestText(entity, reviewUrl);
+
+  const results = await Promise.all([
+    deliver(entity, 'WHATSAPP', entity.customer.whatsapp, REVIEW_SUBJECT, text),
+    deliver(
+      entity,
+      'EMAIL',
+      entity.customer.email,
+      REVIEW_SUBJECT,
+      text,
+      reviewRequestEmailHtml(entity, reviewUrl),
     ),
   ]);
 
