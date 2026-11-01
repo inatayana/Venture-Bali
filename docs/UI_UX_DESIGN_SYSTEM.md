@@ -179,7 +179,9 @@ Langkah konfigurasi (berlaku untuk desktop inline & mobile bottom sheet):
 - **Admin**: paket (variant) bisa dibuat/diubah/dihapus dari `/admin/ventures/[id]` — judul, deskripsi, mode, locked pickup zone, durasi, badge, minimum spend, sort order, dan price tier. Paket yang sudah punya booking tidak bisa dihapus.
 
 ### Section 4: Detailed Activity Information (What To Expect)
-- Description **collapsible**: excerpt maksimal **225 karakter** + tombol **Read more / Read less** (accordion in-place, tanpa layout shift). Komponen `CollapsibleText`.
+- **Hook di bawah galeri**: memakai `hook3Sec` (bukan `shortDescription`), dibatasi **200 karakter** (`clampText`, potong di batas kata). `shortDescription` tetap dipakai untuk kartu & meta SEO — tidak lagi diduplikasi di PDP.
+- **Full description**: kolom `longDescription` (teks panjang ±500–700 karakter, tone: about → what to expect → what you get → what we expect from you). Ditampilkan collapsed **225 karakter** + tombol **Read more / Read less** (accordion in-place, tanpa layout shift). Komponen `CollapsibleText`.
+- **Highlights**: section tersendiri **tepat di atas "Safety & requirements"**, minimal **5 poin**, tiap poin dibatasi **90 karakter** (`HIGHLIGHT_MAX`) agar maksimal dua baris di mobile; grid 1 kolom (mobile) / 2 kolom (desktop).
 - **Itinerary timeline**: bulatan bernomor 1..n dengan latar warna aksen `brand` dan angka `brand-ink`, dihubungkan garis vertikal 3px. Tiap langkah menampilkan waktu, judul (maks **45 karakter**, dipotong di batas kata) dan deskripsi singkat (maks **110 karakter**) — helper `itineraryStepDisplay` di `src/lib/itineraryDisplay.ts`.
 - What's Included/Excluded 2 kolom + Things to Know (accordion) + FAQ.
 

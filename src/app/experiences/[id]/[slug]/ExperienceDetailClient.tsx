@@ -31,6 +31,7 @@ import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { CollapsibleText } from '@/components/features/CollapsibleText';
 import { itineraryStepDisplay } from '@/lib/itineraryDisplay';
+import { clampText, HIGHLIGHT_MAX, HOOK_MAX } from '@/lib/contentLimits';
 import { ProductLightbox } from '@/components/features/ProductLightbox';
 import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
@@ -644,8 +645,8 @@ export function ExperienceDetailClient({
                   <h1 className="font-heading text-2xl font-bold leading-tight text-neutral-900 md:text-3xl">
                     {venture.title}
                   </h1>
-                  <p className="mt-1 text-sm leading-relaxed text-neutral-600">
-                    {venture.shortDescription ?? venture.description}
+                  <p className="mt-1 text-sm font-medium leading-relaxed text-neutral-700">
+                    {clampText(venture.hook3Sec, HOOK_MAX)}
                   </p>
                 </div>
 
@@ -767,6 +768,23 @@ export function ExperienceDetailClient({
               </section>
             )}
 
+            {venture.highlights.length > 0 && (
+              <section className="rounded-2xl border border-neutral-200 p-5">
+                <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">Highlights</h2>
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {venture.highlights.map((item, index) => (
+                    <li
+                      key={`${item}-${index}`}
+                      className="flex items-start gap-2 rounded-xl bg-neutral-50 px-3 py-2 text-sm text-neutral-700"
+                    >
+                      <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+                      <span>{clampText(item, HIGHLIGHT_MAX)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
             <section id="safety" className="rounded-2xl border border-neutral-200 p-5">
               <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">
                 Safety & requirements
@@ -855,7 +873,7 @@ export function ExperienceDetailClient({
             <section id="details" className="scroll-mt-28 rounded-2xl border border-neutral-200 p-5">
               <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">What to expect</h2>
               <CollapsibleText
-                text={venture.description}
+                text={venture.longDescription ?? venture.description}
                 limit={225}
                 id="venture-description"
                 className="mb-4 text-sm leading-relaxed text-neutral-600"
@@ -863,8 +881,7 @@ export function ExperienceDetailClient({
 
               {venture.itinerary.length > 0 && (
                 <div className="mb-4">
-                  <h3 className="mb-3 text-sm font-semibold text-neutral-900">Itinerary</h3>
-                  <ol className="relative ml-3 space-y-4 border-l-[3px] border-neutral-200 pl-6">
+                  <h3 className="mb-3 text-sm font-semibold text-neutral-900">Itinerary</h3>                  <ol className="relative ml-3 space-y-4 border-l-[3px] border-neutral-200 pl-6">
                     {venture.itinerary.map((item, index) => {
                       const step = itineraryStepDisplay(item.activity);
                       return (
@@ -891,17 +908,6 @@ export function ExperienceDetailClient({
                     })}
                   </ol>
                 </div>
-              )}
-
-              {venture.highlights.length > 0 && (
-                <ul className="space-y-1.5">
-                  {venture.highlights.map((item, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm text-neutral-700">
-                      <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
               )}
             </section>
 

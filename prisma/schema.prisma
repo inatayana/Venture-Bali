@@ -182,6 +182,9 @@ model Venture {
   title             String
   hook3Sec          String
   shortDescription  String?
+  /// Long-form "about + what to expect + what you get + what we expect" copy.
+  /// Used by the product page's collapsible description; short copy stays for cards/meta.
+  longDescription   String?    @db.Text
   duration          String
   badge             String?
   /// Where guests meet for SELF_DRIVE packages.
