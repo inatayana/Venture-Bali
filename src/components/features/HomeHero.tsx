@@ -1,5 +1,6 @@
 import { CheckCircle, ShieldCheck, Sparkles, Wallet } from 'lucide-react';
 import { HeroSearch, type HeroSuggestion } from '@/components/search/HeroSearch';
+import { RotatingKeyword } from '@/components/features/RotatingKeyword';
 
 const TRUST_POINTS = [
   { icon: Sparkles, label: 'Instant confirmation' },
@@ -33,10 +34,11 @@ export function HomeHero({ hubs, suggestions }: HomeHeroProps) {
           Bali · 9 adventure categories
         </p>
 
-        <h2 className="mt-4 max-w-2xl font-heading text-4xl font-bold uppercase leading-[1.05] tracking-tight sm:text-5xl">
-          Book the{' '}
-          <span className="bg-brand px-2 text-brand-ink">adrenaline</span>
-          <br className="hidden sm:block" /> skip the queue.
+        <h2 className="mt-4 max-w-3xl font-heading text-[clamp(1.15rem,6.2vw,3rem)] font-bold uppercase leading-[1.08] tracking-tight text-white">
+          <span className="block whitespace-nowrap">
+            Book the <RotatingKeyword />
+          </span>
+          <span className="mt-1 block">Own the wild!</span>
         </h2>
 
         <p className="mt-3 max-w-xl text-sm text-white/70 sm:text-base">
