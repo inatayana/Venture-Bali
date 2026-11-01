@@ -62,7 +62,7 @@ Theme surfaces (v3.6.5):
 | Theme | Page | Header | Cards | Text |
 |---|---|---|---|---|
 | Light | `#FAFAFA` | `#FFFFFF` | `#FFFFFF` | black |
-| Dark | `#1F1F1F` | `#1F1F1F` | `#2A2A2A` | white |
+| Dark | `#212121` | `#191919` | `#191919` | white |
 
 Brand surfaces (hero, footer, yellow CTA) keep their own contrast and are not
 flattened by the theme toggle.

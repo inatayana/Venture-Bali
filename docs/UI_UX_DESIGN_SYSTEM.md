@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.6.5
+> **Version:** 3.6.6
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -19,6 +19,7 @@
 > **Changelog v3.6.3:** Tablet/small-desktop search becomes a horizontal glass pill; hero intent pills, real booking ticker and responsive typewriter polish.
 > **Changelog v3.6.4:** Theme-aware wordmark — light: BALI black / WILD white; dark: BALI white / WILD black.
 > **Changelog v3.6.5:** Theme surfaces — light page `#FAFAFA` with white header/cards; dark page/header `#1F1F1F` with `#2A2A2A` cards.
+> **Changelog v3.6.6:** Dark surfaces tuned — page `#212121`, header/cards/inputs `#191919`.
 
 ## 1. Design Principles
 

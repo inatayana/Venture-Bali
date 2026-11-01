@@ -33,7 +33,7 @@
 /*
  * Theme surfaces
  * Light: #FAFAFA page, white header/cards.
- * Dark:  #1F1F1F page/header, #2A2A2A cards.
+ * Dark:  #212121 page, #191919 header/cards/inputs.
  */
 html:not(.dark) {
   background-color: #fafafa;
@@ -50,35 +50,35 @@ html:not(.dark) .bg-gray-50 {
 }
 
 html.dark {
-  background-color: #1f1f1f;
+  background-color: #212121;
 }
 
 html.dark body {
-  background-color: #1f1f1f;
+  background-color: #212121;
   color: #f8f9fa;
 }
 
 html.dark .bg-white,
 html.dark .bg-white\/90 {
-  background-color: #2a2a2a !important;
+  background-color: #191919 !important;
 }
 
-/* The global header keeps the base dark surface, not the card surface. */
+/* The global header uses the darker combination surface. */
 html.dark .bg-white\/95,
 html.dark header.bg-white {
-  background-color: #1f1f1f !important;
+  background-color: #191919 !important;
 }
 
 html.dark .bg-neutral-50,
 html.dark .bg-gray-50,
 html.dark .bg-neutral-50\/50,
 html.dark .bg-gray-50\/50 {
-  background-color: #171717 !important;
+  background-color: #191919 !important;
 }
 
 html.dark .bg-neutral-100,
 html.dark .bg-gray-100 {
-  background-color: #333333 !important;
+  background-color: #2a2a2a !important;
 }
 
 html.dark .text-neutral-900,
@@ -141,7 +141,7 @@ html.dark .border-gray-100 {
 html.dark input,
 html.dark select,
 html.dark textarea {
-  background-color: #1f1f1f !important;
+  background-color: #191919 !important;
   border-color: #444444 !important;
   color: #f8f9fa !important;
 }
