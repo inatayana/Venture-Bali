@@ -13,6 +13,7 @@ import {
   getBaseUrl,
 } from '@/lib/seo';
 import { ExperienceDetailClient } from './ExperienceDetailClient';
+import { getMonthlyGuestCounts } from '@/lib/ventureService';
 import type { PickupZone, VehicleClass, VentureItem } from '@/types/venture';
 
 interface PageProps {
@@ -68,6 +69,40 @@ async function getBookingOptions(): Promise<BookingOptions> {
   }
 }
 
+/**
+ * Up to three other adventures in the same category. Falls back to the offline
+ * catalogue when the database is unavailable.
+ */
+async function getRelated(venture: VentureItem, take = 3): Promise<VentureItem[]> {
+  try {
+    const sameCategory = await prisma.venture.findMany({
+      where: { category: venture.category, id: { not: venture.id } },
+      include: ventureWithRelations,
+      orderBy: { rating: 'desc' },
+      take,
+    });
+
+    if (sameCategory.length >= take) return sameCategory.map(toVentureItem);
+
+    // Categories hold few products today, so top up with the best of the rest.
+    const excludeIds = [venture.id, ...sameCategory.map((item) => item.id)];
+    const fillers = await prisma.venture.findMany({
+      where: { id: { notIn: excludeIds } },
+      include: ventureWithRelations,
+      orderBy: { rating: 'desc' },
+      take: take - sameCategory.length,
+    });
+
+    return [...sameCategory, ...fillers].map(toVentureItem);
+  } catch (error) {
+    console.error('Could not load related adventures:', error);
+  }
+
+  return mockExperiences
+    .filter((item) => item.id !== venture.id)
+    .slice(0, take);
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const venture = await getExperience(params.id, params.slug);
 
@@ -91,6 +126,11 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  const [monthlyGuests, related] = await Promise.all([
+    getMonthlyGuestCounts(),
+    getRelated(venture),
+  ]);
+
   const structuredData = generateVentureStructuredData({
     venture,
     baseUrl: getBaseUrl(),
@@ -103,9 +143,10 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <ExperienceDetailClient
-        venture={venture}
+        venture={{ ...venture, bookedThisMonth: monthlyGuests.get(venture.id) ?? 0 }}
         zones={bookingOptions.zones}
         vehicleClasses={bookingOptions.vehicleClasses}
+        related={related}
       />
     </>
   );

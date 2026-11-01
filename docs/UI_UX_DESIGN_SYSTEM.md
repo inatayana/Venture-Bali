@@ -192,7 +192,10 @@ Langkah konfigurasi (berlaku untuk desktop inline & mobile bottom sheet):
 - **Empty state**: bila `reviewCount = 0`, jangan tampilkan angka rating maupun histogram — tampilkan kartu "No verified reviews yet" (ikon bintang abu-abu + ajakan review setelah trip). Baris rating di header berubah menjadi chip "New · no reviews yet".
 
 ### Section 6: Location & Related Adventures
-- Map widget + address + "Open in Google Maps" + pickup info note + 3–4 related cards.
+- Map widget + address + "Open in Google Maps" + pickup info note + 3-4 related cards.
+- **Related (v1.6.0)**: `getRelated` mengambil maksimal 3 produk dari kategori yang sama; karena tiap kategori masih 1 produk, sisanya diisi produk rating tertinggi lain agar section tidak kosong. Section `#related` ("More") ikut masuk anchor nav.
+- **Social proof (v1.6.0)**: kartu produk dan header PDP menampilkan chip `N booked this month` — jumlah **pax** dari booking `PAID` bulan berjalan (`getMonthlyGuestCounts`), hanya tampil bila > 0.
+- **Cron review request**: `/api/cron/review-requests` (02:00 UTC = 10:00 WITA) mengirim WhatsApp + email ke tamu yang tripnya kemarin dan belum mereview; idempoten lewat `NotificationLog`.
 
 > **Aturan konversi lama (v2.0.0) tetap berlaku**: trust badges, skeleton/empty/error states, touch target 44×44px, social proof, price anchoring.
 

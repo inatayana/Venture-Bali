@@ -110,6 +110,12 @@ export function VentureCard({
             <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
             Instant Confirmation
           </span>
+          {venture.bookedThisMonth ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-[11px] font-medium text-neutral-800">
+              <Users className="w-3.5 h-3.5" aria-hidden="true" />
+              {venture.bookedThisMonth} booked this month
+            </span>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">

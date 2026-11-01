@@ -18,7 +18,7 @@ import {
   ChevronUp,
   BadgeCheck,
 } from 'lucide-react';
-import { BottomSheet, Stepper } from '@/components/ui';
+import { BottomSheet, Stepper, VentureCard } from '@/components/ui';
 import {
   ExperienceBookingWidget,
   toDateKey,
@@ -44,6 +44,8 @@ interface ExperienceDetailClientProps {
   venture: VentureItem;
   zones: PickupZone[];
   vehicleClasses: VehicleClass[];
+  /** Other adventures in the same category. */
+  related?: VentureItem[];
 }
 
 const PAYMENT_LOGOS = ['VISA', 'Mastercard', 'GoPay', 'QRIS'];
@@ -55,6 +57,7 @@ const PDP_SECTIONS = [
   { id: 'details', label: 'What to expect' },
   { id: 'reviews', label: 'Reviews' },
   { id: 'coverage', label: 'Location' },
+  { id: 'related', label: 'More' },
 ] as const;
 // Mirrors the launch coupon in src/data/catalogue.ts (display label only).
 const PROMO_DISCOUNT_PERCENT = 40;
@@ -83,7 +86,12 @@ function buildInitialConfig(venture: VentureItem): BookingConfig {
   };
 }
 
-export function ExperienceDetailClient({ venture, zones, vehicleClasses }: ExperienceDetailClientProps) {
+export function ExperienceDetailClient({
+  venture,
+  zones,
+  vehicleClasses,
+  related = [],
+}: ExperienceDetailClientProps) {
   const gallery = useMemo(
     () => (venture.gallery.length > 0 ? venture.gallery : [venture.imageUrl]),
     [venture.gallery, venture.imageUrl]
@@ -686,6 +694,11 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
                 <span className="inline-flex items-center gap-1">
                   <Users className="h-4 w-4" /> Up to {venture.maxParticipants} guests
                 </span>
+                {venture.bookedThisMonth ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-xs font-medium text-neutral-800">
+                    <Users className="h-3.5 w-3.5" /> {venture.bookedThisMonth} booked this month
+                  </span>
+                ) : null}
               </div>
 
               <div className="grid gap-2 sm:grid-cols-3">
@@ -1023,6 +1036,23 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
           </div>
         </div>
       </div>
+
+      {related.length > 0 && (
+        <section id="related" className="mx-auto max-w-7xl px-4 pb-10 pt-2">
+          <h2 className="font-heading text-lg font-bold text-neutral-900">
+            More adventures to explore
+          </h2>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((item) => (
+              <VentureCard
+                key={item.id}
+                venture={item}
+                href={`/experiences/${item.id}/${item.slug}`}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       <SiteFooter />
 
