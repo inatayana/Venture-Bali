@@ -10,6 +10,7 @@ import {
   ClipboardList,
   Sparkles,
   BarChart3,
+  MessageSquareQuote,
   ExternalLink,
   LogOut,
 } from 'lucide-react';
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { href: '/admin/operations', label: 'Operations', icon: ClipboardList },
   { href: '/admin/ventures', label: 'Ventures', icon: Map },
   { href: '/admin/bookings', label: 'Bookings', icon: CalendarCheck },
+  { href: '/admin/reviews', label: 'Reviews', icon: MessageSquareQuote },
   { href: '/admin/reports', label: 'Revenue', icon: BarChart3 },
   { href: '/admin/content', label: 'AI Content', icon: Sparkles },
 ];

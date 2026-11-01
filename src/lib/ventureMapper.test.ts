@@ -201,7 +201,8 @@ describe('toVentureItem', () => {
     expect(item.slug).toBe('ubud-atv-jungle-ride');
     expect(item.title).toBe('Ubud ATV Jungle Ride through Rice Terraces and Waterfalls');
     expect(item.category).toBe('ATV');
-    expect(item.rating).toBe(4.8);
+    // The fixture has one approved 5★ review, which now drives the rating.
+    expect(item.rating).toBe(5);
   });
 
   it('derives description, price, duration and participant bounds', () => {
@@ -239,6 +240,29 @@ describe('toVentureItem', () => {
       ],
     } as Partial<VentureWithRelations>);
     expect(toVentureItem(venture).reviewCount).toBe(1);
+  });
+
+  it('derives the rating from approved reviews once they exist', () => {
+    const venture = buildVenture({
+      rating: 3.1,
+      reviews: [
+        { ...buildVenture().reviews[0], id: 'rev-1', rating: 5, isApproved: true },
+        { ...buildVenture().reviews[0], id: 'rev-2', rating: 4, isApproved: true },
+      ],
+    } as Partial<VentureWithRelations>);
+
+    expect(toVentureItem(venture).rating).toBe(4.5);
+    expect(toVentureItem(venture).reviewCount).toBe(2);
+  });
+
+  it('falls back to the editorial rating when nothing is approved', () => {
+    const venture = buildVenture({
+      rating: 3.1,
+      reviews: [{ ...buildVenture().reviews[0], isApproved: false }],
+    } as Partial<VentureWithRelations>);
+
+    expect(toVentureItem(venture).rating).toBe(3.1);
+    expect(toVentureItem(venture).reviewCount).toBe(0);
   });
 
   it('maps variants with their price tiers, slots and add-ons', () => {

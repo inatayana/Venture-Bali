@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyCustomerLinkToken } from '@/lib/customerLink';
 import { formatPrice } from '@/lib/i18n';
 import { LIFECYCLE_LABELS } from '@/lib/bookingLifecycle';
+import { canReviewBooking } from '@/lib/reviewSchema';
 import { CheckCircle, AlertCircle, Calendar, ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -55,6 +56,7 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
             },
           },
           slotTime: { select: { time: true } },
+          review: { select: { id: true } },
         },
       },
     },
@@ -112,18 +114,38 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
 
                 <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-3">
                   <span className="font-mono text-xs text-neutral-500">{booking.bookingCode}</span>
-                  {booking.paymentStatus === 'PAID' ? (
-                    <Link
-                      href={`/voucher/${booking.id}`}
-                      className="inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-neutral-900"
-                    >
-                      View voucher <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-xs text-neutral-400">
-                      <CheckCircle className="h-4 w-4" /> Awaiting payment
-                    </span>
-                  )}
+                  <div className="flex items-center gap-4">
+                    {booking.review ? (
+                      <span className="text-xs font-medium text-green-700">
+                        Review submitted
+                      </span>
+                    ) : (
+                      canReviewBooking({
+                        paymentStatus: booking.paymentStatus,
+                        bookingDate: booking.bookingDate,
+                        reviewId: null,
+                      }) && (
+                        <Link
+                          href={`/review/${booking.id}?token=${searchParams.token ?? ''}`}
+                          className="inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-neutral-900"
+                        >
+                          Write a review <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      )
+                    )}
+                    {booking.paymentStatus === 'PAID' ? (
+                      <Link
+                        href={`/voucher/${booking.id}`}
+                        className="inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-neutral-900"
+                      >
+                        View voucher <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs text-neutral-400">
+                        <CheckCircle className="h-4 w-4" /> Awaiting payment
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

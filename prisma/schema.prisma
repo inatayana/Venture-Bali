@@ -368,6 +368,7 @@ model Booking {
   expiresAt        DateTime?
   payment          Payment?
   vouchers         Voucher[]
+  review           Review?         @relation("BookingToReview")
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
@@ -447,8 +448,13 @@ model Review {
   venture    Venture  @relation("VentureToReview", fields: [ventureId], references: [id])
   customerId String
   customer   Customer @relation(fields: [customerId], references: [id])
+  /// Booking the review belongs to. Present = verified trip; unique = one review per booking.
+  bookingId  String?  @unique
+  booking    Booking? @relation("BookingToReview", fields: [bookingId], references: [id], onDelete: SetNull)
   rating     Int
   comment    String   @db.Text
+  /// Reserved for guest photos (URLs); rendered once storage is configured.
+  photos     Json     @default("[]")
   isApproved Boolean  @default(false)
   createdAt  DateTime @default(now())
 

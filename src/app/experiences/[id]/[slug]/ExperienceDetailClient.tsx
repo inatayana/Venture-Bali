@@ -928,6 +928,12 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
                           <span className="text-sm font-medium text-neutral-900">
                             {review.author}
                           </span>
+                          {review.isVerified && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-green-700">
+                              <BadgeCheck className="h-3 w-3" aria-hidden="true" />
+                              Verified trip
+                            </span>
+                          )}
                           <div className="ml-auto flex items-center gap-0.5">
                             {Array.from({ length: review.rating }).map((_, index) => (
                               <Star

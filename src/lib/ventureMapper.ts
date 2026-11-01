@@ -174,6 +174,16 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
   const { min, max } = deriveParticipantBounds(venture);
   const ventureInclusions = asStringArray(venture.inclusions);
   const ventureExclusions = asStringArray(venture.exclusions);
+  const approvedReviews = venture.reviews.filter((review) => review.isApproved);
+  // Real reviews outrank the seeded editorial rating once they exist.
+  const rating =
+    approvedReviews.length > 0
+      ? Math.round(
+          (approvedReviews.reduce((sum, review) => sum + review.rating, 0) /
+            approvedReviews.length) *
+            10
+        ) / 10
+      : venture.rating;
 
   return {
     id: venture.id,
@@ -217,7 +227,7 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
     imageUrl: venture.imageUrl,
     gallery: asStringArray(venture.gallery),
     videoUrl: venture.videoUrl ?? undefined,
-    rating: venture.rating,
+    rating,
 
     createdAt: venture.createdAt,
     updatedAt: venture.updatedAt,
@@ -292,7 +302,7 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
     durationHours: parseDurationHours(venture.duration),
     minParticipants: min,
     maxParticipants: max,
-    reviewCount: venture.reviews.filter((review) => review.isApproved).length,
+    reviewCount: approvedReviews.length,
     reviewList: venture.reviews
       .filter((review) => review.isApproved)
       .slice(0, 10)
@@ -301,6 +311,7 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
         rating: review.rating,
         comment: review.comment,
         author: 'Verified guest',
+        isVerified: Boolean(review.bookingId),
         createdAt: review.createdAt,
       })),
     isAvailable: deriveIsAvailable(venture),
