@@ -274,20 +274,22 @@ SATU bottom sheet dengan 3 step di dalamnya (bukan sheet terpisah):
 ## 6. Listing, Search & Filter
 
 ### Search Bar
-- Di atas filter, placeholder "Search adventures in Bali..."
-- Icon 🔍 di kiri, tombol clear ✕ di kanan.
+- **Hero search (v1.7.0)**: destinasi, tanggal, dan jumlah tamu menyatu di dalam hero.
+  - Desktop: kartu kaca horizontal (Where / When / Guests + tombol Search) dengan popover destinasi (Nearby & popular hubs + Suggested adventures) dan popover kalender.
+  - Mobile: pil ringkas yang membuka **bottom sheet** berisi destinasi, kalender, dan stepper tamu + CTA "Search adventures".
+  - State dibagi lewat `SearchProvider`; parameter `?q=&date=&pax=` ditulis ke URL saat submit dan dibaca kembali saat load.
+- Tidak ada lagi blok pencarian terpisah di bawah hero.
 
 ### Filter Chips (Horizontal Scrollable)
 ```
-[ATV] [Rafting] [Tubing] [Cycling] [Trekking] [Water Sports] [Snorkeling] [Extreme] [Combo]
+[All] [ATV] [Rafting] [Tubing] [Cycling] [Trekking] [Water Sports] [Snorkeling] [Extreme] [Combo]
 ```
-- Selected chip: warna solid. Unselected: outline.
-- Scroll horizontal pada mobile, wrap pada desktop.
+- Selected tile: warna ink dengan teks aksen. Unselected: putih + outline.
+- Scroll horizontal pada mobile, satu baris pada desktop. Heading "Browse by category" dihapus agar viewport bersih.
 
 ### Sort Options
-- Trigger: tombol pill dengan icon sort + label urutan aktif (label disembunyikan di mobile, tinggal icon) dan chevron.
-- Klik trigger membuka popup "Sort by" (bukan `<select>` native); opsi aktif ditandai centang biru. Tutup dengan klik luar, Escape, atau setelah memilih.
-- Pilihan: "Recommended" (default), "Price: Low to High", "Price: High to Low", "Rating", "Duration".
+- Sort **menyatu di tile "All"**: label kecil di bawah "All" menunjukkan urutan aktif (mis. "Recommended"). Klik membuka menu berisi **All categories** (jika ada kategori aktif) + 5 opsi urutan; opsi aktif bertanda centang.
+- Tidak ada dropdown sort terpisah di header katalog.
 
 ### Filter Panel (Bottom Sheet)
 - **Transfer**: Self Drive / Private Transfer

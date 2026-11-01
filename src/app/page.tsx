@@ -2,12 +2,20 @@ import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { HomeHero } from '@/components/features/HomeHero';
 import { TrustStrip } from '@/components/features/TrustStrip';
 import { SiteFooter } from '@/components/layout/SiteFooter';
+import { SearchProvider } from '@/components/search/SearchProvider';
 import { loadVentures } from '@/lib/ventureService';
 
 export const revalidate = 60;
 
+/** Popular pickup hubs offered by the hero destination picker. */
+const HUBS = ['Ubud', 'Seminyak', 'Canggu', 'Nusa Dua', 'Sanur', 'Denpasar', 'Kuta', 'Uluwatu'];
+
 export default async function Home() {
   const { ventures, source } = await loadVentures();
+  const suggestions = ventures.slice(0, 5).map((venture) => ({
+    title: venture.title,
+    href: `/experiences/${venture.id}/${venture.slug}`,
+  }));
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -22,9 +30,12 @@ export default async function Home() {
         </div>
       </header>
 
-      <HomeHero />
+      <SearchProvider>
+        <HomeHero hubs={HUBS} suggestions={suggestions} />
+        <VentureExplorer ventures={ventures} />
+      </SearchProvider>
 
-      <VentureExplorer ventures={ventures} />
+      <TrustStrip />
 
       <TrustStrip />
 

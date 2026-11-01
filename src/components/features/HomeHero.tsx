@@ -1,4 +1,5 @@
 import { CheckCircle, ShieldCheck, Sparkles, Wallet } from 'lucide-react';
+import { HeroSearch, type HeroSuggestion } from '@/components/search/HeroSearch';
 
 const TRUST_POINTS = [
   { icon: Sparkles, label: 'Instant confirmation' },
@@ -6,13 +7,16 @@ const TRUST_POINTS = [
   { icon: Wallet, label: 'Secure checkout · VISA / QRIS' },
 ];
 
+interface HomeHeroProps {
+  hubs: readonly string[];
+  suggestions: readonly HeroSuggestion[];
+}
+
 /**
- * Home hero — preview only.
- *
- * Dark band with the brand accent so the catalogue opens with energy instead of
- * dropping straight into a grid. Purely presentational: no data, no state.
+ * Home hero: dark band with the brand accent and the unified search control
+ * (destination, date, guests) so the catalogue starts above the fold.
  */
-export function HomeHero() {
+export function HomeHero({ hubs, suggestions }: HomeHeroProps) {
   return (
     <section className="relative overflow-hidden bg-brand-ink text-white">
       <div
@@ -39,6 +43,8 @@ export function HomeHero() {
           Rafting, ATV, tubing and trekking across Bali — instant confirmation,
           free reschedule up to 24 hours before, run by licensed local operators.
         </p>
+
+        <HeroSearch hubs={hubs} suggestions={suggestions} />
 
         <ul className="mt-6 flex flex-wrap gap-2 text-xs">
           {TRUST_POINTS.map(({ icon: Icon, label }) => (
