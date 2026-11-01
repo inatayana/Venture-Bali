@@ -138,6 +138,7 @@ Aturan penerapan:
 ### Sticky Header & Breadcrumb Bar
 - **Home**: brand header menempel di atas (`sticky top-0`, backdrop blur) saat halaman di-scroll, dengan tinggi ringkas agar grid produk tetap terlihat.
 - **PDP**: bar sticky setinggi 56px berisi tombol "All adventures", breadcrumb `Home › Kategori › Nama produk`, dan harga paket terpilih per guest (desktop). Bar tetap terlihat saat scroll, jadi user bisa kembali atau pindah halaman tanpa scroll ke atas.
+- **Section nav mengambang**: pill `Packages · What to expect · Reviews · Location` diposisikan **di tengah kolom konten kanan** (bukan full-width), `sticky top-64px`, dengan scrim gradien putih agar teks di bawahnya memudar. Pill **tidak tampil saat halaman dibuka**; muncul (fade + slide 8px) ketika section `#packages` mencapai header, dan memudar perlahan saat scroll kembali ke atas (`opacity/visibility` transition 300ms, `h-0` supaya tidak menyisakan ruang).
 - **Kategori = dropdown**: crumb kategori (`CategoryQuickMenu`) membuka 9 mega kategori beserta emoji; tiap item menuju `/?category=<slug>` (mis. `/?category=tubing`). `VentureExplorer` membaca query itu setelah hydration (homepage tetap statis) dan langsung menandai chip kategori terkait. Tutup dengan klik luar atau Escape.
 - Booking card kolom kiri (desktop) memakai `top: 76px` agar tidak tertutup bar; anchor section memakai `scroll-padding-top` 4.5rem.
 

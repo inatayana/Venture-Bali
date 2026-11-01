@@ -95,6 +95,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [mobileSlideIndex, setMobileSlideIndex] = useState(0);
   const [activeSection, setActiveSection] = useState<string>('packages');
+  const [navVisible, setNavVisible] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [promoVisible, setPromoVisible] = useState(true);
   const [wishlisted, setWishlisted] = useState(false);
@@ -152,6 +153,25 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
 
     sections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
+  }, []);
+
+  // The floating section nav only appears once the packages section reaches the
+  // sticky header, and fades out again when the guest scrolls back up.
+  useEffect(() => {
+    const packages = document.getElementById('packages');
+    if (!packages) return;
+
+    const sync = () => {
+      setNavVisible(packages.getBoundingClientRect().top <= 120);
+    };
+
+    sync();
+    window.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync);
+    return () => {
+      window.removeEventListener('scroll', sync);
+      window.removeEventListener('resize', sync);
+    };
   }, []);
 
   const estimate = useMemo(() => {
@@ -354,33 +374,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
         </div>
       </div>
 
-      {/* Sticky section nav (scroll-spy) */}
-      <nav
-        aria-label="Page sections"
-        className="sticky top-14 z-30 border-b border-neutral-200 bg-white/95 backdrop-blur"
-      >
-        <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 py-1.5 scrollbar-hide">
-          {PDP_SECTIONS.map((section) => {
-            const isActive = activeSection === section.id;
-            return (
-              <a
-                key={section.id}
-                href={`#${section.id}`}
-                aria-current={isActive ? 'true' : undefined}
-                className={cn(
-                  'shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-                  isActive
-                    ? 'bg-brand-ink text-brand'
-                    : 'text-neutral-600 hover:bg-brand/25 hover:text-neutral-900'
-                )}
-              >
-                {section.label}
-              </a>
-            );
-          })}
-        </div>
-      </nav>
-
+      {/* Sticky section nav — floats in the right content column */}
       <div className="mx-auto max-w-7xl px-4 pb-4 pt-4">
         {promoVisible && (
           <div className="mb-4">
@@ -390,7 +384,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(340px,380px)_1fr] lg:items-start">
           {/* LEFT — sticky booking card (desktop only) */}
-          <aside className="hidden lg:sticky lg:top-[116px] lg:block">
+          <aside className="hidden lg:sticky lg:top-[76px] lg:block">
             <div className="rounded-2xl border border-neutral-200 p-5 shadow-sm">
               <p className="text-xs uppercase tracking-wider text-neutral-500">
                 {selectedVariant ? 'Selected package' : 'Starting price'}
@@ -482,6 +476,46 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
 
           {/* RIGHT — hero, header and all scrollable content */}
           <div className="space-y-6">
+            {/* Floating section nav: revealed at #packages, centred on the content column */}
+            <div
+              className={cn(
+                'sticky top-[64px] z-30 h-0 transition-all duration-300 ease-out',
+                navVisible
+                  ? 'visible translate-y-0 opacity-100'
+                  : 'invisible -translate-y-2 opacity-0'
+              )}
+            >
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 -top-3 h-16 bg-gradient-to-b from-white via-white/90 to-transparent"
+              />
+              <div className="relative flex justify-center pt-1">
+                <nav
+                  aria-label="Page sections"
+                  className="inline-flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full border border-neutral-200/80 bg-white/95 p-1 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.25)] backdrop-blur scrollbar-hide"
+                >
+                  {PDP_SECTIONS.map((section) => {
+                    const isActive = activeSection === section.id;
+                    return (
+                      <a
+                        key={section.id}
+                        href={`#${section.id}`}
+                        aria-current={isActive ? 'true' : undefined}
+                        className={cn(
+                          'shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+                          isActive
+                            ? 'bg-brand-ink text-brand'
+                            : 'text-neutral-600 hover:bg-brand/25 hover:text-neutral-900'
+                        )}
+                      >
+                        {section.label}
+                      </a>
+                    );
+                  })}
+                </nav>
+              </div>
+            </div>
+
             {/* Desktop: asymmetric gallery — one large photo plus three tiles */}
             <div className="hidden sm:grid sm:h-[440px] sm:grid-cols-[2fr_1fr] sm:grid-rows-3 sm:gap-2">
               {orderedGallery.map((image, index) => (
