@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Calendar as CalendarIcon, MapPin, Search, Users, X } from 'lucide-react';
 import { BottomSheet, Calendar as CalendarComponent } from '@/components/ui';
 import { useSearch } from '@/components/search/SearchProvider';
+import { useLocale } from '@/components/locale/LocaleProvider';
 import { cn } from '@/utils/cn';
 import { toDateKey } from '@/lib/dateKey';
 
@@ -18,8 +19,8 @@ interface HeroSearchProps {
   suggestions: readonly HeroSuggestion[];
 }
 
-function formatDateLabel(value: string): string {
-  if (!value) return 'Any date';
+function formatDateLabel(value: string, anyDate = 'Any date'): string {
+  if (!value) return anyDate;
   return new Date(`${value}T00:00:00`).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
@@ -33,6 +34,7 @@ function formatDateLabel(value: string): string {
  * that opens a bottom sheet, so everything stays reachable with one thumb.
  */
 export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
+  const { t } = useLocale();
   const { query, date, pax, setQuery, setDate, setPax, submit } = useSearch();
   const [openField, setOpenField] = useState<'where' | 'date' | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -84,11 +86,11 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
               className="w-full rounded-xl px-3 py-3 text-left transition-colors hover:bg-white/5"
             >
               <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
-                Where
+                {t('searchWhere')}
               </span>
               <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-white">
                 <MapPin className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-                {query.trim() || 'Anywhere in Bali'}
+                {query.trim() || t('searchAnywhere')}
               </span>
             </button>
 
@@ -99,13 +101,13 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
                     autoFocus
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Search destinations or adventures…"
+                    placeholder={t('searchPlaceholder')}
                     className="min-h-[40px] w-full rounded-lg border border-neutral-200 px-3 text-sm text-neutral-900 outline-none focus:border-brand-ink"
                   />
                 </div>
                 <div className="max-h-64 overflow-y-auto py-1">
                   <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                    Nearby & popular
+                    {t('searchNearby')}
                   </p>
                   {filteredHubs.map((hub) => (
                     <button
@@ -130,7 +132,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
                   {suggestions.length > 0 && (
                     <>
                       <p className="mt-1 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                        Suggested adventures
+                        {t('searchSuggested')}
                       </p>
                       {suggestions.slice(0, 4).map((suggestion) => (
                         <Link
@@ -159,11 +161,11 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
               className="w-full rounded-xl px-3 py-3 text-left transition-colors hover:bg-white/5"
             >
               <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
-                When
+                {t('searchWhen')}
               </span>
               <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-white">
                 <CalendarIcon className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-                {formatDateLabel(date)}
+                {formatDateLabel(date, t('searchAnyDate'))}
               </span>
             </button>
 
@@ -183,14 +185,14 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
                     onClick={() => setDate('')}
                     className="text-xs font-semibold text-neutral-600 underline"
                   >
-                    Flexible dates
+                    {t('searchFlexible')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setOpenField(null)}
                     className="text-xs font-semibold text-neutral-900"
                   >
-                    Done
+                    {t('searchDone')}
                   </button>
                 </div>
               </div>
@@ -203,11 +205,11 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           <div className="flex items-center justify-between rounded-xl px-3 py-3">
             <div>
               <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
-                Guests
+                {t('searchGuests')}
               </span>
               <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-white">
                 <Users className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-                {pax} {pax === 1 ? 'guest' : 'guests'}
+                {pax} {pax === 1 ? t('searchGuestOne') : t('searchGuestMany')}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -238,26 +240,67 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
             className="mt-2 inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-brand text-sm font-bold text-brand-ink [text-shadow:none] transition-colors hover:bg-brand/90"
           >
             <Search className="h-4 w-4" aria-hidden="true" />
-            Search
+            {t('searchButton')}
           </button>
         </div>
+      </div>
+
+      {/* Tablet / small desktop: one horizontal glass pill instead of the tall card */}
+      <div className="hidden md:block lg:hidden">
+        <button
+          type="button"
+          onClick={() => setIsSheetOpen(true)}
+          aria-label="Open search"
+          className="flex min-h-[64px] w-full items-center gap-3 rounded-full border border-white/15 bg-[#111111]/15 px-4 text-left backdrop-blur-[6px] transition-colors hover:border-brand/50 hover:bg-[#111111]/25"
+        >
+          <span className="min-w-0 flex-1">
+            <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/50">
+              {t('searchWhere')}
+            </span>
+            <span className="mt-0.5 block truncate text-sm font-medium text-white">
+              {query.trim() || t('searchAnywhere')}
+            </span>
+          </span>
+          <span className="h-8 w-px shrink-0 bg-white/15" aria-hidden="true" />
+          <span className="min-w-0 flex-1">
+            <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/50">
+              {t('searchWhen')}
+            </span>
+            <span className="mt-0.5 block truncate text-sm font-medium text-white">
+              {formatDateLabel(date, t('searchAnyDate'))}
+            </span>
+          </span>
+          <span className="h-8 w-px shrink-0 bg-white/15" aria-hidden="true" />
+          <span className="min-w-0 flex-1">
+            <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/50">
+              {t('searchGuests')}
+            </span>
+            <span className="mt-0.5 block truncate text-sm font-medium text-white">
+              {pax} {pax === 1 ? t('searchGuestOne') : t('searchGuestMany')}
+            </span>
+          </span>
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand text-brand-ink">
+            <Search className="h-4 w-4" aria-hidden="true" />
+          </span>
+        </button>
       </div>
 
       {/* Mobile: compact pill + bottom sheet */}
       <button
         type="button"
         onClick={() => setIsSheetOpen(true)}
-        className="flex w-full items-center gap-3 rounded-full border border-white/15 bg-white/95 px-4 py-3 text-left shadow-xl backdrop-blur lg:hidden"
+        className="flex w-full items-center gap-3 rounded-full border border-white/15 bg-white/95 px-4 py-3 text-left shadow-xl backdrop-blur md:hidden"
       >
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-ink text-brand">
           <Search className="h-4 w-4" aria-hidden="true" />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-semibold text-neutral-900">
-            {query.trim() || 'Where to in Bali?'}
+            {query.trim() || t('searchMobileWhere')}
           </span>
           <span className="block truncate text-xs text-neutral-500">
-            {formatDateLabel(date)} · {pax} {pax === 1 ? 'guest' : 'guests'}
+            {formatDateLabel(date, t('searchAnyDate'))} · {pax}{' '}
+            {pax === 1 ? t('searchGuestOne') : t('searchGuestMany')}
           </span>
         </span>
       </button>
@@ -274,7 +317,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
             className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-brand-ink text-sm font-semibold text-brand"
           >
             <Search className="h-4 w-4" aria-hidden="true" />
-            Search adventures
+            {t('searchAdventures')}
           </button>
         }
       >
@@ -284,7 +327,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
               htmlFor="mobile-destination"
               className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-neutral-500"
             >
-              Where
+              {t('searchWhere')}
             </label>
             <input
               id="mobile-destination"
@@ -314,7 +357,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
 
           <div>
             <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-neutral-500">
-              When
+              {t('searchWhen')}
             </span>
             <CalendarComponent
               selectedDate={date ? new Date(`${date}T00:00:00`) : null}
@@ -334,11 +377,11 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
 
           <div>
             <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-neutral-500">
-              Guests
+              {t('searchGuests')}
             </span>
             <div className="flex items-center justify-between rounded-xl border border-neutral-200 px-3 py-2">
               <span className="text-sm font-medium text-neutral-900">
-                {pax} {pax === 1 ? 'guest' : 'guests'}
+                {pax} {pax === 1 ? t('searchGuestOne') : t('searchGuestMany')}
               </span>
               <div className="flex items-center gap-2">
                 <button

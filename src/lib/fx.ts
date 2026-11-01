@@ -130,3 +130,8 @@ export function formatCurrency(amount: number, currency: Currency): string {
   }
   return `${info.symbol}${amount.toLocaleString('en-US')}`;
 }
+
+/** Static fallback rate (IDR per 1 unit) used before the live API responds. */
+export function fallbackRate(currency: Currency): number {
+  return FALLBACK_RATES[currency] ?? 1;
+}

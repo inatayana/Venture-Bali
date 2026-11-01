@@ -18,12 +18,12 @@ describe('HeroSearch', () => {
   it('renders destination, date and guests in the desktop card', () => {
     renderSearch();
 
-    expect(screen.getByText('Where')).toBeInTheDocument();
-    expect(screen.getByText('When')).toBeInTheDocument();
-    expect(screen.getByText('Guests')).toBeInTheDocument();
-    expect(screen.getByText('Anywhere in Bali')).toBeInTheDocument();
-    expect(screen.getByText('Any date')).toBeInTheDocument();
-    expect(screen.getByText('1 guest')).toBeInTheDocument();
+    expect(screen.getAllByText('Where').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('When').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Guests').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Anywhere in Bali').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Any date').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('1 guest').length).toBeGreaterThan(0);
   });
 
   it('increments guests without leaving the hero', async () => {
@@ -32,14 +32,14 @@ describe('HeroSearch', () => {
 
     await user.click(screen.getAllByRole('button', { name: /more guests/i })[0]);
 
-    expect(screen.getByText('2 guests')).toBeInTheDocument();
+    expect(screen.getAllByText('2 guests').length).toBeGreaterThan(0);
   });
 
   it('suggests hubs and adventures in the destination picker', async () => {
     const user = userEvent.setup();
     renderSearch();
 
-    await user.click(screen.getByText('Anywhere in Bali'));
+    await user.click(screen.getAllByText('Anywhere in Bali')[0]);
 
     expect(screen.getByText('Ubud')).toBeInTheDocument();
     expect(screen.getByText('Canggu')).toBeInTheDocument();

@@ -3,23 +3,25 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/utils/cn';
-import { SUPPORTED_CURRENCIES, type Currency } from '@/lib/fx';
+import { SUPPORTED_CURRENCIES, type Currency, type CurrencyInfo } from '@/lib/fx';
 
 interface CurrencySwitcherProps {
   selectedCurrency: Currency;
   onCurrencyChange: (currency: Currency) => void;
+  currencies?: readonly CurrencyInfo[];
   className?: string;
 }
 
 export function CurrencySwitcher({
   selectedCurrency,
   onCurrencyChange,
+  currencies = SUPPORTED_CURRENCIES,
   className,
 }: CurrencySwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const selected = SUPPORTED_CURRENCIES.find((c) => c.code === selectedCurrency);
+  const selected = currencies.find((c) => c.code === selectedCurrency);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -36,7 +38,7 @@ export function CurrencySwitcher({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+        className="flex min-h-[36px] items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-current transition-colors hover:bg-brand/30"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
@@ -50,7 +52,7 @@ export function CurrencySwitcher({
           className="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 max-h-60 overflow-y-auto"
           role="listbox"
         >
-          {SUPPORTED_CURRENCIES.map((currency) => (
+          {currencies.map((currency) => (
             <button
               key={currency.code}
               type="button"

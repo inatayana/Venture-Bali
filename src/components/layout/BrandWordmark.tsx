@@ -13,12 +13,12 @@ export function BrandWordmark({ className }: BrandWordmarkProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-baseline font-heading font-bold uppercase leading-none tracking-wider',
+        'inline-flex items-baseline font-heading font-bold uppercase leading-none tracking-wider dark:text-white',
         className
       )}
     >
       Bali
-      <span className="bg-brand px-1 text-brand-ink">Wild</span>
+      <span className="bg-brand px-1 text-white dark:text-brand-ink">Wild</span>
     </span>
   );
 }

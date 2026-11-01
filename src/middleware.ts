@@ -11,6 +11,22 @@ import { ADMIN_SESSION_COOKIE, verifySessionToken } from '@/lib/adminSession';
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const isAdminArea =
+    pathname.startsWith('/admin') || pathname.startsWith('/api/admin');
+
+  if (!isAdminArea) {
+    const response = NextResponse.next();
+    const country =
+      request.headers.get('x-vercel-ip-country') ?? request.headers.get('cf-ipcountry');
+    if (country && !request.cookies.get('baliwild-country')) {
+      response.cookies.set('baliwild-country', country.toUpperCase(), {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: 'lax',
+      });
+    }
+    return response;
+  }
 
   const isPublicAdminPath =
     pathname === '/admin/login' ||
@@ -45,5 +61,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*'],
+  matcher: [
+    '/admin/:path*',
+    '/api/admin/:path*',
+    '/((?!api|_next|icons|images|favicon.ico).*)',
+  ],
 };

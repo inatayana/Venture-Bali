@@ -37,9 +37,8 @@ describe('RotatingKeyword', () => {
     tick(8, 65); // type "ATV Ride"
     tick(1, 1400); // hold
     tick(1, 220); // start deleting
-    tick(8, 32); // delete all characters
-    tick(1, 220); // move to the next word
-    tick(1, 65); // type its first letter
+    tick(7, 32); // delete down to one character
+    tick(1, 32); // move straight to the next word's first letter
 
     expect(screen.getByText('R')).toBeInTheDocument();
   });

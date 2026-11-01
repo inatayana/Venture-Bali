@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { Download, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
+import { CONSENT_EVENT, getStoredConsent } from '@/lib/consent';
+
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
@@ -20,8 +22,17 @@ export function InstallPrompt() {
   const pathname = usePathname();
   const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
+  const [consented, setConsented] = useState(false);
 
   useEffect(() => {
+    const sync = () => setConsented(Boolean(getStoredConsent()));
+    sync();
+    window.addEventListener(CONSENT_EVENT, sync);
+    return () => window.removeEventListener(CONSENT_EVENT, sync);
+  }, []);
+
+  useEffect(() => {
+    if (!consented) return;
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as unknown as { standalone?: boolean }).standalone === true;
@@ -36,7 +47,7 @@ export function InstallPrompt() {
 
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
+  }, [consented]);
 
   if (!visible || !promptEvent || pathname !== '/') return null;
 

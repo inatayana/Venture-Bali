@@ -31,6 +31,10 @@ Product titles, meta titles and slugs must never contain “BaliWild” (enforce
 must stay black-on-yellow or yellow-on-black; do not outline it, gradient it or
 put it on a photo without the scrim.
 
+Theme rule (v3.6.4):
+- **Light theme:** `BALI` black, `WILD` white on the yellow block.
+- **Dark theme:** `BALI` white, `WILD` black on the yellow block.
+
 - Component: `src/components/layout/BrandWordmark.tsx`
 - Minimum size: 18px. Keep clear space equal to the height of “W” around it.
 - Use on: header, footer, admin/login, offline page, PWA icons.

@@ -65,13 +65,17 @@ export function RotatingKeyword({ keywords = HERO_KEYWORDS }: { keywords?: reado
       }
     } else if (phase === 'holding') {
       timer = window.setTimeout(() => setPhase('deleting'), BETWEEN_MS);
-    } else if (text.length > 0) {
+    } else if (text.length > 1) {
       timer = window.setTimeout(() => setText(word.slice(0, text.length - 1)), DELETE_MS);
     } else {
+      // Never leave an empty keyword on screen: move straight to the first
+      // character of the next word so "Book the ..." always reads as a sentence.
+      const nextIndex = (wordIndex + 1) % words.length;
       timer = window.setTimeout(() => {
-        setWordIndex((index) => (index + 1) % words.length);
+        setWordIndex(nextIndex);
+        setText(words[nextIndex].slice(0, 1));
         setPhase('typing');
-      }, BETWEEN_MS);
+      }, DELETE_MS);
     }
 
     return () => window.clearTimeout(timer);

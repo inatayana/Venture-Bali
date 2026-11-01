@@ -20,6 +20,9 @@ import {
 } from 'lucide-react';
 import { BottomSheet, Stepper, VentureCard } from '@/components/ui';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
+import { CurrencySelector } from '@/components/currency/CurrencySelector';
+import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import {
   ExperienceBookingWidget,
   toDateKey,
@@ -402,6 +405,12 @@ export function ExperienceDetailClient({
             <a href="/" aria-label="BaliWild home">
               <BrandWordmark className="text-sm" />
             </a>
+          </div>
+
+          <div className="hidden shrink-0 items-center gap-1 md:flex">
+            <LanguageSwitcher />
+            <CurrencySelector />
+            <ThemeSwitcher />
           </div>
 
           <div className="hidden shrink-0 items-baseline gap-1 pl-3 lg:flex">
