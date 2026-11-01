@@ -100,7 +100,7 @@ export function HomeHero({ hubs, suggestions, stats, bookingPulse }: HomeHeroPro
       />
 
       <div className="container relative mx-auto px-4 pb-10 pt-14 sm:pt-20 lg:pb-16 lg:pt-24">
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center lg:gap-16 xl:gap-24">
+        <div>
           <div className="max-w-2xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
               {t('heroCategories')}
@@ -140,7 +140,7 @@ export function HomeHero({ hubs, suggestions, stats, bookingPulse }: HomeHeroPro
             )}
           </div>
 
-          <div className="mt-9 lg:mt-0">
+          <div className="mt-8 max-w-3xl">
             <HeroSearch hubs={hubs} suggestions={suggestions} />
           </div>
         </div>

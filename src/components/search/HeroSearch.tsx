@@ -73,7 +73,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
       {/* Desktop: vertical glass card */}
       <div
         ref={containerRef}
-        className="relative hidden lg:block"
+        className="relative hidden"
         aria-label="Search adventures"
       >
         <div className="rounded-2xl border border-white/15 bg-[#111111]/15 p-4 backdrop-blur-[5px] [text-shadow:0_2px_6px_rgba(0,0,0,0.9)] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] transition-all duration-300 hover:border-brand/50 hover:bg-[#111111]/25 hover:shadow-[0_0_0_1px_rgba(255,238,0,0.3),0_30px_80px_-30px_rgba(0,0,0,0.9)]">
@@ -246,7 +246,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
       </div>
 
       {/* Tablet / small desktop: one horizontal glass pill instead of the tall card */}
-      <div className="hidden md:block lg:hidden">
+      <div className="hidden md:block">
         <button
           type="button"
           onClick={() => setIsSheetOpen(true)}
