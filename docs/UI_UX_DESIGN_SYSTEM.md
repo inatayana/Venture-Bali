@@ -1,11 +1,12 @@
 # Venture Bali — UI/UX Design System & Flow
 
-> **Version:** 3.2.0
+> **Version:** 3.3.0
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
 > **Changelog v3.1.0:** Font Pairing System — Barlow Condensed (heading) + Plus Jakarta Sans (body), design token warna `ink`/`jungle`/`sand`, utility `.heading-caps`.
 > **Changelog v3.2.0:** Checkout dua langkah — **Plan your trip** (guests, date, time, pickup, promo, add-ons) lalu **Guest details & pay** (recap + Edit, lead traveller, terms/waiver) dengan total sticky dan CTA berjenjang.
+> **Changelog v3.3.0:** Review system — kartu ulasan dengan nama/lokasi tamu, bintang `brand`, feed berpaginasi (8 per halaman) dengan pencarian/urutan di database, serta review request pasca-trip berisi link + QR code.
 
 ## 1. Design Principles
 
@@ -182,11 +183,15 @@ Aturan penerapan:
 ### Section 5: Reviews & Media Proof
 - Ratings breakdown (bar per bintang) + summary badge + review cards (mobile carousel / desktop grid) + foto/video dari reviewer.
 - **Rating diturunkan dari review nyata**: bila ada review `isApproved`, `rating` = rata-rata (1 desimal) dan `reviewCount` = jumlahnya; rating editorial seed hanya dipakai saat belum ada review.
-- **Alur review pasca-trip (v1.5.0)**:
-  1. Tamu membuka `my/bookings?token=…` (magic link) → tombol **Write a review** muncul hanya untuk booking `PAID` yang tanggalnya sudah lewat dan belum pernah direview.
-  2. Form `/review/[bookingId]?token=…`: rating 1–5 bintang + komentar 20–1000 karakter; token membuktikan kepemilikan booking, tanpa akun.
-  3. Review tersimpan `isApproved = false` + `bookingId` (unik, satu review per booking) → muncul di `/admin/reviews` untuk **Approve/Reject**.
-  4. Setelah disetujui, review tampil di PDP dengan badge **Verified trip**.
+- **Review card (v3.3.0)**: avatar inisial bulat, nama tampilan, lokasi tamu (mis. "Woodbridge Township, NJ"), badge **Verified trip**, tanggal relatif ("Today", "3 days ago", "2 months ago"), lima bintang **`brand` (#FFEE00)** dan komentar yang di-clamp 3 baris + **Read more / Show less**.
+- **Nama & lokasi tamu**: form review menyediakan input **Your name** dan **Where are you from?** yang sudah terisi dari data booking; nilai ini disimpan di `Review.guestName` / `Review.guestLocation` (nullable) sehingga tamu bisa memilih nama/lokasi yang tampil tanpa mengubah data customer. Bila kosong, PDP memakai nama depan customer dan negaranya.
+- **Performa daftar review**: PDP hanya mengirim **8 review terbaru**. Modal memuat halaman berikutnya dari `GET /api/ventures/[id]/reviews?page=&limit=8&q=&sort=` (hanya review approved), dengan pencarian dan urutan dijalankan di database serta tombol **Show more reviews (x of y)**. Histogram memakai agregat seluruh review, bukan hanya halaman yang sudah dimuat.
+- **Alur review pasca-trip (v1.5.0, diperluas v3.3.0)**:
+  1. Cron `/api/cron/review-requests` mengirim WhatsApp (link) + email (link **dan QR code**) ke tamu yang tripnya sudah lewat dan belum mereview.
+  2. QR dirender oleh `GET /api/reviews/qr?bookingId=…&token=…` sebagai SVG; token bertanda tangan adalah otorisasinya, dan QR mengarah ke halaman review yang sama.
+  3. Tamu membuka `/review/[bookingId]?token=…` (magic link, tanpa akun), mengisi nama, lokasi, rating 1–5 dan komentar 20–1000 karakter.
+  4. Review tersimpan `isApproved = false` + `bookingId` (unik, satu review per booking) → muncul di `/admin/reviews` untuk **Approve/Reject**.
+  5. Setelah disetujui, review tampil di PDP dengan badge **Verified trip**.
 - **Empty state**: bila `reviewCount = 0`, jangan tampilkan angka rating maupun histogram — tampilkan kartu "No verified reviews yet" (ikon bintang abu-abu + ajakan review setelah trip). Baris rating di header berubah menjadi chip "New · no reviews yet".
 
 ### Section 6: Location & Related Adventures

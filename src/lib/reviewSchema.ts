@@ -10,6 +10,10 @@ export const reviewInputSchema = z.object({
     .trim()
     .min(20, 'Tell us a little more (at least 20 characters)')
     .max(1000, 'Keep it under 1000 characters'),
+  /** Display name; falls back to the booking customer's name when omitted. */
+  guestName: z.string().trim().max(60, 'Keep your name under 60 characters').optional(),
+  /** Display location; falls back to the customer's country when omitted. */
+  guestLocation: z.string().trim().max(80, 'Keep your location under 80 characters').optional(),
 });
 
 export type ReviewInput = z.infer<typeof reviewInputSchema>;

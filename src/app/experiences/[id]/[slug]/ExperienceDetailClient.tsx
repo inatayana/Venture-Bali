@@ -673,7 +673,7 @@ export function ExperienceDetailClient({
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-600">
                 {reviewCount > 0 ? (
                   <span className="inline-flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <Star className="h-4 w-4 fill-brand text-brand" />
                     <strong className="text-neutral-900">{venture.rating.toFixed(1)}</strong>
                     <span>
                       · {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
@@ -946,7 +946,12 @@ export function ExperienceDetailClient({
 
             <section id="reviews" className="rounded-2xl border border-neutral-200 p-5">
               <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">Reviews</h2>
-              <ReviewsSection reviews={reviews} average={venture.rating} count={reviewCount} />
+              <ReviewsSection
+                reviews={reviews}
+                average={venture.rating}
+                count={reviewCount}
+                ventureId={venture.id}
+              />
             </section>
 
             <section id="coverage" className="rounded-2xl border border-neutral-200 p-5">

@@ -42,7 +42,8 @@ export function applyReviewFilters(
         (review) =>
           review.comment.toLowerCase().includes(query) ||
           review.author.toLowerCase().includes(query) ||
-          (review.country ?? '').toLowerCase().includes(query)
+          (review.country ?? '').toLowerCase().includes(query) ||
+          (review.location ?? '').toLowerCase().includes(query)
       )
     : [...reviews];
 

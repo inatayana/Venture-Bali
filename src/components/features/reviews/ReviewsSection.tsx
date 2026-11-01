@@ -10,13 +10,15 @@ interface ReviewsSectionProps {
   reviews: readonly ReviewSummary[];
   average: number;
   count: number;
+  /** Product id used to page through the full review history in the modal. */
+  ventureId?: string;
 }
 
 /**
  * Product-page review block: a clickable summary bar, a short preview of the
  * latest reviews and the full list in a modal (search + sort).
  */
-export function ReviewsSection({ reviews, average, count }: ReviewsSectionProps) {
+export function ReviewsSection({ reviews, average, count, ventureId }: ReviewsSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (count === 0) {
@@ -49,7 +51,7 @@ export function ReviewsSection({ reviews, average, count }: ReviewsSectionProps)
                 key={index}
                 className={
                   index < Math.round(average)
-                    ? 'h-3.5 w-3.5 fill-yellow-400 text-yellow-400'
+                    ? 'h-3.5 w-3.5 fill-brand text-brand'
                     : 'h-3.5 w-3.5 text-neutral-300'
                 }
               />
@@ -89,6 +91,7 @@ export function ReviewsSection({ reviews, average, count }: ReviewsSectionProps)
         reviews={reviews}
         average={average}
         count={count}
+        ventureId={ventureId}
       />
     </>
   );

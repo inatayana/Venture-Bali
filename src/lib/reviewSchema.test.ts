@@ -20,6 +20,35 @@ describe('review input', () => {
     expect(parsed.success).toBe(true);
   });
 
+  it('accepts the optional display name and location', () => {
+    const parsed = reviewInputSchema.safeParse({
+      token: 'cl1.payload.signature',
+      bookingId: 'bk-1',
+      rating: 5,
+      comment: 'The guide was brilliant and the river was perfect.',
+      guestName: 'Nicholas',
+      guestLocation: 'Woodbridge Township, NJ',
+    });
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.guestName).toBe('Nicholas');
+      expect(parsed.data.guestLocation).toBe('Woodbridge Township, NJ');
+    }
+  });
+
+  it('rejects an overlong display location', () => {
+    expect(
+      reviewInputSchema.safeParse({
+        token: 'cl1.payload.signature',
+        bookingId: 'bk-1',
+        rating: 5,
+        comment: 'Great trip, would absolutely come back again.',
+        guestLocation: 'x'.repeat(81),
+      }).success
+    ).toBe(false);
+  });
+
   it('rejects ratings outside 1–5', () => {
     expect(
       reviewInputSchema.safeParse({

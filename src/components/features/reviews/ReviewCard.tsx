@@ -35,7 +35,9 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
             )}
           </p>
           <p className="text-xs text-neutral-500">
-            {[review.country, formatRelativeDate(review.createdAt)].filter(Boolean).join(' · ')}
+            {[review.location ?? review.country, formatRelativeDate(review.createdAt)]
+              .filter(Boolean)
+              .join(' · ')}
           </p>
         </div>
 
@@ -49,7 +51,7 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
               className={cn(
                 'h-3.5 w-3.5',
                 index < review.rating
-                  ? 'fill-yellow-400 text-yellow-400'
+                  ? 'fill-brand text-brand'
                   : 'text-neutral-200'
               )}
               aria-hidden="true"

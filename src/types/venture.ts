@@ -418,6 +418,8 @@ export interface ReviewSummary {
   author: string;
   /** Reviewer country, when known. */
   country?: string;
+  /** Display location chosen by the reviewer (falls back to country). */
+  location?: string;
   /** True when the review is linked to a real paid booking. */
   isVerified?: boolean;
   createdAt: Date;
