@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { generateArticleStructuredData, getBaseUrl } from '@/lib/seo';
 
 interface Article {
   id: string;
@@ -14,6 +16,7 @@ interface Article {
   publishedAt: Date | null;
   aiGenerated: boolean;
   createdAt: Date;
+  updatedAt: Date;
   ventureId: string | null;
   venture?: { id: string; slug: string; title: string } | null;
 }
@@ -49,17 +52,22 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
   const title = readText(article.title);
   const description = readText(article.metaDesc);
+  const baseUrl = getBaseUrl();
+  const suffix = ' | Venture Bali Blog';
+  const metaTitle = title.length + suffix.length <= 60 ? `${title}${suffix}` : title;
+  const metaDescription =
+    description.length > 155 ? `${description.slice(0, 152).trimEnd()}...` : description;
 
   return {
-    title: `${title} | Venture Bali Blog`,
-    description,
+    title: metaTitle,
+    description: metaDescription,
     alternates: {
-      canonical: `https://venturebali.com/blog/${article.slug}`,
+      canonical: `${baseUrl}/blog/${article.slug}`,
     },
     openGraph: {
       title,
-      description,
-      url: `https://venturebali.com/blog/${article.slug}`,
+      description: metaDescription,
+      url: `${baseUrl}/blog/${article.slug}`,
       siteName: 'Venture Bali',
       type: 'article',
       publishedTime: article.publishedAt.toISOString(),
@@ -68,7 +76,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     twitter: {
       card: 'summary_large_image',
       title,
-      description,
+      description: metaDescription,
     },
     robots: {
       index: true,
@@ -96,8 +104,22 @@ export default async function BlogDetailPage({ params }: { params: { slug: strin
     .replace(/^(?!<h[12]|<p)(.+)$/gm, '<p class="text-gray-700 leading-relaxed mb-4">$1</p>')
     .replace(/<\/p><p class="text-gray-700 leading-relaxed mb-4">/g, '</p>\n<p class="text-gray-700 leading-relaxed mb-4">');
 
+  const structuredData = generateArticleStructuredData(
+    {
+      slug: article.slug,
+      title,
+      description,
+      publishedAt: article.publishedAt,
+      updatedAt: article.updatedAt,
+      keywords: article.keywords,
+      tags: article.tags,
+    },
+    getBaseUrl()
+  );
+
   return (
     <main className="min-h-screen bg-gray-50">
+      <JsonLd data={structuredData} />
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <nav className="text-sm text-gray-500 mb-2">

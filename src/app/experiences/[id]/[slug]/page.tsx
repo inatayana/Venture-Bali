@@ -13,6 +13,7 @@ import {
   getBaseUrl,
 } from '@/lib/seo';
 import { ExperienceDetailClient } from './ExperienceDetailClient';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { getMonthlyGuestCounts } from '@/lib/ventureService';
 import type { PickupZone, VehicleClass, VentureItem } from '@/types/venture';
 
@@ -138,10 +139,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
+      <JsonLd data={structuredData} />
       <ExperienceDetailClient
         venture={{ ...venture, bookedThisMonth: monthlyGuests.get(venture.id) ?? 0 }}
         zones={bookingOptions.zones}
