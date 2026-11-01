@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { createSnapTransaction, type SnapTransactionRequest } from '@/lib/midtrans';
+import { createSnapTransaction, MidtransConfigError, type SnapTransactionRequest } from '@/lib/midtrans';
 import { getHoldMinutes, isHoldActive } from '@/lib/bookingLifecycle';
 import { PaymentServiceError } from '@/lib/paymentService';
 import type { PaymentStatus } from '@prisma/client';
@@ -28,8 +28,18 @@ interface BookingWithCustomer {
 }
 
 export async function POST(request: NextRequest) {
+  let rawBody: unknown;
   try {
-    const { bookingId } = paymentSchema.parse(await request.json());
+    rawBody = await request.json();
+  } catch {
+    return NextResponse.json(
+      { success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid JSON body' } },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const { bookingId } = paymentSchema.parse(rawBody);
 
     const booking = (await prisma.booking.findUnique({
       where: { id: bookingId },
@@ -154,10 +164,42 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
+    if (error instanceof MidtransConfigError) {
+      // Deployment/configuration problem, not the guest's fault.
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'PAYMENT_NOT_CONFIGURED',
+            message:
+              'Online payment is not available yet. Your slot is still held — contact us on WhatsApp and we will finish the booking for you.',
+          },
+        },
+        { status: 503 },
+      );
+    }
     if (error instanceof PaymentServiceError) {
       return NextResponse.json(
         { success: false, error: { code: error.code, message: error.message } },
         { status: 400 },
+      );
+    }
+    if (error instanceof Error && error.message.startsWith('Midtrans API error')) {
+      // Provider rejection (bad keys, invalid amount, …). Keep the details for the
+      // server log, and only expose them outside production.
+      console.error('Midtrans rejected the transaction:', error.message);
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'PAYMENT_PROVIDER_ERROR',
+            message:
+              process.env.NODE_ENV === 'production'
+                ? 'The payment provider could not start this transaction. Please try again or contact us.'
+                : error.message,
+          },
+        },
+        { status: 502 },
       );
     }
 

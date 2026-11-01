@@ -50,6 +50,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
   const [holdExpired, setHoldExpired] = useState(false);
 
   useEffect(() => {
@@ -89,6 +90,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const handlePayWithMidtrans = async () => {
     if (!booking || paying) return;
     setPaying(true);
+    setPayError(null);
 
     try {
       const response = await fetch('/api/payment/midtrans', {
@@ -118,7 +120,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
         throw new Error(data.error?.message || 'Failed to initialize payment');
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Payment initialization failed');
+      setPayError(err instanceof Error ? err.message : 'Payment initialization failed');
       setPaying(false);
     }
   };
@@ -255,6 +257,19 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                     >
                       Choose another slot
                     </a>
+                  </div>
+                )}
+
+                {payError && (
+                  <div
+                    role="alert"
+                    className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+                  >
+                    <p className="font-semibold">Payment could not start</p>
+                    <p className="mt-1 text-amber-800">{payError}</p>
+                    <p className="mt-2 text-xs text-amber-700">
+                      You can retry in a moment, or contact us and we&apos;ll finish it manually.
+                    </p>
                   </div>
                 )}
 
