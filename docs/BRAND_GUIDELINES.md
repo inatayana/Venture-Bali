@@ -57,6 +57,16 @@ Accent rules:
   `fill-brand`, or the CSS variables in `src/styles/globals.css`.
 - The accepted brand is black + yellow; blue/navy is not part of the palette.
 
+Theme surfaces (v3.6.5):
+
+| Theme | Page | Header | Cards | Text |
+|---|---|---|---|---|
+| Light | `#FAFAFA` | `#FFFFFF` | `#FFFFFF` | black |
+| Dark | `#1F1F1F` | `#1F1F1F` | `#2A2A2A` | white |
+
+Brand surfaces (hero, footer, yellow CTA) keep their own contrast and are not
+flattened by the theme toggle.
+
 ## 4. Typography
 
 - Headings: **Barlow Condensed**, uppercase, tight tracking.
