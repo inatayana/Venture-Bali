@@ -79,10 +79,10 @@ export function RotatingKeyword({ keywords = HERO_KEYWORDS }: { keywords?: reado
 
   return (
     <span className="inline-flex min-h-[1.1em] items-center whitespace-nowrap">
-      <span className="bg-brand px-2 text-brand-ink">{text || '\u00A0'}</span>
+      <span className="text-brand">{text || '\u00A0'}</span>
       <span
         aria-hidden="true"
-        className="ml-0.5 inline-block h-[1em] w-[3px] animate-blink bg-brand"
+        className="ml-1 inline-block h-[0.95em] w-[3px] animate-blink bg-brand"
       />
     </span>
   );
