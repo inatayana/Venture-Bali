@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.6.9
+> **Version:** 3.6.10
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -23,6 +23,7 @@
 > **Changelog v3.6.7:** Horizontal search pill now covers tablets and mid-sized desktops (768–1279px); vertical search card starts at 1280px.
 > **Changelog v3.6.8:** Search stays horizontal on desktop too; the vertical glass card is retired so the hero remains full-width and cinematic.
 > **Changelog v3.6.9:** Dark-theme contrast pass — calendar selected day yellow/black, clearer disabled/today states, time-slot selection, stepper borders, inputs and date-picker container separation.
+> **Changelog v3.6.10:** Hero left column — inline micro-trust strip (rating/instant confirmation/licensed operators) and five quick intent pills (Best Sellers, Water, Trekking, Combos, Tubing).
 
 ## 1. Design Principles
 
@@ -160,6 +161,7 @@ Aturan penerapan:
 - **Search widget per breakpoint (v3.6.8)**: <768px = pil ringkas + bottom sheet; **≥768px = satu horizontal glass pill** (Where / When / Guests + bulatan Search kuning) yang membuka sheet. Kartu search vertikal tidak lagi ditampilkan sehingga hero tetap lebar dan sinematik di desktop.
 - **Approximate pricing**: IDR tetap mata uang charge; kartu, paket, total booking sheet dan checkout menampilkan `≈ USD/EUR/...` dari rate harian (`/api/fx/rates`, fallback statis). Tidak ada angka yang dikirim ke Midtrans selain IDR.
 - **Hero intent pills & ticker (v3.6.1)**: empat pill ke Best Sellers (`?sort=popular`), combo, Mount Batur, tubing; ticker hanya tampil jika ada booking `PAID` nyata dan menampilkan relatif time, bukan social proof karangan.
+- **Hero left-column polish (v3.6.10)**: inline micro-trust strip di bawah deskripsi (rating asli bila ada, Instant confirmation, Licensed local operators) dan lima quick pills — Best Sellers, Water Adventures, Mountain Trekking, Adrenaline Combos, River Tubing — dengan aksen `brand`.
 - **Home**: brand header menempel di atas (`sticky top-0`, backdrop blur) saat halaman di-scroll, dengan tinggi ringkas agar grid produk tetap terlihat.
 - **PDP**: bar sticky setinggi 56px berisi tombol "All adventures", breadcrumb `Home › Kategori › Nama produk`, dan harga paket terpilih per guest (desktop). Bar tetap terlihat saat scroll, jadi user bisa kembali atau pindah halaman tanpa scroll ke atas.
 - **Section nav mengambang**: pill `Packages · What to expect · Reviews · Location` diposisikan **di tengah kolom konten kanan** (bukan full-width), `sticky top-64px`, dengan scrim gradien putih agar teks di bawahnya memudar. Pill **tidak tampil saat halaman dibuka**; muncul (fade + slide 8px) ketika section `#packages` mencapai header, dan memudar perlahan saat scroll kembali ke atas (`opacity/visibility` transition 300ms, `h-0` supaya tidak menyisakan ruang).
