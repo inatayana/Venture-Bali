@@ -32,6 +32,7 @@ import { SiteFooter } from '@/components/layout/SiteFooter';
 import { ProductLightbox } from '@/components/features/ProductLightbox';
 import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
+import { track } from '@/lib/analytics';
 import { REFUND_WINDOWS } from '@/lib/refundUtils';
 import { computeQuote } from '@/lib/pricing';
 import { findCountry } from '@/lib/countries';
@@ -156,6 +157,16 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
     return () => observer.disconnect();
   }, []);
 
+  // Analytics: one view_item per product page.
+  useEffect(() => {
+    track('view_item', {
+      item_id: venture.id,
+      item_name: venture.title,
+      item_category: venture.category,
+      price_idr: venture.priceIdr,
+    });
+  }, [venture]);
+
   // The floating section nav only appears once the packages section reaches the
   // sticky header, and fades out again when the guest scrolls back up.
   useEffect(() => {
@@ -216,6 +227,13 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
   const selectVariant = (item: Variant) => {
     if (item.imageUrl) setActiveImage(item.imageUrl);
     setConfig((prev) => ({ ...prev, variantId: item.id }));
+    track('select_package', {
+      item_id: venture.id,
+      item_name: venture.title,
+      variant_id: item.id,
+      variant_title: item.title,
+      category: venture.category,
+    });
   };
 
   /** Tier 1 card click: select the package and open its detail modal (Tier 2). */
@@ -289,6 +307,14 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
       });
       const data = await response.json();
       if (data.success && data.data?.redirectUrl) {
+        track('begin_checkout', {
+          item_id: venture.id,
+          item_name: venture.title,
+          variant_id: selectedVariant.id,
+          value: estimate.totalPriceIdr,
+          currency: 'IDR',
+          pax: config.adults,
+        });
         window.location.href = data.data.redirectUrl;
         return;
       }

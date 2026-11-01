@@ -4,6 +4,7 @@ import { barlowCondensed, plusJakartaSans } from '@/styles/fonts';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { PwaRegistration } from '@/components/PwaRegistration';
 import { ChatWidget } from '@/components/chat/ChatWidget';
+import { AnalyticsPageView } from '@/components/AnalyticsPageView';
 
 export const metadata: Metadata = {
   title: 'Venture Bali',
@@ -40,6 +41,7 @@ export default function RootLayout({
     <html lang="en" className={`${barlowCondensed.variable} ${plusJakartaSans.variable}`}>
       <body className="font-sans">
         {children}
+        <AnalyticsPageView />
         <PwaRegistration />
         <InstallPrompt />
         <ChatWidget />
