@@ -29,6 +29,8 @@ import { VariantCatalogCard } from '@/components/features/VariantCatalogCard';
 import { VariantDetailModal } from '@/components/features/VariantDetailModal';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
 import { SiteFooter } from '@/components/layout/SiteFooter';
+import { CollapsibleText } from '@/components/features/CollapsibleText';
+import { itineraryStepDisplay } from '@/lib/itineraryDisplay';
 import { ProductLightbox } from '@/components/features/ProductLightbox';
 import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
@@ -852,19 +854,42 @@ export function ExperienceDetailClient({
 
             <section id="details" className="scroll-mt-28 rounded-2xl border border-neutral-200 p-5">
               <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">What to expect</h2>
-              <p className="mb-4 text-sm leading-relaxed text-neutral-600">{venture.description}</p>
+              <CollapsibleText
+                text={venture.description}
+                limit={225}
+                id="venture-description"
+                className="mb-4 text-sm leading-relaxed text-neutral-600"
+              />
 
               {venture.itinerary.length > 0 && (
                 <div className="mb-4">
-                  <h3 className="mb-2 text-sm font-semibold text-neutral-900">Itinerary</h3>
-                  <div className="space-y-2">
-                    {venture.itinerary.map((item, index) => (
-                      <div key={index} className="flex gap-3 text-sm">
-                        <span className="w-16 shrink-0 font-medium text-neutral-500">{item.time}</span>
-                        <span className="text-neutral-700">{item.activity}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <h3 className="mb-3 text-sm font-semibold text-neutral-900">Itinerary</h3>
+                  <ol className="relative ml-3 space-y-4 border-l-[3px] border-neutral-200 pl-6">
+                    {venture.itinerary.map((item, index) => {
+                      const step = itineraryStepDisplay(item.activity);
+                      return (
+                        <li key={`${item.time}-${index}`} className="relative">
+                          <span
+                            className="absolute -left-[39px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-[11px] font-bold tabular-nums text-brand-ink ring-4 ring-white"
+                            aria-hidden="true"
+                          >
+                            {index + 1}
+                          </span>
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                            {item.time}
+                          </p>
+                          <p className="mt-0.5 text-sm font-semibold leading-snug text-neutral-900">
+                            {step.title}
+                          </p>
+                          {step.description && (
+                            <p className="mt-0.5 text-xs leading-relaxed text-neutral-600">
+                              {step.description}
+                            </p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ol>
                 </div>
               )}
 
