@@ -1,13 +1,16 @@
 /**
- * Booking progress for the checkout sheet.
+ * Booking progress for the two-step checkout sheet.
  *
- * Pure so the UI can stay dumb: given the current config it returns the four
- * steps, whether each one is complete, and which step the guest is on.
+ * Pure so the UI can stay dumb: given the current config it returns the two
+ * steps (plan the trip → guest details) and which one is still incomplete.
  */
+
+export type CheckoutStepKey = 'plan' | 'details';
 
 export interface BookingProgressInput {
   date: Date | null;
   slot: unknown | null;
+  vehicleClassType?: string | null;
   zoneId: string | null;
   hotelAddress: string;
   isTba: boolean;
@@ -16,10 +19,12 @@ export interface BookingProgressInput {
   customerWhatsApp: string;
   termsAccepted: boolean;
   waiverAccepted: boolean;
+  /** Outer pickup areas are quoted manually and cannot be paid online. */
+  customQuote?: boolean;
 }
 
 export interface BookingProgressStep {
-  key: 'guests' | 'datetime' | 'pickup' | 'confirm';
+  key: CheckoutStepKey;
   label: string;
   done: boolean;
 }
@@ -33,12 +38,25 @@ export interface BookingProgress {
 
 export function getBookingProgress(
   input: BookingProgressInput,
-  needsPickup: boolean
+  needsPickup: boolean,
+  needsVehicle = false
 ): BookingProgress {
-  const dateTimeReady = Boolean(input.date && input.slot);
   const pickupReady =
-    !needsPickup || Boolean(input.zoneId && (input.hotelAddress.trim() || input.isTba));
-  const confirmReady = Boolean(
+    !needsPickup ||
+    Boolean(
+      input.zoneId &&
+        !input.customQuote &&
+        (input.hotelAddress.trim() || input.isTba)
+    );
+
+  const planReady = Boolean(
+    input.date &&
+      input.slot &&
+      pickupReady &&
+      (!needsVehicle || input.vehicleClassType)
+  );
+
+  const detailsReady = Boolean(
     input.customerName.trim() &&
       input.customerEmail.trim() &&
       input.customerWhatsApp.trim() &&
@@ -47,10 +65,8 @@ export function getBookingProgress(
   );
 
   const steps: BookingProgressStep[] = [
-    { key: 'guests', label: 'Guests', done: true },
-    { key: 'datetime', label: 'Date & time', done: dateTimeReady },
-    { key: 'pickup', label: needsPickup ? 'Pickup' : 'Meeting point', done: pickupReady },
-    { key: 'confirm', label: 'Confirm', done: confirmReady },
+    { key: 'plan', label: 'Plan', done: planReady },
+    { key: 'details', label: 'Guest details', done: detailsReady },
   ];
 
   const firstIncomplete = steps.findIndex((step) => !step.done);

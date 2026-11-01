@@ -1,10 +1,11 @@
 # Venture Bali — UI/UX Design System & Flow
 
-> **Version:** 3.1.0
+> **Version:** 3.2.0
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
 > **Changelog v3.1.0:** Font Pairing System — Barlow Condensed (heading) + Plus Jakarta Sans (body), design token warna `ink`/`jungle`/`sand`, utility `.heading-caps`.
+> **Changelog v3.2.0:** Checkout dua langkah — **Plan your trip** (guests, date, time, pickup, promo, add-ons) lalu **Guest details & pay** (recap + Edit, lead traveller, terms/waiver) dengan total sticky dan CTA berjenjang.
 
 ## 1. Design Principles
 
@@ -152,25 +153,16 @@ Aturan penerapan:
 
 ### Section 2: Klook-style "Package Options" Widget ⚡ CORE BOOKING ENGINE
 
-**Desktop**: Inline Configurator Card di kolom kanan sticky — SEMUA langkah terlihat di satu card, tanpa modal.
+**Desktop & mobile**: paket dipilih dari kartu paket di PDP (lihat "Package selector" di bawah). Tombol **Show dates** pada kartu / sticky CTA membuka satu **bottom sheet checkout dua langkah** (di desktop tampil sebagai panel tengah, di mobile full-height). Sheet memakai `ExperienceBookingWidget`.
 
-**Mobile**: Fixed Bottom CTA "Select Options" (kiri: harga mulai-dari + estimasi FX; kanan: tombol). Sekali tap membuka **full-height bottom sheet** berisi seluruh konfigurasi: Package → Date → Pax → Transport → Book Now.
+**Two-step checkout (v3.2.0):**
 
-Langkah konfigurasi (berlaku untuk desktop inline & mobile bottom sheet):
-
-- **Step A — Package Type** (Radio Cards): variant produk, mis. "Single Ride", "Tandem Ride", "VIP Private Package". Card menampilkan badge + delta harga.
-- **Step B — Date & Time**: tombol cepat Today / Tomorrow + trigger Calendar inline; diikuti pilihan slot time (time cards + sisa slot).
-- **Step C — Travellers**: Stepper (−/+) Dewasa/Anak.
-- **Step D — Transport** (Radio Group, dependency-aware):
-  1. No Transfer (Meeting Point Only) — Rp 0 → `SELF_DRIVE` (default)
-  2. Standard SUV (4 pax/vehicle) — delta per kendaraan
-  3. Premium MPV (6 pax/vehicle) — delta per kendaraan
-  4. Minivan (12 pax/vehicle) — delta per kendaraan
-  - Memilih transfer membuka **Zone Picker** (Core Ubud = included, South 1, South 2, Outer = "Request Quote" — tidak bisa instant book).
-  - Label armada pakai **kelas generik** (tanpa nama vendor — OPERATION_CONTRACT §1).
-- **Step E — Combo Add-ons** (Conditional): hanya tampil/aktif jika transfer dipilih. Checkbox: aktivitas combo (Rafting, Tubing), upgrade makan. Add-on ber-flag `requiresTransfer` **disabled/grayed-out** saat "No Transfer" + helper text "Requires hotel transfer". Pilihan eksplisit "None (Base Package Only)".
-- **Real-Time Price Calculation**: Total = (Base × Pax) + Transfer Fee + (Combo × Pax). Re-render instan saat pax/transport/combo berubah + **estimasi FX** (mis. "≈ US$98.50"). Detail breakdown expandable sebelum CTA.
-- **CTA**: "Book Now" di dalam widget (desktop) / footer bottom sheet (mobile). Zone Outer → CTA berubah "Request Quote" (WhatsApp).
+- **Step 1 of 2 — Plan your trip** (`step = 'plan'`): guests, date (quick Today/Tomorrow + kalender), departure time, pickup/meeting point, promo code, dan add-ons. Ringkasan harga + total menempel di bawah dengan CTA **Continue**.
+- **Step 2 of 2 — Guest details & pay** (`step = 'details'`): recap perjalanan ringkas (tanggal · jam, guests, pickup/meeting point, add-on, kupon) dengan tombol **Edit** yang kembali ke Step 1 tanpa menghapus data tamu; lalu lead traveller (nama, email, negara, WhatsApp) dan persetujuan terms + waiver. CTA **Continue to payment** memanggil alur pembayaran yang sudah ada.
+- **Validasi dipisah**: Step 1 hanya memeriksa tanggal, slot, pickup/alamat/kelas kendaraan; Step 2 hanya memeriksa kontak dan persetujuan. Pesan bantuan di bawah CTA menampilkan kekurangan pertama pada langkah aktif.
+- **Progress**: dua batang tipis `Plan` → `Guest details`; langkah aktif memakai warna `brand`, langkah selesai `brand-ink`.
+- **Zone Outer (custom quote)**: tidak bisa dibayar online. Step 1 menampilkan catatan bahwa area luar butuh quote manual dan CTA **Continue** tetap nonaktif sampai tamu memilih area lain.
+- Data tamu tidak hilang saat bolak-balik langkah, dan berpindah paket mereset checkout ke Step 1.
 
 **Package selector — two-tier interaksi (v3.1.0, Airbnb Services style):**
 
@@ -211,52 +203,46 @@ Langkah konfigurasi (berlaku untuk desktop inline & mobile bottom sheet):
 
 ## 5. Bottom Sheet Components (Booking Flow)
 
-### Single Bottom Sheet — 3-Step Wizard
-SATU bottom sheet dengan 3 step di dalamnya (bukan sheet terpisah):
+### Single Bottom Sheet — Two-Step Checkout
+SATU bottom sheet dengan dua langkah di dalamnya (bukan sheet terpisah):
 
 ```
-┌─────────────────────────────┐
-│         ● ● ●              │ ← step indicators
-│                             │
-│ Step 1: Select Date         │
-│ ┌─────────────────────┐     │
-│ │   [Kalender]        │     │
-│ └─────────────────────┘     │
-│                             │
-│ [Back]              [Next]  │
-└─────────────────────────────┘
-         ↓ tap Next
-┌─────────────────────────────┐
-│         ● ● ●              │
-│                             │
-│ Step 2: Select Time         │
-│ ┌──────┐ ┌──────┐ ┌──────┐ │
-│ │08:00 │ │09:00 │ │10:00 │ │
-│ │8 left│ │5 left│ │12lft │ │
-│ └──────┘ └──────┘ └──────┘ │
-│                             │
-│ [Back]              [Next]  │
-└─────────────────────────────┘
-         ↓ tap Next
-┌─────────────────────────────┐
-│         ● ● ●              │
-│                             │
-│ Step 3: How Many Travellers?│
-│ Adults    [- 2 +]           │
-│ Children  [- 0 +]           │
-│                             │
-│ Total: Rp 1.100.000         │
-│                             │
-│ [Back]        [Confirm & Pay]│
-└─────────────────────────────┘
+┌─────────────────────────────────┐
+│  ▬▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬              │ ← Plan / Guest details
+│  Plan your trip      Step 1 of 2│
+│                                 │
+│  1 · Guests         [- 2 +]     │
+│  2 · Date           [calendar]  │
+│  3 · Departure time [08:00 ...] │
+│  4 · Pickup / meeting point     │
+│  Promo code · Add-ons           │
+│                                 │
+│  Total: Rp 1.100.000            │
+│  [           Continue          ]│
+└─────────────────────────────────┘
+               ↓ Continue
+┌─────────────────────────────────┐
+│  Guest details & pay Step 2 of 2│
+│  Your trip: Sat, 8 Nov · 08:00  │
+│  2 guests · Ubud     [Edit]     │
+│                                 │
+│  Lead traveller                 │
+│  [Name] [Email] [Country]       │
+│  [WhatsApp]                     │
+│  ☑ booking terms                │
+│  ☑ safety waiver                │
+│                                 │
+│  Total: Rp 1.100.000            │
+│  [Back] [Continue to payment]   │
+└─────────────────────────────────┘
 ```
 
 ### UX Interactions
 - **Swipe down**: drag sheet ke bawah untuk close.
 - **Backdrop tap**: tap di luar sheet = close.
-- **Step indicator**: dots ● ● ● menunjukkan progress.
-- **Back button**: kembali ke step sebelumnya.
-- **Live price update**: total harga berubah real-time saat stepper diubah.
+- **Step indicator**: dua batang `Plan` → `Guest details`; langkah aktif memakai warna `brand`.
+- **Back / Edit**: kembali ke Step 1 tanpa menghapus data tamu.
+- **Live price update**: total harga berubah real-time saat guests/date/pickup/add-on berubah.
 
 ### Date Picker
 - Kalender interaktif (bulan × tanggal).
@@ -371,7 +357,7 @@ SATU bottom sheet dengan 3 step di dalamnya (bukan sheet terpisah):
 | Card Grid | `mockExperiences` / API | `src/components/ui/VentureCard.tsx` |
 | PDP Hero | `VentureItem` | `src/app/experiences/[id]/[slug]/ExperienceDetailClient.tsx` |
 | Sticky CTA | Harga + CTA | `src/components/features/ExperienceBookingWidget.tsx` |
-| Bottom Sheet (3-step) | Slot times + pax | `src/components/ui/BottomSheet.tsx` (baru) |
+| Bottom Sheet (2-step checkout) | Slot times + pax + guest details | `src/components/ui/BottomSheet.tsx` |
 | Calendar | Slot times | `src/components/ui/Calendar.tsx` (baru) |
 | Time Slots | SlotTime data | `src/components/ui/TimeSlotCard.tsx` (baru) |
 | Traveler Stepper | paxCount | `src/components/ui/Stepper.tsx` (baru) |

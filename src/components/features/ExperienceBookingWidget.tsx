@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Clock, Lock, MapPin, Shield, Tag, Users } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Clock, Lock, MapPin, Shield, Tag, Users } from 'lucide-react';
 import { Button, Stepper, Calendar as CalendarComponent, TimeSlotPill } from '@/components/ui';
+import { track } from '@/lib/analytics';
 import { formatPrice } from '@/lib/i18n';
 import { getBookingProgress } from '@/lib/bookingProgress';
 import { PickupAddonsStep } from '@/components/features/PickupAddonsStep';
@@ -64,10 +65,22 @@ interface ExperienceBookingWidgetProps {
 
 const MAX_GUESTS = 10;
 
+export type CheckoutStep = 'plan' | 'details';
+
 const QUICK_DATES = [
   { label: 'Today', offset: 0 },
   { label: 'Tomorrow', offset: 1 },
 ];
+
+/** "Sat, 8 Nov 2026" — checkout recap only, never used for API payloads. */
+export function formatTripDate(date: Date): string {
+  return date.toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
 
 /** Local-date key (never toISOString — that shifts the day across timezones). */
 export function toDateKey(date: Date): string {
@@ -91,6 +104,7 @@ export function ExperienceBookingWidget({
   const [couponInput, setCouponInput] = useState('');
   const [couponError, setCouponError] = useState<string | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
+  const [step, setStep] = useState<CheckoutStep>('plan');
 
   const variant = useMemo(
     () => venture.variants?.find((item) => item.id === config.variantId) ?? venture.variants?.[0] ?? null,
@@ -109,6 +123,15 @@ export function ExperienceBookingWidget({
   useEffect(() => {
     setZoneOverride(false);
   }, [variant?.id]);
+
+  // A new package starts a new plan; never land on step 2 with stale choices.
+  useEffect(() => {
+    setStep('plan');
+  }, [variant?.id]);
+
+  useEffect(() => {
+    track('checkout_step_view', { step, ventureId: venture.id });
+  }, [step, venture.id]);
 
   const zoneLocked = Boolean(lockedZone) && !zoneOverride;
 
@@ -184,21 +207,29 @@ export function ExperienceBookingWidget({
   const dialCode = findCountry(config.countryCode).dial;
   const whatsappDigits = config.customerWhatsApp.replace(/\D/g, '');
 
-  const missing: string[] = [];
-  if (!config.date) missing.push('Pick an adventure date');
-  if (!config.slot) missing.push('Choose a departure time');
-  if (needsPickup && !config.zoneId) missing.push('Select a pickup area');
-  if (needsPickup && !config.isTba && !config.hotelAddress.trim()) {
-    missing.push('Add your hotel/villa address or mark it TBA');
+  const planMissing: string[] = [];
+  if (!config.date) planMissing.push('Pick an adventure date');
+  if (!config.slot) planMissing.push('Choose a departure time');
+  if (needsPickup && !config.zoneId) planMissing.push('Select a pickup area');
+  if (needsPickup && zone?.isCustomQuote) {
+    planMissing.push('Outer areas need a custom quote — choose another pickup area');
   }
-  if (needsVehicle && !config.vehicleClassType) missing.push('Choose a vehicle class');
-  if (!config.customerName.trim()) missing.push('Enter the lead guest name');
-  if (!config.customerEmail.trim()) missing.push('Enter an email for the e-voucher');
-  if (!config.customerWhatsApp.trim()) missing.push('Enter a WhatsApp number');
-  else if (whatsappDigits.length < 6) missing.push('Enter a valid WhatsApp number');
-  if (!config.termsAccepted) missing.push('Accept the booking terms to continue');
-  if (!config.waiverAccepted) missing.push('Accept the safety waiver to continue');
-  const canContinue = missing.length === 0;
+  if (needsPickup && !config.isTba && !config.hotelAddress.trim()) {
+    planMissing.push('Add your hotel/villa address or mark it TBA');
+  }
+  if (needsVehicle && !config.vehicleClassType) planMissing.push('Choose a vehicle class');
+
+  const detailsMissing: string[] = [];
+  if (!config.customerName.trim()) detailsMissing.push('Enter the lead guest name');
+  if (!config.customerEmail.trim()) detailsMissing.push('Enter an email for the e-voucher');
+  if (!config.customerWhatsApp.trim()) detailsMissing.push('Enter a WhatsApp number');
+  else if (whatsappDigits.length < 6) detailsMissing.push('Enter a valid WhatsApp number');
+  if (!config.termsAccepted) detailsMissing.push('Accept the booking terms to continue');
+  if (!config.waiverAccepted) detailsMissing.push('Accept the safety waiver to continue');
+
+  const planReady = planMissing.length === 0;
+  const detailsReady = detailsMissing.length === 0;
+  const missing = step === 'plan' ? planMissing : detailsMissing;
 
   const applyCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
@@ -243,39 +274,55 @@ export function ExperienceBookingWidget({
     });
   };
 
-  const progress = getBookingProgress(config, needsPickup);
+  const progress = getBookingProgress(
+    { ...config, customQuote: Boolean(zone?.isCustomQuote) },
+    needsPickup,
+    needsVehicle
+  );
+  const stepIndex = step === 'plan' ? 0 : 1;
 
   return (
     <div className="space-y-6 pb-2" id="package-options">
-      {/* Booking progress: guests → date & time → pickup → confirm */}
+      {/* Two-step checkout: plan the trip, then guest details & payment. */}
       <div className="flex items-center gap-1.5" aria-label="Booking progress">
-        {progress.steps.map((step, index) => (
-          <div key={step.key} className="flex-1">
-            <span
-              className={cn(
-                'block h-1.5 rounded-full transition-colors',
-                step.done
-                  ? 'bg-brand-ink'
-                  : index === progress.activeIndex
+        {progress.steps.map((progressStep, index) => {
+          const isCurrent = index === stepIndex;
+          return (
+            <div key={progressStep.key} className="flex-1">
+              <span
+                className={cn(
+                  'block h-1.5 rounded-full transition-colors',
+                  isCurrent
                     ? 'bg-brand'
-                    : 'bg-neutral-200'
-              )}
-            />
-            <span
-              className={cn(
-                'mt-1 block text-[10px] font-semibold uppercase tracking-wide',
-                step.done
-                  ? 'text-neutral-900'
-                  : index === progress.activeIndex
-                    ? 'text-neutral-900'
-                    : 'text-neutral-400'
-              )}
-            >
-              {step.label}
-            </span>
-          </div>
-        ))}
+                    : progressStep.done
+                      ? 'bg-brand-ink'
+                      : 'bg-neutral-200'
+                )}
+              />
+              <span
+                className={cn(
+                  'mt-1 block text-[10px] font-semibold uppercase tracking-wide',
+                  isCurrent || progressStep.done ? 'text-neutral-900' : 'text-neutral-400'
+                )}
+              >
+                {progressStep.label}
+              </span>
+            </div>
+          );
+        })}
       </div>
+
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-heading text-base font-bold text-neutral-900">
+          {step === 'plan' ? 'Plan your trip' : 'Guest details & pay'}
+        </h2>
+        <span className="shrink-0 text-xs font-medium text-neutral-500">
+          Step {stepIndex + 1} of 2
+        </span>
+      </div>
+
+      {step === 'plan' ? (
+        <>
 
       {/* 1 · Guest counter */}
       <section>
@@ -507,6 +554,13 @@ export function ExperienceBookingWidget({
               </button>
             </div>
           )}
+
+          {zone?.isCustomQuote && (
+            <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              Outer areas are quoted manually, so online payment is unavailable for this pickup
+              area. Choose another area to book instantly.
+            </p>
+          )}
         </section>
       )}
 
@@ -585,12 +639,61 @@ export function ExperienceBookingWidget({
         selectedAddonIds={config.addonIds}
         onToggle={toggleAddon}
       />
+        </>
+      ) : (
+        <>
+          {/* Step 2 · recap of the plan, editable without losing guest details */}
+          <section
+            aria-label="Your trip"
+            className="rounded-xl border border-neutral-200 bg-neutral-50 p-4"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                  Your trip
+                </p>
+                <p className="text-sm font-semibold text-neutral-900">
+                  {config.date ? formatTripDate(config.date) : 'Date not set'}
+                  {config.slot ? ` · ${config.slot.time}` : ''}
+                </p>
+                <p className="text-sm text-neutral-700">
+                  {config.adults} {config.adults === 1 ? 'guest' : 'guests'}
+                  {selectedAddons.length > 0
+                    ? ` · ${selectedAddons.map((addon) => addon.name).join(', ')}`
+                    : ''}
+                </p>
+                <p className="text-sm text-neutral-700">
+                  {needsPickup
+                    ? `Pickup · ${zone?.name ?? 'area not selected'}${
+                        config.isTba
+                          ? ' · address TBA by H-1'
+                          : config.hotelAddress
+                            ? ` · ${config.hotelAddress}`
+                            : ''
+                      }`
+                    : `Meeting point · ${venture.meetingPoint?.name ?? venture.location}`}
+                </p>
+                {appliedCoupon && (
+                  <p className="text-xs font-medium text-green-700">
+                    Coupon {appliedCoupon.code} · −{appliedCoupon.discountPercent}%
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setStep('plan')}
+                className="min-h-[44px] shrink-0 text-sm font-semibold text-neutral-900 underline underline-offset-4"
+              >
+                Edit
+              </button>
+            </div>
+          </section>
 
-      {/* 7 · Contact details */}
-      <section>
-        <h3 className="mb-3 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
-          7 · Lead traveller
-        </h3>
+          {/* Lead traveller + legal acceptance */}
+          <section>
+            <h3 className="mb-3 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+              Lead traveller
+            </h3>
         <div className="space-y-2.5 rounded-xl border border-neutral-200 p-4">
           <input
             aria-label="Full name"
@@ -687,8 +790,10 @@ export function ExperienceBookingWidget({
           </label>
         </div>
       </section>
+        </>
+      )}
 
-      {/* Sticky summary + Next */}
+      {/* Sticky summary + step action */}
       <div className="sticky bottom-0 -mx-4 -mb-4 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
         <div className="mb-2 space-y-1 text-sm">
           <div className="flex justify-between text-neutral-600">
@@ -742,17 +847,46 @@ export function ExperienceBookingWidget({
           </div>
         </div>
 
-        <Button
-          onClick={onBook}
-          disabled={!canContinue || isBooking}
-          fullWidth
-          size="lg"
-          className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500"
-        >
-          {isBooking ? 'Processing…' : 'Next'}
-        </Button>
+        {step === 'plan' && (
+          <Button
+            onClick={() => {
+              track('checkout_step_complete', { step: 'plan', ventureId: venture.id });
+              setStep('details');
+            }}
+            disabled={!planReady}
+            fullWidth
+            size="lg"
+            className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500"
+          >
+            Continue
+          </Button>
+        )}
 
-        {!canContinue && (
+        {step === 'details' && (
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setStep('plan')}
+              variant="outline"
+              size="lg"
+              className="!rounded-xl !px-4"
+              aria-label="Back to plan your trip"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              Back
+            </Button>
+            <Button
+              onClick={onBook}
+              disabled={!planReady || !detailsReady || isBooking}
+              fullWidth
+              size="lg"
+              className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500"
+            >
+              {isBooking ? 'Processing…' : 'Continue to payment'}
+            </Button>
+          </div>
+        )}
+
+        {!((step === 'plan' && planReady) || (step === 'details' && detailsReady)) && (
           <p className="mt-1.5 text-center text-xs text-neutral-500">{missing[0]}</p>
         )}
 
