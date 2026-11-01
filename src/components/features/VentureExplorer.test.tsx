@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { VentureExplorer } from './VentureExplorer';
+import { SearchProvider } from '@/components/search/SearchProvider';
 import type { VentureItem, Variant } from '@/types/venture';
 
 function buildVenture(overrides: Partial<VentureItem>): VentureItem {
@@ -122,7 +123,8 @@ describe('VentureExplorer date and pax filter', () => {
     window.history.pushState({}, '', `/?date=${FUTURE_DATE}&pax=2`);
 
     render(
-      <VentureExplorer ventures={[withAvailability, blackedOut, fullyBooked, smallGroup]} />
+      <VentureExplorer ventures={[withAvailability, blackedOut, fullyBooked, smallGroup]} />,
+      { wrapper: SearchProvider }
     );
 
     expect(screen.getByText(withAvailability.title)).toBeInTheDocument();
@@ -133,7 +135,7 @@ describe('VentureExplorer date and pax filter', () => {
   it('hides ventures that cannot host the group size', () => {
     window.history.pushState({}, '', '/?pax=4');
 
-    render(<VentureExplorer ventures={[withAvailability, smallGroup]} />);
+    render(<VentureExplorer ventures={[withAvailability, smallGroup]} />, { wrapper: SearchProvider });
 
     expect(screen.getByText(withAvailability.title)).toBeInTheDocument();
     expect(screen.queryByText(smallGroup.title)).not.toBeInTheDocument();
@@ -142,9 +144,13 @@ describe('VentureExplorer date and pax filter', () => {
   it('summarises the active filters', () => {
     window.history.pushState({}, '', `/?date=${FUTURE_DATE}&pax=2`);
 
-    render(<VentureExplorer ventures={[withAvailability, smallGroup]} />);
+    render(<VentureExplorer ventures={[withAvailability, smallGroup]} />, {
+      wrapper: SearchProvider,
+    });
 
-    expect(screen.getByText(/adventure on 15 Jun for 2 guests/)).toBeInTheDocument();
+    expect(screen.getByText('15 Jun')).toBeInTheDocument();
+    expect(screen.getByText('Date:')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
   });
 });
 
@@ -156,7 +162,7 @@ describe('VentureExplorer category deep link', () => {
   it('filters the catalogue from the ?category= query string', () => {
     window.history.pushState({}, '', '/?category=tubing');
 
-    render(<VentureExplorer ventures={[rafting, tubing]} />);
+    render(<VentureExplorer ventures={[rafting, tubing]} />, { wrapper: SearchProvider });
 
     expect(screen.getByText(tubing.title)).toBeInTheDocument();
     expect(screen.queryByText(rafting.title)).not.toBeInTheDocument();
@@ -165,7 +171,7 @@ describe('VentureExplorer category deep link', () => {
   it('shows the full catalogue for an unknown category slug', () => {
     window.history.pushState({}, '', '/?category=hotels');
 
-    render(<VentureExplorer ventures={[rafting, tubing]} />);
+    render(<VentureExplorer ventures={[rafting, tubing]} />, { wrapper: SearchProvider });
 
     expect(screen.getByText(tubing.title)).toBeInTheDocument();
     expect(screen.getByText(rafting.title)).toBeInTheDocument();
