@@ -31,40 +31,54 @@
 }
 
 /*
- * Dark theme (Phase 1): the app is Tailwind-light by default, so the theme
- * toggle maps the most common surface/text utilities onto the BaliWild ink
- * palette. Brand yellow and the cinematic hero stay untouched.
+ * Theme surfaces
+ * Light: #FAFAFA page, white header/cards.
+ * Dark:  #1F1F1F page/header, #2A2A2A cards.
  */
+html:not(.dark) {
+  background-color: #fafafa;
+}
+
+html:not(.dark) body {
+  background-color: #fafafa;
+  color: #000000;
+}
+
+html:not(.dark) .bg-neutral-50,
+html:not(.dark) .bg-gray-50 {
+  background-color: #fafafa !important;
+}
+
 html.dark {
-  background-color: #000000;
+  background-color: #1f1f1f;
 }
 
 html.dark body {
-  background-color: #000000;
+  background-color: #1f1f1f;
   color: #f8f9fa;
 }
 
 html.dark .bg-white,
 html.dark .bg-white\/90 {
-  background-color: #111111 !important;
+  background-color: #2a2a2a !important;
 }
 
-/* The global header is pure black in dark mode. */
+/* The global header keeps the base dark surface, not the card surface. */
 html.dark .bg-white\/95,
 html.dark header.bg-white {
-  background-color: #000000 !important;
+  background-color: #1f1f1f !important;
 }
 
 html.dark .bg-neutral-50,
 html.dark .bg-gray-50,
 html.dark .bg-neutral-50\/50,
 html.dark .bg-gray-50\/50 {
-  background-color: #000000 !important;
+  background-color: #171717 !important;
 }
 
 html.dark .bg-neutral-100,
 html.dark .bg-gray-100 {
-  background-color: #1a1a1a !important;
+  background-color: #333333 !important;
 }
 
 html.dark .text-neutral-900,
@@ -121,14 +135,14 @@ html.dark .border-neutral-200,
 html.dark .border-gray-200,
 html.dark .border-neutral-100,
 html.dark .border-gray-100 {
-  border-color: #262626 !important;
+  border-color: #3a3a3a !important;
 }
 
 html.dark input,
 html.dark select,
 html.dark textarea {
-  background-color: #111111 !important;
-  border-color: #333333 !important;
+  background-color: #1f1f1f !important;
+  border-color: #444444 !important;
   color: #f8f9fa !important;
 }
 
