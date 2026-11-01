@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, CreditCard, Shield, CheckCircle, Loader2, Users, Calendar } from 'lucide-react';
+import { ArrowLeft, CreditCard, Shield, CheckCircle, Loader2, Users, Calendar, Clock3 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { formatPrice } from '@/lib/i18n';
 import type { Booking } from '@/types/venture';
@@ -52,6 +52,8 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
   const [holdExpired, setHoldExpired] = useState(false);
+  const [holdExpiresAt, setHoldExpiresAt] = useState<Date | null>(null);
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -65,6 +67,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
         if (data.success) {
           setBooking(data.data);
           const expiresAt = data.data.expiresAt ? new Date(data.data.expiresAt) : null;
+          setHoldExpiresAt(expiresAt);
           if (
             data.data.paymentStatus === 'PENDING' &&
             (!expiresAt || expiresAt.getTime() <= Date.now())
@@ -82,6 +85,30 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     };
     fetchBooking();
   }, [params]);
+
+  // Live hold countdown: the booking keeps its slot for a few minutes only.
+  useEffect(() => {
+    if (!holdExpiresAt || holdExpired) return;
+
+    const tick = () => {
+      const next = Date.now();
+      setNow(next);
+      if (holdExpiresAt.getTime() <= next) setHoldExpired(true);
+    };
+
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    return () => window.clearInterval(timer);
+  }, [holdExpiresAt, holdExpired]);
+
+  const holdRemainingMs = holdExpiresAt ? Math.max(0, holdExpiresAt.getTime() - now) : null;
+  const holdRemainingLabel =
+    holdRemainingMs === null
+      ? null
+      : `${String(Math.floor(holdRemainingMs / 60000)).padStart(2, '0')}:${String(
+          Math.floor((holdRemainingMs % 60000) / 1000)
+        ).padStart(2, '0')}`;
+  const holdIsUrgent = holdRemainingMs !== null && holdRemainingMs <= 120_000;
 
   const handlePaymentResult = useCallback(() => {
     window.location.href = `/voucher/${booking?.id}`;
@@ -237,12 +264,29 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
 
                 <div className="flex items-center gap-2 text-xs text-gray-500">
                   <Shield className="w-4 h-4" />
-                  <span>🔒 Secure checkout powered by Midtrans</span>
+                  <span>Secure checkout powered by Midtrans</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-500">
                   <CheckCircle className="w-4 h-4" />
                   <span>PCI DSS Level 1 Certified</span>
                 </div>
+
+                {holdRemainingLabel && !holdExpired && booking.paymentStatus === 'PENDING' && (
+                  <div
+                    className={`mt-4 flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
+                      holdIsUrgent
+                        ? 'border-amber-300 bg-amber-50 text-amber-900'
+                        : 'border-neutral-200 bg-neutral-50 text-neutral-700'
+                    }`}
+                  >
+                    <Clock3 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span>
+                      Your slot is held for{' '}
+                      <strong className="tabular-nums">{holdRemainingLabel}</strong>
+                      {holdIsUrgent ? ' — finish the payment soon.' : '.'}
+                    </span>
+                  </div>
+                )}
 
                 {holdExpired && (
                   <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
