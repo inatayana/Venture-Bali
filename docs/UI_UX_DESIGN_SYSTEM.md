@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.6.6
+> **Version:** 3.6.8
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -20,6 +20,8 @@
 > **Changelog v3.6.4:** Theme-aware wordmark — light: BALI black / WILD white; dark: BALI white / WILD black.
 > **Changelog v3.6.5:** Theme surfaces — light page `#FAFAFA` with white header/cards; dark page/header `#1F1F1F` with `#2A2A2A` cards.
 > **Changelog v3.6.6:** Dark surfaces tuned — page `#212121`, header/cards/inputs `#191919`.
+> **Changelog v3.6.7:** Horizontal search pill now covers tablets and mid-sized desktops (768–1279px); vertical search card starts at 1280px.
+> **Changelog v3.6.8:** Search stays horizontal on desktop too; the vertical glass card is retired so the hero remains full-width and cinematic.
 
 ## 1. Design Principles
 
@@ -154,7 +156,7 @@ Aturan penerapan:
 - **Home hero (v3.5.0)**: hero sinematik memakai foto `/images/hero-bali.jpg` (kolase rafting/ATV/sunset, dioptimalkan ke 1920px/±330 KB dan disajikan lewat `next/image` sebagai LCP `priority`) dengan **scrim kiri** `from-black/90 via-black/60 to-black/5` agar teks terbaca sementara sisi kanan gambar tetap terang, plus overlay gelap tipis di mobile. Headline editorial dua baris: `Book the [keyword]` (typewriter, kata kunci **`brand` tanpa kotak latar** + kursor berkedip) dan `Own the wild!`, dengan padding vertikal lega. Panel search desktop memakai **glass transparan** `bg-[#111111]/15`, `backdrop-blur-[5px]`, border `white/15`, input berjarak longgar, dan tombol Search penuh `brand` + teks ink; hover menaikkan opacity ke 25% agar tetap terbaca. Di bawah search ada **micro-bar trust** (rating/review bila ada, 9 kategori, instant confirmation, 80% refund, secure checkout).
 - **Search pill** desktop: hover memunculkan border aksen + shadow glow; mobile tetap pil ringkas yang membuka bottom sheet.
 - **Global switchers (v3.6.2)**: header beranda, PDP, checkout, dan footer menampilkan **EN/ID**, currency selector (IDR, USD, EUR, AUD, SGD, CNY, INR, KRW, JPY), dan **theme sun/moon**. Semua preferensi disimpan di localStorage; kunjungan pertama memakai `x-vercel-ip-country` (Geo-IP) lalu bahasa browser, fallback IDR/EN. Dark mode membalik permukaan putih → hitam dan teks hitam → putih (surface brand seperti hero/footer/tombol kuning tetap kontras), tanpa reload.
-- **Search widget per breakpoint (v3.6.3)**: <768px = pil ringkas + bottom sheet; 768–1023px = **satu horizontal glass pill** (Where / When / Guests + bulatan Search kuning) yang membuka sheet, sehingga hero tidak didominasi kartu vertikal; ≥1024px = kartu search vertikal 15% opacity.
+- **Search widget per breakpoint (v3.6.8)**: <768px = pil ringkas + bottom sheet; **≥768px = satu horizontal glass pill** (Where / When / Guests + bulatan Search kuning) yang membuka sheet. Kartu search vertikal tidak lagi ditampilkan sehingga hero tetap lebar dan sinematik di desktop.
 - **Approximate pricing**: IDR tetap mata uang charge; kartu, paket, total booking sheet dan checkout menampilkan `≈ USD/EUR/...` dari rate harian (`/api/fx/rates`, fallback statis). Tidak ada angka yang dikirim ke Midtrans selain IDR.
 - **Hero intent pills & ticker (v3.6.1)**: empat pill ke Best Sellers (`?sort=popular`), combo, Mount Batur, tubing; ticker hanya tampil jika ada booking `PAID` nyata dan menampilkan relatif time, bukan social proof karangan.
 - **Home**: brand header menempel di atas (`sticky top-0`, backdrop blur) saat halaman di-scroll, dengan tinggi ringkas agar grid produk tetap terlihat.
