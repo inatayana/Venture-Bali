@@ -152,7 +152,9 @@ export async function createSnapTransaction(
 
   const auth = Buffer.from(`${serverKey}:`).toString('base64');
 
-  const response = await fetch(`${baseUrl}/v2/token`, {
+  // Snap transactions live on /snap/v1/transactions. The legacy /v2/token
+  // endpoint uses a different credential scope and rejects Snap keys with 401.
+  const response = await fetch(`${baseUrl}/snap/v1/transactions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
