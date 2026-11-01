@@ -112,6 +112,14 @@ export interface MidtransWebhookPayload {
 
 let config: MidtransConfig | null = null;
 
+/** Raised when the server keys are missing so callers can return a clear 503. */
+export class MidtransConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'MidtransConfigError';
+  }
+}
+
 export function getMidtransConfig(): MidtransConfig {
   if (config) return config;
 
@@ -120,7 +128,9 @@ export function getMidtransConfig(): MidtransConfig {
   const isProduction = process.env.MIDTRANS_IS_PRODUCTION === 'true';
 
   if (!serverKey || !clientKey) {
-    throw new Error('Midtrans credentials not configured. Set MIDTRANS_SERVER_KEY and MIDTRANS_CLIENT_KEY');
+    throw new MidtransConfigError(
+      'Midtrans credentials not configured. Set MIDTRANS_SERVER_KEY and MIDTRANS_CLIENT_KEY'
+    );
   }
 
   config = { serverKey, clientKey, isProduction };
