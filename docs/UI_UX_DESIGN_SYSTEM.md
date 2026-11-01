@@ -136,6 +136,8 @@ Aturan penerapan:
 | 6 | Location / Meeting Point Map & Related Adventures | `#location` |
 
 ### Sticky Header & Breadcrumb Bar
+- **Home hero (v1.8.0)**: latar gelap dengan **layer foto sinematik** (`/images/hero-bali.jpg`, tinggal drop asetnya) + **scrim gradien** agar headline tetap kontras. Headline dua baris: `Book the [keyword]` (typewriter) dan `Own the wild!`. Di bawah search ada **micro-bar trust** (rating/review bila ada, 9 kategori, instant confirmation, 80% refund, secure checkout).
+- **Search pill** desktop memakai glassmorphism dengan glow aksen saat hover (`hover:border-brand/60` + shadow aksen).
 - **Home**: brand header menempel di atas (`sticky top-0`, backdrop blur) saat halaman di-scroll, dengan tinggi ringkas agar grid produk tetap terlihat.
 - **PDP**: bar sticky setinggi 56px berisi tombol "All adventures", breadcrumb `Home › Kategori › Nama produk`, dan harga paket terpilih per guest (desktop). Bar tetap terlihat saat scroll, jadi user bisa kembali atau pindah halaman tanpa scroll ke atas.
 - **Section nav mengambang**: pill `Packages · What to expect · Reviews · Location` diposisikan **di tengah kolom konten kanan** (bukan full-width), `sticky top-64px`, dengan scrim gradien putih agar teks di bawahnya memudar. Pill **tidak tampil saat halaman dibuka**; muncul (fade + slide 8px) ketika section `#packages` mencapai header, dan memudar perlahan saat scroll kembali ke atas (`opacity/visibility` transition 300ms, `h-0` supaya tidak menyisakan ruang).
@@ -196,6 +198,8 @@ Langkah konfigurasi (berlaku untuk desktop inline & mobile bottom sheet):
 - **Empty state**: bila `reviewCount = 0`, jangan tampilkan angka rating maupun histogram — tampilkan kartu "No verified reviews yet" (ikon bintang abu-abu + ajakan review setelah trip). Baris rating di header berubah menjadi chip "New · no reviews yet".
 
 ### Section 6: Location & Related Adventures
+- **Harga & badge di kartu (v1.8.0)**: harga tampil `From Rp ... / guest` + **perkiraan USD** (`≈ $34 / person`, rate fallback 16.000), diikuti dua badge: **Instant Confirmation** (hijau) dan **Free reschedule ≥24h** (aksen).
+- **Skeleton loading**: rute `/` dan PDP punya `loading.tsx` dengan shimmer (hero, tile kategori, kartu produk, galeri) agar navigasi terasa instan.
 - Map widget + address + "Open in Google Maps" + pickup info note + 3-4 related cards.
 - **Related (v1.6.0)**: `getRelated` mengambil maksimal 3 produk dari kategori yang sama; karena tiap kategori masih 1 produk, sisanya diisi produk rating tertinggi lain agar section tidak kosong. Section `#related` ("More") ikut masuk anchor nav.
 - **Social proof (v1.6.0)**: kartu produk dan header PDP menampilkan chip `N booked this month` — jumlah **pax** dari booking `PAID` bulan berjalan (`getMonthlyGuestCounts`), hanya tampil bila > 0.

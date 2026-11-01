@@ -4,6 +4,7 @@ import { TrustStrip } from '@/components/features/TrustStrip';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SearchProvider } from '@/components/search/SearchProvider';
 import { loadVentures } from '@/lib/ventureService';
+import { MEGA_CATEGORIES } from '@/lib/taxonomy';
 
 export const revalidate = 60;
 
@@ -16,6 +17,18 @@ export default async function Home() {
     title: venture.title,
     href: `/experiences/${venture.id}/${venture.slug}`,
   }));
+
+  const reviewed = ventures.filter((venture) => (venture.reviewCount ?? 0) > 0);
+  const stats = {
+    categories: MEGA_CATEGORIES.length,
+    avgRating:
+      reviewed.length > 0
+        ? Math.round(
+            (reviewed.reduce((sum, venture) => sum + venture.rating, 0) / reviewed.length) * 10
+          ) / 10
+        : null,
+    reviewCount: ventures.reduce((sum, venture) => sum + (venture.reviewCount ?? 0), 0),
+  };
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -31,7 +44,7 @@ export default async function Home() {
       </header>
 
       <SearchProvider>
-        <HomeHero hubs={HUBS} suggestions={suggestions} />
+        <HomeHero hubs={HUBS} suggestions={suggestions} stats={stats} />
         <VentureExplorer ventures={ventures} />
       </SearchProvider>
 

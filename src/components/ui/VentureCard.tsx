@@ -1,9 +1,10 @@
-import { Star, MapPin, Clock, Users, CheckCircle } from 'lucide-react';
+import { Star, MapPin, Clock, Users, CheckCircle, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
 import type { VentureItem } from '@/types/venture';
 import { CATEGORY_ICONS } from '@/lib/taxonomy';
 import { cn } from '@/utils/cn';
 import { formatPrice } from '@/lib/i18n';
+import { approximateUsd } from '@/lib/fx';
 
 export interface VentureCardProps {
   venture: VentureItem;
@@ -106,10 +107,6 @@ export function VentureCard({
             <MapPin className="w-4 h-4" aria-hidden="true" />
             <span className="line-clamp-1">{venture.location}</span>
           </div>
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">
-            <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
-            Instant Confirmation
-          </span>
           {venture.bookedThisMonth ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-[11px] font-medium text-neutral-800">
               <Users className="w-3.5 h-3.5" aria-hidden="true" />
@@ -149,13 +146,27 @@ export function VentureCard({
             <span className="font-heading text-xl font-bold tabular-nums text-brand-ink">
               {formatPrice(venture.priceIdr)}
             </span>
-            <span className="ml-1 text-xs text-gray-500">/guest</span>
+            <span className="ml-1 text-xs text-gray-500">/ guest</span>
             {tierHint && tierHint.minPax > 1 && (
               <span className="ml-1 text-xs text-gray-400">
                 · {tierHint.minPax}+ guests
               </span>
             )}
+            <span className="mt-0.5 block text-[11px] text-gray-400">
+              ≈ {formatPrice(approximateUsd(venture.priceIdr), 'USD')} / person
+            </span>
           </div>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700">
+            <CheckCircle className="h-3 w-3" aria-hidden="true" />
+            Instant Confirmation
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-[10px] font-semibold text-neutral-800">
+            <RefreshCw className="h-3 w-3" aria-hidden="true" />
+            Free reschedule ≥24h
+          </span>
         </div>
       </div>
     </>

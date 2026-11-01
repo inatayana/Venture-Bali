@@ -74,7 +74,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
         className="relative mt-6 hidden lg:block"
         aria-label="Search adventures"
       >
-        <div className="flex items-center gap-1 rounded-2xl border border-white/15 bg-white/95 p-2 shadow-2xl backdrop-blur">
+        <div className="flex items-center gap-1 rounded-2xl border border-white/15 bg-white/95 p-2 shadow-2xl backdrop-blur transition-all duration-300 hover:border-brand/60 hover:shadow-[0_0_0_1px_rgba(255,238,0,0.35),0_30px_60px_-30px_rgba(0,0,0,0.85)]">
           <div className="relative flex-1">
             <button
               type="button"
