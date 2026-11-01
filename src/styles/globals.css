@@ -45,9 +45,14 @@ html.dark body {
 }
 
 html.dark .bg-white,
-html.dark .bg-white\/95,
 html.dark .bg-white\/90 {
   background-color: #111111 !important;
+}
+
+/* The global header is pure black in dark mode. */
+html.dark .bg-white\/95,
+html.dark header.bg-white {
+  background-color: #000000 !important;
 }
 
 html.dark .bg-neutral-50,

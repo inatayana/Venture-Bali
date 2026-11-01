@@ -13,7 +13,7 @@ export function HomeHeader() {
   const { t } = useLocale();
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
+    <header className="sticky top-0 z-40 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
       <div className="container mx-auto flex items-center justify-between gap-2 px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
           <p className="shrink-0 text-brand-ink">
