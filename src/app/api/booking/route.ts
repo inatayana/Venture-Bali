@@ -2,8 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { bookingSchema } from '@/lib/bookingSchema';
 import { BookingServiceError, createPersistedBooking } from '@/lib/bookingService';
+import { clientIp, rateLimit } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
+  const limit = rateLimit(`booking:${clientIp(request)}`, 10, 60_000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { success: false, error: { code: 'RATE_LIMITED', message: 'Too many booking attempts. Try again shortly.' } },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSeconds) } }
+    );
+  }
+
   try {
     const booking = await createPersistedBooking(bookingSchema.parse(await request.json()));
 

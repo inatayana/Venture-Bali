@@ -22,6 +22,8 @@ const STATUS_LABEL: Record<Booking['paymentStatus'], string> = {
   PENDING: 'Awaiting payment',
   CANCELLED: 'Cancelled',
   FAILED: 'Payment failed',
+  PARTIALLY_REFUNDED: 'Partially refunded',
+  REFUNDED: 'Refunded',
 };
 
 export default function VoucherPage({ params }: VoucherPageProps) {

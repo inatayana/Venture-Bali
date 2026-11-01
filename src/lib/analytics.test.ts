@@ -3,9 +3,23 @@ import { track } from './analytics';
 type TestWindow = Window & { dataLayer?: Record<string, unknown>[] };
 
 describe('analytics track', () => {
+  beforeEach(() => {
+    window.localStorage.setItem('baliwild_cookie_consent', 'all');
+  });
+
   afterEach(() => {
     delete (window as TestWindow).dataLayer;
+    window.localStorage.removeItem('baliwild_cookie_consent');
     jest.restoreAllMocks();
+  });
+
+  it('does not collect before consent', () => {
+    window.localStorage.removeItem('baliwild_cookie_consent');
+    (window as TestWindow).dataLayer = [];
+
+    track('view_item', { item_id: 'vtr-1' });
+
+    expect((window as TestWindow).dataLayer).toHaveLength(0);
   });
 
   it('pushes the event into window.dataLayer', () => {

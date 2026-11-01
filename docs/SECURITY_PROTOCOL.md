@@ -32,6 +32,20 @@
 - Customer PII (email, WhatsApp number, hotel address) is accessed on a need-to-know basis; never logged.
 - Database credentials never appear in code, logs, or client bundles.
 - Multi-tenant isolation: every query MUST be scoped by `tenantId` where the model supports it.
+- Analytics and marketing tags only run after **Accept all** in the cookie banner (`baliwild_cookie_consent`). Essential storage always works.
+- Privacy policy: `/privacy` (data collected, processors, retention, rights).
+
+## 5.1 Transport & abuse protection
+
+- Security headers in `next.config.js`: `X-Content-Type-Options`, `X-Frame-Options: DENY`,
+  `Referrer-Policy`, `Permissions-Policy`, and HSTS in production.
+- In-memory rate limits (`src/lib/rateLimit.ts`) on booking, coupons, AI chat,
+  reviews, cancellation/reschedule and admin login. This is best-effort per
+  serverless instance; move to Upstash/Redis before scaling.
+- Admin login is limited to 5 attempts / 15 minutes per IP. Add 2FA before
+  onboarding more operators.
+- Supabase migrations use `DIRECT_URL` (port 5432); runtime uses the pooled
+  `DATABASE_URL`.
 
 ## 6. Dependency & Code Hygiene
 

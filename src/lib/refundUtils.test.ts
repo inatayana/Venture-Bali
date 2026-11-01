@@ -5,10 +5,57 @@ import {
   isNoShow,
   getRefundPolicyText,
   formatRefundAmount,
+  parseSlotTime,
+  getActivityInstant,
+  hoursBeforeActivity,
+  quoteCancellation,
 } from './refundUtils';
 
 describe('Refund Utilities (v2 — 20% cancel fee)', () => {
   const totalPrice = 1000000;
+
+  describe('booking activity time', () => {
+    it('parses 24h and AM/PM slot labels', () => {
+      expect(parseSlotTime('08:00')).toEqual({ hour: 8, minute: 0 });
+      expect(parseSlotTime('1:00 PM')).toEqual({ hour: 13, minute: 0 });
+      expect(parseSlotTime('12:30 AM')).toEqual({ hour: 0, minute: 30 });
+      expect(parseSlotTime(null)).toEqual({ hour: 8, minute: 0 });
+    });
+
+    it('turns a WITA date + slot into the correct UTC instant', () => {
+      expect(getActivityInstant('2026-11-10', '08:00').toISOString()).toBe(
+        '2026-11-10T00:00:00.000Z'
+      );
+      expect(getActivityInstant('2026-11-10', '1:00 PM').toISOString()).toBe(
+        '2026-11-10T05:00:00.000Z'
+      );
+    });
+
+    it('quotes 80% for ≥24h and 0% inside the cut-off', () => {
+      const early = quoteCancellation({
+        bookingDate: '2026-11-10',
+        slotTime: '08:00',
+        totalPrice,
+        now: new Date('2026-11-08T00:00:00.000Z'),
+      });
+      expect(early).toMatchObject({ eligible: true, refundAmount: 800000, feeAmount: 200000 });
+
+      const late = quoteCancellation({
+        bookingDate: '2026-11-10',
+        slotTime: '08:00',
+        totalPrice,
+        now: new Date('2026-11-09T12:00:00.000Z'),
+      });
+      expect(late.eligible).toBe(false);
+      expect(late.refundAmount).toBe(0);
+    });
+
+    it('counts hours until the activity in WITA', () => {
+      expect(
+        hoursBeforeActivity('2026-11-10', '08:00', new Date('2026-11-09T00:00:00.000Z'))
+      ).toBe(24);
+    });
+  });
 
   describe('calculateRefund', () => {
     it('should apply 20% cancel fee for cancellations ≥24h before activity', () => {

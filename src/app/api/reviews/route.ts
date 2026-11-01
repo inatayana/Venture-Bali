@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { verifyCustomerLinkToken } from '@/lib/customerLink';
 import { canReviewBooking, reviewBlockedReason, reviewInputSchema } from '@/lib/reviewSchema';
+import { clientIp, rateLimit } from '@/lib/rateLimit';
 
 /**
  * Submit a review for a paid, finished trip.
@@ -11,6 +12,14 @@ import { canReviewBooking, reviewBlockedReason, reviewInputSchema } from '@/lib/
  * Reviews are stored unapproved and appear on the product page after moderation.
  */
 export async function POST(request: NextRequest) {
+  const limit = rateLimit(`review:${clientIp(request)}`, 5, 60_000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { success: false, error: { code: 'RATE_LIMITED', message: 'Too many review submissions. Try again shortly.' } },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSeconds) } }
+    );
+  }
+
   let rawBody: unknown;
   try {
     rawBody = await request.json();

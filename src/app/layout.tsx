@@ -4,6 +4,7 @@ import { barlowCondensed, plusJakartaSans } from '@/styles/fonts';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { PwaRegistration } from '@/components/PwaRegistration';
 import { ChatWidget } from '@/components/chat/ChatWidget';
+import { CookieConsent } from '@/components/CookieConsent';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
 import {
   BRAND_NAME,
@@ -60,6 +61,7 @@ export default function RootLayout({
         <AnalyticsPageView />
         <PwaRegistration />
         <InstallPrompt />
+        <CookieConsent />
         <ChatWidget />
       </body>
     </html>

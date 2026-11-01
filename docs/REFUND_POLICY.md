@@ -28,6 +28,22 @@
 - Refund dikembalikan ke metode pembayaran asal.
 - Dana dikirim ke rekening/virtual account yang tercatat di Midtrans.
 
+### 4.1 Implementasi aplikasi (v1)
+
+- Tamu membatalkan sendiri dari `/my/bookings?token=…` (magic link). Sistem
+  menghitung 80%/0% dari tanggal + jam slot di WITA.
+- Pembatalan yang sah membuat row `Refund` (`PENDING`), membatalkan voucher,
+  dan mengubah lifecycle booking menjadi `CANCELLED`. `paymentStatus` tetap
+  `PAID` sampai uang benar-benar dikembalikan.
+- Admin memproses di `/admin/refunds`:
+  - **Refund via Midtrans** → memanggil `/v2/{order_id}/refund`, menyimpan
+    `providerRef`, lalu set `PARTIALLY_REFUNDED`.
+  - **Mark manual refund** → untuk transfer bank/manual di luar Midtrans.
+- Setelah diproses, payment status menjadi `PARTIALLY_REFUNDED`; refund penuh
+  (jika suatu saat diperlukan) menjadi `REFUNDED`.
+- Reschedule mandiri tersedia di halaman yang sama (≥24 jam sebelum trip),
+  gratis, dengan validasi kapasitas + blackout date, dan audit `BookingChange`.
+
 ## 5. Contoh
 
 | Skenario | Kapan | Hasil |
