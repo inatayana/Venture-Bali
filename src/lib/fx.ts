@@ -82,6 +82,16 @@ async function fetchRates(): Promise<Record<Currency, number>> {
   }
 }
 
+const USD_FALLBACK_RATE = 16000;
+
+/**
+ * Synchronous USD approximation for cards and listings (rate 16.000).
+ * Live rates stay in convertFromIDR for checkout-grade numbers.
+ */
+export function approximateUsd(amountIdr: number): number {
+  return Math.round(amountIdr / USD_FALLBACK_RATE);
+}
+
 export async function getRates(): Promise<Record<Currency, number>> {
   if (cache && Date.now() - cache.fetchedAt < CACHE_TTL_MS) {
     return cache.rates;

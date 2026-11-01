@@ -63,7 +63,7 @@ export function CategoryTiles({
   }, [isSortOpen]);
 
   const tileBase =
-    'group flex min-w-[84px] flex-col items-center justify-center gap-1 rounded-xl border px-2 py-2.5 text-center transition-all duration-200 lg:min-w-0';
+    'group flex min-w-[84px] snap-start flex-col items-center justify-center gap-1 rounded-xl border px-2 py-2.5 text-center transition-all duration-200 lg:min-w-0';
   const hasSort = Boolean(sortOptions && sortOptions.length > 0 && onSortChange);
   const activeSortLabel = sortOptions?.find((option) => option.value === sortValue)?.label;
 
@@ -71,7 +71,7 @@ export function CategoryTiles({
     <div
       role="group"
       aria-label="Filter by category"
-      className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 scrollbar-hide lg:grid lg:grid-cols-10 lg:gap-2 lg:overflow-visible"
+      className="-mx-1 flex snap-x snap-mandatory scroll-smooth gap-2 overflow-x-auto px-1 pb-1 scrollbar-hide lg:grid lg:grid-cols-10 lg:gap-2 lg:overflow-visible"
     >
       <div ref={triggerRef} className="relative shrink-0">
         <button
