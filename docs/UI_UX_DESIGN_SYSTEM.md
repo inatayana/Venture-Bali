@@ -182,6 +182,7 @@ Langkah konfigurasi (berlaku untuk desktop inline & mobile bottom sheet):
 
 ### Section 5: Reviews & Media Proof
 - Ratings breakdown (bar per bintang) + summary badge + review cards (mobile carousel / desktop grid) + foto/video dari reviewer.
+- **Empty state**: bila `reviewCount = 0`, jangan tampilkan angka rating maupun histogram — tampilkan kartu "No verified reviews yet" (ikon bintang abu-abu + ajakan review setelah trip). Baris rating di header berubah menjadi chip "New · no reviews yet".
 
 ### Section 6: Location & Related Adventures
 - Map widget + address + "Open in Google Maps" + pickup info note + 3–4 related cards.
