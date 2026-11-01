@@ -426,7 +426,12 @@ export type VentureSeed = {
   highlights: string[];
   inclusions: string[];
   exclusions: string[];
-  itinerary: { time: string; activity: string }[];
+  itinerary: {
+    time: string;
+    activity: string;
+    durationMinutes?: number;
+    duration?: string;
+  }[];
   essentialInfo: {
     perfectFor: string[];
     whatToBring: string[];
@@ -525,10 +530,10 @@ export const VENTURES: VentureSeed[] = [
     inclusions: ['ATV rental', 'Safety gear', 'Certified guide', 'Insurance', 'Drinking water'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
     itinerary: [
-      { time: '08:00', activity: 'Arrival and safety briefing' },
-      { time: '08:30', activity: 'ATV ride through the jungle trail' },
-      { time: '09:45', activity: 'Rice terrace photo stop' },
-      { time: '10:30', activity: 'Return to meeting point' },
+      { durationMinutes: 30, time: '08:00', activity: 'Arrival and safety briefing' },
+      { durationMinutes: 75, time: '08:30', activity: 'ATV ride through the jungle trail' },
+      { durationMinutes: 15, time: '09:45', activity: 'Rice terrace photo stop' },
+      { durationMinutes: 30, time: '10:30', activity: 'Return to meeting point' },
     ],
     essentialInfo: {
       perfectFor: ['First-time riders', 'Couples', 'Family groups'],
@@ -610,10 +615,10 @@ export const VENTURES: VentureSeed[] = [
     inclusions: ['Rafting equipment', 'Certified guide', 'Safety kayak', 'Insurance', 'Changing room'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
     itinerary: [
-      { time: '08:30', activity: 'Registration and equipment fitting' },
-      { time: '09:00', activity: 'Safety briefing and river entry' },
-      { time: '10:00', activity: 'Coffee plantation break' },
-      { time: '11:00', activity: 'Rampage rapid and finish' },
+      { durationMinutes: 20, time: '08:30', activity: 'Registration and equipment fitting' },
+      { durationMinutes: 20, time: '09:00', activity: 'Safety briefing and river entry' },
+      { durationMinutes: 25, time: '10:00', activity: 'Coffee plantation break' },
+      { durationMinutes: 115, time: '11:00', activity: 'Rampage rapid and finish' },
     ],
     essentialInfo: {
       perfectFor: ['Groups', 'Team building', 'Active travellers'],
@@ -769,9 +774,9 @@ export const VENTURES: VentureSeed[] = [
     exclusions: ['Personal expenses', 'Optional add-on services'],
     itinerary: [
       { time: '08:00', activity: 'Registration and equipment fitting' },
-      { time: '08:30', activity: 'Tubing entry and first section' },
-      { time: '09:30', activity: 'Second section and refreshment stop' },
-      { time: '10:15', activity: 'Return to the meeting point' },
+      { durationMinutes: 60, time: '08:30', activity: 'Tubing entry and first section' },
+      { durationMinutes: 45, time: '09:30', activity: 'Second section and refreshment stop' },
+      { durationMinutes: 55, time: '10:15', activity: 'Return to the meeting point' },
     ],
     essentialInfo: {
       perfectFor: ['Families', 'Children from age 6', 'Relaxed groups'],
@@ -921,10 +926,10 @@ export const VENTURES: VentureSeed[] = [
     inclusions: ['Mountain bike', 'Helmet and gloves', 'Certified guide', 'Water and refreshments', 'Insurance'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
     itinerary: [
-      { time: '07:00', activity: 'Hotel pickup and bike fitting' },
-      { time: '08:00', activity: 'Cycle through the hillside villages' },
-      { time: '09:30', activity: 'Temple visit and coffee break' },
-      { time: '11:00', activity: 'Reach the beach and finish' },
+      { durationMinutes: 60, time: '07:00', activity: 'Hotel pickup and bike fitting' },
+      { durationMinutes: 90, time: '08:00', activity: 'Cycle through the hillside villages' },
+      { durationMinutes: 45, time: '09:30', activity: 'Temple visit and coffee break' },
+      { durationMinutes: 45, time: '11:00', activity: 'Reach the beach and finish' },
     ],
     essentialInfo: {
       perfectFor: ['Active travellers', 'Groups', 'Couples'],
@@ -1007,11 +1012,11 @@ export const VENTURES: VentureSeed[] = [
     inclusions: ['Certified mountain guide', 'Breakfast and lunch', 'Hot spring entry', 'Trekking equipment', 'Insurance'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
     itinerary: [
-      { time: '02:00', activity: 'Hotel pickup for the climb start' },
-      { time: '03:30', activity: 'Trek through the lava field trail' },
-      { time: '06:15', activity: 'Summit sunrise and photography' },
-      { time: '07:30', activity: 'Volcanic steam breakfast' },
-      { time: '09:00', activity: 'Hot spring soak and return' },
+      { durationMinutes: 40, time: '02:00', activity: 'Hotel pickup for the climb start' },
+      { durationMinutes: 90, time: '03:30', activity: 'Trek through the lava field trail' },
+      { durationMinutes: 45, time: '06:15', activity: 'Summit sunrise and photography' },
+      { durationMinutes: 45, time: '07:30', activity: 'Volcanic steam breakfast' },
+      { durationMinutes: 140, time: '09:00', activity: 'Hot spring soak and return' },
     ],
     essentialInfo: {
       perfectFor: ['Hikers', 'Sunrise lovers', 'Active travellers'],
@@ -1095,9 +1100,9 @@ export const VENTURES: VentureSeed[] = [
     exclusions: ['Personal expenses', 'Optional add-on services'],
     itinerary: [
       { time: '09:00', activity: 'Arrival and safety briefing' },
-      { time: '09:30', activity: 'Waterski and banana boat rotations' },
-      { time: '10:45', activity: 'Jet ski session' },
-      { time: '11:30', activity: 'Shower, refreshments and finish' },
+      { durationMinutes: 75, time: '09:30', activity: 'Waterski and banana boat rotations' },
+      { durationMinutes: 45, time: '10:45', activity: 'Jet ski session' },
+      { durationMinutes: 30, time: '11:30', activity: 'Shower, refreshments and finish' },
     ],
     essentialInfo: {
       perfectFor: ['Groups', 'Team building', 'Active travellers'],
@@ -1180,12 +1185,12 @@ export const VENTURES: VentureSeed[] = [
     inclusions: ['Speedboat transfer', 'Snorkeling equipment', 'Set lunch on board', 'Insurance', 'Drinking water'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
     itinerary: [
-      { time: '07:30', activity: 'Pickup and transfer to Sanur harbour' },
-      { time: '08:30', activity: 'Snorkel at Manta Point' },
-      { time: '10:00', activity: 'Snorkel at Crystal Bay' },
-      { time: '12:00', activity: 'Lunch on the boat' },
-      { time: '13:30', activity: 'Snorkel at Angel Billabong' },
-      { time: '15:00', activity: 'Return to Sanur' },
+      { durationMinutes: 60, time: '07:30', activity: 'Pickup and transfer to Sanur harbour' },
+      { durationMinutes: 60, time: '08:30', activity: 'Snorkel at Manta Point' },
+      { durationMinutes: 60, time: '10:00', activity: 'Snorkel at Crystal Bay' },
+      { durationMinutes: 60, time: '12:00', activity: 'Lunch on the boat' },
+      { durationMinutes: 60, time: '13:30', activity: 'Snorkel at Angel Billabong' },
+      { durationMinutes: 180, time: '15:00', activity: 'Return to Sanur' },
     ],
     essentialInfo: {
       perfectFor: ['Families', 'Snorkelling beginners', 'Marine life lovers'],
@@ -1268,10 +1273,10 @@ export const VENTURES: VentureSeed[] = [
     inclusions: ['Certified canyoning guide', 'Safety equipment and dry bag', 'Insurance', 'Drinking water', 'Changing room'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
     itinerary: [
-      { time: '08:00', activity: 'Pickup and canyon walk-in' },
-      { time: '09:00', activity: 'Abseil practice and first jump' },
-      { time: '10:00', activity: 'Water slide and gorge swim' },
-      { time: '11:30', activity: 'Climb out and return transfer' },
+      { durationMinutes: 45, time: '08:00', activity: 'Pickup and canyon walk-in' },
+      { durationMinutes: 60, time: '09:00', activity: 'Abseil practice and first jump' },
+      { durationMinutes: 75, time: '10:00', activity: 'Water slide and gorge swim' },
+      { durationMinutes: 60, time: '11:30', activity: 'Climb out and return transfer' },
     ],
     essentialInfo: {
       perfectFor: ['Adrenaline seekers', 'Experienced swimmers', 'Active groups'],
@@ -1354,11 +1359,11 @@ export const VENTURES: VentureSeed[] = [
     inclusions: ['ATV rental and rafting', 'Certified guides', 'Lunch', 'All safety equipment', 'Insurance'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
     itinerary: [
-      { time: '07:30', activity: 'Hotel pickup and ATV safety briefing' },
-      { time: '08:00', activity: 'Jungle ATV ride' },
-      { time: '10:30', activity: 'Ayung River rafting session' },
-      { time: '12:30', activity: 'Traditional Balinese lunch' },
-      { time: '14:00', activity: 'Return hotel transfer' },
+      { durationMinutes: 60, time: '07:30', activity: 'Hotel pickup and ATV safety briefing' },
+      { durationMinutes: 90, time: '08:00', activity: 'Jungle ATV ride' },
+      { durationMinutes: 120, time: '10:30', activity: 'Ayung River rafting session' },
+      { durationMinutes: 60, time: '12:30', activity: 'Traditional Balinese lunch' },
+      { durationMinutes: 60, time: '14:00', activity: 'Return hotel transfer' },
     ],
     essentialInfo: {
       perfectFor: ['Families', 'Groups', 'First-time visitors'],
