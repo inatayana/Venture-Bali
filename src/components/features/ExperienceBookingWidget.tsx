@@ -362,7 +362,7 @@ export function ExperienceBookingWidget({
                 className={cn(
                   'min-h-[44px] rounded-lg border-2 px-4 text-sm font-medium transition-colors',
                   active
-                    ? 'border-neutral-900 bg-neutral-900 text-white'
+                    ? 'border-neutral-900 bg-neutral-900 text-white dark:border-brand dark:bg-brand dark:text-brand-ink'
                     : 'border-neutral-200 text-neutral-600 hover:border-neutral-400'
                 )}
               >
@@ -512,7 +512,7 @@ export function ExperienceBookingWidget({
                         onClick={() => onChange({ vehicleClassType: item.name })}
                         className={cn(
                           'flex min-h-[44px] w-full items-center justify-between rounded-lg border-2 px-3 py-2 text-left transition-colors',
-                          active ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:border-neutral-400'
+                          active ? 'border-neutral-900 bg-neutral-50 dark:border-brand dark:bg-brand/20' : 'border-neutral-200 hover:border-neutral-400'
                         )}
                       >
                         <span>

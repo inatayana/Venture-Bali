@@ -29,8 +29,8 @@ export function TimeSlotPill({
         'min-h-[44px] rounded-full border-2 px-4 py-2 text-sm font-semibold transition-colors',
         'flex flex-col items-center justify-center tabular-nums',
         selected
-          ? 'border-neutral-900 bg-neutral-900 text-white'
-          : 'border-neutral-200 bg-white text-neutral-900 hover:border-neutral-400',
+          ? 'border-brand-ink bg-brand-ink text-brand dark:border-brand dark:bg-brand dark:text-brand-ink'
+          : 'border-neutral-200 bg-white text-neutral-900 hover:border-neutral-400 dark:hover:border-brand',
         disabled && 'border-neutral-100 bg-neutral-50 text-neutral-300 line-through cursor-not-allowed'
       )}
     >

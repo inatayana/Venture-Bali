@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.6.8
+> **Version:** 3.6.9
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -22,6 +22,7 @@
 > **Changelog v3.6.6:** Dark surfaces tuned — page `#212121`, header/cards/inputs `#191919`.
 > **Changelog v3.6.7:** Horizontal search pill now covers tablets and mid-sized desktops (768–1279px); vertical search card starts at 1280px.
 > **Changelog v3.6.8:** Search stays horizontal on desktop too; the vertical glass card is retired so the hero remains full-width and cinematic.
+> **Changelog v3.6.9:** Dark-theme contrast pass — calendar selected day yellow/black, clearer disabled/today states, time-slot selection, stepper borders, inputs and date-picker container separation.
 
 ## 1. Design Principles
 

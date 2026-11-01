@@ -128,7 +128,29 @@ html.dark .text-gray-500 {
 
 html.dark .text-neutral-400,
 html.dark .text-gray-400 {
+  color: #9ca3af !important;
+}
+
+html.dark .text-neutral-300,
+html.dark .text-gray-300 {
   color: #6b7280 !important;
+}
+
+html.dark .border-neutral-900,
+html.dark .border-gray-900 {
+  border-color: #6b7280 !important;
+}
+
+html.dark .border-neutral-300,
+html.dark .border-gray-300,
+html.dark .border-neutral-400,
+html.dark .border-gray-400 {
+  border-color: #444444 !important;
+}
+
+html.dark .bg-neutral-200,
+html.dark .bg-gray-200 {
+  background-color: #333333 !important;
 }
 
 html.dark .border-neutral-200,
