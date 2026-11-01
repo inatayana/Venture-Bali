@@ -71,13 +71,13 @@ describe('createSnapTransaction', () => {
     });
   });
 
-  it('posts to the sandbox token endpoint with basic auth', async () => {
+  it('posts to the sandbox Snap endpoint with basic auth', async () => {
     const fetchMock = mockFetch({ token: 'snap-token-123', redirect_url: 'https://example.test/snap' });
 
     await createSnapTransaction(request);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://api.sandbox.midtrans.com/v2/token',
+      'https://api.sandbox.midtrans.com/snap/v1/transactions',
       expect.objectContaining({ method: 'POST' })
     );
     const init = fetchMock.mock.calls[0][1] as RequestInit;
