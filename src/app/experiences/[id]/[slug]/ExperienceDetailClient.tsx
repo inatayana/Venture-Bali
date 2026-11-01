@@ -30,6 +30,7 @@ import { VariantDetailModal } from '@/components/features/VariantDetailModal';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { CollapsibleText } from '@/components/features/CollapsibleText';
+import { ReviewsSection } from '@/components/features/reviews/ReviewsSection';
 import { itineraryStepDisplay } from '@/lib/itineraryDisplay';
 import { clampText, HIGHLIGHT_MAX, HOOK_MAX } from '@/lib/contentLimits';
 import { formatDuration, totalDurationMinutes, TRANSFER_NOTE } from '@/lib/itineraryDuration';
@@ -342,16 +343,6 @@ export function ExperienceDetailClient({
   const faqs = venture.faqs ?? [];
   const reviewCount = venture.reviewCount;
   const itineraryTotal = totalDurationMinutes(venture.itinerary);
-
-  const histogram = useMemo(
-    () =>
-      [5, 4, 3, 2, 1].map((stars) => {
-        const count = reviews.filter((review) => review.rating === stars).length;
-        const percent = reviews.length > 0 ? Math.round((count / reviews.length) * 100) : 0;
-        return { stars, count, percent };
-      }),
-    [reviews]
-  );
 
   const mapsUrl = venture.meetingPoint
     ? `https://www.google.com/maps/search/?api=1&query=${venture.meetingPoint.latitude},${venture.meetingPoint.longitude}`
@@ -955,70 +946,7 @@ export function ExperienceDetailClient({
 
             <section id="reviews" className="rounded-2xl border border-neutral-200 p-5">
               <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">Reviews</h2>
-
-              {reviews.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-neutral-200 px-4 py-6 text-center">
-                  <Star className="mx-auto h-6 w-6 text-neutral-300" aria-hidden="true" />
-                  <p className="mt-2 text-sm font-medium text-neutral-700">No verified reviews yet</p>
-                  <p className="mt-1 text-xs text-neutral-500">
-                    Guests can review after their trip — yours would be the first.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <div className="mb-5 flex items-center gap-4 rounded-xl bg-neutral-50 p-4">
-                    <span className="font-heading text-4xl font-bold tabular-nums text-neutral-900">
-                      {venture.rating.toFixed(1)}
-                    </span>
-                    <div className="flex-1 space-y-1">
-                      {histogram.map(({ stars, percent }) => (
-                        <div
-                          key={stars}
-                          className="flex items-center gap-2 text-xs text-neutral-500"
-                        >
-                          <span className="w-6">{stars}★</span>
-                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200">
-                            <div
-                              className="h-full bg-yellow-400"
-                              style={{ width: `${percent}%` }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {reviews.map((review) => (
-                      <div
-                        key={review.id}
-                        className="border-b border-neutral-100 pb-4 last:border-0 last:pb-0"
-                      >
-                        <div className="mb-1 flex items-center gap-2">
-                          <span className="text-sm font-medium text-neutral-900">
-                            {review.author}
-                          </span>
-                          {review.isVerified && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-green-700">
-                              <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-                              Verified trip
-                            </span>
-                          )}
-                          <div className="ml-auto flex items-center gap-0.5">
-                            {Array.from({ length: review.rating }).map((_, index) => (
-                              <Star
-                                key={index}
-                                className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400"
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-sm text-neutral-600">{review.comment}</p>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
+              <ReviewsSection reviews={reviews} average={venture.rating} count={reviewCount} />
             </section>
 
             <section id="coverage" className="rounded-2xl border border-neutral-200 p-5">

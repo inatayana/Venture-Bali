@@ -416,6 +416,8 @@ export interface ReviewSummary {
   rating: number;
   comment: string;
   author: string;
+  /** Reviewer country, when known. */
+  country?: string;
   /** True when the review is linked to a real paid booking. */
   isVerified?: boolean;
   createdAt: Date;

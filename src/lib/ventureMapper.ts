@@ -24,6 +24,7 @@
  */
 
 import type { Prisma } from '@prisma/client';
+import { findCountry } from '@/lib/countries';
 import type {
   EssentialInfo,
   FaqItem,
@@ -45,7 +46,11 @@ export const ventureWithRelations = {
     },
     orderBy: { sortOrder: 'asc' },
   },
-  reviews: { where: { isApproved: true }, orderBy: { createdAt: 'desc' } },
+  reviews: {
+    where: { isApproved: true },
+    orderBy: { createdAt: 'desc' },
+    include: { customer: { select: { name: true, countryCode: true } } },
+  },
 } satisfies Prisma.VentureInclude;
 
 export type VentureWithRelations = Prisma.VentureGetPayload<{
@@ -314,12 +319,15 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
     reviewCount: approvedReviews.length,
     reviewList: venture.reviews
       .filter((review) => review.isApproved)
-      .slice(0, 10)
+      .slice(0, 50)
       .map((review) => ({
         id: review.id,
         rating: review.rating,
         comment: review.comment,
-        author: 'Verified guest',
+        author: review.customer?.name?.trim().split(' ')[0] || 'Verified guest',
+        country: review.customer?.countryCode
+          ? findCountry(review.customer.countryCode).name
+          : undefined,
         isVerified: Boolean(review.bookingId),
         createdAt: review.createdAt,
       })),
