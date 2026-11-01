@@ -517,7 +517,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
             </div>
 
             {/* Desktop: asymmetric gallery — one large photo plus three tiles */}
-            <div className="hidden sm:grid sm:h-[440px] sm:grid-cols-[2fr_1fr] sm:grid-rows-3 sm:gap-2">
+            <div className="!mt-0 hidden sm:grid sm:h-[440px] sm:grid-cols-[2fr_1fr] sm:grid-rows-3 sm:gap-2">
               {orderedGallery.map((image, index) => (
                 <button
                   key={`${image}-${index}`}
@@ -543,7 +543,7 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
             </div>
 
             {/* Mobile: swipeable gallery slider (no thumbnail row) */}
-            <div className="relative sm:hidden">
+            <div className="relative !mt-0 sm:hidden">
               <div
                 ref={gallerySliderRef}
                 onScroll={handleGalleryScroll}
