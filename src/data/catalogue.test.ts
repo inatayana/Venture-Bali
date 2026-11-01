@@ -68,8 +68,8 @@ describe('catalogue', () => {
 
   it('never exposes the brand name in a title or slug', () => {
     VENTURES.forEach((venture) => {
-      expect(venture.title.toLowerCase()).not.toContain('venture bali');
-      expect(venture.slug.toLowerCase()).not.toContain('venture-bali');
+      expect(venture.title.toLowerCase()).not.toContain('baliwild');
+      expect(venture.slug.toLowerCase()).not.toContain('baliwild');
     });
   });
 

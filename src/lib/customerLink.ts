@@ -1,5 +1,5 @@
 /**
- * Venture Bali — customer magic link
+ * BaliWild — customer magic link
  * -----------------------------------
  * Hybrid checkout never asks for a password. After payment settles, the guest
  * receives a signed, expiring link that opens their booking history.

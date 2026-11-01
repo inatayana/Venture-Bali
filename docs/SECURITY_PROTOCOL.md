@@ -1,4 +1,4 @@
-# Venture Bali — Security Protocol
+# BaliWild — Security Protocol
 
 > **Version:** 1.0.0
 > **Status:** MUST FOLLOW for all agents and developers

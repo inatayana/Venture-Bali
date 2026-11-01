@@ -112,9 +112,9 @@ export function Calendar({
               className={cn(
                 'aspect-square flex items-center justify-center rounded-lg text-sm transition-colors',
                 disabled && 'text-gray-300 cursor-not-allowed line-through',
-                !disabled && !selected && 'hover:bg-blue-50 text-gray-900',
+                !disabled && !selected && 'hover:bg-brand/30 text-gray-900',
                 selected && 'bg-brand-ink text-brand font-bold',
-                isToday && !selected && 'ring-2 ring-blue-300'
+                isToday && !selected && 'ring-2 ring-brand'
               )}
               aria-label={format(day, 'MMMM d, yyyy')}
             >

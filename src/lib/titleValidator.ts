@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Product Title Validator
+ * BaliWild — Product Title Validator
  * ---------------------------------------
  * Enforces the Product Title Constitution V1.
  *
@@ -29,7 +29,7 @@ export const FORBIDDEN_TITLE_WORDS: readonly string[] = [
   'discounted',
   'free',
   'gratis',
-  'venture bali',
+  'baliwild',
   'baligo',
 ];
 
@@ -279,6 +279,6 @@ export function isVentureSlugValid(slug: string): boolean {
   if (slug.trim() === '') return false;
   if (slug !== slug.toLowerCase()) return false;
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return false;
-  if (slug.includes('venture-bali')) return false;
+  if (slug.includes('baliwild')) return false;
   return true;
 }

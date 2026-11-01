@@ -1,4 +1,4 @@
-# Venture Bali — Deployment Strategy
+# BaliWild — Deployment Strategy
 
 > **Version:** 1.0.0
 > **Last Updated:** October 2026
@@ -8,7 +8,7 @@
 
 ## 1. Overview
 
-This document defines the deployment strategy for Venture Bali across two phases:
+This document defines the deployment strategy for BaliWild across two phases:
 - **Phase 1 (Current):** Vercel Free Tier + Supabase Cloud
 - **Phase 2 (Future):** Hostinger VPS + Supabase Cloud
 
@@ -133,7 +133,7 @@ npm run db:push      # or: npx prisma db push
 
 **Vercel-Managed Domain:**
 1. Vercel Dashboard → Project → Settings → Domains
-2. Add custom domain (e.g., `venturebali.com`)
+2. Add custom domain (e.g., `baliwild.com`)
 3. Configure DNS at registrar:
    - A record: `@` → `76.76.21.21` (Vercel IP)
    - CNAME: `www` → `cname.vercel-dns.com`
@@ -215,7 +215,8 @@ sudo ufw enable
 
 **Application Deployment:**
 ```bash
-# 1. Clone repository
+# 1. Clone repository (repo still hosted as inatayana/Venture-Bali;
+#    update this URL if/when the GitHub repo is renamed to BaliWild)
 cd /home/deploy
 git clone https://github.com/inatayana/Venture-Bali.git
 cd Venture-Bali
@@ -236,7 +237,7 @@ npm run build
 cat > ecosystem.config.js << 'EOF'
 module.exports = {
   apps: [{
-    name: 'venture-bali',
+    name: 'baliwild',
     script: 'npm',
     args: 'start',
     cwd: '/home/deploy/Venture-Bali',
@@ -258,10 +259,10 @@ pm2 startup
 
 **Nginx Configuration:**
 ```nginx
-# /etc/nginx/sites-available/venture-bali
+# /etc/nginx/sites-available/baliwild
 server {
     listen 80;
-    server_name venturebali.com www.venturebali.com;
+    server_name baliwild.com www.baliwild.com;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -293,14 +294,14 @@ server {
 
 ```bash
 # Enable site
-sudo ln -s /etc/nginx/sites-available/venture-bali /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/baliwild /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
 **SSL with Certbot:**
 ```bash
 sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d venturebali.com -d www.venturebali.com
+sudo certbot --nginx -d baliwild.com -d www.baliwild.com
 # Select "Redirect HTTP to HTTPS"
 ```
 
@@ -326,7 +327,7 @@ nano .env  # Edit with real values
 - `TELEGRAM_BOT_TOKEN`
 - `WHATSAPP_*`
 - `EXCHANGERATE_API_KEY`
-- `NEXT_PUBLIC_APP_URL=https://venturebali.com`
+- `NEXT_PUBLIC_APP_URL=https://baliwild.com`
 
 ### 3.5 CI/CD for VPS (GitHub Actions)
 ```yaml
@@ -353,7 +354,7 @@ jobs:
             npx prisma generate
             npx prisma migrate deploy
             npm run build
-            pm2 reload venture-bali
+            pm2 reload baliwild
 ```
 
 ### 3.6 Monitoring on VPS
@@ -366,12 +367,12 @@ jobs:
 ```bash
 # Quick rollback to previous PM2 deployment
 pm2 list
-pm2 restart venture-bali --update-env  # if env changed
+pm2 restart baliwild --update-env  # if env changed
 # Or git revert + rebuild:
 cd /home/deploy/Venture-Bali
 git revert HEAD
 npm ci && npx prisma generate && npx prisma migrate deploy && npm run build
-pm2 reload venture-bali
+pm2 reload baliwild
 ```
 
 ---
@@ -388,7 +389,7 @@ pg_dump -h db.<ref>.supabase.co -p 5432 -U postgres -d postgres \
 
 2. **Restore to Self-Hosted:**
 ```bash
-psql -h localhost -U postgres -d venture_bali < venture-backup.sql
+psql -h localhost -U postgres -d baliwild < venture-backup.sql
 ```
 
 3. **Update `DATABASE_URL`** in deployment to point to new PostgreSQL instance.
@@ -439,6 +440,6 @@ psql -h localhost -U postgres -d venture_bali < venture-backup.sql
 
 ---
 
-**Approved by:** Venture Bali Engineering Team
+**Approved by:** BaliWild Engineering Team
 **Date:** October 2026
 **Next Review:** When migrating to VPS or quarterly

@@ -9,7 +9,7 @@ interface ChatMessage {
   text: string;
 }
 
-const SESSION_KEY = 'vb_chat_session';
+const SESSION_KEY = 'baliwild_chat_session';
 
 const QUICK_REPLIES = [
   'Show me river tubing',
@@ -18,7 +18,7 @@ const QUICK_REPLIES = [
 ];
 
 const GREETING =
-  'Hi! I am the Venture Bali assistant. Ask me about activities, prices, availability, pickup or the refund policy.';
+  'Hi! I am the BaliWild assistant. Ask me about activities, prices, availability, pickup or the refund policy.';
 
 function createSessionId(): string {
   return `web_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
@@ -123,7 +123,7 @@ export function ChatWidget() {
           type="button"
           onClick={() => setIsOpen(true)}
           className="fixed right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[45] flex h-14 w-14 items-center justify-center rounded-full bg-neutral-900 text-white shadow-xl transition-transform hover:scale-105 lg:bottom-6"
-          aria-label="Open chat with the Venture Bali assistant"
+          aria-label="Open chat with the BaliWild assistant"
         >
           <MessageCircle className="h-6 w-6" />
         </button>
@@ -133,7 +133,7 @@ export function ChatWidget() {
         <div className="fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[45] flex max-h-[70vh] flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl sm:inset-x-auto sm:right-6 sm:w-96 lg:bottom-6">
           <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
             <div>
-              <p className="text-sm font-semibold text-neutral-900">Venture Bali assistant</p>
+              <p className="text-sm font-semibold text-neutral-900">BaliWild assistant</p>
               <p className="text-xs text-neutral-500">Activities · prices · pickup · refunds</p>
             </div>
             <button

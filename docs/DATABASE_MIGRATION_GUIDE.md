@@ -1,4 +1,4 @@
-# Venture Bali — Database Migration Guide
+# BaliWild — Database Migration Guide
 
 > **Version:** 1.0.0
 > **ORM:** Prisma (schema: `prisma/schema.prisma`)

@@ -71,12 +71,12 @@ export function HomeHero({ hubs, suggestions, stats }: HomeHeroProps) {
               Bali · 9 adventure categories
             </p>
 
-            <h2 className="mt-6 max-w-3xl font-heading text-[clamp(1.35rem,6vw,3.25rem)] font-bold uppercase leading-[1.06] tracking-tight text-white">
+            <h1 className="mt-6 max-w-3xl font-heading text-[clamp(1.35rem,6vw,3.25rem)] font-bold uppercase leading-[1.06] tracking-tight text-white">
               <span className="block whitespace-nowrap">
                 Book the <RotatingKeyword />
               </span>
               <span className="mt-2 block">Own the wild!</span>
-            </h2>
+            </h1>
 
             <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-white/70 sm:text-base">
               Rafting, ATV, tubing and trekking across Bali — instant confirmation,

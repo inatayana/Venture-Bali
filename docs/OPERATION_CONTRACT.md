@@ -1,4 +1,4 @@
-# Venture Bali — Operation Contract (Internal)
+# BaliWild — Operation Contract (Internal)
 
 > **Version:** 1.0.0
 > **Status:** INTERNAL. Isi dokumen ini TIDAK BOLEH terekspos ke customer, halaman publik, API publik, atau booking flow.
@@ -7,7 +7,7 @@
 ## 1. Vendor Masking (WAJIB)
 
 - Vendor lokal adalah **fulfillment partner**, bukan brand yang dijual.
-- Seluruh komunikasi customer, instruksi penjemputan, voucher, dan branding menggunakan nama **Venture Bali**.
+- Seluruh komunikasi customer, instruksi penjemputan, voucher, dan branding menggunakan nama **BaliWild**.
 - DILARANG menampilkan nama vendor, kontak vendor, logo vendor, atau struktur kemitraan di:
   - Halaman produk (PDP, cards, listing)
   - Booking flow & checkout
@@ -23,10 +23,10 @@
 ## 3. Alur Internal Venture ↔ Partner
 
 ```
-Customer → Venture Bali (booking + bayar)
+Customer → BaliWild (booking + bayar)
          → sistem internal membuat instruction sheet (voucher internal)
          → diteruskan ke fulfillment partner via channel internal (WhatsApp/email operasional)
-Partner menjalankan aktivitas atas nama Venture Bali
+Partner menjalankan aktivitas atas nama BaliWild
 ```
 
 - Partner menerima: tanggal, slot, pax, meeting point / alamat pickup, catatan khusus.
@@ -34,8 +34,8 @@ Partner menjalankan aktivitas atas nama Venture Bali
 
 ## 4. Koordinasi Operasional
 
-- Perubahan jadwal/pembatalan dari partner → diproses oleh sistem internal → notifikasi ke customer dikirim sebagai Venture Bali.
-- Keluhan customer ditangani support Venture Bali; partner tidak boleh menghubungi customer langsung di luar eksekusi aktivitas.
+- Perubahan jadwal/pembatalan dari partner → diproses oleh sistem internal → notifikasi ke customer dikirim sebagai BaliWild.
+- Keluhan customer ditangani support BaliWild; partner tidak boleh menghubungi customer langsung di luar eksekusi aktivitas.
 
 ## 5. Audit
 

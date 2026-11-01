@@ -1,4 +1,4 @@
-# Venture Bali — SEO Taxonomy
+# BaliWild — SEO Taxonomy
 
 > **Version:** 1.0.0
 > **Status:** Canonical taxonomy. Single source of truth di kode: `src/lib/taxonomy.ts`. Dokumen ini adalah mirror untuk manusia.

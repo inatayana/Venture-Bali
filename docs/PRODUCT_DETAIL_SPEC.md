@@ -1,4 +1,4 @@
-# Venture Bali — Product Detail Spec
+# BaliWild — Product Detail Spec
 
 > **Version:** 2.1.0
 > Defines the canonical data contract for venture products, matching `prisma/schema.prisma` and `src/types/venture.ts`.

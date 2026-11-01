@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Master Product Catalogue
+ * BaliWild — Master Product Catalogue
  * ---------------------------------------
  * The single source of truth for the demo catalogue: 9 ventures (one per
  * adventure mega category), each with Self Drive and Private Transfer
@@ -52,9 +52,9 @@ export const TAXONOMY = {
   COMBO: CATALOGUE_CATEGORIES[8],
 } as const;
 
-export const TENANT_DOMAIN = 'venturebali.com';
-export const TENANT_NAME = 'Venture Bali';
-export const TENANT_THEME = '#1E40AF';
+export const TENANT_DOMAIN = 'baliwild.com';
+export const TENANT_NAME = 'BaliWild';
+export const TENANT_THEME = '#000000';
 
 // Pickup zones — surcharge applies when the pickup zone differs from the
 // activity zone. Zone 1 (core Bali) and the Nusa Dua / Ubud corridor are

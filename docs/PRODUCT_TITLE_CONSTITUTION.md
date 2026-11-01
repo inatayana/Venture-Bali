@@ -1,4 +1,4 @@
-# Venture Bali — Product Title Constitution V1
+# BaliWild — Product Title Constitution V1
 
 > **Version:** 1.0.0
 > **Status:** MUST FOLLOW. Enforced by `src/lib/titleValidator.ts`, zod schemas, and the catalog ingestion pipeline.
@@ -6,7 +6,7 @@
 
 ## 1. Positioning
 
-- Venture Bali adalah **Adventure Booking Platform for Bali** — bukan OTA umum.
+- BaliWild adalah **Adventure Booking Platform for Bali** — bukan OTA umum.
 - HANYA menjual 9 kategori *Adventure & Activities* (lihat `docs/SEO_TAXONOMY.md`).
 - DILARANG menjual hotel, tiket pesawat, transportasi murni (rent car/scooter), atau restoran.
 - Promise: *"Book your Bali adventure in minutes. Choose self-drive or private transfer."*
@@ -22,7 +22,7 @@
 | 5 | Casing | **Title Case** (contoh: *Ubud Jungle ATV Ride with Cave and Waterfall Falls*). Kata kecil yang sah (*with*, *and*, *the*, *to*, *through*, …) tetap lowercase kecuali di posisi pertama/terakhir |
 | 6 | Separators | Maksimal 1 simbol: hanya titik dua `:` atau dash `–`/`-`. Simbol lain (termasuk `&`) **tidak boleh** dipakai — gunakan kata sambung |
 | 7 | Max benefit | Maksimal satu benefit (Private Transfer / Hotel Pickup / Lunch Included / Small Group) |
-| 8 | Forbidden words | "Best", "No.1", "Top", "Cheap", "Discount", "Free", nama brand "Venture Bali", nama vendor, emoji |
+| 8 | Forbidden words | "Best", "No.1", "Top", "Cheap", "Discount", "Free", nama brand "BaliWild", nama vendor, emoji |
 
 Validasi dilakukan oleh `validateVentureTitle()` di `src/lib/titleValidator.ts` (port + perluasan dari validator blueprint: menambah cek first-25-char keyword, Title Case, dan emoji yang tidak ada di versi Python). Failing title **menolak disimpan** — bukan hanya peringatan.
 
@@ -84,7 +84,7 @@ Judul selalu memakai urutan P1 → P2 → Benefit.
 
 ## 7. Brand Guardrails
 
-- DILARANG mencantumkan "Venture Bali" pada Title Produk, Meta Title, atau Slug.
+- DILARANG mencantumkan "BaliWild" pada Title Produk, Meta Title, atau Slug.
 - Nama brand hanya muncul di UI Header/Footer dan Email Confirmation.
 - Vendor lokal = fulfillment partner; tidak pernah tampil di halaman publik (lihat `docs/OPERATION_CONTRACT.md`).
 

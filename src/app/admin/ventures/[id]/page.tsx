@@ -43,7 +43,7 @@ export default async function AdminVentureDetailPage({ params }: AdminVentureDet
 
   return (
     <div className="space-y-5">
-      <Link href="/admin/ventures" className="text-sm text-blue-600 hover:underline">
+      <Link href="/admin/ventures" className="text-sm text-brand-ink hover:underline">
         ← Ventures
       </Link>
 

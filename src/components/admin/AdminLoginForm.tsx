@@ -51,8 +51,8 @@ export function AdminLoginForm() {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-600"
-          placeholder="operator@example.com"
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+          placeholder="operator@baliwild.com"
         />
       </div>
 
@@ -67,7 +67,7 @@ export function AdminLoginForm() {
           required
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-600"
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
           placeholder="••••••••"
         />
       </div>
@@ -81,7 +81,7 @@ export function AdminLoginForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full px-4 py-2.5 rounded-lg bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed min-h-[44px]"
+        className="w-full px-4 py-2.5 rounded-lg bg-brand-ink text-brand font-heading font-semibold uppercase tracking-wider text-sm hover:bg-neutral-800 disabled:opacity-60 disabled:cursor-not-allowed min-h-[44px]"
       >
         {isSubmitting ? 'Signing in…' : 'Sign in'}
       </button>

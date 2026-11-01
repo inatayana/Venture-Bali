@@ -5,6 +5,7 @@ import { verifyCustomerLinkToken } from '@/lib/customerLink';
 import { findCountry } from '@/lib/countries';
 import { canReviewBooking, reviewBlockedReason } from '@/lib/reviewSchema';
 import { ReviewForm } from '@/components/features/ReviewForm';
+import { BrandWordmark } from '@/components/layout/BrandWordmark';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,9 +62,14 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
   return (
     <main className="min-h-screen bg-neutral-50 px-4 py-10">
       <div className="mx-auto max-w-xl">
-        <Link href={`/my/bookings?token=${searchParams.token ?? ''}`} className="text-sm text-neutral-600 hover:text-neutral-900">
-          ← My bookings
-        </Link>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <Link href={`/my/bookings?token=${searchParams.token ?? ''}`} className="text-sm text-neutral-600 hover:text-neutral-900">
+            ← My bookings
+          </Link>
+          <Link href="/" aria-label="BaliWild home" className="text-brand-ink">
+            <BrandWordmark className="text-lg" />
+          </Link>
+        </div>
 
         <h1 className="mt-4 font-heading text-2xl font-bold text-neutral-900">Review your trip</h1>
         <p className="mt-1 text-sm text-neutral-600">

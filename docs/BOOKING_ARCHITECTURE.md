@@ -1,4 +1,4 @@
-# Venture Bali — Booking Architecture
+# BaliWild — Booking Architecture
 
 > **Version:** 1.2.0
 > **Status:** MUST FOLLOW for booking flow, pricing, and checkout logic.

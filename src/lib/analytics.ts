@@ -2,7 +2,7 @@
  * Vendor-agnostic analytics.
  *
  * Events are pushed to `window.dataLayer` (GA4 / GTM compatible) and dispatched
- * as a `vb:analytics` DOM event, so any tool can pick them up later without a
+ * as a `baliwild:analytics` DOM event, so any tool can pick them up later without a
  * dependency. Server-side calls are ignored.
  */
 
@@ -27,5 +27,7 @@ export function track(event: string, payload: AnalyticsPayload = {}): void {
     console.debug('[analytics]', detail);
   }
 
+  window.dispatchEvent(new CustomEvent('baliwild:analytics', { detail }));
+  // Legacy event name kept for one release so existing listeners do not break.
   window.dispatchEvent(new CustomEvent('vb:analytics', { detail }));
 }

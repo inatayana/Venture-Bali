@@ -1,5 +1,5 @@
 /**
- * Venture Bali Multi-Tenant OTA Platform
+ * BaliWild Multi-Tenant OTA Platform
  * TypeScript Type Definitions
  * Match with prisma/schema.prisma
  */

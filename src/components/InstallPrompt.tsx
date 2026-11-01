@@ -9,7 +9,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const DISMISS_KEY = 'vb_install_dismissed';
+const DISMISS_KEY = 'baliwild_install_dismissed';
 
 /**
  * Lightweight "add to home screen" prompt.
@@ -62,8 +62,8 @@ export function InstallPrompt() {
           <Download className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold">Install Venture Bali</p>
-          <p className="text-xs text-white/70">Faster booking, works offline.</p>
+          <p className="text-sm font-semibold">Install BaliWild</p>
+          <p className="text-xs text-white/70">Faster booking, works offline. Own the wild.</p>
         </div>
         <button
           type="button"

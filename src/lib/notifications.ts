@@ -1,5 +1,5 @@
 /**
- * Venture Bali — booking notifications
+ * BaliWild — booking notifications
  * -------------------------------------
  * One module owns every outbound customer message so the booking flow, the
  * cron reminders and (later) the WhatsApp agent all use the same templates.
@@ -189,7 +189,7 @@ function emailHtml(
           ? `<p style="text-align:center;font-size:13px"><a href="${manageUrl}" style="color:#4b5563">Manage my bookings</a></p>`
           : ''
       }
-      <p style="font-size:12px;color:#9ca3af">Venture Bali · instant confirmation · mobile-first booking</p>
+      <p style="font-size:12px;color:#9ca3af">BaliWild · Own the wild. · instant confirmation · mobile-first booking</p>
     </div>
   `;
 }
@@ -229,7 +229,7 @@ async function sendEmail(
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return { success: false, error: 'RESEND_API_KEY is not configured' };
 
-  const from = process.env.EMAIL_FROM ?? 'Venture Bali <onboarding@resend.dev>';
+  const from = process.env.EMAIL_FROM ?? 'BaliWild <onboarding@resend.dev>';
 
   try {
     const response = await fetch(RESEND_ENDPOINT, {

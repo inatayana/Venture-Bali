@@ -1,5 +1,5 @@
 /**
- * Venture Bali AI Agent - Tools
+ * BaliWild AI Agent - Tools
  * Function implementations for agent tools.
  *
  * Every tool reads REAL data: the catalogue comes from the database (with the

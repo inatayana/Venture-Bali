@@ -1,4 +1,4 @@
-# Venture Bali - Development Workflow
+# BaliWild - Development Workflow
 
 > **Version:** 1.0.0
 > **Last Updated:** August 27, 2026

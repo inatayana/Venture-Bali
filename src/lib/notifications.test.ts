@@ -66,10 +66,10 @@ describe('notification templates', () => {
 
 describe('buildReviewRequestText', () => {
   it('links straight to the review form', () => {
-    const text = buildReviewRequestText(booking as never, 'https://venturebali.com/review/b1?token=abc');
+    const text = buildReviewRequestText(booking as never, 'https://baliwild.com/review/b1?token=abc');
 
     expect(text).toContain('How was your');
-    expect(text).toContain('https://venturebali.com/review/b1?token=abc');
+    expect(text).toContain('https://baliwild.com/review/b1?token=abc');
     expect(text).toContain('BK-TEST-001');
   });
 });

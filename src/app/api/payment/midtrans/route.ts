@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
       },
       item_details: buildSnapItems({
         id: booking.id,
-        variantTitle: booking.variant?.title ?? 'Venture Bali Booking',
+        variantTitle: booking.variant?.title ?? 'BaliWild Booking',
         paxCount: booking.paxCount,
         totalPrice: booking.totalPrice,
         nightSurchargeIdr: booking.nightSurchargeIdr,

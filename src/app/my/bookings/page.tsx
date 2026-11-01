@@ -6,9 +6,10 @@ import { formatPrice } from '@/lib/i18n';
 import { LIFECYCLE_LABELS } from '@/lib/bookingLifecycle';
 import { canReviewBooking } from '@/lib/reviewSchema';
 import { CheckCircle, AlertCircle, Calendar, ArrowRight } from 'lucide-react';
+import { BrandWordmark } from '@/components/layout/BrandWordmark';
 
 export const metadata: Metadata = {
-  title: 'My bookings | Venture Bali',
+  title: 'My bookings | BaliWild',
   robots: { index: false, follow: false },
 };
 
@@ -73,11 +74,16 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
   return (
     <main className="min-h-screen bg-neutral-50 px-4 py-8">
       <div className="mx-auto max-w-2xl">
+        <div className="mb-6">
+          <Link href="/" aria-label="BaliWild home" className="text-brand-ink">
+            <BrandWordmark className="text-xl" />
+          </Link>
+        </div>
         <h1 className="font-heading text-2xl font-bold text-neutral-900">
           Hello, {customer.name.split(' ')[0]}
         </h1>
         <p className="mt-1 text-sm text-neutral-600">
-          Your bookings with Venture Bali. This private link expires in 30 days.
+          Your bookings with BaliWild. This private link expires in 30 days.
         </p>
 
         {customer.bookings.length === 0 ? (

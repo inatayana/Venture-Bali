@@ -1,4 +1,4 @@
-# Venture Bali — Refund & Cancellation Policy
+# BaliWild — Refund & Cancellation Policy
 
 > **Version:** 2.0.0
 > **Status:** MUST FOLLOW. Enforced by `src/lib/refundUtils.ts`.
@@ -40,4 +40,4 @@
 
 ## 6. Kriteria Produk "Free Cancellation"
 
-Produk bisa menampilkan badge "Free Cancellation" jika mengikuti policy ini secara konsisten. Semua produk Venture Bali mengikuti policy ini.
+Produk bisa menampilkan badge "Free Cancellation" jika mengikuti policy ini secara konsisten. Semua produk BaliWild mengikuti policy ini.

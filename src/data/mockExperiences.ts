@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Mock / Offline Catalogue
+ * BaliWild — Mock / Offline Catalogue
  * ---------------------------------------
  * Serves the demo catalogue when no database is reachable (demo builds,
  * preview deployments, local development without a database).
@@ -72,8 +72,8 @@ export const mockTenants = [
   {
     id: MOCK_TENANT_ID,
     domain: TENANT_DOMAIN,
-    name: 'Venture Bali',
-    themeColor: '#1E40AF',
+    name: 'BaliWild',
+    themeColor: '#000000',
     isActive: true,
   },
 ];

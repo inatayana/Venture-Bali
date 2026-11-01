@@ -5,7 +5,7 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { ADMIN_SESSION_COOKIE, verifySessionToken } from '@/lib/adminSession';
 
 export const metadata: Metadata = {
-  title: 'Operator Panel | Venture Bali',
+  title: 'Operator Panel | BaliWild',
   robots: {
     index: false,
     follow: false,

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { BRAND_NAME, BRAND_TITLE } from '@/lib/brand';
 
 /**
  * Installable PWA manifest.
@@ -6,16 +7,16 @@ import type { MetadataRoute } from 'next';
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Venture Bali — Adventure Booking',
-    short_name: 'Venture Bali',
+    name: BRAND_TITLE,
+    short_name: BRAND_NAME,
     description:
       'Book ATV, rafting, tubing and trekking adventures in Bali. Instant confirmation, mobile-first checkout.',
     start_url: '/',
     scope: '/',
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#ffffff',
-    theme_color: '#111827',
+    background_color: '#000000',
+    theme_color: '#000000',
     lang: 'en',
     categories: ['travel', 'lifestyle'],
     icons: [

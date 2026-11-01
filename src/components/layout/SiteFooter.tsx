@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { MapPin, ShieldCheck, Sparkles } from 'lucide-react';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
+import { BrandWordmark } from '@/components/layout/BrandWordmark';
 
 const PAYMENT_BADGES = ['VISA', 'Mastercard', 'GoPay', 'QRIS', 'Bank transfer'];
 
@@ -18,8 +19,11 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-10">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <p className="font-heading text-lg font-bold uppercase tracking-wider text-white">
-              Venture <span className="bg-brand px-1 text-brand-ink">Bali</span>
+            <p className="text-white">
+              <BrandWordmark className="text-lg" />
+            </p>
+            <p className="mt-2 font-heading text-sm font-bold uppercase tracking-[0.18em] text-brand">
+              Own the wild.
             </p>
             <p className="mt-2 max-w-xs text-sm text-white/70">
               Adventure bookings across Bali with licensed local operators — instant confirmation and
@@ -103,7 +107,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-5 pr-16 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {year} Venture Bali. Adventure travel, locally operated.</p>
+          <p>© {year} BaliWild. Adventure travel, locally operated.</p>
           <p>Prices in IDR · USD shown for reference · Made in Bali</p>
         </div>
       </div>

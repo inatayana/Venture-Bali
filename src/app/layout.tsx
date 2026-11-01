@@ -5,17 +5,33 @@ import { InstallPrompt } from '@/components/InstallPrompt';
 import { PwaRegistration } from '@/components/PwaRegistration';
 import { ChatWidget } from '@/components/chat/ChatWidget';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
+import {
+  BRAND_NAME,
+  BRAND_SHORT_DESCRIPTION,
+  BRAND_TITLE,
+} from '@/lib/brand';
 
 export const metadata: Metadata = {
-  title: 'Venture Bali',
-  description: 'Adventure tourism booking platform',
-  applicationName: 'Venture Bali',
+  title: BRAND_TITLE,
+  description: BRAND_SHORT_DESCRIPTION,
+  applicationName: BRAND_NAME,
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Venture Bali',
+    title: BRAND_NAME,
   },
   formatDetection: { telephone: false },
+  openGraph: {
+    title: BRAND_TITLE,
+    description: BRAND_SHORT_DESCRIPTION,
+    siteName: BRAND_NAME,
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: BRAND_TITLE,
+    description: BRAND_SHORT_DESCRIPTION,
+  },
   icons: {
     icon: [
       { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
@@ -29,7 +45,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#111827',
+  themeColor: '#000000',
 };
 
 export default function RootLayout({

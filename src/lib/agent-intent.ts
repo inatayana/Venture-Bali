@@ -1,5 +1,5 @@
 /**
- * Venture Bali — Intent Detection
+ * BaliWild — Intent Detection
  * --------------------------------
  * Classifies what the customer wants.
  *
@@ -7,7 +7,7 @@
  * When Gemini is available it is asked first, and the keyword matcher is
  * the fallback — so a mis-classification never leaves the customer stuck.
  *
- * Docs: Venture_Bali_PRD_PPS.md §10.6 (Intent Classification)
+ * Docs: BaliWild_PRD_PPS.md §10.6 (Intent Classification)
  */
 
 import type { Intent } from './agent';

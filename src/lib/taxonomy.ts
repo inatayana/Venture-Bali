@@ -1,9 +1,9 @@
 /**
- * Venture Bali — Taxonomy
+ * BaliWild — Taxonomy
  * ------------------------
  * Single source of truth for the 9 adventure mega categories.
  *
- * ⚠️  GUARDRAIL (AGENTS.md §9): Venture Bali ONLY sells these 9 adventure
+ * ⚠️  GUARDRAIL (AGENTS.md §9): BaliWild ONLY sells these 9 adventure
  *     categories. Hotels, flights, pure transport (rent car / scooter) and
  *     restaurants are OUT OF SCOPE and must never appear as a category.
  *

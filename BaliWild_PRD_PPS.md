@@ -1,5 +1,5 @@
 # Product Requirements Document (PRD) & Product Planning Specification (PPS)
-**Project Name:** Venture Bali  
+**Project Name:** BaliWild  
 **Platform:** Web App & Mobile PWA (Progressive Web App)  
 **Target Deployment Environment:** Hostinger Business Web Hosting (Linux, Node.js, MySQL/MariaDB, Cron Job)  
 **Tech Stack Recommended:** Next.js 14+ (App Router), TypeScript, Tailwind CSS, Prisma ORM, Zustand, Midtrans Snap API.
@@ -7,7 +7,7 @@
 ---
 
 ## 1. Executive Summary & Visi Proyek
-Venture Bali adalah platform *booking engine* dan agregator pariwisata petualangan di Bali (contoh: ATV, Rafting, Cruising) yang dirancang dengan pendekatan *mobile-first*. Visi proyek ini adalah menghadirkan sistem pemesanan yang cepat, adaptif, berstandar konversi tinggi (menggabungkan estetika Airbnb dan alur konversi GetYourGuide), serta dilengkapi **Autonomous Marketing & SEO Engine** berbasis kecerdasan buatan (*AI-driven*). Sistem ini dirancang mandiri agar dapat mendatangkan trafik organik secara masif dan memasarkan dirinya sendiri (*self-marketing*) tanpa memerlukan tim operasional atau pemasaran khusus.
+BaliWild adalah platform *booking engine* dan agregator pariwisata petualangan di Bali (contoh: ATV, Rafting, Cruising) yang dirancang dengan pendekatan *mobile-first*. Visi proyek ini adalah menghadirkan sistem pemesanan yang cepat, adaptif, berstandar konversi tinggi (menggabungkan estetika Airbnb dan alur konversi GetYourGuide), serta dilengkapi **Autonomous Marketing & SEO Engine** berbasis kecerdasan buatan (*AI-driven*). Sistem ini dirancang mandiri agar dapat mendatangkan trafik organik secara masif dan memasarkan dirinya sendiri (*self-marketing*) tanpa memerlukan tim operasional atau pemasaran khusus.
 
 ## 2. Product Overview & Core Value Propositions
 *   **Dynamic Variant Selection:** Pilihan fleksibel antara *Meet at Location* (Direct) atau *With Transfer* (Pick-up) lengkap dengan opsi **"TBA (To Be Announced) / Konfirmasi H-1"** untuk mengeliminasi potensi pelanggan *drop-out*.
@@ -91,7 +91,7 @@ Panduan langkah demi langkah bagi AI Agent untuk membangun proyek ini:
 
 ### 10.1 Agent Overview
 
-Venture Bali AI Agent adalah asisten virtual 24/7 yang menangani pertanyaan pelanggan, membantu pemesanan, dan memberikan informasi produk secara otomatis melalui berbagai channel.
+BaliWild AI Agent adalah asisten virtual 24/7 yang menangani pertanyaan pelanggan, membantu pemesanan, dan memberikan informasi produk secara otomatis melalui berbagai channel.
 
 ### 10.2 Agent Capabilities
 
@@ -289,7 +289,7 @@ const webhookEvents = [
 Agent dapat mengirim Quick Reply buttons:
 
 ```
-👋 Halo! Saya asisten Venture Bali. Ada yang bisa saya bantu?
+👋 Halo! Saya asisten BaliWild. Ada yang bisa saya bantu?
 
 [🎫 Lihat Produk] [💰 Cek Harga] [📅 Cek Ketersediaan] [❓ FAQ]
 ```
@@ -319,7 +319,7 @@ Agent dapat mengirim Quick Reply buttons:
 
 | Item | Value |
 |------|-------|
-| Bot Username | @VentureBaliBot |
+| Bot Username | @BaliWildBot |
 | Bot Father Token | Stored in env |
 | Webhook URL | /api/webhooks/telegram |
 

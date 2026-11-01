@@ -1,5 +1,5 @@
 /**
- * Venture Bali — AI Content Engine
+ * BaliWild — AI Content Engine
  * ---------------------------------
  * Generates the long-tail SEO articles that power the blog and the
  * programmatic landing pages.
@@ -8,7 +8,7 @@
  * Constitution and the 9-category taxonomy before it is stored, and the
  * internal links to the catalogue are inserted automatically.
  *
- * Docs: Venture_Bali_PRD_PPS.md §2 (Autonomous AI Content & SEO Wizard),
+ * Docs: BaliWild_PRD_PPS.md §2 (Autonomous AI Content & SEO Wizard),
  *       docs/SEO_TAXONOMY.md
  */
 
@@ -67,7 +67,7 @@ Rules:
 - Use markdown headings (##) and short paragraphs. Aim for 600-900 words.
 - Be specific and practical: what the activity is, who it suits, what to
   bring, how long it takes, what it costs in general terms.
-- Never mention the brand "Venture Bali".
+- Never mention the brand "BaliWild".
 - Never name a specific operator, partner or vendor.
 - Never use the words "Best", "Cheapest", "Discount" or "Free" to describe a product.
 - Never use emoji.
@@ -172,7 +172,7 @@ export function validateGeneratedArticle(
     return 'The article contains emoji.';
   }
 
-  if (article.content.toLowerCase().includes('venture bali')) {
+  if (article.content.toLowerCase().includes('baliwild')) {
     return 'The article mentions the brand name, which is not allowed.';
   }
 

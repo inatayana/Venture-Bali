@@ -66,7 +66,7 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
           <Link
             href="/admin/bookings"
             className={`inline-flex min-h-[44px] items-center rounded-lg border px-3 ${
-              dateFilter ? 'border-gray-200 text-gray-600' : 'border-blue-200 bg-blue-50 text-blue-700'
+              dateFilter ? 'border-gray-200 text-gray-600' : 'border-brand bg-brand/20 text-neutral-900'
             }`}
           >
             All
@@ -75,7 +75,7 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
             href={`/admin/bookings?date=${witaDateKey()}`}
             className={`inline-flex min-h-[44px] items-center rounded-lg border px-3 ${
               dateFilter === witaDateKey()
-                ? 'border-blue-200 bg-blue-50 text-blue-700'
+                ? 'border-brand bg-brand/20 text-neutral-900'
                 : 'border-gray-200 text-gray-600'
             }`}
           >
@@ -85,7 +85,7 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
             href={`/admin/bookings?date=${witaDateKey(1)}`}
             className={`inline-flex min-h-[44px] items-center rounded-lg border px-3 ${
               dateFilter === witaDateKey(1)
-                ? 'border-blue-200 bg-blue-50 text-blue-700'
+                ? 'border-brand bg-brand/20 text-neutral-900'
                 : 'border-gray-200 text-gray-600'
             }`}
           >

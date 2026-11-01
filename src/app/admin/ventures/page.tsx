@@ -24,7 +24,7 @@ export default async function AdminVenturesPage() {
         </div>
         <Link
           href="/admin/content"
-          className="text-sm text-blue-600 hover:underline"
+          className="text-sm text-brand-ink hover:underline"
         >
           Generate content
         </Link>
@@ -78,7 +78,7 @@ export default async function AdminVenturesPage() {
                       <div className="flex items-center gap-3">
                         <Link
                           href={`/admin/ventures/${venture.id}`}
-                          className="text-blue-600 hover:underline text-xs font-medium"
+                          className="text-brand-ink hover:underline text-xs font-medium"
                         >
                           Manage
                         </Link>

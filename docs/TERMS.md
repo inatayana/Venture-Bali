@@ -1,11 +1,11 @@
-# Venture Bali — Booking Terms (DRAFT v1)
+# BaliWild — Booking Terms (DRAFT v1)
 
 > **Status: DRAFT — pending legal review before launch.**
 > Operational copy lives in `src/lib/legal.ts` (rendered at `/terms`). Keep both in sync.
 > Version: 2026-11-01
 
 ## 1. About these terms
-Venture Bali is a booking platform for adventure activities in Bali, Indonesia. We arrange the reservation, payment and customer support; the activity itself is delivered by a licensed local activity partner.
+BaliWild is a booking platform for adventure activities in Bali, Indonesia. We arrange the reservation, payment and customer support; the activity itself is delivered by a licensed local activity partner.
 
 By confirming a booking you agree to these terms, the cancellation policy and the activity safety waiver.
 

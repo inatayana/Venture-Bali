@@ -23,7 +23,7 @@ afterAll(() => {
 function makeSession(overrides: Partial<AdminSession> = {}): AdminSession {
   return {
     adminId: 'admin-1',
-    email: 'operator@venturebali.com',
+    email: 'operator@baliwild.com',
     role: 'ADMIN',
     exp: Math.floor(Date.now() / 1000) + ADMIN_SESSION_TTL_SECONDS,
     ...overrides,
@@ -37,7 +37,7 @@ describe('admin session tokens', () => {
 
     expect(session).not.toBeNull();
     expect(session?.adminId).toBe('admin-1');
-    expect(session?.email).toBe('operator@venturebali.com');
+    expect(session?.email).toBe('operator@baliwild.com');
     expect(session?.role).toBe('ADMIN');
   });
 

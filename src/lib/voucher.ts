@@ -1,5 +1,5 @@
 /**
- * Venture Bali — E-Voucher QR code generation.
+ * BaliWild — E-Voucher QR code generation.
  *
  * Server-only: the QR is rendered as an SVG data URL so the voucher page can
  * stay a light client component. The encoded payload is the public

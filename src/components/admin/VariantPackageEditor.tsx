@@ -160,8 +160,8 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
           onClick={() => setIsOpen(true)}
           className={
             isEditing
-              ? 'inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline'
-              : 'inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700'
+              ? 'inline-flex items-center gap-1 text-xs font-semibold text-brand-ink hover:underline'
+              : 'inline-flex items-center gap-1.5 rounded-lg bg-brand-ink px-3 py-2 text-sm font-semibold text-brand transition-colors hover:bg-neutral-800'
           }
         >
           {isEditing ? <Pencil className="h-3.5 w-3.5" /> : <Plus className="h-4 w-4" />}
@@ -189,7 +189,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
   }
 
   return (
-    <div className="w-full rounded-xl border border-blue-100 bg-blue-50/40 p-4">
+    <div className="w-full rounded-xl border border-brand/50 bg-brand/10 p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h3 className="font-heading text-sm font-bold text-gray-900">
           {isEditing ? `Edit package · ${variant?.title}` : 'New package'}
@@ -337,7 +337,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
             onClick={() =>
               setTiers((current) => [...current, { minPax: '', maxPax: '', pricePerPax: '' }])
             }
-            className="text-xs font-semibold text-blue-600 hover:underline"
+            className="text-xs font-semibold text-brand-ink hover:underline"
           >
             + Add tier
           </button>
@@ -395,7 +395,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
           type="button"
           onClick={save}
           disabled={pending}
-          className="inline-flex min-h-[40px] items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-60"
+          className="inline-flex min-h-[40px] items-center gap-2 rounded-lg bg-brand-ink px-4 text-sm font-semibold text-brand transition-colors hover:bg-neutral-800 disabled:opacity-60"
         >
           {pending && <Loader2 className="h-4 w-4 animate-spin" />}
           {isEditing ? 'Save changes' : 'Create package'}
