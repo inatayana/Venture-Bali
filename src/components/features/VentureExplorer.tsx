@@ -12,6 +12,7 @@ const CATEGORIES = CATEGORY_FILTERS;
 
 const SORT_OPTIONS = [
   { value: 'recommended', label: 'Recommended' },
+  { value: 'popular', label: 'Best Sellers' },
   { value: 'price-low', label: 'Price: Low to High' },
   { value: 'price-high', label: 'Price: High to Low' },
   { value: 'rating', label: 'Rating' },
@@ -48,6 +49,10 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
     if (slug) {
       const category = resolveCategory(slug);
       if (category) setSelectedCategory(category.short);
+    }
+    const sort = params.get('sort');
+    if (sort && SORT_OPTIONS.some((option) => option.value === sort)) {
+      setSortBy(sort);
     }
   }, []);
 
@@ -93,6 +98,12 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
     }
 
     switch (sortBy) {
+      case 'popular':
+        result.sort(
+          (a, b) =>
+            (b.bookedThisMonth ?? 0) - (a.bookedThisMonth ?? 0) || b.rating - a.rating
+        );
+        break;
       case 'price-low':
         result.sort((a, b) => a.priceIdr - b.priceIdr);
         break;

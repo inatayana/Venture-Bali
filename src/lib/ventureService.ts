@@ -47,6 +47,46 @@ export async function getMonthlyGuestCounts(
 }
 
 /**
+ * Latest real paid booking for the hero ticker. Returns only activity/location
+ * and timestamp — never customer data. Null when the database is empty or down,
+ * so the hero can hide the ticker instead of inventing social proof.
+ */
+export async function getLatestPaidBookingPulse(): Promise<{
+  title: string;
+  location: string;
+  bookedAt: Date;
+} | null> {
+  try {
+    const booking = await prisma.booking.findFirst({
+      where: { paymentStatus: 'PAID' },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        createdAt: true,
+        variant: {
+          select: {
+            venture: {
+              select: {
+                title: true,
+                location: { select: { name: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!booking?.variant?.venture) return null;
+    return {
+      title: booking.variant.venture.title,
+      location: booking.variant.venture.location?.name ?? 'Bali',
+      bookedAt: booking.createdAt,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Load every venture for the catalogue page.
  *
  * Reads from the database and falls back to the offline catalogue when no

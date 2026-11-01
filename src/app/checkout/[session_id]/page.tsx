@@ -4,6 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, CreditCard, Shield, CheckCircle, Loader2, Users, Calendar, Clock3 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
+import { CurrencySelector } from '@/components/currency/CurrencySelector';
+import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
+import { PriceApprox } from '@/components/currency/PriceApprox';
 import { formatPrice } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import type { Booking } from '@/types/venture';
@@ -196,6 +200,11 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
           <a href="/" aria-label="BaliWild home">
             <BrandWordmark className="text-xl text-brand-ink" />
           </a>
+          <div className="flex items-center gap-1">
+            <LanguageSwitcher />
+            <CurrencySelector />
+            <ThemeSwitcher />
+          </div>
         </div>
       </div>
 
@@ -251,9 +260,12 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                     <span className="font-medium">{formatPrice(booking.nightSurchargeIdr)}</span>
                   </div>
                 )}
-                <div className="flex justify-between pt-4 border-t border-gray-200">
+                <div className="flex justify-between gap-3 pt-4 border-t border-gray-200">
                   <span className="text-lg font-semibold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-brand-ink">{formatPrice(amountDue)}</span>
+                  <span className="text-right">
+                    <span className="block text-2xl font-bold text-brand-ink">{formatPrice(amountDue)}</span>
+                    <PriceApprox amountIdr={amountDue} className="text-[11px]" />
+                  </span>
                 </div>
               </div>
             </div>

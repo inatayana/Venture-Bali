@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { Facebook, Instagram, Mail, MapPin, Music2, ShieldCheck, Sparkles, Youtube } from 'lucide-react';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
+import { CurrencySelector } from '@/components/currency/CurrencySelector';
+import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import {
   BRAND_EMAIL_HELLO,
   BRAND_EMAIL_PARTNERS,
@@ -81,6 +84,11 @@ export function SiteFooter() {
               >
                 <Facebook className="h-4 w-4" />
               </a>
+            </div>
+            <div className="mt-3 flex items-center gap-2 text-white/70 [&_button:hover]:bg-white/10">
+              <LanguageSwitcher />
+              <CurrencySelector />
+              <ThemeSwitcher />
             </div>
           </div>
 

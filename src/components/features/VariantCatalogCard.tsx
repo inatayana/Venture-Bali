@@ -6,6 +6,7 @@ import { formatPrice } from '@/lib/i18n';
 import { getVariantPickupDisplay, getVariantPriceDisplay } from '@/lib/variantDisplay';
 import type { Variant } from '@/types/venture';
 import { cn } from '@/utils/cn';
+import { PriceApprox } from '@/components/currency/PriceApprox';
 
 interface VariantCatalogCardProps {
   variant: Variant;
@@ -137,6 +138,7 @@ export function VariantCatalogCard({
               <span className="text-xs text-neutral-400">· {lowestTierMinPax}+</span>
             )}
           </div>
+          <PriceApprox amountIdr={priceIdr} suffix=" / guest" className="mt-0.5 block" />
           <p className="text-xs text-neutral-500">
             {variant.minimumSpendIdr ? (
               <>Minimum {formatPrice(variant.minimumSpendIdr)} to book</>

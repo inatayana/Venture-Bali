@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.6.0
+> **Version:** 3.6.4
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -14,6 +14,10 @@
 > **Changelog v3.5.2:** Daftar kategori di footer menjadi grid 2 kolom seimbang (9 kategori + All adventures), dengan hover aksen brand.
 > **Changelog v3.5.3:** Email brand — `hello@` di header/footer, `support@` dan `partners@` di footer, transaksional dari `booking@` dengan Reply-To `support@`.
 > **Changelog v3.6.0:** Refund/cancel/reschedule mandiri di `/my/bookings`, admin `/admin/refunds` (Midtrans/manual), privacy policy + cookie consent, dan security headers/rate limiting.
+> **Changelog v3.6.1:** Phase A global pricing — 9 display currencies (IDR base, USD, EUR, AUD, SGD, CNY, INR, KRW, JPY), Geo-IP default, language EN/ID switcher, real booking ticker and intent pills.
+> **Changelog v3.6.2:** Theme toggle (light/dark, persisted in localStorage) with sun/moon icons; dark surface overrides for the public app; language/currency/theme grouped in the global header.
+> **Changelog v3.6.3:** Tablet/small-desktop search becomes a horizontal glass pill; hero intent pills, real booking ticker and responsive typewriter polish.
+> **Changelog v3.6.4:** Theme-aware wordmark — light: BALI black / WILD white; dark: BALI white / WILD black.
 
 ## 1. Design Principles
 
@@ -147,6 +151,10 @@ Aturan penerapan:
 ### Sticky Header & Breadcrumb Bar
 - **Home hero (v3.5.0)**: hero sinematik memakai foto `/images/hero-bali.jpg` (kolase rafting/ATV/sunset, dioptimalkan ke 1920px/±330 KB dan disajikan lewat `next/image` sebagai LCP `priority`) dengan **scrim kiri** `from-black/90 via-black/60 to-black/5` agar teks terbaca sementara sisi kanan gambar tetap terang, plus overlay gelap tipis di mobile. Headline editorial dua baris: `Book the [keyword]` (typewriter, kata kunci **`brand` tanpa kotak latar** + kursor berkedip) dan `Own the wild!`, dengan padding vertikal lega. Panel search desktop memakai **glass transparan** `bg-[#111111]/15`, `backdrop-blur-[5px]`, border `white/15`, input berjarak longgar, dan tombol Search penuh `brand` + teks ink; hover menaikkan opacity ke 25% agar tetap terbaca. Di bawah search ada **micro-bar trust** (rating/review bila ada, 9 kategori, instant confirmation, 80% refund, secure checkout).
 - **Search pill** desktop: hover memunculkan border aksen + shadow glow; mobile tetap pil ringkas yang membuka bottom sheet.
+- **Global switchers (v3.6.2)**: header beranda, PDP, checkout, dan footer menampilkan **EN/ID**, currency selector (IDR, USD, EUR, AUD, SGD, CNY, INR, KRW, JPY), dan **theme sun/moon**. Semua preferensi disimpan di localStorage; kunjungan pertama memakai `x-vercel-ip-country` (Geo-IP) lalu bahasa browser, fallback IDR/EN. Dark mode membalik permukaan putih → hitam dan teks hitam → putih (surface brand seperti hero/footer/tombol kuning tetap kontras), tanpa reload.
+- **Search widget per breakpoint (v3.6.3)**: <768px = pil ringkas + bottom sheet; 768–1023px = **satu horizontal glass pill** (Where / When / Guests + bulatan Search kuning) yang membuka sheet, sehingga hero tidak didominasi kartu vertikal; ≥1024px = kartu search vertikal 15% opacity.
+- **Approximate pricing**: IDR tetap mata uang charge; kartu, paket, total booking sheet dan checkout menampilkan `≈ USD/EUR/...` dari rate harian (`/api/fx/rates`, fallback statis). Tidak ada angka yang dikirim ke Midtrans selain IDR.
+- **Hero intent pills & ticker (v3.6.1)**: empat pill ke Best Sellers (`?sort=popular`), combo, Mount Batur, tubing; ticker hanya tampil jika ada booking `PAID` nyata dan menampilkan relatif time, bukan social proof karangan.
 - **Home**: brand header menempel di atas (`sticky top-0`, backdrop blur) saat halaman di-scroll, dengan tinggi ringkas agar grid produk tetap terlihat.
 - **PDP**: bar sticky setinggi 56px berisi tombol "All adventures", breadcrumb `Home › Kategori › Nama produk`, dan harga paket terpilih per guest (desktop). Bar tetap terlihat saat scroll, jadi user bisa kembali atau pindah halaman tanpa scroll ke atas.
 - **Section nav mengambang**: pill `Packages · What to expect · Reviews · Location` diposisikan **di tengah kolom konten kanan** (bukan full-width), `sticky top-64px`, dengan scrim gradien putih agar teks di bawahnya memudar. Pill **tidak tampil saat halaman dibuka**; muncul (fade + slide 8px) ketika section `#packages` mencapai header, dan memudar perlahan saat scroll kembali ke atas (`opacity/visibility` transition 300ms, `h-0` supaya tidak menyisakan ruang).

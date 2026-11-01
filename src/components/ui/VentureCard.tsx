@@ -4,7 +4,7 @@ import type { VentureItem } from '@/types/venture';
 import { CATEGORY_ICONS } from '@/lib/taxonomy';
 import { cn } from '@/utils/cn';
 import { formatPrice } from '@/lib/i18n';
-import { approximateUsd } from '@/lib/fx';
+import { PriceApprox } from '@/components/currency/PriceApprox';
 
 export interface VentureCardProps {
   venture: VentureItem;
@@ -152,9 +152,7 @@ export function VentureCard({
                 · {tierHint.minPax}+ guests
               </span>
             )}
-            <span className="mt-0.5 block text-[11px] text-gray-400">
-              ≈ {formatPrice(approximateUsd(venture.priceIdr), 'USD')} / person
-            </span>
+            <PriceApprox amountIdr={venture.priceIdr} suffix=" / person" className="mt-0.5 block" />
           </div>
         </div>
 

@@ -5,6 +5,9 @@ import { InstallPrompt } from '@/components/InstallPrompt';
 import { PwaRegistration } from '@/components/PwaRegistration';
 import { ChatWidget } from '@/components/chat/ChatWidget';
 import { CookieConsent } from '@/components/CookieConsent';
+import { CurrencyProvider } from '@/components/currency/CurrencyProvider';
+import { LocaleProvider } from '@/components/locale/LocaleProvider';
+import { ThemeProvider, themeInitScript } from '@/components/theme/ThemeProvider';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
 import {
   BRAND_NAME,
@@ -55,14 +58,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${barlowCondensed.variable} ${plusJakartaSans.variable}`}>
+    <html lang="en" className={`${barlowCondensed.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
       <body className="font-sans">
-        {children}
-        <AnalyticsPageView />
-        <PwaRegistration />
-        <InstallPrompt />
-        <CookieConsent />
-        <ChatWidget />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <ThemeProvider>
+          <CurrencyProvider>
+            <LocaleProvider>
+              {children}
+              <AnalyticsPageView />
+              <PwaRegistration />
+              <InstallPrompt />
+              <CookieConsent />
+              <ChatWidget />
+            </LocaleProvider>
+          </CurrencyProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

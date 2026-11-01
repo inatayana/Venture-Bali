@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, CalendarDays, Clock, Lock, MapPin, Shield, Tag, Users } from 'lucide-react';
 import { Button, Stepper, Calendar as CalendarComponent, TimeSlotPill } from '@/components/ui';
+import { PriceApprox } from '@/components/currency/PriceApprox';
 import { track } from '@/lib/analytics';
 import { formatPrice } from '@/lib/i18n';
 import { getBookingProgress } from '@/lib/bookingProgress';
@@ -841,8 +842,11 @@ export function ExperienceBookingWidget({
           )}
           <div className="flex items-center justify-between border-t border-neutral-100 pt-1.5">
             <span className="text-sm font-medium text-neutral-900">Total</span>
-            <span className="font-heading text-xl font-bold tabular-nums text-neutral-900">
-              {formatPrice(quote.totalPriceIdr)}
+            <span className="text-right">
+              <span className="block font-heading text-xl font-bold tabular-nums text-neutral-900">
+                {formatPrice(quote.totalPriceIdr)}
+              </span>
+              <PriceApprox amountIdr={quote.totalPriceIdr} className="text-[11px]" />
             </span>
           </div>
         </div>
