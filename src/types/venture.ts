@@ -410,6 +410,8 @@ export interface ReviewSummary {
   rating: number;
   comment: string;
   author: string;
+  /** True when the review is linked to a real paid booking. */
+  isVerified?: boolean;
   createdAt: Date;
 }
 

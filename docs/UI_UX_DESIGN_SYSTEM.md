@@ -183,6 +183,12 @@ Langkah konfigurasi (berlaku untuk desktop inline & mobile bottom sheet):
 
 ### Section 5: Reviews & Media Proof
 - Ratings breakdown (bar per bintang) + summary badge + review cards (mobile carousel / desktop grid) + foto/video dari reviewer.
+- **Rating diturunkan dari review nyata**: bila ada review `isApproved`, `rating` = rata-rata (1 desimal) dan `reviewCount` = jumlahnya; rating editorial seed hanya dipakai saat belum ada review.
+- **Alur review pasca-trip (v1.5.0)**:
+  1. Tamu membuka `my/bookings?token=…` (magic link) → tombol **Write a review** muncul hanya untuk booking `PAID` yang tanggalnya sudah lewat dan belum pernah direview.
+  2. Form `/review/[bookingId]?token=…`: rating 1–5 bintang + komentar 20–1000 karakter; token membuktikan kepemilikan booking, tanpa akun.
+  3. Review tersimpan `isApproved = false` + `bookingId` (unik, satu review per booking) → muncul di `/admin/reviews` untuk **Approve/Reject**.
+  4. Setelah disetujui, review tampil di PDP dengan badge **Verified trip**.
 - **Empty state**: bila `reviewCount = 0`, jangan tampilkan angka rating maupun histogram — tampilkan kartu "No verified reviews yet" (ikon bintang abu-abu + ajakan review setelah trip). Baris rating di header berubah menjadi chip "New · no reviews yet".
 
 ### Section 6: Location & Related Adventures
