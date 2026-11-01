@@ -95,6 +95,11 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/privacy" className="text-white/70 transition-colors hover:text-brand">
+                  Privacy policy
+                </Link>
+              </li>
+              <li>
                 <a
                   href={`mailto:${BRAND_EMAIL_SUPPORT}`}
                   className="text-white/70 transition-colors hover:text-brand"

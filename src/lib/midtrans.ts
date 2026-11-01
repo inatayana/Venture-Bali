@@ -169,6 +169,61 @@ export async function createSnapTransaction(
   return parseSnapResponse(body, response.status, response.ok);
 }
 
+export interface RefundResponse {
+  statusCode: string;
+  statusMessage: string;
+  refundAmount: number;
+  refundKey?: string;
+  raw: Record<string, unknown>;
+}
+
+/**
+ * Ask Midtrans to refund (fully or partially) a settled transaction.
+ * The caller must still persist the result and mark the refund processed only
+ * after this succeeds. Some payment methods require dashboard permission.
+ */
+export async function refundMidtransTransaction(input: {
+  orderId: string;
+  amount: number;
+  reason: string;
+}): Promise<RefundResponse> {
+  const { serverKey } = getMidtransConfig();
+  const baseUrl = getMidtransBaseUrl();
+  const auth = Buffer.from(`${serverKey}:`).toString('base64');
+  const refundKey = `${input.orderId}-refund-${Date.now()}`;
+
+  const response = await fetch(`${baseUrl}/v2/${encodeURIComponent(input.orderId)}/refund`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: `Basic ${auth}`,
+    },
+    body: JSON.stringify({
+      refund_key: refundKey,
+      amount: input.amount,
+      reason: input.reason,
+    }),
+  });
+
+  const body = (await response.json().catch(() => null)) as Record<string, unknown> | null;
+  const statusCode = typeof body?.status_code === 'string' ? body.status_code : String(response.status);
+  const statusMessage =
+    typeof body?.status_message === 'string' ? body.status_message : 'Unexpected Midtrans response';
+
+  if (!response.ok || statusCode.startsWith('4') || statusCode.startsWith('5')) {
+    throw new Error(`Midtrans refund failed: ${statusCode} - ${statusMessage}`);
+  }
+
+  return {
+    statusCode,
+    statusMessage,
+    refundAmount: typeof body?.refund_amount === 'number' ? body.refund_amount : input.amount,
+    refundKey: typeof body?.refund_key === 'string' ? body.refund_key : refundKey,
+    raw: body ?? {},
+  };
+}
+
 export async function verifyWebhookSignature(payload: MidtransWebhookPayload): Promise<boolean> {
   // Webhook verification only needs the server key. Using getMidtransConfig()
   // here made the endpoint require the client key too, which a headless

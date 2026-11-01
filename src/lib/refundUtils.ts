@@ -26,6 +26,72 @@ export function getHoursDifference(
   return Math.floor(diffMs / (1000 * 60 * 60));
 }
 
+/** Parse a slot label such as "08:00", "8:00 AM" or "01:00 PM". */
+export function parseSlotTime(label: string | null | undefined): { hour: number; minute: number } {
+  if (!label) return { hour: 8, minute: 0 };
+  const match = label.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (!match) return { hour: 8, minute: 0 };
+
+  let hour = Number(match[1]);
+  const minute = Number(match[2]);
+  const meridiem = match[3]?.toUpperCase();
+  if (meridiem === 'PM' && hour < 12) hour += 12;
+  if (meridiem === 'AM' && hour === 12) hour = 0;
+  return { hour, minute };
+}
+
+/**
+ * The real instant of an activity in WITA (UTC+8). `bookingDate` is a
+ * YYYY-MM-DD local date and `slotTime` is the human label from the database.
+ */
+export function getActivityInstant(bookingDate: string, slotTime?: string | null): Date {
+  const [year, month, day] = bookingDate.split('-').map(Number);
+  const { hour, minute } = parseSlotTime(slotTime);
+  return new Date(Date.UTC(year, month - 1, day, hour - 8, minute, 0, 0));
+}
+
+export function hoursBeforeActivity(
+  bookingDate: string,
+  slotTime: string | null | undefined,
+  now: Date = new Date()
+): number {
+  return (getActivityInstant(bookingDate, slotTime).getTime() - now.getTime()) / (1000 * 60 * 60);
+}
+
+/** Server-side cancellation quote used by the customer and admin flows. */
+export function quoteCancellation(input: {
+  bookingDate: string;
+  slotTime?: string | null;
+  totalPrice: number;
+  now?: Date;
+}): {
+  eligible: boolean;
+  hoursBefore: number;
+  refundAmount: number;
+  feeAmount: number;
+  percentage: number;
+} {
+  const hours = hoursBeforeActivity(input.bookingDate, input.slotTime, input.now ?? new Date());
+  if (hours < 24) {
+    return {
+      eligible: false,
+      hoursBefore: hours,
+      refundAmount: 0,
+      feeAmount: input.totalPrice,
+      percentage: 0,
+    };
+  }
+
+  const refundAmount = Math.round(input.totalPrice * 0.8);
+  return {
+    eligible: true,
+    hoursBefore: hours,
+    refundAmount,
+    feeAmount: input.totalPrice - refundAmount,
+    percentage: 80,
+  };
+}
+
 /**
  * Calculate refund amount based on new policy:
  * - ≥24h: cancel fee 20% → refund 80%

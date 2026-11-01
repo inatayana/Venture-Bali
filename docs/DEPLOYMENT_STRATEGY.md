@@ -40,7 +40,8 @@ The application codebase remains **identical** — only the deployment target ch
 
 | Variable | Environment | Value Source |
 |----------|-------------|--------------|
-| `DATABASE_URL` | Production, Preview, Development | Supabase → Settings → Database → Connection Pooling (Transaction Mode) |
+| `DATABASE_URL` | Production, Preview, Development | Supabase → Settings → Database → Connection Pooling (Transaction Mode, port 6543) |
+| `DIRECT_URL` | Production, Preview, Development | Supabase → Settings → Database → direct connection (port 5432); used by migrations only |
 | `NEXT_PUBLIC_SUPABASE_URL` | All | Supabase → Settings → API → Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | All | Supabase → Settings → API → anon/public key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Production, Preview | Supabase → Settings → API → service_role key |
@@ -95,7 +96,8 @@ jobs:
       - run: npx prisma generate
       - run: npx prisma migrate deploy
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DIRECT_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
       - uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -104,12 +106,10 @@ jobs:
           vercel-args: '--prod'
 ```
 
-**Option B: Vercel Build Hook (Simpler)**
-- Add `prisma migrate deploy` to `build` script in `package.json`:
-```json
-"build": "prisma generate && prisma migrate deploy && next build"
-```
-- Ensure `DATABASE_URL` is set in Vercel Environment Variables
+**Option B: manual migration (recommended if you do not use the workflow)**
+- Run `npx prisma migrate deploy` from a trusted machine/CI with `DIRECT_URL`
+  (port 5432), not during `next build`.
+- Set both `DATABASE_URL` (pooled) and `DIRECT_URL` (direct) in Vercel.
 
 ### 2.5 Running Migrations
 
@@ -126,8 +126,9 @@ npm run db:push      # or: npx prisma db push
 ```
 
 **Production (Vercel):**
-- Automatic via GitHub Actions (Option A) or build script (Option B)
-- Or manual: `npx prisma migrate deploy` with production `DATABASE_URL`
+- Automatic via GitHub Actions (Option A) or manual from a trusted machine.
+- Always use `DIRECT_URL` (port 5432) for `npx prisma migrate deploy`; the
+  pooled `DATABASE_URL` is for runtime queries only.
 
 ### 2.6 Domain Configuration
 

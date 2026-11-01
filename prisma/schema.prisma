@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ============ ENUMS ============
@@ -39,6 +40,8 @@ enum PaymentStatus {
   PAID
   CANCELLED
   FAILED
+  PARTIALLY_REFUNDED
+  REFUNDED
 }
 
 /// Operational lifecycle of a reservation, separate from the payment status.
@@ -75,6 +78,17 @@ enum NotificationStatus {
   PENDING
   SENT
   FAILED
+}
+
+enum RefundStatus {
+  PENDING
+  PROCESSED
+  FAILED
+}
+
+enum RefundMethod {
+  MIDTRANS
+  MANUAL
 }
 
 // ============ CORE MODELS ============
@@ -369,9 +383,14 @@ model Booking {
   lifecycleStatus  BookingLifecycle @default(AWAITING_PAYMENT)
   /// End of the temporary inventory hold. Null once paid or for legacy rows.
   expiresAt        DateTime?
+  /// Customer cancellation audit. The Refund row carries the money trail.
+  cancelledAt       DateTime?
+  cancellationReason String?
   payment          Payment?
   vouchers         Voucher[]
   review           Review?         @relation("BookingToReview")
+  refund           Refund?
+  changes          BookingChange[]
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
@@ -420,6 +439,45 @@ model Voucher {
 
   @@index([bookingId])
   @@index([status])
+}
+
+/// Money trail for a cancellation. Created when the guest cancels; processed
+/// by an admin through Midtrans or a manual bank transfer.
+model Refund {
+  id          String       @id @default(cuid())
+  bookingId   String       @unique
+  booking     Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amountIdr   Int
+  feeIdr      Int          @default(0)
+  reason      String?
+  status      RefundStatus @default(PENDING)
+  method      RefundMethod @default(MIDTRANS)
+  providerRef String?
+  notes       String?
+  requestedAt DateTime     @default(now())
+  processedAt DateTime?
+  processedBy String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([status])
+  @@index([requestedAt])
+}
+
+/// Reschedule audit trail. One row per successful move.
+model BookingChange {
+  id         String   @id @default(cuid())
+  bookingId  String
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  fromDate   String
+  fromSlot   String?
+  toDate     String
+  toSlot     String?
+  changedBy  String   @default("customer")
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  @@index([bookingId, createdAt])
 }
 
 // ============ CONTENT MODELS ============

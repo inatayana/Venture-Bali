@@ -5,6 +5,8 @@ import { verifyCustomerLinkToken } from '@/lib/customerLink';
 import { formatPrice } from '@/lib/i18n';
 import { LIFECYCLE_LABELS } from '@/lib/bookingLifecycle';
 import { canReviewBooking } from '@/lib/reviewSchema';
+import { quoteCancellation } from '@/lib/refundUtils';
+import { BookingActions } from '@/components/features/BookingActions';
 import { CheckCircle, AlertCircle, Calendar, ArrowRight } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 
@@ -58,6 +60,7 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
           },
           slotTime: { select: { time: true } },
           review: { select: { id: true } },
+          refund: { select: { status: true, amountIdr: true } },
         },
       },
     },
@@ -92,7 +95,18 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
           </p>
         ) : (
           <div className="mt-6 space-y-3">
-            {customer.bookings.map((booking) => (
+            {customer.bookings.map((booking) => {
+              const quote = quoteCancellation({
+                bookingDate: booking.bookingDate,
+                slotTime: booking.slotTime?.time,
+                totalPrice: booking.totalPrice,
+              });
+              const actionable =
+                booking.paymentStatus === 'PAID' &&
+                booking.lifecycleStatus === 'CONFIRMED' &&
+                !booking.cancelledAt;
+
+              return (
               <div key={booking.id} className="rounded-2xl bg-white p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -139,13 +153,17 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
                         </Link>
                       )
                     )}
-                    {booking.paymentStatus === 'PAID' ? (
+                    {booking.paymentStatus === 'PAID' && !booking.cancelledAt ? (
                       <Link
                         href={`/voucher/${booking.id}`}
                         className="inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-neutral-900"
                       >
                         View voucher <ArrowRight className="h-4 w-4" />
                       </Link>
+                    ) : booking.refund ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-neutral-500">
+                        Cancelled · refund {booking.refund.status.toLowerCase()}
+                      </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-xs text-neutral-400">
                         <CheckCircle className="h-4 w-4" /> Awaiting payment
@@ -153,8 +171,27 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
                     )}
                   </div>
                 </div>
+
+                {booking.refund && (
+                  <p className="mt-2 text-xs font-medium text-amber-700">
+                    Refund {booking.refund.status.toLowerCase()} ·{' '}
+                    {formatPrice(booking.refund.amountIdr)}
+                  </p>
+                )}
+
+                {actionable && (
+                  <BookingActions
+                    bookingId={booking.id}
+                    token={searchParams.token ?? ''}
+                    canCancel={quote.eligible}
+                    canReschedule={quote.hoursBefore >= 24}
+                    refundAmount={quote.refundAmount}
+                    feeAmount={quote.feeAmount}
+                  />
+                )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

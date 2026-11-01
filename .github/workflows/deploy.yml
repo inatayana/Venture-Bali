@@ -41,7 +41,8 @@ jobs:
       - name: Apply database migrations
         run: npm run db:deploy
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DIRECT_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25

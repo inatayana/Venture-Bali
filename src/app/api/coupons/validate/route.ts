@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { COUPON_REJECTION_MESSAGES, getCouponRejection } from '@/lib/pricing';
+import { clientIp, rateLimit } from '@/lib/rateLimit';
 
 const validateCouponSchema = z.object({
   code: z.string().trim().toUpperCase().min(3).max(24),
@@ -15,6 +16,14 @@ const validateCouponSchema = z.object({
  * can never get a discount the server does not agree with.
  */
 export async function POST(request: NextRequest) {
+  const limit = rateLimit(`coupon:${clientIp(request)}`, 30, 60_000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { success: false, error: { code: 'RATE_LIMITED', message: 'Too many coupon checks. Try again shortly.' } },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSeconds) } }
+    );
+  }
+
   try {
     const input = validateCouponSchema.parse(await request.json());
 

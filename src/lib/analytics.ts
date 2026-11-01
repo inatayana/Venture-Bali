@@ -1,3 +1,5 @@
+import { hasAnalyticsConsent } from './consent';
+
 /**
  * Vendor-agnostic analytics.
  *
@@ -14,6 +16,7 @@ type DataLayerWindow = Window & { dataLayer?: Record<string, unknown>[] };
 
 export function track(event: string, payload: AnalyticsPayload = {}): void {
   if (typeof window === 'undefined') return;
+  if (!hasAnalyticsConsent()) return;
 
   const detail = { event, ...payload, timestamp: Date.now() };
   const target = window as DataLayerWindow;
