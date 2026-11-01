@@ -16,9 +16,10 @@ const TRUST_POINTS = [
 
 const INTENT_PILLS = [
   { href: '/?sort=popular', key: 'heroBest' as const, emoji: '⚡' },
+  { href: '/?category=water-sports', key: 'heroWater' as const, emoji: '🌊' },
+  { href: '/?category=trekking', key: 'heroTrekking' as const, emoji: '🏔️' },
   { href: '/?category=combo', key: 'heroCombos' as const, emoji: '🔥' },
-  { href: '/?q=Mount%20Batur', key: 'heroBatur' as const, emoji: '🌅' },
-  { href: '/?category=tubing', key: 'heroTubing' as const, emoji: '🌊' },
+  { href: '/?category=tubing', key: 'heroTubing' as const, emoji: '🛶' },
 ];
 
 function relativeBookingTime(bookedAt: string | Date, locale: 'en' | 'id'): string {
@@ -116,6 +117,24 @@ export function HomeHero({ hubs, suggestions, stats, bookingPulse }: HomeHeroPro
             <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-white/70 sm:text-base">
               {t('heroSub')}
             </p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] font-medium text-white/80">
+              {stats.avgRating !== null && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Star className="h-3.5 w-3.5 fill-brand text-brand" aria-hidden="true" />
+                  <strong className="font-semibold text-white">{stats.avgRating.toFixed(1)}</strong>
+                  · {stats.reviewCount} {t('verifiedReviews')}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
+                {t('trustInstant')}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
+                {t('licensed')}
+              </span>
+            </div>
 
             <div className="mt-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible [&::-webkit-scrollbar]:hidden">
               {INTENT_PILLS.map((pill) => (
