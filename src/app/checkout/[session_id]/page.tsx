@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, CreditCard, Shield, CheckCircle, Loader2, Users, Calendar, Clock3 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { formatPrice } from '@/lib/i18n';
+import { track } from '@/lib/analytics';
 import type { Booking } from '@/types/venture';
 
 interface CheckoutPageProps {
@@ -111,6 +112,12 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const holdIsUrgent = holdRemainingMs !== null && holdRemainingMs <= 120_000;
 
   const handlePaymentResult = useCallback(() => {
+    track('purchase', {
+      booking_id: booking?.id,
+      value: booking?.totalPrice,
+      currency: 'IDR',
+      items: booking?.paxCount,
+    });
     window.location.href = `/voucher/${booking?.id}`;
   }, [booking]);
 
