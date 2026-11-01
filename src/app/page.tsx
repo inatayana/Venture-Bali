@@ -1,5 +1,7 @@
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { HomeHero } from '@/components/features/HomeHero';
+import { TrustStrip } from '@/components/features/TrustStrip';
+import { SiteFooter } from '@/components/layout/SiteFooter';
 import { loadVentures } from '@/lib/ventureService';
 
 export const revalidate = 60;
@@ -24,11 +26,15 @@ export default async function Home() {
 
       <VentureExplorer ventures={ventures} />
 
+      <TrustStrip />
+
       {source === 'fallback' && (
         <p className="container mx-auto px-4 pb-8 text-xs text-gray-400 text-center">
           Showing the offline catalogue. Connect a database to browse the full inventory.
         </p>
       )}
+
+      <SiteFooter />
     </main>
   );
 }

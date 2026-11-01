@@ -28,6 +28,7 @@ import {
 import { VariantCatalogCard } from '@/components/features/VariantCatalogCard';
 import { VariantDetailModal } from '@/components/features/VariantDetailModal';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
+import { SiteFooter } from '@/components/layout/SiteFooter';
 import { ProductLightbox } from '@/components/features/ProductLightbox';
 import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
@@ -990,6 +991,8 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
           </div>
         </div>
       </div>
+
+      <SiteFooter />
 
       {/* Mobile sticky CTA */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden">
