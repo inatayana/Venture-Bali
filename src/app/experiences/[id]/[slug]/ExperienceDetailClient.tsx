@@ -1039,12 +1039,16 @@ export function ExperienceDetailClient({
           <h2 className="font-heading text-lg font-bold text-neutral-900">
             More adventures to explore
           </h2>
-          <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            className="mt-3 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden"
+            aria-label="More adventures to explore"
+          >
             {related.map((item) => (
               <VentureCard
                 key={item.id}
                 venture={item}
                 href={`/experiences/${item.id}/${item.slug}`}
+                className="w-[78%] shrink-0 snap-start sm:w-auto"
               />
             ))}
           </div>

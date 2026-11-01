@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.5.0
+> **Version:** 3.5.1
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -9,7 +9,8 @@
 > **Changelog v3.3.0:** Review system — kartu ulasan dengan nama/lokasi tamu, bintang `brand`, feed berpaginasi (8 per halaman) dengan pencarian/urutan di database, serta review request pasca-trip berisi link + QR code.
 > **Changelog v3.4.0:** Hero editorial sinematik — scrim kiri, kata kunci typewriter tanpa kotak, panel search glassmorphism, dan whitespace desktop yang lebih lega.
 > **Changelog v3.4.1:** Foto hero Bali terpasang (`next/image`, LCP priority, 1920px), plus overlay mobile agar headline tetap terbaca di atas kolase.
-> **Changelog v3.5.0:** Rebrand penuh ke **BaliWild** (`baliwild.com`) — wordmark BALI + WILD, tagline **Own the wild.**, ikon PWA hitam/kuning, panel search hero 10% opacity + blur 12px, dan seluruh metadata, email, admin, serta dokumen memakai brand baru.
+> **Changelog v3.5.0:** Rebrand penuh ke **BaliWild** (`baliwild.com`) — wordmark BALI + WILD, tagline **Own the wild.**, ikon PWA hitam/kuning, panel search hero 15% opacity + blur 5px, dan seluruh metadata, email, admin, serta dokumen memakai brand baru.
+> **Changelog v3.5.1:** Section "More adventures to explore" menjadi horizontal snap-slider di mobile (kartu 78%, peek kartu berikutnya, scrollbar disembunyikan) sementara desktop tetap grid.
 
 ## 1. Design Principles
 
@@ -202,6 +203,7 @@ Aturan penerapan:
 - **Skeleton loading**: rute `/` dan PDP punya `loading.tsx` dengan shimmer (hero, tile kategori, kartu produk, galeri) agar navigasi terasa instan.
 - Map widget + address + "Open in Google Maps" + pickup info note + 3-4 related cards.
 - **Related (v1.6.0)**: `getRelated` mengambil maksimal 3 produk dari kategori yang sama; karena tiap kategori masih 1 produk, sisanya diisi produk rating tertinggi lain agar section tidak kosong. Section `#related` ("More") ikut masuk anchor nav.
+- **Related mobile slider (v3.5.1)**: di bawah 640px tiga kartu related menjadi baris **horizontal snap-scroll** (`flex`, `overflow-x-auto`, `snap-x snap-mandatory`, gap 16px). Kartu memakai lebar **78%** container sehingga kartu berikutnya mengintip, `scroll-snap-align: start`, scrollbar disembunyikan, dan `next/image` memakai `sizes` 80vw agar gambar tidak mengunduh ukuran desktop. Dari `sm` ke atas kembali ke grid 2/3 kolom.
 - **Social proof (v1.6.0)**: kartu produk dan header PDP menampilkan chip `N booked this month` — jumlah **pax** dari booking `PAID` bulan berjalan (`getMonthlyGuestCounts`), hanya tampil bila > 0.
 - **Cron review request**: `/api/cron/review-requests` (02:00 UTC = 10:00 WITA) mengirim WhatsApp + email ke tamu yang tripnya kemarin dan belum mereview; idempoten lewat `NotificationLog`.
 
