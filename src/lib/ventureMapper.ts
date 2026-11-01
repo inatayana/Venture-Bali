@@ -194,6 +194,7 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
     title: venture.title,
     hook3Sec: venture.hook3Sec,
     shortDescription: venture.shortDescription ?? undefined,
+    longDescription: venture.longDescription ?? undefined,
     duration: venture.duration,
     badge: venture.badge ?? undefined,
     meetingPoint: venture.meetingPoint

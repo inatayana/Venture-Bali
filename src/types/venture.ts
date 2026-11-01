@@ -140,6 +140,8 @@ export interface Venture {
   title: string;
   hook3Sec: string;
   shortDescription?: string;
+  /** Long-form copy for the product page (about / what to expect / included / expected). */
+  longDescription?: string;
   duration: string;
   badge?: string;
   meetingPoint?: MeetingPoint;

@@ -419,6 +419,8 @@ export type VentureSeed = {
   title: string;
   hook3Sec: string;
   shortDescription: string;
+  /** Long-form product copy (about / what to expect / included / expected). */
+  longDescription?: string;
   duration: string;
   badge: string | null;
   highlights: string[];
@@ -509,6 +511,8 @@ export const VENTURES: VentureSeed[] = [
     hook3Sec: 'Ride a quad bike across Bali jungle trails and rice terraces',
     shortDescription:
       'Guided ATV adventure through the jungles and rice paddies of Ubud with a full safety briefing and local guide.',
+    longDescription:
+      'Ride a quad bike out of Ubud and into the rice terraces, bamboo forest and river tracks that cars never reach. A certified local guide leads the convoy, briefs you on the controls and adjusts the route to the confidence of the group, with helmet, goggles and rain protection provided. ATV rental, safety gear, insurance and drinking water are included, and hotel pickup is available from Ubud and South Bali. No driving licence is needed, but you must be at least twelve and able to steer over uneven ground. Closed shoes and a change of clothes are essential because the trails are muddy. Expect two and a half hours including briefing, photos and showers.',
     duration: '2.5 hours',
     badge: 'Best Seller',
     highlights: [
@@ -516,6 +520,7 @@ export const VENTURES: VentureSeed[] = [
       'Certified local guide and safety briefing',
       'Helmet, goggles and rain protection included',
       'Hotel pickup available',
+      'Trails through rice paddies, bamboo forest and riverbeds',
     ],
     inclusions: ['ATV rental', 'Safety gear', 'Certified guide', 'Insurance', 'Drinking water'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
@@ -591,6 +596,8 @@ export const VENTURES: VentureSeed[] = [
     hook3Sec: 'Paddle the grade 2-3 rapids of the Ayung River with a safety crew',
     shortDescription:
       'A guided white-water rafting trip along the Ayung River with helmets, life jackets, a safety kayak escort and an optional lunch stop.',
+    longDescription:
+      'Raft nine kilometres of the Ayung River through a jungle canyon where waterfalls drop straight into the water. After a safety briefing at the Kedewatan base camp, your certified guide leads you through class II-III rapids, with a coffee plantation stop halfway and a support kayak shadowing the boat. All rafting gear, changing rooms, showers and insurance are ready on site. Come prepared to get wet: swimwear, strapped sandals and a dry bag for your phone. Expect about two hours on the water, with paddling that suits first-timers and groups. Pickup runs from Ubud and South Bali, and we confirm your window the day before.',
     duration: '3 hours',
     badge: 'Adventure',
     highlights: [
@@ -598,6 +605,7 @@ export const VENTURES: VentureSeed[] = [
       'Full safety equipment and certified guides',
       'Natural river scenery and coffee plantation stops',
       'Shower and changing facilities on site',
+      'Two hours on the water with a coffee plantation break',
     ],
     inclusions: ['Rafting equipment', 'Certified guide', 'Safety kayak', 'Insurance', 'Changing room'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
@@ -746,6 +754,8 @@ export const VENTURES: VentureSeed[] = [
     hook3Sec: 'Float down the Kelan River on a tube through the green valley',
     shortDescription:
       'Relaxing river tubing on the Kelan River with two gentle sections, a safety kayak escort and a complimentary lunch.',
+    longDescription:
+      'Float the Kelan River on a tube through two gentle sections of green valley, with a safety kayak escort and lifeguards at every entry and exit. It is the easiest way to get on the water in Ubud: no paddling experience is needed and guides brief you before each section. Tube, paddle, safety escort, lunch, drinking water and insurance are included, with showers and changing rooms on site. Minimum age is six and the maximum weight is one hundred kilograms; water levels change with the season, so we confirm the route the day before. Bring swimwear, a towel, sunscreen and a waterproof pouch for your phone, and expect three relaxed hours including lunch.',
     duration: '3 hours',
     badge: 'Family Friendly',
     highlights: [
@@ -753,6 +763,7 @@ export const VENTURES: VentureSeed[] = [
       'Safety kayak escort on every run',
       'Lifeguards stationed at entry and exit points',
       'Complimentary lunch after the run',
+      'No paddling experience needed — guides brief every section',
     ],
     inclusions: ['Tube and paddle', 'Safety kayak escort', 'Lifeguard support', 'Lunch', 'Insurance', 'Drinking water'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
@@ -896,6 +907,8 @@ export const VENTURES: VentureSeed[] = [
     hook3Sec: 'Cycle downhill from the hills to the Indian Ocean coastline',
     shortDescription:
       'A guided downhill cycle from the Bali hills through villages and rice fields to the southern coastline, with a beachside refreshment stop.',
+    longDescription:
+      'Coast downhill from the Kintamani hills towards the Bali coast on quiet lanes, passing temples, villages and rice fields along a route of roughly twenty-five kilometres. A certified guide leads at a relaxed pace, stops for photos and explanations, and ends with a beachside refreshment. Mountain bike, helmet, gloves, water, refreshments and insurance are included. You need moderate fitness and comfort on two wheels rather than technical skill, and the minimum age is twelve. Wear sport shoes and light clothing, bring sunscreen and a water bottle, and expect four hours including transfers, stops and the final swim. Pickup from Ubud and South Bali is arranged at booking.',
     duration: '4 hours',
     badge: 'Scenic Route',
     highlights: [
@@ -903,6 +916,7 @@ export const VENTURES: VentureSeed[] = [
       'Temple and village visit along the way',
       'Beachside refreshment stop included',
       'Mountain bike, helmet and gloves provided',
+      'Quiet lanes through temples, villages and rice fields',
     ],
     inclusions: ['Mountain bike', 'Helmet and gloves', 'Certified guide', 'Water and refreshments', 'Insurance'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
@@ -979,6 +993,8 @@ export const VENTURES: VentureSeed[] = [
     hook3Sec: 'Climb to a volcanic summit for a sunrise above the clouds',
     shortDescription:
       'A guided pre-dawn trek to the summit of Mount Batur with a volcanic-steam breakfast and a natural hot spring soak to finish.',
+    longDescription:
+      'You start before dawn with a headlamp and a certified mountain guide, climbing roughly two hours to the rim of Mount Batur. At the summit, sunrise breaks above a sea of cloud with Lake Batur below, followed by eggs steamed in volcanic vents. The descent ends at a natural hot spring where you soak before lunch. Headlamps, trekking poles and warm layers are provided, and breakfast, lunch, hot spring entry and insurance are included. This is a real hike on loose volcanic ground, so bring a warm jacket, long trousers and comfortable shoes, and be honest about your fitness. Pickup starts around 02:00 from Ubud and South Bali.',
     duration: '6 hours',
     badge: 'Epic Views',
     highlights: [
@@ -986,6 +1002,7 @@ export const VENTURES: VentureSeed[] = [
       'Volcanic steam breakfast cooked on the lava fields',
       'Natural hot spring soak to finish the trek',
       'Headlamp, trekking poles and warm layers provided',
+      'Certified mountain guide with a small group ratio',
     ],
     inclusions: ['Certified mountain guide', 'Breakfast and lunch', 'Hot spring entry', 'Trekking equipment', 'Insurance'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
@@ -1063,6 +1080,8 @@ export const VENTURES: VentureSeed[] = [
     hook3Sec: 'Waterski, banana boat and jet ski on a blue volcanic lagoon',
     shortDescription:
       'A full water sports session on the Blue Lagoon with waterskiing, banana boat rides and a jet ski experience for groups.',
+    longDescription:
+      'Spend a morning on the water at Nusa Dua with three activities back to back: waterskiing, a banana boat run and a jet ski session, all supervised by licensed instructors. The crew fits your life jacket, walks you through a short safety brief and rotates the group so everyone gets a turn without long waits. Equipment, safety gear, soft drinks, fresh fruit, showers and changing rooms are included. You should be comfortable in the water and meet the minimum age for jet ski, with a maximum weight per guest. Bring swimwear, a towel, sunscreen and sandals, and leave valuables in the locker. Sessions run in the morning when the sea is calmest.',
     duration: '3 hours',
     badge: 'Group Fun',
     highlights: [
@@ -1070,6 +1089,7 @@ export const VENTURES: VentureSeed[] = [
       'Safety brief and life jacket fitting included',
       'Shower and changing facilities on site',
       'Soft drinks and fresh fruit included',
+      'Morning session when the sea is calmest',
     ],
     inclusions: ['Waterski equipment', 'Banana boat ride', 'Jet ski session', 'Safety equipment', 'Drinks'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
@@ -1146,6 +1166,8 @@ export const VENTURES: VentureSeed[] = [
     hook3Sec: 'Snorkel three crystal bays and swim with manta rays',
     shortDescription:
       'A full day boat trip to Nusa Penida covering three snorkeling sites, with manta ray encounters, a beach break and a set lunch.',
+    longDescription:
+      'Cross to Nusa Penida by speedboat and snorkel three sites in one day, from the manta cleaning station to the clear water of Crystal Bay and Angel Billabong. The crew handles fins, masks and life jackets, briefs you before every entry and keeps the group small enough to follow the reef safely. A set lunch and drinking water are served on board, with insurance included. This trip suits confident swimmers, because the crossing can be bumpy and currents vary, so bring a towel, sunscreen, swimwear and a change of clothes. Minimum age is six. We confirm the meeting point and the weather call the evening before, and reroute to calmer sites when needed.',
     duration: '8 hours',
     badge: 'Marine Life',
     highlights: [
@@ -1153,6 +1175,7 @@ export const VENTURES: VentureSeed[] = [
       'Manta ray cleaning station visit',
       'Crystal Bay and Angel Billabong snorkel stops',
       'Boat lunch and drinking water included',
+      'Small groups with a briefing before every entry',
     ],
     inclusions: ['Speedboat transfer', 'Snorkeling equipment', 'Set lunch on board', 'Insurance', 'Drinking water'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
@@ -1231,6 +1254,8 @@ export const VENTURES: VentureSeed[] = [
     hook3Sec: 'Abseil, jump and swim through a hidden jungle canyon',
     shortDescription:
       'A guided canyoning descent with cliff jumps, natural water slides and swimming through a narrow jungle gorge.',
+    longDescription:
+      'Descend a waterfall canyon on foot, rope and gravity: natural rock slides, jumps up to ten metres and a guided abseil beside the falls. Certified canyoning guides rig every section, check the water level before you enter and carry a dry bag for the group. Safety equipment, insurance, drinking water and changing rooms are included. This is the most demanding adventure we sell: you need strong swimming ability, sports shoes with grip and no heart conditions, and the minimum age is fourteen. Expect four hours in and around cold fresh water, with jumps that can be walked around if you prefer. We confirm conditions the day before and reroute or cancel if the river runs too high.',
     duration: '4 hours',
     badge: 'Adrenaline',
     highlights: [
@@ -1238,6 +1263,7 @@ export const VENTURES: VentureSeed[] = [
       'Water slides carved into the rock face',
       'Cliff abseil with a trained guide',
       'Safety equipment and dry bag provided',
+      'Jumps that can be walked around if you prefer',
     ],
     inclusions: ['Certified canyoning guide', 'Safety equipment and dry bag', 'Insurance', 'Drinking water', 'Changing room'],
     exclusions: ['Personal expenses', 'Optional add-on services'],
@@ -1314,6 +1340,8 @@ export const VENTURES: VentureSeed[] = [
     hook3Sec: 'ATV, rafting and lunch in a single Bali adventure day',
     shortDescription:
       'The best of Ubud in one day: a jungle ATV ride, an Ayung River rafting session and a traditional Balinese lunch, all with transfers included.',
+    longDescription:
+      'Fit two adventures into one day: a jungle ATV ride through rice paddies and river tracks in the morning, then rafting on the Ayung after a traditional Balinese lunch in a local compound. Guides brief both activities separately and stay with your group throughout, and all equipment, safety gear and insurance are included. Hotel pickup and drop-off run from Ubud and South Bali, so you only need to plan one day. Bring closed shoes for the quad, swimwear for the river and a full change of clothes; minimum ages are twelve for the ATV and eight for rafting. Expect eight hours door to door, with the pace set by your group.',
     duration: '8 hours',
     badge: 'Best Value',
     highlights: [
@@ -1321,6 +1349,7 @@ export const VENTURES: VentureSeed[] = [
       'Traditional Balinese lunch in a local compound',
       'Hotel pickup and drop-off throughout the day',
       'All equipment, guides and insurance included',
+      'One pickup covers both activities in a single day',
     ],
     inclusions: ['ATV rental and rafting', 'Certified guides', 'Lunch', 'All safety equipment', 'Insurance'],
     exclusions: ['Personal expenses', 'Optional add-on services'],

@@ -110,6 +110,7 @@ function toPrismaShape(venture: VentureSeed): VentureWithRelations {
     title: venture.title,
     hook3Sec: venture.hook3Sec,
     shortDescription: venture.shortDescription ?? null,
+    longDescription: venture.longDescription ?? null,
     duration: venture.duration,
     badge: venture.badge,
     meetingPoint: MEETING_POINTS[venture.slug]?.name ?? null,
