@@ -32,9 +32,14 @@ export function HomeHero({ hubs, suggestions, stats }: HomeHeroProps) {
         aria-hidden="true"
         className="absolute inset-0 bg-[url('/images/hero-bali.jpg')] bg-cover bg-center opacity-70"
       />
+      {/* Editorial scrim: deep on the copy side, clear on the image side. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/65 to-black"
+        className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/5"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-t from-brand-ink via-transparent to-black/25 lg:hidden"
       />
       <div
         aria-hidden="true"
@@ -45,40 +50,40 @@ export function HomeHero({ hubs, suggestions, stats }: HomeHeroProps) {
         className="pointer-events-none absolute -bottom-40 left-1/3 h-80 w-80 rounded-full bg-brand/10 blur-3xl"
       />
 
-      <div className="container relative mx-auto px-4 pb-0 pt-10 sm:pt-16">
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:items-center lg:gap-12">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+      <div className="container relative mx-auto px-4 pb-10 pt-14 sm:pt-20 lg:pb-16 lg:pt-24">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center lg:gap-16 xl:gap-24">
+          <div className="max-w-2xl">
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
               Bali · 9 adventure categories
             </p>
 
-            <h2 className="mt-4 max-w-3xl font-heading text-[clamp(1.15rem,6.2vw,3rem)] font-bold uppercase leading-[1.08] tracking-tight text-white">
+            <h2 className="mt-6 max-w-3xl font-heading text-[clamp(1.35rem,6vw,3.25rem)] font-bold uppercase leading-[1.06] tracking-tight text-white">
               <span className="block whitespace-nowrap">
                 Book the <RotatingKeyword />
               </span>
-              <span className="mt-1 block">Own the wild!</span>
+              <span className="mt-2 block">Own the wild!</span>
             </h2>
 
-            <p className="mt-3 max-w-xl text-sm text-white/70 sm:text-base">
+            <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-white/70 sm:text-base">
               Rafting, ATV, tubing and trekking across Bali — instant confirmation,
               free reschedule up to 24 hours before, run by licensed local operators.
             </p>
           </div>
 
-          <div className="mt-8 lg:mt-0">
+          <div className="mt-9 lg:mt-0">
             <HeroSearch hubs={hubs} suggestions={suggestions} />
           </div>
         </div>
 
-        <p className="mt-4 hidden items-center gap-1.5 text-[11px] text-white/50 sm:inline-flex">
+        <p className="mt-6 hidden items-center gap-1.5 text-[11px] text-white/50 sm:inline-flex">
           <CheckCircle className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
           Prices in IDR · USD shown for reference
         </p>
       </div>
 
       {/* Bottom trust / social proof bar */}
-      <div className="relative mt-8 border-t border-white/10">
-        <div className="container mx-auto flex flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 text-[11px] text-white/70">
+      <div className="relative border-t border-white/10">
+        <div className="container mx-auto flex flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3.5 text-[11px] text-white/70">
           {stats.avgRating !== null ? (
             <span className="inline-flex items-center gap-1.5">
               <Star className="h-3.5 w-3.5 fill-brand text-brand" aria-hidden="true" />

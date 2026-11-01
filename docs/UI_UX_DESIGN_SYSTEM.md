@@ -1,12 +1,13 @@
 # Venture Bali — UI/UX Design System & Flow
 
-> **Version:** 3.3.0
+> **Version:** 3.4.0
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
 > **Changelog v3.1.0:** Font Pairing System — Barlow Condensed (heading) + Plus Jakarta Sans (body), design token warna `ink`/`jungle`/`sand`, utility `.heading-caps`.
 > **Changelog v3.2.0:** Checkout dua langkah — **Plan your trip** (guests, date, time, pickup, promo, add-ons) lalu **Guest details & pay** (recap + Edit, lead traveller, terms/waiver) dengan total sticky dan CTA berjenjang.
 > **Changelog v3.3.0:** Review system — kartu ulasan dengan nama/lokasi tamu, bintang `brand`, feed berpaginasi (8 per halaman) dengan pencarian/urutan di database, serta review request pasca-trip berisi link + QR code.
+> **Changelog v3.4.0:** Hero editorial sinematik — scrim kiri, kata kunci typewriter tanpa kotak, panel search glassmorphism, dan whitespace desktop yang lebih lega.
 
 ## 1. Design Principles
 
@@ -138,8 +139,8 @@ Aturan penerapan:
 | 6 | Location / Meeting Point Map & Related Adventures | `#location` |
 
 ### Sticky Header & Breadcrumb Bar
-- **Home hero (v1.8.0)**: latar gelap dengan **layer foto sinematik** (`/images/hero-bali.jpg`, tinggal drop asetnya) + **scrim gradien** agar headline tetap kontras. Headline dua baris: `Book the [keyword]` (typewriter) dan `Own the wild!`. Di bawah search ada **micro-bar trust** (rating/review bila ada, 9 kategori, instant confirmation, 80% refund, secure checkout).
-- **Search pill** desktop memakai glassmorphism dengan glow aksen saat hover (`hover:border-brand/60` + shadow aksen).
+- **Home hero (v3.4.0)**: hero sinematik dengan **layer foto** `/images/hero-bali.jpg` (slot aset; tanpa foto, gradient gelap + glow aksen tetap tampil) dan **scrim kiri** `from-black/90 via-black/60 to-black/5` agar teks terbaca sementara sisi kanan gambar tetap terang. Headline editorial dua baris: `Book the [keyword]` (typewriter, kata kunci **`brand` tanpa kotak latar** + kursor berkedip) dan `Own the wild!`, dengan padding vertikal lega. Panel search desktop memakai **glassmorphism** `bg-[#111111]/65`, `backdrop-blur-[16px]`, border `white/10`, input berjarak longgar, dan tombol Search penuh `brand` + teks ink. Di bawah search ada **micro-bar trust** (rating/review bila ada, 9 kategori, instant confirmation, 80% refund, secure checkout).
+- **Search pill** desktop: hover memunculkan border aksen + shadow glow; mobile tetap pil ringkas yang membuka bottom sheet.
 - **Home**: brand header menempel di atas (`sticky top-0`, backdrop blur) saat halaman di-scroll, dengan tinggi ringkas agar grid produk tetap terlihat.
 - **PDP**: bar sticky setinggi 56px berisi tombol "All adventures", breadcrumb `Home › Kategori › Nama produk`, dan harga paket terpilih per guest (desktop). Bar tetap terlihat saat scroll, jadi user bisa kembali atau pindah halaman tanpa scroll ke atas.
 - **Section nav mengambang**: pill `Packages · What to expect · Reviews · Location` diposisikan **di tengah kolom konten kanan** (bukan full-width), `sticky top-64px`, dengan scrim gradien putih agar teks di bawahnya memudar. Pill **tidak tampil saat halaman dibuka**; muncul (fade + slide 8px) ketika section `#packages` mencapai header, dan memudar perlahan saat scroll kembali ke atas (`opacity/visibility` transition 300ms, `h-0` supaya tidak menyisakan ruang).

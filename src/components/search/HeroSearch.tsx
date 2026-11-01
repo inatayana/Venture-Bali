@@ -74,14 +74,14 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
         className="relative hidden lg:block"
         aria-label="Search adventures"
       >
-        <div className="rounded-2xl border border-white/15 bg-[#1A1A1A]/90 p-3 shadow-2xl backdrop-blur transition-all duration-300 hover:border-brand/60 hover:shadow-[0_0_0_1px_rgba(255,238,0,0.35),0_30px_60px_-30px_rgba(0,0,0,0.85)]">
+        <div className="rounded-2xl border border-white/10 bg-[#111111]/65 p-4 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-[16px] transition-all duration-300 hover:border-brand/50 hover:shadow-[0_0_0_1px_rgba(255,238,0,0.3),0_30px_80px_-30px_rgba(0,0,0,0.9)]">
           {/* Destination */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setOpenField(openField === 'where' ? null : 'where')}
               aria-expanded={openField === 'where'}
-              className="w-full rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/5"
+              className="w-full rounded-xl px-3 py-3 text-left transition-colors hover:bg-white/5"
             >
               <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
                 Where
@@ -148,7 +148,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
             )}
           </div>
 
-          <div className="my-1 h-px bg-white/10" aria-hidden="true" />
+          <div className="my-1.5 h-px bg-white/10" aria-hidden="true" />
 
           {/* Date */}
           <div className="relative">
@@ -156,7 +156,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
               type="button"
               onClick={() => setOpenField(openField === 'date' ? null : 'date')}
               aria-expanded={openField === 'date'}
-              className="w-full rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/5"
+              className="w-full rounded-xl px-3 py-3 text-left transition-colors hover:bg-white/5"
             >
               <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
                 When
@@ -197,10 +197,10 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
             )}
           </div>
 
-          <div className="my-1 h-px bg-white/10" aria-hidden="true" />
+          <div className="my-1.5 h-px bg-white/10" aria-hidden="true" />
 
           {/* Guests */}
-          <div className="flex items-center justify-between rounded-xl px-3 py-2.5">
+          <div className="flex items-center justify-between rounded-xl px-3 py-3">
             <div>
               <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
                 Guests
