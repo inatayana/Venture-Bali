@@ -50,8 +50,8 @@
    rather than a template hunt.
 
 ### Migration
-- Old hosts (`venture-bali.com` / `venturebali.com`) must 301 to the matching
-  `baliwild.com` path and stay registered for at least 12 months.
+- No legacy domain is owned; no 301 is required. If an old host is acquired
+  later, 301 it to the matching `baliwild.com` path.
 - Tenant row, email sender, QR links, sitemap and canonical tags follow
   `NEXT_PUBLIC_APP_URL`; rebuild after changing it because public env is baked
   into the client bundle.
