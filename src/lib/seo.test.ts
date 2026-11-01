@@ -157,6 +157,9 @@ describe('generateWebsiteStructuredData', () => {
       'WebSite',
       'TravelAgency',
     ]);
+    expect(data['@graph'][0].sameAs).toEqual(
+      expect.arrayContaining(['https://www.instagram.com/baliwildadventures/'])
+    );
     expect(
       (data['@graph'][1].potentialAction as { target: { urlTemplate: string } }).target
         .urlTemplate

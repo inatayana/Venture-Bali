@@ -14,6 +14,12 @@ export const BRAND_EMAIL_BOOKING = 'booking@baliwild.com';
 export const BRAND_EMAIL_SUPPORT = 'support@baliwild.com';
 export const BRAND_EMAIL_PARTNERS = 'partners@baliwild.com';
 export const BRAND_EMAIL_B2B = 'b2b@baliwild.com';
+export const BRAND_SOCIALS = {
+  instagram: 'https://www.instagram.com/baliwildadventures/',
+  tiktok: 'https://www.tiktok.com/@baliwildadventures',
+  youtube: 'https://www.youtube.com/@BaliWildAdventures',
+  facebook: 'https://www.facebook.com/BaliWildAdventures',
+} as const;
 export const BRAND_DESCRIPTION =
   'Raw Bali adventure, booked in minutes. ATV, rafting, tubing and trekking with licensed local operators — instant confirmation and free reschedule up to 24 hours before.';
 export const BRAND_SHORT_DESCRIPTION =

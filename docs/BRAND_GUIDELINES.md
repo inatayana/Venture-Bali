@@ -13,6 +13,15 @@
 | Tagline | **Own the wild.** |
 | Product/category | Adventure name only — never prefix with the brand |
 
+Official social handles:
+
+| Platform | Handle |
+|---|---|
+| Instagram | `@baliwildadventures` |
+| TikTok | `@baliwildadventures` |
+| YouTube | `@BaliWildAdventures` |
+| Facebook | **BaliWild Adventures** |
+
 Product titles, meta titles and slugs must never contain “BaliWild” (enforced by
 `src/lib/titleValidator.ts`). The brand lives on the site, not in the product.
 

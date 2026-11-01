@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { Mail, MapPin, ShieldCheck, Sparkles } from 'lucide-react';
+import { Facebook, Instagram, Mail, MapPin, Music2, ShieldCheck, Sparkles, Youtube } from 'lucide-react';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import {
   BRAND_EMAIL_HELLO,
   BRAND_EMAIL_PARTNERS,
   BRAND_EMAIL_SUPPORT,
+  BRAND_SOCIALS,
 } from '@/lib/brand';
 
 const PAYMENT_BADGES = ['VISA', 'Mastercard', 'GoPay', 'QRIS', 'Bank transfer'];
@@ -43,6 +44,44 @@ export function SiteFooter() {
             >
               <Mail className="h-3.5 w-3.5" aria-hidden="true" /> {BRAND_EMAIL_HELLO}
             </a>
+            <div className="mt-3 flex items-center gap-2">
+              <a
+                href={BRAND_SOCIALS.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="BaliWild on Instagram"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
+              >
+                <Instagram className="h-4 w-4" />
+              </a>
+              <a
+                href={BRAND_SOCIALS.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="BaliWild on TikTok"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
+              >
+                <Music2 className="h-4 w-4" />
+              </a>
+              <a
+                href={BRAND_SOCIALS.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="BaliWild on YouTube"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
+              >
+                <Youtube className="h-4 w-4" />
+              </a>
+              <a
+                href={BRAND_SOCIALS.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="BaliWild on Facebook"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
+              >
+                <Facebook className="h-4 w-4" />
+              </a>
+            </div>
           </div>
 
           <div>

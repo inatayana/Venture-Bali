@@ -5,6 +5,7 @@ import {
   BRAND_DESCRIPTION,
   BRAND_EDITORIAL_AUTHOR,
   BRAND_NAME,
+  BRAND_SOCIALS,
 } from './brand';
 import { resolveCategory } from './taxonomy';
 
@@ -248,6 +249,7 @@ export function generateWebsiteStructuredData(baseUrl: string = getBaseUrl()): R
           '@type': 'Place',
           name: 'Bali, Indonesia',
         },
+        sameAs: Object.values(BRAND_SOCIALS),
       },
       {
         '@type': 'WebSite',
