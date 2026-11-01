@@ -38,17 +38,28 @@ export function SiteFooter() {
             <h2 className="text-xs font-bold uppercase tracking-[0.14em] text-white/50">
               Adventures
             </h2>
-            <ul className="mt-3 space-y-1.5 text-sm">
+            <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               {CATEGORY_REGISTRY.map((category) => (
-                <li key={category.slug}>
+                <li key={category.slug} className="min-w-0">
                   <Link
                     href={`/?category=${category.slug}`}
-                    className="text-white/70 transition-colors hover:text-white"
+                    className="inline-flex max-w-full items-center gap-1.5 text-white/70 transition-colors hover:text-brand focus-visible:text-brand"
                   >
-                    {category.emoji} {category.short}
+                    <span className="w-5 shrink-0 text-center" aria-hidden="true">
+                      {category.emoji}
+                    </span>
+                    <span className="truncate">{category.short}</span>
                   </Link>
                 </li>
               ))}
+              <li className="min-w-0">
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-1.5 font-semibold text-brand transition-colors hover:text-white"
+                >
+                  All adventures <span aria-hidden="true">→</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
