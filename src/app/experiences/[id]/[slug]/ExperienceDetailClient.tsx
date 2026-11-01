@@ -605,13 +605,20 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
               )}
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-600">
-                <span className="inline-flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <strong className="text-neutral-900">{venture.rating.toFixed(1)}</strong>
-                  <span>
-                    · {reviewCount > 0 ? `${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'}` : 'New'}
+                {reviewCount > 0 ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <strong className="text-neutral-900">{venture.rating.toFixed(1)}</strong>
+                    <span>
+                      · {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
+                    </span>
                   </span>
-                </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-700">
+                    <Star className="h-3.5 w-3.5 text-neutral-400" />
+                    New · no reviews yet
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-1">
                   <Clock className="h-4 w-4" /> {selectedVariant?.duration ?? venture.duration}
                 </span>
@@ -817,42 +824,63 @@ export function ExperienceDetailClient({ venture, zones, vehicleClasses }: Exper
 
             <section id="reviews" className="rounded-2xl border border-neutral-200 p-5">
               <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">Reviews</h2>
-              <div className="mb-5 flex items-center gap-4 rounded-xl bg-neutral-50 p-4">
-                <span className="font-heading text-4xl font-bold tabular-nums text-neutral-900">
-                  {venture.rating.toFixed(1)}
-                </span>
-                <div className="flex-1 space-y-1">
-                  {histogram.map(({ stars, percent }) => (
-                    <div key={stars} className="flex items-center gap-2 text-xs text-neutral-500">
-                      <span className="w-6">{stars}★</span>
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200">
-                        <div className="h-full bg-yellow-400" style={{ width: `${percent}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               {reviews.length === 0 ? (
-                <p className="text-sm text-neutral-500">
-                  No verified reviews yet — be the first to share your experience.
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {reviews.map((review) => (
-                    <div key={review.id} className="border-b border-neutral-100 pb-4 last:border-0 last:pb-0">
-                      <div className="mb-1 flex items-center gap-2">
-                        <span className="text-sm font-medium text-neutral-900">{review.author}</span>
-                        <div className="ml-auto flex items-center gap-0.5">
-                          {Array.from({ length: review.rating }).map((_, index) => (
-                            <Star key={index} className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-sm text-neutral-600">{review.comment}</p>
-                    </div>
-                  ))}
+                <div className="rounded-xl border border-dashed border-neutral-200 px-4 py-6 text-center">
+                  <Star className="mx-auto h-6 w-6 text-neutral-300" aria-hidden="true" />
+                  <p className="mt-2 text-sm font-medium text-neutral-700">No verified reviews yet</p>
+                  <p className="mt-1 text-xs text-neutral-500">
+                    Guests can review after their trip — yours would be the first.
+                  </p>
                 </div>
+              ) : (
+                <>
+                  <div className="mb-5 flex items-center gap-4 rounded-xl bg-neutral-50 p-4">
+                    <span className="font-heading text-4xl font-bold tabular-nums text-neutral-900">
+                      {venture.rating.toFixed(1)}
+                    </span>
+                    <div className="flex-1 space-y-1">
+                      {histogram.map(({ stars, percent }) => (
+                        <div
+                          key={stars}
+                          className="flex items-center gap-2 text-xs text-neutral-500"
+                        >
+                          <span className="w-6">{stars}★</span>
+                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200">
+                            <div
+                              className="h-full bg-yellow-400"
+                              style={{ width: `${percent}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {reviews.map((review) => (
+                      <div
+                        key={review.id}
+                        className="border-b border-neutral-100 pb-4 last:border-0 last:pb-0"
+                      >
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className="text-sm font-medium text-neutral-900">
+                            {review.author}
+                          </span>
+                          <div className="ml-auto flex items-center gap-0.5">
+                            {Array.from({ length: review.rating }).map((_, index) => (
+                              <Star
+                                key={index}
+                                className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-sm text-neutral-600">{review.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </section>
 
