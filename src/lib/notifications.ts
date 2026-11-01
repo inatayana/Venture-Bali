@@ -17,6 +17,7 @@ import { prisma } from '@/lib/prisma';
 import { whatsappClient } from '@/lib/whatsapp';
 import { getBaseUrl } from '@/lib/seo';
 import { buildCustomerBookingsUrl, createCustomerLinkToken } from '@/lib/customerLink';
+import { buildReviewQrUrl, buildReviewUrl } from '@/lib/reviewLink';
 
 export type NotificationChannel = 'WHATSAPP' | 'EMAIL';
 
@@ -126,7 +127,11 @@ export function buildReviewRequestText(
   ].join('\n');
 }
 
-function reviewRequestEmailHtml(booking: BookingForNotification, reviewUrl: string): string {
+function reviewRequestEmailHtml(
+  booking: BookingForNotification,
+  reviewUrl: string,
+  qrUrl: string
+): string {
   return `
     <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#111827">
       <h1 style="font-size:22px">How was your trip?</h1>
@@ -137,6 +142,12 @@ function reviewRequestEmailHtml(booking: BookingForNotification, reviewUrl: stri
         <a href="${reviewUrl}" style="display:inline-block;background:#000000;color:#FFEE00;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:700">
           Leave a review
         </a>
+      </p>
+      <p style="margin-top:24px;color:#374151;font-size:14px">
+        On your phone? Scan this code to open the review form:
+      </p>
+      <p style="margin:8px 0">
+        <img src="${qrUrl}" width="180" height="180" alt="QR code to review your trip" style="display:block;border:1px solid #e5e7eb;border-radius:12px" />
       </p>
       <p style="color:#6b7280;font-size:12px">Booking ${escapeHtml(booking.bookingCode)}</p>
     </div>
@@ -383,7 +394,8 @@ export async function sendReviewRequest(bookingId: string): Promise<Notification
   const token = createCustomerLinkToken(booking.customer.id);
   if (!token) return [];
 
-  const reviewUrl = `${getBaseUrl()}/review/${booking.id}?token=${token}`;
+  const reviewUrl = buildReviewUrl(booking.id, token);
+  const qrUrl = buildReviewQrUrl(booking.id, token);
   const entity = booking as unknown as BookingForNotification;
   const text = buildReviewRequestText(entity, reviewUrl);
 
@@ -395,7 +407,7 @@ export async function sendReviewRequest(bookingId: string): Promise<Notification
       entity.customer.email,
       REVIEW_SUBJECT,
       text,
-      reviewRequestEmailHtml(entity, reviewUrl),
+      reviewRequestEmailHtml(entity, reviewUrl, qrUrl),
     ),
   ]);
 

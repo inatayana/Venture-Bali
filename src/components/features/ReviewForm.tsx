@@ -8,12 +8,23 @@ interface ReviewFormProps {
   bookingId: string;
   token: string;
   ventureTitle: string;
+  /** Prefilled from the booking; the guest may change what is shown publicly. */
+  defaultName?: string;
+  defaultLocation?: string;
 }
 
 const RATING_LABELS = ['', 'Not for me', 'Okay', 'Good', 'Great', 'Unforgettable'];
 
-/** Guest review form: stars, comment, submit. No account required. */
-export function ReviewForm({ bookingId, token, ventureTitle }: ReviewFormProps) {
+/** Guest review form: name, origin, stars, comment. No account required. */
+export function ReviewForm({
+  bookingId,
+  token,
+  ventureTitle,
+  defaultName = '',
+  defaultLocation = '',
+}: ReviewFormProps) {
+  const [guestName, setGuestName] = useState(defaultName);
+  const [guestLocation, setGuestLocation] = useState(defaultLocation);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [pending, setPending] = useState(false);
@@ -24,6 +35,10 @@ export function ReviewForm({ bookingId, token, ventureTitle }: ReviewFormProps) 
     event.preventDefault();
     setError(null);
 
+    if (guestName.trim().length < 2) {
+      setError('Enter the name you want shown with your review.');
+      return;
+    }
     if (rating === 0) {
       setError('Pick a rating from 1 to 5 stars.');
       return;
@@ -34,7 +49,14 @@ export function ReviewForm({ bookingId, token, ventureTitle }: ReviewFormProps) 
       const response = await fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, bookingId, rating, comment }),
+        body: JSON.stringify({
+          token,
+          bookingId,
+          rating,
+          comment,
+          guestName: guestName.trim(),
+          guestLocation: guestLocation.trim() || undefined,
+        }),
       });
       const data = await response.json();
       if (!data.success) throw new Error(data.error?.message ?? 'Could not save the review');
@@ -65,6 +87,35 @@ export function ReviewForm({ bookingId, token, ventureTitle }: ReviewFormProps) 
         How was the trip? Your review helps other travellers pick the right adventure.
       </p>
 
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
+          Your name
+          <input
+            type="text"
+            value={guestName}
+            onChange={(event) => setGuestName(event.target.value)}
+            minLength={2}
+            maxLength={60}
+            required
+            autoComplete="name"
+            placeholder="First name"
+            className="mt-2 min-h-[44px] w-full rounded-xl border border-neutral-300 px-3 text-sm font-normal normal-case tracking-normal text-neutral-900 outline-none focus:border-brand-ink"
+          />
+        </label>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
+          Where are you from?
+          <input
+            type="text"
+            value={guestLocation}
+            onChange={(event) => setGuestLocation(event.target.value)}
+            maxLength={80}
+            autoComplete="address-level2"
+            placeholder="City, country"
+            className="mt-2 min-h-[44px] w-full rounded-xl border border-neutral-300 px-3 text-sm font-normal normal-case tracking-normal text-neutral-900 outline-none focus:border-brand-ink"
+          />
+        </label>
+      </div>
+
       <fieldset className="mt-4">
         <legend className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
           Your rating
@@ -83,7 +134,7 @@ export function ReviewForm({ bookingId, token, ventureTitle }: ReviewFormProps) 
                 className={cn(
                   'h-8 w-8',
                   value <= rating
-                    ? 'fill-yellow-400 text-yellow-400'
+                    ? 'fill-brand text-brand'
                     : 'text-neutral-300'
                 )}
               />

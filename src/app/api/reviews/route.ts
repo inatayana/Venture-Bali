@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { token, bookingId, rating, comment } = parsed.data;
+  const { token, bookingId, rating, comment, guestName, guestLocation } = parsed.data;
 
   const session = verifyCustomerLinkToken(token);
   if (!session) {
@@ -99,6 +99,8 @@ export async function POST(request: NextRequest) {
         bookingId: booking.id,
         rating,
         comment,
+        guestName: guestName || null,
+        guestLocation: guestLocation || null,
         isApproved: false,
         photos: [],
       },

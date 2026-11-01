@@ -456,6 +456,10 @@ model Review {
   booking    Booking? @relation("BookingToReview", fields: [bookingId], references: [id], onDelete: SetNull)
   rating     Int
   comment    String   @db.Text
+  /// Guest-supplied display name. Falls back to the booking customer's name.
+  guestName     String?
+  /// Guest-supplied origin, e.g. "Woodbridge Township, NJ".
+  guestLocation String?
   /// Reserved for guest photos (URLs); rendered once storage is configured.
   photos     Json     @default("[]")
   isApproved Boolean  @default(false)

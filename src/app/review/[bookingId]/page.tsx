@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { verifyCustomerLinkToken } from '@/lib/customerLink';
+import { findCountry } from '@/lib/countries';
 import { canReviewBooking, reviewBlockedReason } from '@/lib/reviewSchema';
 import { ReviewForm } from '@/components/features/ReviewForm';
 
@@ -42,6 +43,7 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
       paymentStatus: true,
       bookingDate: true,
       review: { select: { id: true } },
+      customer: { select: { name: true, countryCode: true } },
       variant: { select: { title: true, venture: { select: { title: true } } } },
     },
   });
@@ -84,6 +86,8 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
               bookingId={booking.id}
               token={searchParams.token ?? ''}
               ventureTitle={ventureTitle}
+              defaultName={booking.customer.name}
+              defaultLocation={findCountry(booking.customer.countryCode).name}
             />
           )}
         </div>

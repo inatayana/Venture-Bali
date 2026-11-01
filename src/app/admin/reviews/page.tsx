@@ -47,13 +47,15 @@ export default async function AdminReviewsPage() {
                     {review.venture.title}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {review.customer.name} · {review.booking?.bookingCode ?? 'manual entry'} ·{' '}
+                    {review.guestName?.trim() || review.customer.name}
+                    {review.guestLocation?.trim() ? ` · ${review.guestLocation}` : ''} ·{' '}
+                    {review.booking?.bookingCode ?? 'manual entry'} ·{' '}
                     {review.booking?.bookingDate ?? review.createdAt.toISOString().slice(0, 10)}
                   </p>
                 </div>
                 <div className="flex items-center gap-0.5" aria-label={`${review.rating} of 5 stars`}>
                   {Array.from({ length: review.rating }).map((_, index) => (
-                    <Star key={index} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <Star key={index} className="h-4 w-4 fill-brand text-brand" />
                   ))}
                 </div>
               </div>
