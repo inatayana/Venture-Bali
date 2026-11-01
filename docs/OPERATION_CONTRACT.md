@@ -22,6 +22,8 @@
 
 ## 3. Alur Internal Venture ↔ Partner
 
+Kontak kemitraan: **partners@baliwild.com** (`b2b@baliwild.com` adalah alias). Jangan arahkan calon mitra ke `booking@` atau `support@`.
+
 ```
 Customer → BaliWild (booking + bayar)
          → sistem internal membuat instruction sheet (voucher internal)

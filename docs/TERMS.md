@@ -49,4 +49,4 @@ Adventure activities carry inherent risk. Participation requires accepting the s
 We use name, email, WhatsApp, billing details and booking information to process the booking, issue the e-voucher, coordinate pickup and maintain the activity manifest. Only information required to deliver the activity is shared with the activity partner; partner names are never published.
 
 ## 10. Governing law and contact
-Governed by Indonesian law; disputes in the courts of Bali, Indonesia. Questions: reply to the booking confirmation message or contact support through the website.
+Governed by Indonesian law; disputes in the courts of Bali, Indonesia. Questions: email `hello@baliwild.com` for general enquiries or `support@baliwild.com` for an existing booking, reschedule, refund or on-trip emergency.

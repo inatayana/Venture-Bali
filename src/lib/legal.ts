@@ -9,6 +9,8 @@
  * (docs/REFUND_POLICY.md v2, docs/NO_SHOW_POLICY.md) — keep them in sync.
  */
 
+import { BRAND_EMAIL_HELLO, BRAND_EMAIL_SUPPORT } from './brand';
+
 export const TERMS_VERSION = '2026-11-01';
 export const WAIVER_VERSION = '2026-11-01';
 
@@ -89,7 +91,7 @@ export const TERMS_SECTIONS: LegalSection[] = [
     title: '10. Governing law and contact',
     body: [
       'These terms are governed by Indonesian law. Disputes are settled in the courts of Bali, Indonesia.',
-      'Questions: reply to your booking confirmation message or contact support through the website.',
+      `Questions: email ${BRAND_EMAIL_HELLO} for general enquiries or ${BRAND_EMAIL_SUPPORT} for an existing booking, reschedule, refund or on-trip emergency.`,
     ],
   },
 ];

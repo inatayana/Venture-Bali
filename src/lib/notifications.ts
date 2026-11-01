@@ -16,6 +16,10 @@
 import { prisma } from '@/lib/prisma';
 import { whatsappClient } from '@/lib/whatsapp';
 import { getBaseUrl } from '@/lib/seo';
+import {
+  BRAND_EMAIL_BOOKING,
+  BRAND_EMAIL_SUPPORT,
+} from '@/lib/brand';
 import { buildCustomerBookingsUrl, createCustomerLinkToken } from '@/lib/customerLink';
 import { buildReviewQrUrl, buildReviewUrl } from '@/lib/reviewLink';
 
@@ -133,7 +137,7 @@ function reviewRequestEmailHtml(
   qrUrl: string
 ): string {
   return `
-    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#111827">
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#000000">
       <h1 style="font-size:22px">How was your trip?</h1>
       <p>Hi ${escapeHtml(booking.customer.name)}, thanks for joining ${escapeHtml(booking.variant.title)}
       on ${escapeHtml(formatLongDate(booking.bookingDate))}.</p>
@@ -170,7 +174,7 @@ function emailHtml(
   ];
 
   return `
-    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#111827">
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#000000">
       <h1 style="font-size:22px">${escapeHtml(options.title)}</h1>
       <p>Hi ${escapeHtml(booking.customer.name)}, ${escapeHtml(options.intro)}</p>
       <table style="width:100%;border-collapse:collapse;margin:16px 0">
@@ -182,13 +186,14 @@ function emailHtml(
           .join('')}
       </table>
       <p style="text-align:center">
-        <a href="${voucherUrl(booking.bookingCode)}" style="display:inline-block;background:#111827;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none">Open my voucher</a>
+        <a href="${voucherUrl(booking.bookingCode)}" style="display:inline-block;background:#000000;color:#FFEE00;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:700">Open my voucher</a>
       </p>
       ${
         manageUrl
           ? `<p style="text-align:center;font-size:13px"><a href="${manageUrl}" style="color:#4b5563">Manage my bookings</a></p>`
           : ''
       }
+      <p style="font-size:12px;color:#9ca3af;text-align:center">Need help? <a href="mailto:${BRAND_EMAIL_SUPPORT}" style="color:#000000">${BRAND_EMAIL_SUPPORT}</a></p>
       <p style="font-size:12px;color:#9ca3af">BaliWild · Own the wild. · instant confirmation · mobile-first booking</p>
     </div>
   `;
@@ -229,7 +234,7 @@ async function sendEmail(
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return { success: false, error: 'RESEND_API_KEY is not configured' };
 
-  const from = process.env.EMAIL_FROM ?? 'BaliWild <onboarding@resend.dev>';
+  const from = process.env.EMAIL_FROM ?? `BaliWild <${BRAND_EMAIL_BOOKING}>`;
 
   try {
     const response = await fetch(RESEND_ENDPOINT, {
@@ -238,7 +243,13 @@ async function sendEmail(
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ from, to: [to], subject, html }),
+      body: JSON.stringify({
+        from,
+        to: [to],
+        subject,
+        html,
+        reply_to: BRAND_EMAIL_SUPPORT,
+      }),
     });
 
     if (!response.ok) {

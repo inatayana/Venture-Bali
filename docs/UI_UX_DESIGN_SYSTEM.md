@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.5.2
+> **Version:** 3.5.3
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -12,6 +12,7 @@
 > **Changelog v3.5.0:** Rebrand penuh ke **BaliWild** (`baliwild.com`) — wordmark BALI + WILD, tagline **Own the wild.**, ikon PWA hitam/kuning, panel search hero 15% opacity + blur 5px, dan seluruh metadata, email, admin, serta dokumen memakai brand baru.
 > **Changelog v3.5.1:** Section "More adventures to explore" menjadi horizontal snap-slider di mobile (kartu 78%, peek kartu berikutnya, scrollbar disembunyikan) sementara desktop tetap grid.
 > **Changelog v3.5.2:** Daftar kategori di footer menjadi grid 2 kolom seimbang (9 kategori + All adventures), dengan hover aksen brand.
+> **Changelog v3.5.3:** Email brand — `hello@` di header/footer, `support@` dan `partners@` di footer, transaksional dari `booking@` dengan Reply-To `support@`.
 
 ## 1. Design Principles
 
