@@ -101,6 +101,26 @@ const pairs = [
   ['dark', 'button-secondary fg on active', 'button-secondary-foreground', 'button-secondary-active', TEXT_MIN],
 ];
 
+for (const theme of ['light', 'dark']) {
+  for (const state of ['state-success', 'state-warning', 'state-danger', 'state-info']) {
+    pairs.push([theme, `${state} on bg-base`, state, 'bg-base', TEXT_MIN]);
+    pairs.push([theme, `${state} on bg-surface`, state, 'bg-surface', TEXT_MIN]);
+  }
+}
+
+const invalid = new Set();
+function validateChannels(selector) {
+  const pattern = /--([a-z0-9-]+):\s*([^;]+);/gi;
+  for (const match of blockFor(selector).matchAll(pattern)) {
+    const value = match[2].trim();
+    if (!/^\d+\s+\d+\s+\d+$/.test(value)) {
+      invalid.add(`${selector} --${match[1]} = ${value}`);
+    }
+  }
+}
+validateChannels(':root');
+validateChannels('.dark');
+
 const missing = new Set();
 const rows = [];
 
@@ -114,22 +134,44 @@ for (const [theme, label, foreground, background, minimum] of pairs) {
   rows.push({ theme, label, ratio, minimum, pass: ratio >= minimum });
 }
 
+// A surface that collapses into the surface behind it makes skeletons, chips
+// and hover states disappear. WCAG does not model this, so give it a floor.
+const separations = [
+  ['dark', 'bg-inset vs bg-surface', 'bg-inset', 'bg-surface', 1.15],
+  ['dark', 'bg-card-hover vs bg-card', 'bg-card-hover', 'bg-card', 1.15],
+];
+
+for (const [theme, label, foreground, background, minimum] of separations) {
+  const tokens = themes[theme];
+  if (!tokens[foreground]) missing.add(`${theme}:--${foreground}`);
+  if (!tokens[background]) missing.add(`${theme}:--${background}`);
+  if (!tokens[foreground] || !tokens[background]) continue;
+
+  const ratio = contrast(tokens[foreground], tokens[background]);
+  rows.push({ theme, label, ratio, minimum, pass: ratio >= minimum });
+}
+
 for (const row of rows) {
   console.log(
     `${row.theme.padEnd(5)} ${row.label.padEnd(34)} ` +
-      `${row.ratio.toFixed(2).padStart(6)}:1  min ${row.minimum.toFixed(1)}  ` +
+      `${row.ratio.toFixed(2).padStart(6)}:1  min ${row.minimum.toFixed(2)}  ` +
       `${row.pass ? 'PASS' : 'FAIL'}`,
   );
 }
 
 if (missing.size > 0) {
-  console.error(`\nMissing or non-channel tokens: ${[...missing].join(', ')}`);
+  console.error(`\nMissing tokens: ${[...missing].join(', ')}`);
+}
+if (invalid.size > 0) {
+  console.error(`\nNon-channel tokens: ${[...invalid].join(', ')}`);
   console.error('Tokens must be space-separated RGB channels, never hex.');
 }
 
 const failures = rows.filter((row) => !row.pass);
-if (failures.length > 0 || missing.size > 0) {
-  console.error(`\nContrast gate failed (${failures.length + missing.size} issue(s)).`);
+if (failures.length > 0 || missing.size > 0 || invalid.size > 0) {
+  console.error(
+    `\nContrast gate failed (${failures.length + missing.size + invalid.size} issue(s)).`,
+  );
   process.exit(1);
 }
 

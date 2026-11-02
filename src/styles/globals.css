@@ -39,8 +39,8 @@
     --border-strong: 203 213 225;
     --border-control: 100 116 139;
 
-    --state-success: 22 163 74;
-    --state-warning: 217 119 6;
+    --state-success: 21 128 61;
+    --state-warning: 180 83 9;
     --state-danger: 220 38 38;
     --state-info: 37 99 235;
 
@@ -57,7 +57,7 @@
     --bg-surface: 25 25 25;
     --bg-card: 25 25 25;
     --bg-card-hover: 42 42 42;
-    --bg-inset: 25 25 25;
+    --bg-inset: 42 42 42;
     --overlay: 0 0 0;
 
     --text-primary: 248 249 250;
