@@ -86,163 +86,31 @@
   }
 }
 
-/*
- * Theme surfaces
- * Light: #FAFAFA page, white header/cards.
- * Dark:  #212121 page, #191919 header/cards/inputs.
- */
-html:not(.dark) {
-  background-color: #fafafa;
+/* ---------------------------------------------------------------------------
+ * Base surfaces and native controls
+ *
+ * Components use semantic utilities (bg-surface, text-foreground, ...).
+ * These base rules only guarantee a sane canvas and native control colours
+ * before a utility class applies. They intentionally carry no important rules.
+ * ------------------------------------------------------------------------- */
+html {
+  background-color: rgb(var(--bg-base));
 }
 
-html:not(.dark) body {
-  background-color: #fafafa;
-  color: #000000;
+body {
+  background-color: rgb(var(--bg-base));
+  color: rgb(var(--text-primary));
 }
 
-html:not(.dark) .bg-neutral-50,
-html:not(.dark) .bg-gray-50 {
-  background-color: #fafafa !important;
+input,
+select,
+textarea {
+  background-color: rgb(var(--bg-surface));
+  border-color: rgb(var(--border-control));
+  color: rgb(var(--text-primary));
 }
 
-html.dark {
-  background-color: #212121;
-}
-
-html.dark body {
-  background-color: #212121;
-  color: #f8f9fa;
-}
-
-html.dark .bg-white,
-html.dark .bg-white\/90 {
-  background-color: #191919 !important;
-}
-
-/* The global header uses the darker combination surface. */
-html.dark .bg-white\/95,
-html.dark header.bg-white {
-  background-color: #191919 !important;
-}
-
-html.dark .bg-neutral-50,
-html.dark .bg-gray-50,
-html.dark .bg-neutral-50\/50,
-html.dark .bg-gray-50\/50 {
-  background-color: #212121 !important;
-}
-
-html.dark .bg-neutral-100,
-html.dark .bg-gray-100 {
-  background-color: #2a2a2a !important;
-}
-
-html.dark .text-neutral-900,
-html.dark .text-gray-900,
-html.dark .text-black,
-html.dark .text-brand-ink {
-  color: #f8f9fa !important;
-}
-
-/* Yellow brand surfaces keep black ink for contrast. */
-html.dark .bg-brand.text-brand-ink,
-html.dark .bg-brand .text-brand-ink,
-html.dark .bg-brand.text-black,
-html.dark .bg-brand\/40.text-brand-ink,
-html.dark .bg-brand\/30.text-neutral-800,
-html.dark .bg-brand\/30 .text-neutral-800,
-html.dark .bg-brand\/20.text-neutral-800,
-html.dark .bg-brand .text-neutral-900,
-html.dark .bg-brand .text-gray-900,
-html.dark .bg-brand .text-neutral-800,
-html.dark .bg-brand .text-gray-800,
-html.dark [class*="bg-brand/"] .text-neutral-900,
-html.dark [class*="bg-brand/"] .text-gray-900,
-html.dark [class*="bg-brand/"] .text-neutral-800,
-html.dark [class*="bg-brand/"] .text-gray-800,
-html.dark [class*="bg-brand/"].text-neutral-900,
-html.dark [class*="bg-brand/"].text-gray-900 {
-  color: #000000 !important;
-}
-
-html.dark .text-neutral-800,
-html.dark .text-gray-800 {
-  color: #e5e7eb !important;
-}
-
-html.dark .text-neutral-700,
-html.dark .text-gray-700,
-html.dark .text-neutral-600,
-html.dark .text-gray-600 {
-  color: #d1d5db !important;
-}
-
-html.dark .text-neutral-500,
-html.dark .text-gray-500 {
-  color: #9ca3af !important;
-}
-
-html.dark .text-neutral-600,
-html.dark .text-gray-600 {
-  color: #9ca3af !important;
-}
-
-html.dark .text-neutral-300,
-html.dark .text-gray-300 {
-  color: #6b7280 !important;
-}
-
-html.dark .border-neutral-900,
-html.dark .border-gray-900 {
-  border-color: #6b7280 !important;
-}
-
-html.dark .border-neutral-300,
-html.dark .border-gray-300,
-html.dark .border-neutral-400,
-html.dark .border-gray-400 {
-  border-color: #444444 !important;
-}
-
-html.dark .bg-neutral-200,
-html.dark .bg-gray-200 {
-  background-color: #333333 !important;
-}
-
-html.dark .border-neutral-200,
-html.dark .border-gray-200,
-html.dark .border-neutral-100,
-html.dark .border-gray-100 {
-  border-color: #3a3a3a !important;
-}
-
-html.dark input,
-html.dark select,
-html.dark textarea {
-  background-color: #191919 !important;
-  border-color: #444444 !important;
-  color: #f8f9fa !important;
-}
-
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: #6b7280 !important;
-}
-
-html.dark .bg-green-50 {
-  background-color: #052e16 !important;
-}
-
-html.dark .text-green-700,
-html.dark .text-green-800 {
-  color: #86efac !important;
-}
-
-html.dark .bg-red-50 {
-  background-color: #450a0a !important;
-}
-
-html.dark .text-red-600,
-html.dark .text-red-700 {
-  color: #fca5a5 !important;
+input::placeholder,
+textarea::placeholder {
+  color: rgb(var(--text-muted));
 }
