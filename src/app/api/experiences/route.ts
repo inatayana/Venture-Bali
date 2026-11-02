@@ -5,6 +5,8 @@ import { mockExperiences } from '@/data/mockExperiences';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
 import { isAllowedCategory } from '@/lib/taxonomy';
 import { validateVentureTitle } from '@/lib/titleValidator';
+import { requireAdminRole } from '@/lib/adminGuard';
+import { hasRole } from '@/lib/adminSession';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,9 +48,9 @@ const createVentureSchema = z.object({
     .default([]),
   essentialInfo: z
     .object({
-      perfectFor: z.array(z.string()).default([]),
-      whatToBring: z.array(z.string()).default([]),
-      knowBeforeYouGo: z.array(z.string()).default([]),
+      perfectFor: z.array(z.string().trim().min(1).max(120)).max(20).default([]),
+      whatToBring: z.array(z.string().trim().min(1).max(120)).max(20).default([]),
+      knowBeforeYouGo: z.array(z.string().trim().min(1).max(200)).max(20).default([]),
     })
     .default({ perfectFor: [], whatToBring: [], knowBeforeYouGo: [] }),
   faqs: z
@@ -94,6 +96,16 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Creating catalogue content is an operator action. The middleware only
+  // protects /api/admin, so this route enforces the session itself.
+  const session = await requireAdminRole('EDITOR');
+  if (!session) {
+    return NextResponse.json(
+      { success: false, error: { code: 'UNAUTHORIZED', message: 'Operator sign-in required' } },
+      { status: 401 }
+    );
+  }
+
   let body: unknown;
 
   try {
@@ -122,6 +134,14 @@ export async function POST(request: NextRequest) {
   }
 
   const data = parsed.data;
+
+  // Editors create in the default tenant; only admins may target another one.
+  if (data.tenantId && !hasRole(session, 'ADMIN')) {
+    return NextResponse.json(
+      { success: false, error: { code: 'FORBIDDEN', message: 'Only admins can target another tenant' } },
+      { status: 403 }
+    );
+  }
 
   // ---- Product guardrails (AGENTS.md §9) ----
   if (!isAllowedCategory(data.category)) {
