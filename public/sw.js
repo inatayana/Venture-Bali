@@ -11,7 +11,7 @@
  * - Never caches /api, /admin, /checkout or /voucher (private data).
  */
 
-const VERSION = 'baliwild-v1';
+const VERSION = 'baliwild-v2';
 const SHELL_CACHE = `${VERSION}-shell`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const OFFLINE_URL = '/offline';
