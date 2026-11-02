@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateQRCodeDataURL } from '@/lib/voucher';
+import { logger } from '@/lib/logger';
+
+const bookingLog = logger.child('booking-read');
 
 export async function GET(
   _request: NextRequest,
@@ -38,7 +41,7 @@ export async function GET(
       data: { ...booking, voucher, qrCodeDataUrl },
     });
   } catch (error) {
-    console.error('Booking fetch error:', error);
+    bookingLog.error('Booking fetch failed', { error });
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch booking' } },
       { status: 500 },

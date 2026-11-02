@@ -25,7 +25,10 @@ describe('GET /api/health', () => {
     expect(body.success).toBe(true);
     expect(body.data.status).toBe('ok');
     expect(body.data.checks.database.status).toBe('ok');
+    expect(body.data.checks.database.latencyMs).toEqual(expect.any(Number));
     expect(response.headers.get('cache-control')).toBe('no-store');
+    expect(JSON.stringify(body)).not.toMatch(/DATABASE_URL|postgres:\/\/|secret/i);
+    expect(body.data.version).toBeUndefined();
   });
 
   it('reports degraded without leaking the database error', async () => {
@@ -39,7 +42,9 @@ describe('GET /api/health', () => {
     expect(body.success).toBe(false);
     expect(body.data.status).toBe('degraded');
     expect(body.data.checks.database.status).toBe('unavailable');
+    expect(body.data.checks.database.latencyMs).toBeNull();
     expect(JSON.stringify(body)).not.toContain('password authentication failed');
+    expect(JSON.stringify(body)).not.toMatch(/DATABASE_URL|postgres:\/\/|secret/i);
 
     spy.mockRestore();
   });

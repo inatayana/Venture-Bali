@@ -1,21 +1,34 @@
 import { createLogger, redact, reportError } from './logger';
 
 describe('logger', () => {
-  it('redacts sensitive keys and keeps operational ids', () => {
+  it('redacts key variants and keeps operational ids', () => {
     const payload = redact({
       bookingId: 'bk_123',
-      email: 'guest@example.com',
-      authorization: 'Bearer secret',
-      nested: { password: 'hunter2', whatsapp: '+628123456789' },
+      userPassword: 'p',
+      'x-api-key': 'k',
+      contactEmail: 'guest@example.com',
+      fullName: 'Jane Guest',
+      headers: {
+        cookie: 'c',
+        authorization: 'Bearer secret',
+        'set-cookie': 's',
+      },
+      file: 'ok',
+      error: new Error('boom'),
     }) as Record<string, unknown>;
 
     expect(payload.bookingId).toBe('bk_123');
-    expect(payload.email).toBe('[REDACTED]');
-    expect(payload.authorization).toBe('[REDACTED]');
-    expect(payload.nested).toEqual({
-      password: '[REDACTED]',
-      whatsapp: '[REDACTED]',
+    expect(payload.userPassword).toBe('[REDACTED]');
+    expect(payload['x-api-key']).toBe('[REDACTED]');
+    expect(payload.contactEmail).toBe('[REDACTED]');
+    expect(payload.fullName).toBe('[REDACTED]');
+    expect(payload.headers).toEqual({
+      cookie: '[REDACTED]',
+      authorization: '[REDACTED]',
+      'set-cookie': '[REDACTED]',
     });
+    expect(payload.file).toBe('ok');
+    expect((payload.error as Record<string, unknown>).type).toBe('Error');
   });
 
   it('writes one JSON line with level, scope and message', () => {
@@ -34,6 +47,34 @@ describe('logger', () => {
     spy.mockRestore();
   });
 
+  it('composes child scopes', () => {
+    const spy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    createLogger('baliwild').child('booking').info('created');
+
+    const line = JSON.parse(String(spy.mock.calls[0][0]));
+    expect(line.scope).toBe('baliwild.booking');
+
+    spy.mockRestore();
+  });
+
+  it('omits stack traces in production', () => {
+    const env = process.env as Record<string, string | undefined>;
+    const original = env.NODE_ENV;
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      env.NODE_ENV = 'production';
+      reportError(new Error('boom'));
+
+      const line = JSON.parse(String(spy.mock.calls[0][0]));
+      expect(line.error.type).toBe('Error');
+      expect(line.error.stack).toBeUndefined();
+    } finally {
+      env.NODE_ENV = original;
+      spy.mockRestore();
+    }
+  });
+
   it('normalises unknown errors without leaking raw values', () => {
     const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -41,11 +82,11 @@ describe('logger', () => {
       requestId: 'req_1',
     });
 
-    expect(result.name).toBe('Error');
+    expect(result.type).toBe('Error');
     expect(result.message).toBe('database password leaked');
     const line = JSON.parse(String(spy.mock.calls[0][0]));
     expect(line.requestId).toBe('req_1');
-    expect(line.error.name).toBe('Error');
+    expect(line.error.type).toBe('Error');
 
     spy.mockRestore();
   });

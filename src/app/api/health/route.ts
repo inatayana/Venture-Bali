@@ -14,7 +14,7 @@ const startedAt = Date.now();
 export async function GET() {
   const checkedAt = Date.now();
   let database: 'ok' | 'unavailable' = 'ok';
-  let databaseLatencyMs = 0;
+  let databaseLatencyMs: number | null = null;
 
   try {
     const dbStartedAt = Date.now();
@@ -36,7 +36,6 @@ export async function GET() {
           database: { status: database, latencyMs: databaseLatencyMs },
         },
         uptimeSeconds: Math.floor((Date.now() - startedAt) / 1000),
-        version: process.env.npm_package_version ?? 'unknown',
         timestamp: new Date(checkedAt).toISOString(),
       },
       error: healthy

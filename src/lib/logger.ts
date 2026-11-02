@@ -16,34 +16,52 @@ export type LogContext = Record<string, unknown>;
 const REDACTED = '[REDACTED]';
 const MAX_DEPTH = 4;
 
-const SENSITIVE_KEYS = new Set([
+/**
+ * Keys that must always be redacted. Matching is normalised (case, dashes and
+ * underscores are ignored) so `userPassword`, `x-api-key` and `customerName`
+ * are covered alongside their camelCase forms.
+ */
+const SENSITIVE_EXACT = new Set([
+  'name',
+  'fullname',
+  'firstname',
+  'lastname',
+  'customername',
+  'guestname',
+  'contactname',
+  'email',
+  'customeremail',
+  'contactemail',
+  'whatsapp',
+  'phone',
+  'phonenumber',
+  'address',
+  'hoteladdress',
   'password',
   'passwordhash',
-  'secret',
   'token',
   'accesstoken',
   'refreshtoken',
   'authorization',
   'cookie',
+  'setcookie',
+  'secret',
   'apikey',
-  'api_key',
-  'email',
-  'customeremail',
-  'whatsapp',
-  'phone',
-  'address',
-  'hoteladdress',
-  'customername',
-  'guestname',
 ]);
 
+const SENSITIVE_PATTERN =
+  /(pass(word)?|secret|token|auth|cookie|apikey|email|whatsapp|phone|address)/i;
+
 function isSensitive(key: string): boolean {
-  return SENSITIVE_KEYS.has(key.toLowerCase());
+  const normalised = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return SENSITIVE_EXACT.has(normalised) || SENSITIVE_PATTERN.test(normalised);
 }
 
 function serializeError(error: Error, includeStack: boolean) {
   return {
-    name: error.name,
+    // `type` instead of `name` so the generic name redaction rule cannot hide
+    // the error class.
+    type: error.name,
     message: error.message,
     ...(includeStack && error.stack ? { stack: error.stack } : {}),
     ...('digest' in error && typeof error.digest === 'string'
@@ -125,7 +143,7 @@ export function reportError(
   const normalised =
     error instanceof Error
       ? serializeError(error, process.env.NODE_ENV !== 'production')
-      : { name: 'UnknownError', message: String(error) };
+      : { type: 'UnknownError', message: String(error) };
 
   createLogger(scope).error('Unhandled error', { ...context, error: normalised });
   return normalised;

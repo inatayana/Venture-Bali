@@ -296,8 +296,9 @@ When implementing authentication:
 - Add a `/api/health` readiness endpoint (200/503, no configuration exposure).
 - Add a Playwright money-path suite with an isolated Postgres database and a
   dedicated CI workflow (`.github/workflows/e2e.yml`).
-- Add `sharp@0.35.5` as a production dependency for `next/image`; it is also the
-  documented workaround for the Next 14 image-optimizer RCE advisory.
+- Add `sharp@0.35.5` as a production dependency for `next/image`. It does not
+  clear `GHSA-2464-fhr4-w9xw`; that advisory remains tracked in §12 and is only
+  patched by the Next major upgrade.
 
 ### Rationale
 - Booking → webhook → voucher is revenue-critical; unit tests alone cannot prove

@@ -7,6 +7,9 @@ import { PaymentServiceError } from '@/lib/paymentService';
 import type { PaymentStatus } from '@prisma/client';
 import { billingAddressSchema } from '@/lib/bookingSchema';
 import { buildSnapItems, toSnapBillingAddress } from '@/lib/snapBilling';
+import { logger } from '@/lib/logger';
+
+const paymentLog = logger.child('snap');
 
 const paymentSchema = z.object({
   bookingId: z.string().min(1, 'Booking ID is required'),
@@ -187,7 +190,9 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error && error.message.startsWith('Midtrans API error')) {
       // Provider rejection (bad keys, invalid amount, …). Keep the details for the
       // server log, and only expose them outside production.
-      console.error('Midtrans rejected the transaction:', error.message);
+      paymentLog.warn('Midtrans rejected the transaction', {
+        message: error.message,
+      });
       return NextResponse.json(
         {
           success: false,
@@ -203,7 +208,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('Midtrans payment error:', error);
+    paymentLog.error('Midtrans payment failed', { error });
     return NextResponse.json(
       { success: false, error: { code: 'PAYMENT_ERROR', message: 'Failed to initialize payment' } },
       { status: 500 },

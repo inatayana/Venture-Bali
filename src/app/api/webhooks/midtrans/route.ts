@@ -25,12 +25,6 @@ export async function POST(request: NextRequest) {
     const payload = webhookPayloadSchema.parse(await request.json());
     const result = await processMidtransWebhook(payload);
 
-    webhookLog.info('Midtrans webhook processed', {
-      orderId: payload.order_id,
-      status: result.paymentStatus,
-      voucherIssued: result.voucherIssued,
-    });
-
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     if (error instanceof z.ZodError) {
