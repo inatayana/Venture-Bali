@@ -29,6 +29,12 @@ out
 .jest/
 coverage/
 
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
 # Build artifacts
 dist/
 out/
