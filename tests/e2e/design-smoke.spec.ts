@@ -25,9 +25,9 @@ test.describe('design tokens', () => {
     expect(overflow).toBeLessThanOrEqual(1);
   });
 
-  test('dark mode uses the dark surfaces', async ({ page }) => {
+  test('dark mode uses the dark surfaces at 360px', async ({ page }) => {
     await page.addInitScript(() => window.localStorage.setItem('baliwild_theme', 'dark'));
-    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/');
 
     await expect(page.locator('html')).toHaveClass(/dark/);
@@ -38,5 +38,18 @@ test.describe('design tokens', () => {
 
     const header = page.locator('header').first();
     await expect.poll(() => backgroundColor(header)).toBe('rgb(25, 25, 25)');
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+  });
+
+  test('system dark is used when no choice is stored', async ({ page }) => {
+    await page.addInitScript(() => window.localStorage.removeItem('baliwild_theme'));
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.goto('/');
+
+    await expect(page.locator('html')).toHaveClass(/dark/);
   });
 });
