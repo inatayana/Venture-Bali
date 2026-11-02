@@ -27,7 +27,11 @@ export const bookingSchema = z
       .regex(/^[A-Z0-9]{3,24}$/, 'Invalid coupon code')
       .optional(),
     paxCount: z.number().int().min(1, 'At least 1 participant required').max(10, 'Maximum 10 guests per booking'),
-    selectedAddons: z.array(z.string()).default([]),
+    /**
+     * Public input: bound the collection so an oversized payload cannot
+     * exhaust memory in zod before the booking service sees it.
+     */
+    selectedAddons: z.array(z.string().min(1).max(64)).max(20, 'Too many add-ons selected').default([]),
     customerName: z.string().trim().min(2, 'Name must be at least 2 characters').max(120),
     customerEmail: z.string().trim().email('Invalid email format').max(320),
     customerWhatsApp: z.string().trim().min(10, 'WhatsApp number required').max(32),
