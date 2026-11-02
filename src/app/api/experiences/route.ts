@@ -25,16 +25,16 @@ const createVentureSchema = z.object({
   category: z.string().trim().min(1),
   subcategory: z.string().trim().max(60).optional(),
   primaryKeyword: z.string().trim().max(80).optional(),
-  secondaryKeywords: z.array(z.string().trim().min(1)).max(10).default([]),
-  searchTags: z.array(z.string().trim().min(1)).max(15).default([]),
-  highlights: z.array(z.string().trim().min(1)).max(10).default([]),
-  inclusions: z.array(z.string().trim().min(1)).max(10).default([]),
-  exclusions: z.array(z.string().trim().min(1)).max(10).default([]),
+  secondaryKeywords: z.array(z.string().trim().min(1).max(80)).max(10).default([]),
+  searchTags: z.array(z.string().trim().min(1).max(60)).max(15).default([]),
+  highlights: z.array(z.string().trim().min(1).max(90)).max(10).default([]),
+  inclusions: z.array(z.string().trim().min(1).max(120)).max(10).default([]),
+  exclusions: z.array(z.string().trim().min(1).max(120)).max(10).default([]),
   languages: z.array(z.string().trim().min(2).max(5)).max(6).default(['en', 'id']),
   suitableFor: z.array(z.enum(['KIDS', 'COUPLE', 'FAMILY', 'SOLO', 'GROUP'])).max(5).default([]),
   difficulty: z.enum(['EASY', 'MODERATE', 'CHALLENGING']).default('EASY'),
-  imageUrl: z.string().trim().min(1, 'An image URL is required'),
-  gallery: z.array(z.string().trim().min(1)).max(20).default([]),
+  imageUrl: z.string().trim().min(1, 'An image URL is required').max(500),
+  gallery: z.array(z.string().trim().min(1).max(500)).max(20).default([]),
   rating: z.number().min(0).max(5).default(5),
   locationId: z.string().trim().min(1).optional(),
   /**
@@ -43,7 +43,12 @@ const createVentureSchema = z.object({
    */
   tenantId: z.string().trim().min(1).optional(),
   itinerary: z
-    .array(z.object({ time: z.string().trim().min(1), activity: z.string().trim().min(1) }))
+    .array(
+      z.object({
+        time: z.string().trim().min(1).max(40),
+        activity: z.string().trim().min(1).max(200),
+      }),
+    )
     .max(20)
     .default([]),
   essentialInfo: z
@@ -54,7 +59,12 @@ const createVentureSchema = z.object({
     })
     .default({ perfectFor: [], whatToBring: [], knowBeforeYouGo: [] }),
   faqs: z
-    .array(z.object({ question: z.string().trim().min(1), answer: z.string().trim().min(1) }))
+    .array(
+      z.object({
+        question: z.string().trim().min(1).max(200),
+        answer: z.string().trim().min(1).max(2000),
+      }),
+    )
     .max(20)
     .default([]),
 });
