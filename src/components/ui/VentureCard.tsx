@@ -130,7 +130,7 @@ export function VentureCard({
             up to {venture.maxParticipants}
           </span>
           {venture.bookedThisMonth ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 font-medium text-brand-ink">
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 font-medium text-foreground">
               <Users className="h-3 w-3" aria-hidden="true" />
               {venture.bookedThisMonth} booked this month
             </span>
@@ -156,7 +156,7 @@ export function VentureCard({
             <CheckCircle className="h-3 w-3" aria-hidden="true" />
             Instant Confirmation
           </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-xs font-semibold text-brand-ink">
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-xs font-semibold text-foreground">
             <RefreshCw className="h-3 w-3" aria-hidden="true" />
             Free reschedule ≥24h
           </span>

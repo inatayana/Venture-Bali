@@ -171,7 +171,7 @@ export function VariantCatalogCard({
               'inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold transition-colors sm:flex-none',
               selected
                 ? 'border-2 border-brand-ink bg-brand text-brand-ink'
-                : 'border-2 border-line text-foreground hover:border-line-control hover:bg-surface'
+                : 'border-2 border-line-control text-foreground hover:border-line-strong hover:bg-surface'
             )}
           >
             {selected && <Check className="h-4 w-4" />}

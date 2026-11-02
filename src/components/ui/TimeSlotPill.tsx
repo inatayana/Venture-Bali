@@ -30,7 +30,7 @@ export function TimeSlotPill({
         'flex flex-col items-center justify-center tabular-nums',
         selected
           ? 'border-brand-ink bg-brand-ink text-brand dark:border-brand dark:bg-brand dark:text-brand-ink'
-          : 'border-line bg-surface text-foreground hover:border-line-control',
+          : 'border-line-control bg-surface text-foreground hover:border-line-strong',
         disabled && 'border-line bg-base text-foreground-muted/50 line-through cursor-not-allowed'
       )}
     >

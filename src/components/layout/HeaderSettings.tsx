@@ -20,7 +20,7 @@ export function HeaderSettings() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open language, currency and theme settings"
-        className="flex h-11 w-11 items-center justify-center rounded-full border border-line text-foreground-secondary transition-colors hover:bg-card-hover"
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-line-control text-foreground-secondary transition-colors hover:bg-card-hover"
       >
         <SlidersHorizontal className="h-5 w-5" />
       </button>
@@ -52,7 +52,7 @@ export function HeaderSettings() {
             <h3 className="text-xs font-bold uppercase tracking-wider text-foreground-muted">
               Theme
             </h3>
-            <div className="mt-2 flex items-center justify-between rounded-xl border border-line px-3 py-2">
+            <div className="mt-2 flex items-center justify-between rounded-xl border border-line-control px-3 py-2">
               <span className="text-sm text-foreground-secondary">Light / dark mode</span>
               <ThemeSwitcher />
             </div>
