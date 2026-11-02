@@ -1,7 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import { verifyCustomerLinkToken } from '@/lib/customerLink';
+import { createReviewToken, verifyCustomerLinkToken } from '@/lib/customerLink';
 import { formatPrice } from '@/lib/i18n';
 import { LIFECYCLE_LABELS } from '@/lib/bookingLifecycle';
 import { canReviewBooking } from '@/lib/reviewSchema';
@@ -105,6 +106,15 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
                 booking.paymentStatus === 'PAID' &&
                 booking.lifecycleStatus === 'CONFIRMED' &&
                 !booking.cancelledAt;
+              const reviewable = canReviewBooking({
+                paymentStatus: booking.paymentStatus,
+                bookingDate: booking.bookingDate,
+                reviewId: booking.review?.id ?? null,
+                lifecycleStatus: booking.lifecycleStatus,
+              });
+              const reviewToken = reviewable
+                ? createReviewToken(customer.id, booking.id)
+                : null;
 
               return (
               <div key={booking.id} className="rounded-2xl bg-white p-4 shadow-sm">
@@ -140,17 +150,30 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
                         Review submitted
                       </span>
                     ) : (
-                      canReviewBooking({
-                        paymentStatus: booking.paymentStatus,
-                        bookingDate: booking.bookingDate,
-                        reviewId: null,
-                      }) && (
-                        <Link
-                          href={`/review/${booking.id}?token=${searchParams.token ?? ''}`}
-                          className="inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-neutral-900"
-                        >
-                          Write a review <ArrowRight className="h-4 w-4" />
-                        </Link>
+                      reviewable &&
+                      reviewToken && (
+                        <div className="flex flex-col items-end gap-1">
+                          <Link
+                            href={`/review/${booking.id}?token=${reviewToken}`}
+                            className="inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-neutral-900"
+                          >
+                            Write a review <ArrowRight className="h-4 w-4" />
+                          </Link>
+                          <details className="text-right">
+                            <summary className="flex min-h-[44px] cursor-pointer items-center justify-end text-xs font-medium text-neutral-600 underline">
+                              Show QR
+                            </summary>
+                            <img
+                              src={`/api/reviews/qr?bookingId=${encodeURIComponent(
+                                booking.id
+                              )}&token=${encodeURIComponent(reviewToken)}`}
+                              alt={`QR code to review ${booking.variant.venture.title}`}
+                              width={144}
+                              height={144}
+                              className="mt-2 h-36 w-36 rounded-lg border border-neutral-200 bg-white p-1"
+                            />
+                          </details>
+                        </div>
                       )
                     )}
                     {booking.paymentStatus === 'PAID' && !booking.cancelledAt ? (

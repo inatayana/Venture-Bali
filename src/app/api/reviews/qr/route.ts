@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import QRCode from 'qrcode';
-import { verifyCustomerLinkToken } from '@/lib/customerLink';
+import { verifyReviewAccess } from '@/lib/customerLink';
 import { buildReviewUrl } from '@/lib/reviewLink';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const bookingId = request.nextUrl.searchParams.get('bookingId')?.trim();
   const token = request.nextUrl.searchParams.get('token')?.trim();
 
-  if (!bookingId || !token || !verifyCustomerLinkToken(token)) {
+  if (!bookingId || !token || !verifyReviewAccess(token, bookingId)) {
     return NextResponse.json(
       { success: false, error: { code: 'INVALID_TOKEN', message: 'Invalid review link' } },
       { status: 400 }

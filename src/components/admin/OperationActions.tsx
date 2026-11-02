@@ -1,10 +1,17 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle, UserX } from 'lucide-react';
+import { CheckCircle, ExternalLink, UserX } from 'lucide-react';
 
 type FinalStatus = 'COMPLETED' | 'NO_SHOW';
+
+interface ReviewInvite {
+  url: string;
+  qrUrl: string;
+}
 
 interface OperationActionsProps {
   bookingId: string;
@@ -20,6 +27,45 @@ export function OperationActions({ bookingId, lifecycleStatus }: OperationAction
   const router = useRouter();
   const [pending, setPending] = useState<FinalStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [review, setReview] = useState<ReviewInvite | null>(null);
+
+  if (review) {
+    return (
+      <div className="w-full max-w-[220px] rounded-xl border border-green-200 bg-green-50 p-3 text-right">
+        <p className="flex items-center justify-end gap-1 text-xs font-semibold text-green-800">
+          <CheckCircle className="h-4 w-4" /> Trip completed
+        </p>
+        <p className="mt-1 text-xs text-green-800">Scan to leave a review now</p>
+        <img
+          src={review.qrUrl}
+          alt="QR code to review this trip"
+          width={128}
+          height={128}
+          className="ml-auto mt-2 h-32 w-32 rounded-lg border border-green-200 bg-white p-1"
+        />
+        <div className="mt-2 flex items-center justify-end gap-2">
+          <a
+            href={review.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-green-300 px-2 text-xs font-semibold text-green-800"
+          >
+            Open link <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+          <button
+            type="button"
+            onClick={() => {
+              setReview(null);
+              router.refresh();
+            }}
+            className="inline-flex min-h-[44px] items-center rounded-lg bg-green-700 px-3 text-xs font-semibold text-white"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (FINAL_LABELS[lifecycleStatus]) {
     return <span className="text-xs font-medium text-neutral-500">{FINAL_LABELS[lifecycleStatus]}</span>;
@@ -36,6 +82,11 @@ export function OperationActions({ bookingId, lifecycleStatus }: OperationAction
       });
       const data = await response.json();
       if (!data.success) throw new Error(data.error?.message ?? 'Could not update the job order');
+
+      if (status === 'COMPLETED' && data.data?.review) {
+        setReview(data.data.review as ReviewInvite);
+        return;
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not update the job order');

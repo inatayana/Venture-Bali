@@ -20,7 +20,7 @@ import {
   BRAND_EMAIL_BOOKING,
   BRAND_EMAIL_SUPPORT,
 } from '@/lib/brand';
-import { buildCustomerBookingsUrl, createCustomerLinkToken } from '@/lib/customerLink';
+import { buildCustomerBookingsUrl, createReviewToken } from '@/lib/customerLink';
 import { buildReviewQrUrl, buildReviewUrl } from '@/lib/reviewLink';
 
 export type NotificationChannel = 'WHATSAPP' | 'EMAIL';
@@ -41,6 +41,7 @@ interface BookingForNotification {
   paxCount: number;
   totalPrice: number;
   fulfillmentMode: string;
+  lifecycleStatus: string;
   hotelAddress: string | null;
   isTba: boolean;
   customer: { id: string; name: string; email: string; whatsapp: string };
@@ -134,14 +135,19 @@ export function buildReviewRequestText(
 function reviewRequestEmailHtml(
   booking: BookingForNotification,
   reviewUrl: string,
-  qrUrl: string
+  qrUrl: string,
+  options: { title?: string; intro?: string } = {}
 ): string {
+  const title = options.title ?? 'How was your trip?';
+  const intro =
+    options.intro ??
+    'Tell other travellers what to expect — it takes a minute and helps our local guides.';
   return `
     <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#000000">
-      <h1 style="font-size:22px">How was your trip?</h1>
+      <h1 style="font-size:22px">${escapeHtml(title)}</h1>
       <p>Hi ${escapeHtml(booking.customer.name)}, thanks for joining ${escapeHtml(booking.variant.title)}
       on ${escapeHtml(formatLongDate(booking.bookingDate))}.</p>
-      <p>Tell other travellers what to expect — it takes a minute and helps our local guides.</p>
+      <p>${escapeHtml(intro)}</p>
       <p>
         <a href="${reviewUrl}" style="display:inline-block;background:#000000;color:#FFEE00;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:700">
           Leave a review
@@ -325,6 +331,19 @@ async function alreadyNotified(bookingId: string, subject: string): Promise<bool
   return Boolean(existing);
 }
 
+/** True only when a successful message was sent before the cutoff. */
+async function notifiedBefore(
+  bookingId: string,
+  subject: string,
+  before: Date,
+): Promise<boolean> {
+  const existing = await prisma.notificationLog.findFirst({
+    where: { bookingId, subject, status: 'SENT', sentAt: { lte: before } },
+    select: { id: true },
+  });
+  return Boolean(existing);
+}
+
 /**
  * Send the confirmation that follows a settled payment.
  * Idempotent: repeated webhooks will not spam the customer.
@@ -385,12 +404,22 @@ export async function sendBookingReminder(bookingId: string): Promise<Notificati
 }
 
 const REVIEW_SUBJECT = 'How was your trip?';
+const REVIEW_REMINDER_SUBJECT = 'A quick reminder: how was your trip?';
+
+function buildReviewInvite(booking: BookingForNotification): { url: string; qrUrl: string } | null {
+  const token = createReviewToken(booking.customer.id, booking.id);
+  if (!token) return null;
+  return {
+    url: buildReviewUrl(booking.id, token),
+    qrUrl: buildReviewQrUrl(booking.id, token),
+  };
+}
 
 /**
- * Ask a guest for a review the day after the trip.
+ * Ask a guest for a review once operations has marked the trip COMPLETED.
  *
- * Uses the same magic link the booking history uses, so no account is needed.
- * Idempotent per booking (NotificationLog subject) and skipped when a review
+ * Uses a scoped 180-day review token, so the link can never open the rest of
+ * the customer's bookings. Idempotent per booking and skipped when a review
  * already exists.
  */
 export async function sendReviewRequest(bookingId: string): Promise<NotificationResult[]> {
@@ -399,18 +428,23 @@ export async function sendReviewRequest(bookingId: string): Promise<Notification
     include: { ...bookingInclude(), review: { select: { id: true } } },
   });
 
-  if (!booking || booking.paymentStatus !== 'PAID' || booking.review) return [];
+  if (
+    !booking ||
+    booking.paymentStatus !== 'PAID' ||
+    booking.lifecycleStatus !== 'COMPLETED' ||
+    booking.review
+  ) {
+    return [];
+  }
   if (await alreadyNotified(bookingId, REVIEW_SUBJECT)) return [];
 
-  const token = createCustomerLinkToken(booking.customer.id);
-  if (!token) return [];
+  const invite = buildReviewInvite(booking as unknown as BookingForNotification);
+  if (!invite) return [];
 
-  const reviewUrl = buildReviewUrl(booking.id, token);
-  const qrUrl = buildReviewQrUrl(booking.id, token);
   const entity = booking as unknown as BookingForNotification;
-  const text = buildReviewRequestText(entity, reviewUrl);
+  const text = buildReviewRequestText(entity, invite.url);
 
-  const results = await Promise.all([
+  return Promise.all([
     deliver(entity, 'WHATSAPP', entity.customer.whatsapp, REVIEW_SUBJECT, text),
     deliver(
       entity,
@@ -418,9 +452,114 @@ export async function sendReviewRequest(bookingId: string): Promise<Notification
       entity.customer.email,
       REVIEW_SUBJECT,
       text,
-      reviewRequestEmailHtml(entity, reviewUrl, qrUrl),
+      reviewRequestEmailHtml(entity, invite.url, invite.qrUrl),
     ),
   ]);
+}
 
-  return results;
+/** One follow-up, three days after the first request, only if still unreviewed. */
+export async function sendReviewReminder(bookingId: string): Promise<NotificationResult[]> {
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: { ...bookingInclude(), review: { select: { id: true } } },
+  });
+
+  if (
+    !booking ||
+    booking.paymentStatus !== 'PAID' ||
+    booking.lifecycleStatus !== 'COMPLETED' ||
+    booking.review
+  ) {
+    return [];
+  }
+  // Never remind someone who never received the first request, and never
+  // remind in the same run that the first request was just sent.
+  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+  if (!(await notifiedBefore(bookingId, REVIEW_SUBJECT, threeDaysAgo))) return [];
+  if (await alreadyNotified(bookingId, REVIEW_REMINDER_SUBJECT)) return [];
+
+  const invite = buildReviewInvite(booking as unknown as BookingForNotification);
+  if (!invite) return [];
+
+  const entity = booking as unknown as BookingForNotification;
+  const text = [
+    `Still thinking about your ${entity.variant.title}?`,
+    'A one-minute review helps the next traveller and our local guides.',
+    `Leave a review: ${invite.url}`,
+    '',
+    `Booking: ${entity.bookingCode}`,
+  ].join('\n');
+
+  return Promise.all([
+    deliver(entity, 'WHATSAPP', entity.customer.whatsapp, REVIEW_REMINDER_SUBJECT, text),
+    deliver(
+      entity,
+      'EMAIL',
+      entity.customer.email,
+      REVIEW_REMINDER_SUBJECT,
+      text,
+      reviewRequestEmailHtml(entity, invite.url, invite.qrUrl, {
+        title: 'Still thinking about your trip?',
+        intro: 'A one-minute review helps the next traveller and our local guides.',
+      }),
+    ),
+  ]);
+}
+
+const MODERATION_ALERT_SUBJECT = 'Review needs moderation';
+
+/** Email the support inbox when a review is held back for a human. */
+export async function notifyReviewNeedsModeration(input: {
+  bookingId: string;
+  customerId: string;
+  bookingCode: string;
+  ventureTitle: string;
+  rating: number;
+  comment: string;
+  guestName: string;
+}): Promise<NotificationResult> {
+  const subject = MODERATION_ALERT_SUBJECT;
+  const content = [
+    `${input.rating}/5 · ${input.ventureTitle}`,
+    `Guest: ${input.guestName}`,
+    `Booking: ${input.bookingCode}`,
+    '',
+    input.comment,
+    '',
+    `Moderate: ${getBaseUrl()}/admin/reviews`,
+  ].join('\n');
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#000000">
+      <h1 style="font-size:20px">Review needs moderation</h1>
+      <p><strong>${input.rating}/5</strong> · ${escapeHtml(input.ventureTitle)}</p>
+      <p>Guest: ${escapeHtml(input.guestName)} · Booking ${escapeHtml(input.bookingCode)}</p>
+      <blockquote style="margin:16px 0;padding:12px 16px;border-left:4px solid #FFEE00;background:#fafafa">
+        ${escapeHtml(input.comment)}
+      </blockquote>
+      <p><a href="${getBaseUrl()}/admin/reviews" style="display:inline-block;background:#000000;color:#FFEE00;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:700">Open moderation queue</a></p>
+    </div>
+  `.trim();
+
+  const result = await sendEmail(BRAND_EMAIL_SUPPORT, `${subject} · ${input.bookingCode}`, html);
+
+  try {
+    await prisma.notificationLog.create({
+      data: {
+        bookingId: input.bookingId,
+        customerId: input.customerId,
+        type: 'EMAIL',
+        recipient: BRAND_EMAIL_SUPPORT,
+        subject,
+        content,
+        status: result.success ? 'SENT' : 'FAILED',
+        sentAt: result.success ? new Date() : null,
+        errorMessage: result.error ?? null,
+      },
+    });
+  } catch (error) {
+    console.error('Could not persist moderation alert log:', error);
+  }
+
+  return { channel: 'EMAIL', ...result };
 }

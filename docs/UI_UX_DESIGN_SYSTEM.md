@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.7.0
+> **Version:** 3.7.1
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -26,6 +26,7 @@
 > **Changelog v3.6.10:** Hero left column — inline micro-trust strip (rating/instant confirmation/licensed operators) and five quick intent pills (Best Sellers, Water, Trekking, Combos, Tubing).
 > **Changelog v3.6.11:** Hero video-ready — poster remains LCP, `hero.mp4` loads on desktop after idle (reduced-motion/save-data aware), mobile stays poster-only.
 > **Changelog v3.7.0:** Quick Wins polish pass — hero reduced to 4 layers (badge, H1+subtitle, search, three documented promises) with mobile H1 28–32px and height ≤540px; mobile header consolidates language/currency/theme into one 44px settings sheet; mobile cards compress to ≤390px with one badge and a 6-card + Load More list; all text ≥12px and informative `neutral-400` replaced with `neutral-600`; PDP header keeps only back/breadcrumb/share-wishlist with a single price CTA source; cookie bar is thin, suppresses under `[role="dialog"]`, and publishes `--cookie-consent-height` so fixed CTAs never sit underneath it.
+> **Changelog v3.7.1:** Review flow activated — invite is sent the moment ops marks a trip COMPLETED (scoped 180-day token), QR appears in the ops success panel and customer bookings, verified 4–5★ clean reviews publish instantly, lower ratings stay in the moderation queue with an email alert, and one D+3 reminder is sent by the fallback cron.
 
 ## 1. Design Principles
 
@@ -214,12 +215,15 @@ Aturan penerapan:
 - **Review card (v3.3.0)**: avatar inisial bulat, nama tampilan, lokasi tamu (mis. "Woodbridge Township, NJ"), badge **Verified trip**, tanggal relatif ("Today", "3 days ago", "2 months ago"), lima bintang **`brand` (#FFEE00)** dan komentar yang di-clamp 3 baris + **Read more / Show less**.
 - **Nama & lokasi tamu**: form review menyediakan input **Your name** dan **Where are you from?** yang sudah terisi dari data booking; nilai ini disimpan di `Review.guestName` / `Review.guestLocation` (nullable) sehingga tamu bisa memilih nama/lokasi yang tampil tanpa mengubah data customer. Bila kosong, PDP memakai nama depan customer dan negaranya.
 - **Performa daftar review**: PDP hanya mengirim **8 review terbaru**. Modal memuat halaman berikutnya dari `GET /api/ventures/[id]/reviews?page=&limit=8&q=&sort=` (hanya review approved), dengan pencarian dan urutan dijalankan di database serta tombol **Show more reviews (x of y)**. Histogram memakai agregat seluruh review, bukan hanya halaman yang sudah dimuat.
-- **Alur review pasca-trip (v1.5.0, diperluas v3.3.0)**:
-  1. Cron `/api/cron/review-requests` mengirim WhatsApp (link) + email (link **dan QR code**) ke tamu yang tripnya sudah lewat dan belum mereview.
-  2. QR dirender oleh `GET /api/reviews/qr?bookingId=…&token=…` sebagai SVG; token bertanda tangan adalah otorisasinya, dan QR mengarah ke halaman review yang sama.
-  3. Tamu membuka `/review/[bookingId]?token=…` (magic link, tanpa akun), mengisi nama, lokasi, rating 1–5 dan komentar 20–1000 karakter.
-  4. Review tersimpan `isApproved = false` + `bookingId` (unik, satu review per booking) → muncul di `/admin/reviews` untuk **Approve/Reject**.
-  5. Setelah disetujui, review tampil di PDP dengan badge **Verified trip**.
+- **Alur review pasca-trip (v3.7.1)**:
+  1. **Trigger utama**: saat ops menekan **Redeem** dan booking berubah `COMPLETED`, `sendReviewRequest` langsung dipanggil. Panel sukses menampilkan QR untuk dipindai tamu di lokasi.
+  2. **Fallback cron** `/api/cron/review-requests` mengirim ulang ke booking `COMPLETED` yang belum pernah di-invite, lalu mengirim **satu reminder D+3** bila belum ada review.
+  3. **Token review** memakai payload `rl1` berisi `cid + bid + scp=review`, berlaku **180 hari**, dan hanya membuka booking tersebut (tidak membuka `/my/bookings`).
+  4. QR dirender oleh `GET /api/reviews/qr?bookingId=…&token=…` sebagai SVG; tampil di email, panel ops, dan `/my/bookings`.
+  5. Tamu membuka `/review/[bookingId]?token=…` (tanpa akun), mengisi nama, lokasi, rating 1–5 dan komentar 20–1000 karakter.
+  6. **Auto-publish**: review dari booking `COMPLETED` dengan rating **4–5**, komentar bersih (tanpa link/email/nomor/kata kasar) langsung `isApproved = true`. Rating 1–3 atau terindikasi spam masuk `/admin/reviews` dan memicu email ke `support@`.
+  7. Review yang tampil di PDP selalu punya badge **Verified trip**; tidak ada review karangan.
+  8. Booking `CONFIRMED`, `CANCELLED` dan `NO_SHOW` **tidak bisa** direview, dan tanggal trip harus sudah lewat.
 - **Empty state**: bila `reviewCount = 0`, jangan tampilkan angka rating maupun histogram — tampilkan kartu "No verified reviews yet" (ikon bintang abu-abu + ajakan review setelah trip). Baris rating di header berubah menjadi chip "New · no reviews yet".
 
 ### Section 6: Location & Related Adventures
@@ -230,7 +234,7 @@ Aturan penerapan:
 - **Related mobile slider (v3.5.1)**: di bawah 640px tiga kartu related menjadi baris **horizontal snap-scroll** (`flex`, `overflow-x-auto`, `snap-x snap-mandatory`, gap 16px). Kartu memakai lebar **78%** container sehingga kartu berikutnya mengintip, `scroll-snap-align: start`, scrollbar disembunyikan, dan `next/image` memakai `sizes` 80vw agar gambar tidak mengunduh ukuran desktop. Dari `sm` ke atas kembali ke grid 2/3 kolom.
 - **Footer categories (v3.5.2)**: 9 mega kategori + tautan **All adventures** disusun dalam **grid 2 kolom** (`gap 12px 16px`) di semua viewport, dengan emoji berlebar tetap, teks rata kiri, dan hover **`brand` (#FFEE00)**. Tautan ke-10 mengisi sel terakhir agar grid terlihat seimbang.
 - **Social proof (v1.6.0)**: kartu produk dan header PDP menampilkan chip `N booked this month` — jumlah **pax** dari booking `PAID` bulan berjalan (`getMonthlyGuestCounts`), hanya tampil bila > 0.
-- **Cron review request**: `/api/cron/review-requests` (02:00 UTC = 10:00 WITA) mengirim WhatsApp + email ke tamu yang tripnya kemarin dan belum mereview; idempoten lewat `NotificationLog`.
+- **Cron review request (v3.7.1)**: `/api/cron/review-requests` (02:00 UTC = 10:00 WITA) adalah fallback, bukan trigger utama. Cron hanya memproses booking `COMPLETED` + `PAID`, mengirim invite yang belum pernah terkirim, lalu satu reminder D+3; semuanya idempoten lewat `NotificationLog`.
 
 > **Aturan konversi lama (v2.0.0) tetap berlaku**: trust badges, skeleton/empty/error states, touch target 44×44px, social proof, price anchoring.
 
