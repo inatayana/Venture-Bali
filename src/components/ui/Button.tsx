@@ -16,7 +16,7 @@ const variantStyles = {
   outline:
     'border-2 border-foreground text-foreground hover:border-brand-ink hover:bg-brand hover:text-brand-ink active:bg-brand/80 active:text-brand-ink disabled:border-line-strong disabled:text-foreground-muted',
   ghost:
-    'text-foreground hover:bg-brand/40 active:bg-brand/60 disabled:text-foreground-muted',
+    'text-foreground hover:bg-brand/40 active:bg-brand active:text-brand-ink disabled:text-foreground-muted',
   danger:
     'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:bg-red-300',
 };
