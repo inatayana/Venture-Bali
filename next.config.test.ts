@@ -38,6 +38,9 @@ describe('next.config', () => {
     expect(headers['Content-Security-Policy-Report-Only']).toContain(
       "default-src 'self'",
     );
+    expect(headers['Content-Security-Policy-Report-Only']).not.toContain(
+      "'unsafe-eval'",
+    );
     expect(headers['Content-Security-Policy']).toBeUndefined();
     expect(headers['Cross-Origin-Opener-Policy']).toBe('same-origin-allow-popups');
     expect(headers['X-DNS-Prefetch-Control']).toBe('on');

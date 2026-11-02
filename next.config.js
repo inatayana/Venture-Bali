@@ -5,26 +5,35 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants');
  *
  * It starts in report-only mode so payment channels and Snap.js can be
  * observed without breaking checkout. The allowlist covers the app itself,
- * Supabase Storage and the Midtrans Snap surfaces. Once the violation report
- * is clean for a full release cycle, rename the header to
- * `Content-Security-Policy` and keep this list in sync.
+ * Supabase Storage and the Midtrans Snap surfaces. `unsafe-eval` is only added
+ * for the dev server.
+ *
+ * There is no report endpoint yet: violations surface in the browser console.
+ * Add `report-to` when telemetry lands, then rename the header to
+ * `Content-Security-Policy` after a clean release cycle.
  */
-const CONTENT_SECURITY_POLICY_REPORT_ONLY = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.midtrans.com https://app.sandbox.midtrans.com",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.supabase.co",
-  "font-src 'self' data:",
-  "media-src 'self'",
-  "connect-src 'self' https://*.supabase.co https://api.midtrans.com https://app.midtrans.com https://app.sandbox.midtrans.com",
-  "frame-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com",
-  "frame-ancestors 'none'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self' https://app.midtrans.com https://app.sandbox.midtrans.com",
-  "manifest-src 'self'",
-  "worker-src 'self' blob:",
-].join('; ');
+function buildContentSecurityPolicy(phase) {
+  const scriptSrc = ["'self'", "'unsafe-inline'"];
+  if (phase === PHASE_DEVELOPMENT_SERVER) scriptSrc.push("'unsafe-eval'");
+  scriptSrc.push('https://app.midtrans.com', 'https://app.sandbox.midtrans.com');
+
+  return [
+    "default-src 'self'",
+    `script-src ${scriptSrc.join(' ')}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https://*.supabase.co",
+    "font-src 'self' data:",
+    "media-src 'self'",
+    "connect-src 'self' https://*.supabase.co https://api.midtrans.com https://app.midtrans.com https://app.sandbox.midtrans.com",
+    "frame-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self' https://app.midtrans.com https://app.sandbox.midtrans.com",
+    "manifest-src 'self'",
+    "worker-src 'self' blob:",
+  ].join('; ');
+}
 
 /**
  * Dev output goes to `.next-dev`, production output stays in `.next`.
@@ -62,7 +71,7 @@ const nextConfig = phase => ({
       { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
       {
         key: 'Content-Security-Policy-Report-Only',
-        value: CONTENT_SECURITY_POLICY_REPORT_ONLY,
+        value: buildContentSecurityPolicy(phase),
       },
     ];
     if (process.env.NODE_ENV === 'production') {
