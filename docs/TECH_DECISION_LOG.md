@@ -288,7 +288,32 @@ When implementing authentication:
 
 ---
 
-## 13. Related Documents
+## 13. Observability & Money-Path E2E — November 2026
+
+### Decision
+- Add a dependency-free structured JSON logger with PII/secret redaction and
+  child scopes (`src/lib/logger.ts`).
+- Add a `/api/health` readiness endpoint (200/503, no configuration exposure).
+- Add a Playwright money-path suite with an isolated Postgres database and a
+  dedicated CI workflow (`.github/workflows/e2e.yml`).
+- Add `sharp@0.35.5` as a production dependency for `next/image`; it is also the
+  documented workaround for the Next 14 image-optimizer RCE advisory.
+
+### Rationale
+- Booking → webhook → voucher is revenue-critical; unit tests alone cannot prove
+  the signed webhook, status transition and voucher issuance.
+- A vendor SDK (Sentry) is deferred until a project/DSN exists. The logger and
+  `reportError` seam are vendor-neutral, so Sentry can be added without touching
+  call sites.
+
+### Gates
+- `npm run test:e2e` must pass locally.
+- CI runs `npm run test:e2e:ci` on every PR to `main`.
+- Sentry and CSP `report-to` follow when a DSN exists.
+
+---
+
+## 14. Related Documents
 
 | Document | Location |
 |----------|----------|

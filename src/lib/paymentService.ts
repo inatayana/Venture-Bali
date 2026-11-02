@@ -8,6 +8,9 @@ import {
 import { generateQRCodeData } from '@/lib/voucher';
 import { notifyBookingPaid } from '@/lib/notifications';
 import { lifecycleForPaymentStatus } from '@/lib/bookingLifecycle';
+import { logger } from '@/lib/logger';
+
+const paymentsLog = logger.child('payments');
 
 export class PaymentServiceError extends Error {
   constructor(
@@ -118,13 +121,26 @@ export async function processMidtransWebhook(
       try {
         await notifyBookingPaid(payment.bookingId);
       } catch (error) {
-        console.error('Booking confirmation notification failed:', error);
+        paymentsLog.error('Booking confirmation notification failed', {
+          error,
+          bookingId: payment.bookingId,
+        });
       }
     }
 
+    paymentsLog.info('Webhook processed', {
+      orderId: payload.order_id,
+      paymentStatus: result.paymentStatus,
+      voucherIssued: result.voucherIssued,
+    });
+
     return result;
   } catch (error) {
-    console.error('Webhook transaction failed:', error);
+    paymentsLog.error('Webhook transaction failed', {
+      error,
+      orderId: payload.order_id,
+      paymentId: payment.id,
+    });
     throw new PaymentServiceError('PROCESSING_ERROR', 'Failed to process webhook notification');
   }
 }

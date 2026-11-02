@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { PaymentServiceError, processMidtransWebhook } from '@/lib/paymentService';
 import type { MidtransWebhookPayload } from '@/lib/midtrans';
+import { logger } from '@/lib/logger';
+
+const webhookLog = logger.child('midtrans-webhook');
 
 const webhookPayloadSchema = z.object({
   order_id: z.string().min(1),
@@ -22,7 +25,7 @@ export async function POST(request: NextRequest) {
     const payload = webhookPayloadSchema.parse(await request.json());
     const result = await processMidtransWebhook(payload);
 
-    console.log('Midtrans webhook processed:', {
+    webhookLog.info('Midtrans webhook processed', {
       orderId: payload.order_id,
       status: result.paymentStatus,
       voucherIssued: result.voucherIssued,
@@ -38,14 +41,17 @@ export async function POST(request: NextRequest) {
     }
     if (error instanceof PaymentServiceError) {
       const status = error.code === 'INVALID_SIGNATURE' ? 401 : error.code === 'NOT_FOUND' ? 404 : 400;
-      console.error('Midtrans webhook rejected:', error.code, error.message);
+      webhookLog.warn('Midtrans webhook rejected', {
+        code: error.code,
+        message: error.message,
+      });
       return NextResponse.json(
         { success: false, error: { code: error.code, message: error.message } },
         { status },
       );
     }
 
-    console.error('Midtrans webhook error:', error);
+    webhookLog.error('Midtrans webhook failed', { error });
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Webhook processing failed' } },
       { status: 500 },

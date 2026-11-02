@@ -3,6 +3,9 @@ import { z } from 'zod';
 import { bookingSchema } from '@/lib/bookingSchema';
 import { BookingServiceError, createPersistedBooking } from '@/lib/bookingService';
 import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { logger } from '@/lib/logger';
+
+const bookingLog = logger.child('booking');
 
 export async function POST(request: NextRequest) {
   const limit = rateLimit(`booking:${clientIp(request)}`, 10, 60_000);
@@ -15,6 +18,12 @@ export async function POST(request: NextRequest) {
 
   try {
     const booking = await createPersistedBooking(bookingSchema.parse(await request.json()));
+
+    bookingLog.info('Booking created', {
+      bookingId: booking.id,
+      totalPrice: booking.totalPrice,
+      paymentStatus: booking.paymentStatus,
+    });
 
     return NextResponse.json(
       {
@@ -40,7 +49,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('Booking creation error:', error);
+    bookingLog.error('Booking creation failed', { error });
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create booking' } },
       { status: 500 },
