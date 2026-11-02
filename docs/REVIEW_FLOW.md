@@ -90,6 +90,29 @@ to three lines with “Read more”, and the 500-character cap keeps the mobile/
 layout compact.
 
 
+## 3d. Founding-guest invites
+
+For real people who completed an activity without an online booking (staff
+guests, early testers, invited locals/creators).
+
+- Admin page: `/admin/reviews/invites` (sidebar **Invites**)
+- Create up to **10 active invites per product** at once; expiry 1–90 days
+  (default 30)
+- Every invite is single-use, tied to one product, and can be revoked while
+  unused
+- Token: `ri1` HMAC over `{ inviteId, exp }`; the admin can regenerate the
+  link/QR at any time because only the invite id and expiry are stored
+- Guest page: `/review/invite/[inviteId]?token=…` (no account)
+- Guest fills name, country, rating, review and optional photos
+- Review is stored with `source = FOUNDING_GUEST`, `bookingId = null`,
+  `customerId = null`, `inviteId = <invite>`
+- **Always goes through moderation** (never auto-published)
+- QR endpoint: `/api/reviews/invite/qr?inviteId=…&token=…`
+- Reusing a submitted/expired link returns `409`; the QR stops rendering
+
+Coverage on the invite page shows published reviews, pending reviews and active
+invites per product, so the team can see progress toward 10 published reviews.
+
 ## 4. Delivery channels
 
 | Channel | What is sent | Notes |
@@ -171,10 +194,11 @@ Automated:
 ```bash
 npx jest src/lib/customerLink.test.ts src/lib/reviewSchema.test.ts \
   src/lib/reviewModeration.test.ts src/lib/reviewPhotos.test.ts \
-  src/lib/reviewFeed.test.ts src/components/features/ReviewForm.test.tsx
+  src/lib/reviewFeed.test.ts src/components/features/ReviewForm.test.tsx \
+  src/lib/reviewInvite.test.ts src/lib/reviewInviteSchema.test.ts
 ```
 
-Manual (local, after a booking is `COMPLETED`):
+Manual (booking review, after a booking is `COMPLETED`):
 
 1. Ops → Redeem → QR panel appears.
 2. Scan/open the link → review form loads.
@@ -183,6 +207,14 @@ Manual (local, after a booking is `COMPLETED`):
 5. Submit 2★ → response `pendingModeration: true`, `/admin/reviews` lists it.
 6. Admin filters by product/source/status, approves in bulk, and removes a photo.
 7. Check `NotificationLog` for SENT/FAILED reasons.
+
+Manual (founding guest):
+
+1. `/admin/reviews/invites` → choose product → create 10 links.
+2. Open a link or scan its QR → guest form loads.
+3. Submit → `/admin/reviews` shows a **Founding guest** pending review.
+4. Reusing the same link returns `409`; the invite becomes `SUBMITTED`.
+5. Revoke an unused invite → its link/QR stops working.
 
 Never seed fake reviews into staging or production. Use a real test booking,
 then delete the test review row if the environment must stay clean.

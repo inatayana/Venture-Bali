@@ -510,19 +510,21 @@ const MODERATION_ALERT_SUBJECT = 'Review needs moderation';
 
 /** Email the support inbox when a review is held back for a human. */
 export async function notifyReviewNeedsModeration(input: {
-  bookingId: string;
-  customerId: string;
-  bookingCode: string;
+  bookingId?: string | null;
+  customerId?: string | null;
+  bookingCode?: string;
+  reference?: string;
   ventureTitle: string;
   rating: number;
   comment: string;
   guestName: string;
 }): Promise<NotificationResult> {
   const subject = MODERATION_ALERT_SUBJECT;
+  const reference = input.reference ?? input.bookingCode ?? 'Founding guest';
   const content = [
     `${input.rating}/5 · ${input.ventureTitle}`,
     `Guest: ${input.guestName}`,
-    `Booking: ${input.bookingCode}`,
+    `Reference: ${reference}`,
     '',
     input.comment,
     '',
@@ -533,7 +535,7 @@ export async function notifyReviewNeedsModeration(input: {
     <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#000000">
       <h1 style="font-size:20px">Review needs moderation</h1>
       <p><strong>${input.rating}/5</strong> · ${escapeHtml(input.ventureTitle)}</p>
-      <p>Guest: ${escapeHtml(input.guestName)} · Booking ${escapeHtml(input.bookingCode)}</p>
+      <p>Guest: ${escapeHtml(input.guestName)} · Reference ${escapeHtml(reference)}</p>
       <blockquote style="margin:16px 0;padding:12px 16px;border-left:4px solid #FFEE00;background:#fafafa">
         ${escapeHtml(input.comment)}
       </blockquote>
@@ -541,13 +543,13 @@ export async function notifyReviewNeedsModeration(input: {
     </div>
   `.trim();
 
-  const result = await sendEmail(BRAND_EMAIL_SUPPORT, `${subject} · ${input.bookingCode}`, html);
+  const result = await sendEmail(BRAND_EMAIL_SUPPORT, `${subject} · ${reference}`, html);
 
   try {
     await prisma.notificationLog.create({
       data: {
-        bookingId: input.bookingId,
-        customerId: input.customerId,
+        bookingId: input.bookingId ?? null,
+        customerId: input.customerId ?? null,
         type: 'EMAIL',
         recipient: BRAND_EMAIL_SUPPORT,
         subject,

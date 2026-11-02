@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
       await notifyReviewNeedsModeration({
         bookingId: booking.id,
         customerId: booking.customerId,
-        bookingCode: booking.bookingCode,
+        reference: booking.bookingCode,
         ventureTitle: booking.variant.venture.title,
         rating,
         comment,
