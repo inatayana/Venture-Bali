@@ -29,7 +29,8 @@ export default defineConfig({
     : {
         command: `npm run start -- -p ${port}`,
         url: `${baseURL}/api/health`,
-        reuseExistingServer: !process.env.CI,
+        // A stale server may point at a different database. Fail fast instead.
+        reuseExistingServer: false,
         timeout: 120_000,
         env: {
           DATABASE_URL: process.env.DATABASE_URL ?? '',

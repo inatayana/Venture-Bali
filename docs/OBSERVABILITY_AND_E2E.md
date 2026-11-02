@@ -95,8 +95,8 @@ E2E_SKIP_BUILD=1 npm run test:e2e
 `sharp@0.35.5` is a production dependency:
 
 - `next/image` needs it for production image optimization.
-- It is the documented workaround for the Next 14 image-optimizer RCE advisory
-  (`GHSA-2464-fhr4-w9xw`). Keep it at `>=0.35.5` until Next is upgraded.
+- It does **not** clear `GHSA-2464-fhr4-w9xw`; that advisory remains tracked in
+  `docs/TECH_DECISION_LOG.md` §12 and is only patched by the Next major upgrade.
 
 ## 7. Next steps
 

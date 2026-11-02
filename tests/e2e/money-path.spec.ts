@@ -111,7 +111,8 @@ test('booking -> signed Midtrans webhook -> paid voucher', async ({
 
   // The Snap token endpoint needs live Midtrans credentials. The webhook path
   // is the part that moves money, so create the pending Payment row directly.
-  const orderId = `E2E-${booking.id}`;
+  // Production uses the booking code as the Midtrans order id.
+  const orderId = booking.bookingCode;
   await prisma.payment.create({
     data: {
       bookingId: booking.id,
