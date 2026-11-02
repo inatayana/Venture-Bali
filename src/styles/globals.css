@@ -16,6 +16,56 @@
      */
     --brand: 255 238 0;
     --brand-ink: 0 0 0;
+
+    /*
+     * Semantic tokens (v3.9.0).
+     *
+     * Channel format (R G B) keeps Tailwind opacity utilities working, e.g.
+     * `bg-surface/80`. PR1 mirrors the current palette so no component changes
+     * are needed; primitives migrate to these utilities in PR2.
+     */
+    --bg-base: 250 250 250;
+    --bg-surface: 255 255 255;
+    --bg-card: 255 255 255;
+    --bg-card-hover: 248 250 252;
+    --bg-inset: 241 245 249;
+    --overlay: 0 0 0;
+
+    --text-primary: 15 23 42;
+    --text-secondary: 51 65 85;
+    --text-muted: 100 116 139;
+
+    --border-subtle: 229 231 235;
+    --border-strong: 203 213 225;
+    --border-control: 100 116 139;
+
+    --state-success: 22 163 74;
+    --state-warning: 217 119 6;
+    --state-danger: 220 38 38;
+    --state-info: 37 99 235;
+  }
+
+  .dark {
+    /* Dark palette stays #212121 page / #191919 surfaces (owner decision). */
+    --bg-base: 33 33 33;
+    --bg-surface: 25 25 25;
+    --bg-card: 25 25 25;
+    --bg-card-hover: 42 42 42;
+    --bg-inset: 25 25 25;
+    --overlay: 0 0 0;
+
+    --text-primary: 248 249 250;
+    --text-secondary: 209 213 219;
+    --text-muted: 156 163 175;
+
+    --border-subtle: 58 58 58;
+    --border-strong: 68 68 68;
+    --border-control: 156 163 175;
+
+    --state-success: 74 222 128;
+    --state-warning: 251 191 36;
+    --state-danger: 248 113 113;
+    --state-info: 96 165 250;
   }
 
   /* Keep anchor targets (e.g. #packages, #reviews) clear of the sticky bar. */
