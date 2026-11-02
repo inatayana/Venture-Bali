@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { Compass, Home, Search } from 'lucide-react';
+import { Compass, Mail, Search } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
+import { BRAND_EMAIL_SUPPORT } from '@/lib/brand';
 
 /**
  * 404 boundary. Keeps the guest inside the catalogue instead of dropping them
@@ -33,19 +34,19 @@ export default function NotFound() {
 
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
-            href="/experiences"
+            href="/"
             className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-brand-ink px-6 text-sm font-semibold uppercase tracking-wider text-brand transition-colors hover:bg-neutral-900 sm:w-auto"
           >
             <Search className="h-4 w-4" aria-hidden="true" />
             Browse adventures
           </Link>
-          <Link
-            href="/"
+          <a
+            href={`mailto:${BRAND_EMAIL_SUPPORT}`}
             className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border-2 border-neutral-900 px-6 text-sm font-semibold uppercase tracking-wider text-neutral-900 transition-colors hover:bg-brand sm:w-auto"
           >
-            <Home className="h-4 w-4" aria-hidden="true" />
-            Back to home
-          </Link>
+            <Mail className="h-4 w-4" aria-hidden="true" />
+            Contact support
+          </a>
         </div>
       </div>
     </main>

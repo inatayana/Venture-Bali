@@ -10,10 +10,9 @@ describe('NotFound', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: /browse adventures/i }),
-    ).toHaveAttribute('href', '/experiences');
-    expect(screen.getByRole('link', { name: /back to home/i })).toHaveAttribute(
-      'href',
-      '/',
-    );
+    ).toHaveAttribute('href', '/');
+    expect(
+      screen.getByRole('link', { name: /contact support/i }),
+    ).toHaveAttribute('href', 'mailto:support@baliwild.com');
   });
 });
