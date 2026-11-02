@@ -38,6 +38,10 @@
 | `--border-control` | `#64748B` | `#9CA3AF` | Inputs, buttons, focus targets |
 | `--brand` | `#FFEE00` | `#FFEE00` | Accent surfaces |
 | `--brand-ink` | `#000000` | `#000000` | Ink on the accent |
+| `--button-secondary` | `#4B5563` | `#4B5563` | Secondary button base |
+| `--button-secondary-hover` | `#374151` | `#374151` | Secondary hover |
+| `--button-secondary-active` | `#1F2937` | `#1F2937` | Secondary active |
+| `--button-secondary-foreground` | `#FFFFFF` | `#FFFFFF` | Secondary label |
 | `--state-success` | `#16A34A` | `#4ADE80` | Success text/icons |
 | `--state-warning` | `#D97706` | `#FBBF24` | Warning text/icons |
 | `--state-danger` | `#DC2626` | `#F87171` | Error/destructive |
@@ -102,13 +106,16 @@ localStorage('baliwild_theme') > prefers-color-scheme > light
 
 | Step | Scope | Visual change |
 |---|---|---|
-| **PR1 (this)** | Tokens, Tailwind mapping, resolver, contrast gate, docs | None; components keep their existing classes |
-| **PR2** | Button, BottomSheet, cards, header, footer, inputs → semantic utilities; remove `!important` overrides for migrated components | None intended; verify with screenshots |
+| **PR1** | Tokens, Tailwind mapping, resolver, contrast gate, docs | None; components keep their existing classes |
+| **PR2 (this)** | Button, BottomSheet, cards, header, skeleton, calendar, time-slot, stepper, currency/language controls → semantic utilities | Minor intentional changes on control borders; verified by the design smoke test |
+| **PR2b** | Remaining page-level raw utilities; remove the legacy `!important` overrides once no component depends on them | None intended |
 | **PR3** | Home/PDP quick wins, mobile cards, cookie banner, PDP CTA | Intentional |
 | **PR4** | Outdoor/Sunlight mode (AAA, opaque), admin token adoption, docs v4 | Intentional |
 
-The legacy `!important` overrides in `globals.css` stay until PR2. Do not add
-new ones.
+The legacy `!important` overrides in `globals.css` remain for page-level
+utilities that have not migrated yet. Migrated primitives no longer depend on
+them, but do not remove the global overrides until PR2b confirms zero remaining
+`bg-white` / `text-gray-*` dependencies. Do not add new ones.
 
 ## 7. Guardrails
 
