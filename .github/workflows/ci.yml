@@ -8,7 +8,7 @@ on:
 
 jobs:
   checks:
-    name: Lint, Typecheck, Test
+    name: Lint, Typecheck, Test, Build, Audit
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -35,8 +35,8 @@ jobs:
       - name: Test
         run: npm test -- --ci
 
-      - name: Build
-        run: npm run build
-
       - name: Dependency audit
         run: npm run audit:check
+
+      - name: Build
+        run: npm run build
