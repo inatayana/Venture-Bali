@@ -15,19 +15,27 @@ export default async function AdminVenturesPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-heading text-2xl font-bold text-gray-900">Ventures</h1>
           <p className="text-sm text-gray-500 mt-1">
             {ventures.length} products in the catalogue.
           </p>
         </div>
-        <Link
-          href="/admin/content"
-          className="text-sm text-brand-ink hover:underline"
-        >
-          Generate content
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/admin/content"
+            className="inline-flex min-h-[44px] items-center text-sm text-brand-ink hover:underline"
+          >
+            Generate content
+          </Link>
+          <Link
+            href="/admin/ventures/new"
+            className="inline-flex min-h-[44px] items-center rounded-lg bg-neutral-900 px-4 text-sm font-semibold text-white"
+          >
+            + New product
+          </Link>
+        </div>
       </header>
 
       {ventures.length === 0 ? (

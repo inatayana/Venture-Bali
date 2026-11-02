@@ -1,5 +1,11 @@
-import { adminVariantSchema, normaliseSlotTime, slotInputSchema } from './adminVentureSchema';
+import {
+  adminVariantSchema,
+  adminVentureWriteSchema,
+  normaliseSlotTime,
+  slotInputSchema,
+} from './adminVentureSchema';
 import { summariseRevenue } from './revenue';
+import { buildVentureSlug } from './slug';
 
 describe('admin slot input', () => {
   it('normalises common time formats', () => {
@@ -97,5 +103,74 @@ describe('admin variant input', () => {
 
   it('requires at least one price tier', () => {
     expect(adminVariantSchema.safeParse({ ...base, priceTiers: [] }).success).toBe(false);
+  });
+});
+
+const validProduct = {
+  title: 'Ubud River Tubing: Hidden Canyon Adventure with Lunch',
+  category: 'tubing',
+  hook3Sec: 'Float a hidden canyon, then lunch by the river.',
+  duration: '3 hours',
+  imageUrl: '/images/tubing.webp',
+  gallery: ['/images/tubing-1.webp', '/images/tubing-2.webp'],
+};
+
+describe('admin venture write schema', () => {
+  it('accepts a valid product and normalises the category', () => {
+    const parsed = adminVentureWriteSchema.safeParse(validProduct);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.category).toBe('River Tubing');
+      expect(parsed.data.languages).toEqual(['en', 'id']);
+    }
+  });
+
+  it('rejects forbidden categories and bad asset URLs', () => {
+    expect(adminVentureWriteSchema.safeParse({ ...validProduct, category: 'hotel' }).success).toBe(
+      false
+    );
+    expect(
+      adminVentureWriteSchema.safeParse({
+        ...validProduct,
+        imageUrl: 'javascript:alert(1)',
+      }).success
+    ).toBe(false);
+  });
+
+  it('caps the gallery at 8 photos', () => {
+    expect(
+      adminVentureWriteSchema.safeParse({
+        ...validProduct,
+        gallery: Array.from({ length: 9 }, (_, index) => `/images/${index}.webp`),
+      }).success
+    ).toBe(false);
+  });
+
+  it('requires a meeting point name and coordinates together', () => {
+    expect(
+      adminVentureWriteSchema.safeParse({ ...validProduct, meetingPoint: 'Ubud bridge' }).success
+    ).toBe(false);
+    expect(
+      adminVentureWriteSchema.safeParse({
+        ...validProduct,
+        meetingPoint: 'Ubud bridge',
+        meetingPointLat: -8.5,
+        meetingPointLng: 115.2,
+      }).success
+    ).toBe(true);
+  });
+
+  it('enforces the 45-60 character title', () => {
+    expect(adminVentureWriteSchema.safeParse({ ...validProduct, title: 'Too short' }).success).toBe(
+      false
+    );
+  });
+});
+
+describe('buildVentureSlug', () => {
+  it('creates a URL-safe slug', () => {
+    expect(buildVentureSlug('Ubud River Tubing: Hidden Canyon Adventure with Lunch')).toBe(
+      'ubud-river-tubing-hidden-canyon-adventure-with-lunch'
+    );
   });
 });

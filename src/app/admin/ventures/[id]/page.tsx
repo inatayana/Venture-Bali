@@ -9,13 +9,17 @@ export const dynamic = 'force-dynamic';
 
 interface AdminVentureDetailPageProps {
   params: { id: string };
+  searchParams: { created?: string; saved?: string };
 }
 
 function asStringArray(value: Prisma.JsonValue): string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string') ? value : [];
 }
 
-export default async function AdminVentureDetailPage({ params }: AdminVentureDetailPageProps) {
+export default async function AdminVentureDetailPage({
+  params,
+  searchParams,
+}: AdminVentureDetailPageProps) {
   const [venture, zones] = await Promise.all([
     prisma.venture.findUnique({
       where: { id: params.id },
@@ -55,8 +59,33 @@ export default async function AdminVentureDetailPage({ params }: AdminVentureDet
             {venture.variants.reduce((sum, variant) => sum + variant._count.bookings, 0)} bookings
           </p>
         </div>
-        <VariantPackageEditor ventureId={venture.id} zones={zones} />
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={`/experiences/${venture.id}/${venture.slug}`}
+            className="inline-flex min-h-[44px] items-center rounded-lg border border-gray-300 px-4 text-sm font-semibold text-gray-800"
+          >
+            View public
+          </Link>
+          <Link
+            href={`/admin/ventures/${venture.id}/edit`}
+            className="inline-flex min-h-[44px] items-center rounded-lg border border-gray-300 px-4 text-sm font-semibold text-gray-800"
+          >
+            Edit product
+          </Link>
+          <VariantPackageEditor ventureId={venture.id} zones={zones} />
+        </div>
       </header>
+
+      {searchParams.created === '1' && (
+        <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+          Product created. Add its first package below so it can be booked.
+        </div>
+      )}
+      {searchParams.saved === '1' && (
+        <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+          Product details saved.
+        </div>
+      )}
 
       <div className="space-y-4">
         {venture.variants.map((variant) => (

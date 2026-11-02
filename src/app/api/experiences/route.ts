@@ -5,6 +5,7 @@ import { mockExperiences } from '@/data/mockExperiences';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
 import { isAllowedCategory } from '@/lib/taxonomy';
 import { validateVentureTitle } from '@/lib/titleValidator';
+import { requireAdminRole } from '@/lib/adminGuard';
 
 export const dynamic = 'force-dynamic';
 
@@ -94,6 +95,14 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await requireAdminRole('EDITOR');
+  if (!session) {
+    return NextResponse.json(
+      { success: false, error: { code: 'FORBIDDEN', message: 'Editor access required' } },
+      { status: 403 }
+    );
+  }
+
   let body: unknown;
 
   try {
