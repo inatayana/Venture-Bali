@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.6.10
+> **Version:** 3.6.11
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -24,6 +24,7 @@
 > **Changelog v3.6.8:** Search stays horizontal on desktop too; the vertical glass card is retired so the hero remains full-width and cinematic.
 > **Changelog v3.6.9:** Dark-theme contrast pass — calendar selected day yellow/black, clearer disabled/today states, time-slot selection, stepper borders, inputs and date-picker container separation.
 > **Changelog v3.6.10:** Hero left column — inline micro-trust strip (rating/instant confirmation/licensed operators) and five quick intent pills (Best Sellers, Water, Trekking, Combos, Tubing).
+> **Changelog v3.6.11:** Hero video-ready — poster remains LCP, `hero.mp4` loads on desktop after idle (reduced-motion/save-data aware), mobile stays poster-only.
 
 ## 1. Design Principles
 
@@ -155,7 +156,7 @@ Aturan penerapan:
 | 6 | Location / Meeting Point Map & Related Adventures | `#location` |
 
 ### Sticky Header & Breadcrumb Bar
-- **Home hero (v3.5.0)**: hero sinematik memakai foto `/images/hero-bali.jpg` (kolase rafting/ATV/sunset, dioptimalkan ke 1920px/±330 KB dan disajikan lewat `next/image` sebagai LCP `priority`) dengan **scrim kiri** `from-black/90 via-black/60 to-black/5` agar teks terbaca sementara sisi kanan gambar tetap terang, plus overlay gelap tipis di mobile. Headline editorial dua baris: `Book the [keyword]` (typewriter, kata kunci **`brand` tanpa kotak latar** + kursor berkedip) dan `Own the wild!`, dengan padding vertikal lega. Panel search desktop memakai **glass transparan** `bg-[#111111]/15`, `backdrop-blur-[5px]`, border `white/15`, input berjarak longgar, dan tombol Search penuh `brand` + teks ink; hover menaikkan opacity ke 25% agar tetap terbaca. Di bawah search ada **micro-bar trust** (rating/review bila ada, 9 kategori, instant confirmation, 80% refund, secure checkout).
+- **Home hero (v3.6.11)**: hero sinematik memakai poster `/images/hero-bali.jpg` (LCP `priority`) sebagai fallback; jika `/public/videos/hero.mp4` tersedia, `HeroVideo` memuat video desktop setelah idle (muted, loop, playsInline) dan tetap poster di mobile/reduced-motion/save-data. Scrim kiri `from-black/90 via-black/60 to-black/5` menjaga teks terbaca. Headline editorial dua baris: `Book the [keyword]` (typewriter, kata kunci **`brand` tanpa kotak latar** + kursor berkedip) dan `Own the wild!`, dengan padding vertikal lega. Search desktop memakai **horizontal glass pill**; mobile memakai pil ringkas + bottom sheet. Di bawah search ada **micro-bar trust** (rating/review bila ada, 9 kategori, instant confirmation, 80% refund, secure checkout).
 - **Search pill** desktop: hover memunculkan border aksen + shadow glow; mobile tetap pil ringkas yang membuka bottom sheet.
 - **Global switchers (v3.6.2)**: header beranda, PDP, checkout, dan footer menampilkan **EN/ID**, currency selector (IDR, USD, EUR, AUD, SGD, CNY, INR, KRW, JPY), dan **theme sun/moon**. Semua preferensi disimpan di localStorage; kunjungan pertama memakai `x-vercel-ip-country` (Geo-IP) lalu bahasa browser, fallback IDR/EN. Dark mode membalik permukaan putih → hitam dan teks hitam → putih (surface brand seperti hero/footer/tombol kuning tetap kontras), tanpa reload.
 - **Search widget per breakpoint (v3.6.8)**: <768px = pil ringkas + bottom sheet; **≥768px = satu horizontal glass pill** (Where / When / Guests + bulatan Search kuning) yang membuka sheet. Kartu search vertikal tidak lagi ditampilkan sehingga hero tetap lebar dan sinematik di desktop.
