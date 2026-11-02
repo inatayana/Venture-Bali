@@ -124,9 +124,11 @@ a legacy palette utility returns. Translucent white overlays
 (`bg-white/5`–`bg-white/25`) are intentionally allowed because they sit on dark
 or brand surfaces; they are not theme surfaces.
 
-The migration touched **1,308 occurrences across 71 files**. Raw dark fills such
-as `bg-neutral-900` and `text-white` remain where the design is explicitly
-theme-independent (dark buttons, image overlays, footer).
+The migration touched roughly **1,300 occurrences across 73 files**. Raw dark
+fills such as `bg-neutral-900` and `text-white` remain where the design is
+explicitly theme-independent (dark buttons, image overlays, footer). Solid
+action buttons (`bg-green-600/700`, `bg-red-600/700`) and category colours
+(emerald) are also intentionally theme-independent.
 
 ## 7. Guardrails
 
@@ -136,8 +138,10 @@ theme-independent (dark buttons, image overlays, footer).
 - Control boundaries (inputs, buttons, focus rings) use `border-line-control`,
   not `border-line`.
 - Every new token pair must be added to `scripts/check-contrast.mjs`.
-- Do not reintroduce `bg-white`, `text-gray-*`, `border-neutral-*`, or the old
-  green/red palettes. `npm run check:theme` fails the build if they return.
+- Do not reintroduce raw gray/neutral surfaces, text, or borders, nor the
+  green/red/amber state chips and alerts. `npm run check:theme` fails the build
+  if they return. Solid action buttons and category colours are the only
+  palette exceptions.
 
 ## 8. Verify
 
