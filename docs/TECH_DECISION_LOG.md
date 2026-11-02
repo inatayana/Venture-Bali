@@ -250,28 +250,41 @@ When implementing authentication:
 ### Rationale
 - 14.2.5 was affected by CVE-2025-29927 (middleware authorization bypass) and
   the wider set of 14.x advisories.
-- 14.2.35 closes the 14.x security backports, including the middleware bypass.
-  It is a strict improvement over 14.2.5 and can ship while the major upgrade is
-  planned.
+- 14.2.35 closes the 14.x backports that are available on that branch,
+  including the middleware bypass. It is a strict improvement over 14.2.5 and
+  can ship while the major upgrade is planned, but it does not clear every
+  advisory on the EOL branch.
 
 ### Residual risk (tracked)
 - Next 14.x is end-of-life. `npm audit` still reports package-level
   critical/high advisories that are only patched in Next 15.5.28 / 16.4.1.
+  The retained criticals that matter to this app are:
+  - `GHSA-2464-fhr4-w9xw` — RCE in the Image Optimization API when SVG is used.
+  - `GHSA-2xp9-vwfh-vxw4` — RCE in the Image Optimization API when AVIF is used.
+  - `GHSA-p293-qw3h-jr36` — RCE on Windows-hosted servers (not applicable to
+    Vercel Linux, but relevant to local Windows dev).
+  `CVE-2025-29927` (middleware bypass) is fixed in 14.2.35.
 - Mitigations in place today:
   - Production runs on Vercel (Linux) with the platform image optimizer.
   - No `remotePatterns` are configured, so the Image Optimizer cannot fetch
     external images.
   - `dangerouslyAllowSVG` is limited to local placeholder assets; the app has no
     user-supplied SVG upload path.
-- **Gate:** do not migrate to the Hostinger VPS until Next is upgraded to
-  `>=15.5.28` or `>=16.4.1` and the money-path e2e suite exists.
-- `zod` 3.x has no non-breaking fix. Public arrays are bounded in
-  `bookingSchema` and `experiences` as a compensating control.
+- **Gate:** do not migrate to the Hostinger VPS until the upgrade PR re-runs
+  `npm audit` with zero critical/high and the money-path e2e suite exists.
+  `>=15.5.28` / `>=16.4.1` are the current advisory bounds, not a permanent
+  guarantee.
+- `zod` 3.x has no non-breaking fix. Public arrays and their string items are
+  bounded in `bookingSchema` and `experiences` as a compensating control.
+- `npm audit fix` applied patch-level transitive bumps only (`source-map-js`,
+  `postcss-selector-parser`, `brace-expansion`, `js-yaml`, `nanoid`,
+  `ansi-regex`); no new packages were added.
 
 ### Enforcement
-- `npm run audit:check` fails on new high/critical advisories and allowlists
-  only the three documented residuals (`next`, bundled `postcss`, `zod`).
-- CI runs `npm run build` and `npm run audit:check` on every PR to `main`.
+- `npm run audit:check` compares the audit report with
+  `scripts/audit-baseline.json` advisory by advisory. It fails on a new
+  high/critical package, a severity increase, or a new high/critical advisory.
+- CI runs `npm run audit:check` before `npm run build` on every PR to `main`.
 
 ---
 

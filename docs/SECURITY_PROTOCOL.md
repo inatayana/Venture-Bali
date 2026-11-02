@@ -51,14 +51,17 @@
 
 - No new dependencies without owner approval.
 - TypeScript strict mode, no `any` — types are the first security layer.
-- `npm run audit:check` runs in CI. It fails on new high/critical advisories and
-  allowlists only the documented residuals (Next 14 EOL, bundled postcss, zod 3).
+- `npm run audit:check` runs in CI. It compares the report with
+  `scripts/audit-baseline.json` and fails on a new high/critical package, a
+  severity increase, or a new high/critical advisory.
 - Run `npm audit` weekly; report new high/critical findings to the owner and
   open a fix branch within 7 days.
 - Current residual: Next 14.x is end-of-life. Do not migrate to the VPS until
   Next is upgraded to `>=15.5.28` or `>=16.4.1`.
 - The Image Optimizer only accepts local assets: no `remotePatterns` and no
   user-supplied SVG. Remove `dangerouslyAllowSVG` once raster photography lands.
+- CSP is report-only and has no report endpoint yet; violations appear in the
+  browser console. Add `report-to` when telemetry lands.
 
 ## 7. Incident Response
 
