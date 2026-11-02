@@ -1,13 +1,11 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle, ImagePlus, Loader2, Star, X } from 'lucide-react';
+import { CheckCircle, Loader2, Star } from 'lucide-react';
 import { cn } from '@/utils/cn';
-import { compressReviewPhoto } from '@/lib/compressImage';
+import { PhotoUploader } from '@/components/features/ReviewPhotoUploader';
 
 const REVIEW_MAX_LENGTH = 500;
-const PHOTO_LIMIT = 3;
 
 interface ReviewFormProps {
   bookingId: string;
@@ -36,49 +34,24 @@ export function ReviewForm({
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [published, setPublished] = useState(false);
 
-  const uploadPhotos = async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
-    setPhotoError(null);
+  const uploadPhoto = async (file: File) => {
+    const form = new FormData();
+    form.set('token', token);
+    form.set('bookingId', bookingId);
+    form.set('file', file);
 
-    const remaining = PHOTO_LIMIT - photos.length;
-    if (remaining <= 0) {
-      setPhotoError('You can add up to 3 photos.');
-      return;
+    const response = await fetch('/api/reviews/photos', { method: 'POST', body: form });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error?.message ?? 'Could not upload the photo.');
     }
-
-    const selected = Array.from(files).slice(0, remaining);
-    if (files.length > remaining) {
-      setPhotoError(`Only ${remaining} more photo${remaining === 1 ? '' : 's'} allowed.`);
-    }
-
-    setUploading(true);
-    for (const file of selected) {
-      try {
-        if (!file.type.startsWith('image/')) throw new Error('Use a JPG, PNG or WebP photo.');
-        const compressed = await compressReviewPhoto(file);
-        const form = new FormData();
-        form.set('token', token);
-        form.set('bookingId', bookingId);
-        form.set('file', compressed);
-
-        const response = await fetch('/api/reviews/photos', { method: 'POST', body: form });
-        const data = await response.json();
-        if (!response.ok || !data.success) {
-          throw new Error(data.error?.message ?? 'Could not upload the photo.');
-        }
-        setPhotos((current) => [...current, data.data.url].slice(0, PHOTO_LIMIT));
-      } catch (err) {
-        setPhotoError(err instanceof Error ? err.message : 'Could not upload the photo.');
-      }
-    }
-    setUploading(false);
+    return data.data.url as string;
   };
 
   const submit = async (event: React.FormEvent) => {
@@ -182,7 +155,7 @@ export function ReviewForm({
               onClick={() => setRating(value)}
               aria-label={`${value} star${value > 1 ? 's' : ''}`}
               aria-pressed={rating === value}
-              className="rounded-md p-1 transition-transform hover:scale-110"
+              className="flex h-11 w-11 items-center justify-center rounded-md transition-transform hover:scale-110"
             >
               <Star
                 className={cn(
@@ -220,61 +193,12 @@ export function ReviewForm({
       </p>
 
       {photosEnabled && (
-        <div className="mt-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
-            Photos <span className="font-normal normal-case tracking-normal">(optional, up to 3)</span>
-          </p>
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {photos.map((photo, index) => (
-              <div key={photo} className="relative overflow-hidden rounded-xl bg-neutral-100">
-                <img
-                  src={photo}
-                  alt={`Review photo ${index + 1}`}
-                  className="aspect-[4/3] w-full object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => setPhotos((current) => current.filter((url) => url !== photo))}
-                  aria-label={`Remove photo ${index + 1}`}
-                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/70 text-white"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
-
-            {photos.length < PHOTO_LIMIT && (
-              <label
-                className={cn(
-                  'flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-neutral-300 text-xs font-medium text-neutral-600 transition-colors hover:border-neutral-500',
-                  uploading && 'pointer-events-none opacity-60'
-                )}
-              >
-                {uploading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-                ) : (
-                  <ImagePlus className="h-5 w-5" aria-hidden="true" />
-                )}
-                {uploading ? 'Uploading…' : 'Add photo'}
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  multiple
-                  onChange={(event) => {
-                    void uploadPhotos(event.target.files);
-                    event.target.value = '';
-                  }}
-                  className="sr-only"
-                />
-              </label>
-            )}
-          </div>
-          {photoError && (
-            <p role="alert" className="mt-2 text-xs text-red-700">
-              {photoError}
-            </p>
-          )}
-        </div>
+        <PhotoUploader
+          photos={photos}
+          onChange={setPhotos}
+          uploadFile={uploadPhoto}
+          onUploadingChange={setPhotoUploading}
+        />
       )}
 
       {error && (
@@ -285,7 +209,7 @@ export function ReviewForm({
 
       <button
         type="submit"
-        disabled={pending || uploading}
+        disabled={pending || photoUploading}
         className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand transition-colors hover:bg-neutral-900 disabled:opacity-60"
       >
         {pending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}

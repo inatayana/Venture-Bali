@@ -12,6 +12,7 @@ import {
   Sparkles,
   BarChart3,
   MessageSquareQuote,
+  Ticket,
   ExternalLink,
   LogOut,
 } from 'lucide-react';
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { href: '/admin/bookings', label: 'Bookings', icon: CalendarCheck },
   { href: '/admin/refunds', label: 'Refunds', icon: RotateCcw },
   { href: '/admin/reviews', label: 'Reviews', icon: MessageSquareQuote },
+  { href: '/admin/reviews/invites', label: 'Invites', icon: Ticket },
   { href: '/admin/reports', label: 'Revenue', icon: BarChart3 },
   { href: '/admin/content', label: 'AI Content', icon: Sparkles },
 ];
@@ -54,7 +56,12 @@ export function AdminSidebar() {
 
       <nav className="p-3 space-y-1 flex-1" aria-label="Admin navigation">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const active = href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
+          const active =
+            href === '/admin'
+              ? pathname === '/admin'
+              : href === '/admin/reviews'
+                ? pathname === '/admin/reviews'
+                : pathname.startsWith(href);
           return (
             <Link
               key={href}
