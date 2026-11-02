@@ -503,6 +503,12 @@ model Article {
   @@index([aiGenerated])
 }
 
+enum ReviewSource {
+  VERIFIED_BOOKING
+  FOUNDING_GUEST
+  IMPORTED
+}
+
 model Review {
   id         String   @id @default(cuid())
   ventureId  String
@@ -512,13 +518,15 @@ model Review {
   /// Booking the review belongs to. Present = verified trip; unique = one review per booking.
   bookingId  String?  @unique
   booking    Booking? @relation("BookingToReview", fields: [bookingId], references: [id], onDelete: SetNull)
+  /// How the review was collected. Verified booking is the only “Verified trip” badge.
+  source     ReviewSource @default(VERIFIED_BOOKING)
   rating     Int
   comment    String   @db.Text
   /// Guest-supplied display name. Falls back to the booking customer's name.
   guestName     String?
   /// Guest-supplied origin, e.g. "Woodbridge Township, NJ".
   guestLocation String?
-  /// Reserved for guest photos (URLs); rendered once storage is configured.
+  /// Guest photos (public Supabase Storage URLs); max 3, shown only when approved.
   photos     Json     @default("[]")
   isApproved Boolean  @default(false)
   createdAt  DateTime @default(now())
@@ -526,6 +534,7 @@ model Review {
   @@index([ventureId, isApproved])
   @@index([customerId])
   @@index([rating])
+  @@index([source])
 }
 
 model MediaAsset {

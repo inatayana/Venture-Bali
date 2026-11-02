@@ -422,6 +422,10 @@ export interface ReviewSummary {
   location?: string;
   /** True when the review is linked to a real paid booking. */
   isVerified?: boolean;
+  /** How it was collected: verified booking, founding guest, or imported real review. */
+  source?: 'VERIFIED_BOOKING' | 'FOUNDING_GUEST' | 'IMPORTED';
+  /** Approved guest photos (max 3). */
+  photos?: string[];
   createdAt: Date;
 }
 

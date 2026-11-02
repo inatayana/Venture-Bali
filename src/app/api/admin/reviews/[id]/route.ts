@@ -5,7 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { requireAdminRole } from '@/lib/adminGuard';
 
 const actionSchema = z.object({
-  action: z.enum(['approve', 'reject']),
+  action: z.enum(['approve', 'reject', 'remove-photo']),
+  photoUrl: z.string().url().optional(),
 });
 
 interface RouteParams {
@@ -24,11 +25,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
   try {
     const { id } = await params;
-    const { action } = actionSchema.parse(await request.json());
+    const { action, photoUrl } = actionSchema.parse(await request.json());
 
     const review = await prisma.review.findUnique({
       where: { id },
-      select: { id: true, venture: { select: { id: true, slug: true } } },
+      select: {
+        id: true,
+        photos: true,
+        isApproved: true,
+        venture: { select: { id: true, slug: true } },
+      },
     });
 
     if (!review) {
@@ -40,8 +46,22 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     if (action === 'approve') {
       await prisma.review.update({ where: { id }, data: { isApproved: true } });
-    } else {
+    } else if (action === 'reject') {
       await prisma.review.delete({ where: { id } });
+    } else {
+      if (!photoUrl) {
+        return NextResponse.json(
+          { success: false, error: { code: 'VALIDATION_ERROR', message: 'Missing photo URL' } },
+          { status: 400 }
+        );
+      }
+      const photos = Array.isArray(review.photos)
+        ? review.photos.filter((value): value is string => typeof value === 'string')
+        : [];
+      await prisma.review.update({
+        where: { id },
+        data: { photos: photos.filter((value) => value !== photoUrl) },
+      });
     }
 
     revalidatePath('/admin/reviews');

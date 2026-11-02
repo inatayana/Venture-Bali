@@ -9,11 +9,13 @@ export const reviewInputSchema = z.object({
     .string()
     .trim()
     .min(20, 'Tell us a little more (at least 20 characters)')
-    .max(1000, 'Keep it under 1000 characters'),
-  /** Display name; falls back to the booking customer's name when omitted. */
+    .max(500, 'Keep it under 500 characters'),
+  /** Optional display name; falls back to the booking customer's name when omitted. */
   guestName: z.string().trim().max(60, 'Keep your name under 60 characters').optional(),
-  /** Display location; falls back to the customer's country when omitted. */
+  /** Optional display location; falls back to the customer's country when omitted. */
   guestLocation: z.string().trim().max(80, 'Keep your location under 80 characters').optional(),
+  /** Public URLs returned by POST /api/reviews/photos. Max 3. */
+  photos: z.array(z.string().url('Invalid photo URL')).max(3, 'Add up to 3 photos').optional(),
 });
 
 export type ReviewInput = z.infer<typeof reviewInputSchema>;

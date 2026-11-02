@@ -80,6 +80,29 @@ describe('ReviewForm', () => {
     expect(await screen.findByText(/review is now live/i)).toBeInTheDocument();
   });
 
+  it('shows the photo picker only when storage is enabled', () => {
+    const { rerender } = render(
+      <ReviewForm
+        bookingId="booking-1"
+        token="cl1.payload.signature"
+        ventureTitle="Ubud River Tubing"
+        defaultName="Made Wijaya"
+      />
+    );
+    expect(screen.queryByText('Add photo')).not.toBeInTheDocument();
+
+    rerender(
+      <ReviewForm
+        bookingId="booking-1"
+        token="cl1.payload.signature"
+        ventureTitle="Ubud River Tubing"
+        defaultName="Made Wijaya"
+        photosEnabled
+      />
+    );
+    expect(screen.getByText('Add photo')).toBeInTheDocument();
+  });
+
   it('requires a display name', async () => {
     const user = userEvent.setup();
     render(

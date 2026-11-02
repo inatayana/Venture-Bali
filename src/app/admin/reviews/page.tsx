@@ -1,97 +1,207 @@
-import { Star } from 'lucide-react';
+import type { Prisma, ReviewSource } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { ReviewModerationActions } from '@/components/admin/ReviewModerationActions';
+import { AdminReviewQueue, type AdminReviewItem } from '@/components/admin/AdminReviewQueue';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminReviewsPage() {
-  const [pending, approved] = await Promise.all([
+const REVIEW_TARGET_PER_PRODUCT = 10;
+const SOURCES: ReviewSource[] = ['VERIFIED_BOOKING', 'FOUNDING_GUEST', 'IMPORTED'];
+const STATUSES = ['pending', 'published', 'all'] as const;
+
+interface AdminReviewsPageProps {
+  searchParams: {
+    status?: string;
+    source?: string;
+    venture?: string;
+  };
+}
+
+function parsePhotos(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is string => typeof item === 'string' && /^https?:\/\//.test(item))
+    .slice(0, 3);
+}
+
+function parseSource(value: string): ReviewSource {
+  return SOURCES.includes(value as ReviewSource) ? (value as ReviewSource) : 'VERIFIED_BOOKING';
+}
+
+export default async function AdminReviewsPage({ searchParams }: AdminReviewsPageProps) {
+  const status = STATUSES.includes(searchParams.status as (typeof STATUSES)[number])
+    ? (searchParams.status as (typeof STATUSES)[number])
+    : 'pending';
+  const source = searchParams.source && SOURCES.includes(searchParams.source as ReviewSource)
+    ? (searchParams.source as ReviewSource)
+    : null;
+  const ventureId = searchParams.venture?.trim() || null;
+
+  const where: Prisma.ReviewWhereInput = {};
+  if (status === 'pending') where.isApproved = false;
+  if (status === 'published') where.isApproved = true;
+  if (source) where.source = source;
+  if (ventureId) where.ventureId = ventureId;
+
+  const [pendingCount, publishedCount, coverageRows, ventures, reviews] = await Promise.all([
+    prisma.review.count({ where: { isApproved: false } }),
+    prisma.review.count({ where: { isApproved: true } }),
+    prisma.review.groupBy({
+      by: ['ventureId', 'isApproved'],
+      _count: { _all: true },
+    }),
+    prisma.venture.findMany({
+      select: { id: true, title: true },
+      orderBy: { title: 'asc' },
+    }),
     prisma.review.findMany({
-      where: { isApproved: false },
+      where,
       orderBy: { createdAt: 'desc' },
-      take: 50,
+      take: 100,
       include: {
-        venture: { select: { title: true } },
+        venture: { select: { id: true, title: true } },
         customer: { select: { name: true } },
         booking: { select: { bookingCode: true, bookingDate: true } },
       },
     }),
-    prisma.review.findMany({
-      where: { isApproved: true },
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-      include: { venture: { select: { title: true } } },
-    }),
   ]);
+
+  const coverage = new Map<string, { approved: number; pending: number }>();
+  for (const row of coverageRows) {
+    const current = coverage.get(row.ventureId) ?? { approved: 0, pending: 0 };
+    if (row.isApproved) current.approved += row._count._all;
+    else current.pending += row._count._all;
+    coverage.set(row.ventureId, current);
+  }
+
+  const items: AdminReviewItem[] = reviews.map((review) => ({
+    id: review.id,
+    ventureId: review.venture.id,
+    ventureTitle: review.venture.title,
+    rating: review.rating,
+    comment: review.comment,
+    guestName: review.guestName?.trim() || review.customer.name,
+    guestLocation: review.guestLocation?.trim() || null,
+    bookingCode: review.booking?.bookingCode ?? null,
+    bookingDate: review.booking?.bookingDate ?? null,
+    source: parseSource(review.source),
+    isApproved: review.isApproved,
+    photos: parsePhotos(review.photos),
+    createdAt: review.createdAt.toISOString(),
+  }));
 
   return (
     <div className="space-y-6">
       <header>
         <h1 className="font-heading text-2xl font-bold text-gray-900">Reviews</h1>
         <p className="mt-1 text-sm text-gray-500">
-          {pending.length} waiting for moderation · {approved.length} published recently
+          {pendingCount} waiting for moderation · {publishedCount} published
         </p>
       </header>
 
-      <section className="space-y-3">
-        {pending.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-gray-200 bg-white p-6 text-sm text-gray-500">
-            Nothing to moderate. Guest reviews appear here after the trip.
-          </p>
-        ) : (
-          pending.map((review) => (
-            <article key={review.id} className="rounded-xl border border-gray-100 bg-white p-4">
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {review.venture.title}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {review.guestName?.trim() || review.customer.name}
-                    {review.guestLocation?.trim() ? ` · ${review.guestLocation}` : ''} ·{' '}
-                    {review.booking?.bookingCode ?? 'manual entry'} ·{' '}
-                    {review.booking?.bookingDate ?? review.createdAt.toISOString().slice(0, 10)}
-                  </p>
+      <section>
+        <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500">
+            Coverage · target {REVIEW_TARGET_PER_PRODUCT} published reviews per product
+          </h2>
+          <span className="text-xs text-gray-500">
+            {ventures.filter((venture) => (coverage.get(venture.id)?.approved ?? 0) >= REVIEW_TARGET_PER_PRODUCT).length}
+            /{ventures.length} products reached target
+          </span>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          {ventures.map((venture) => {
+            const counts = coverage.get(venture.id) ?? { approved: 0, pending: 0 };
+            const percent = Math.min(
+              100,
+              Math.round((counts.approved / REVIEW_TARGET_PER_PRODUCT) * 100)
+            );
+            return (
+              <a
+                key={venture.id}
+                href={`/admin/reviews?status=all&venture=${venture.id}`}
+                className="min-w-0 rounded-xl border border-gray-200 bg-white px-3 py-2 transition-colors hover:border-gray-400"
+              >
+                <p className="truncate text-sm font-semibold text-gray-900">{venture.title}</p>
+                <div className="mt-1 flex items-center justify-between text-xs text-gray-600">
+                  <span>
+                    {counts.approved}/{REVIEW_TARGET_PER_PRODUCT} published
+                  </span>
+                  <span>{counts.pending} pending</span>
                 </div>
-                <div className="flex items-center gap-0.5" aria-label={`${review.rating} of 5 stars`}>
-                  {Array.from({ length: review.rating }).map((_, index) => (
-                    <Star key={index} className="h-4 w-4 fill-brand text-brand" />
-                  ))}
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                  <div className="h-full rounded-full bg-brand" style={{ width: `${percent}%` }} />
                 </div>
-              </div>
-
-              <p className="mt-2 whitespace-pre-line text-sm text-gray-700">{review.comment}</p>
-
-              <div className="mt-3 flex items-center justify-between gap-2 border-t border-gray-100 pt-3">
-                <span className="text-xs text-gray-600">
-                  Submitted {review.createdAt.toISOString().slice(0, 10)}
-                  {review.booking ? ' · verified trip' : ''}
-                </span>
-                <ReviewModerationActions reviewId={review.id} />
-              </div>
-            </article>
-          ))
-        )}
+              </a>
+            );
+          })}
+        </div>
       </section>
+
+      <form method="get" className="flex flex-wrap items-end gap-2 rounded-xl border border-gray-200 bg-white p-3">
+        <label className="text-xs font-semibold text-gray-600">
+          Status
+          <select
+            name="status"
+            defaultValue={status}
+            className="mt-1 block min-h-[44px] rounded-lg border border-gray-300 px-2 text-sm text-gray-900"
+          >
+            <option value="pending">Pending</option>
+            <option value="published">Published</option>
+            <option value="all">All</option>
+          </select>
+        </label>
+        <label className="text-xs font-semibold text-gray-600">
+          Source
+          <select
+            name="source"
+            defaultValue={source ?? ''}
+            className="mt-1 block min-h-[44px] rounded-lg border border-gray-300 px-2 text-sm text-gray-900"
+          >
+            <option value="">All sources</option>
+            <option value="VERIFIED_BOOKING">Verified booking</option>
+            <option value="FOUNDING_GUEST">Founding guest</option>
+            <option value="IMPORTED">Imported review</option>
+          </select>
+        </label>
+        <label className="min-w-0 flex-1 text-xs font-semibold text-gray-600">
+          Product
+          <select
+            name="venture"
+            defaultValue={ventureId ?? ''}
+            className="mt-1 block min-h-[44px] w-full rounded-lg border border-gray-300 px-2 text-sm text-gray-900"
+          >
+            <option value="">All products</option>
+            {ventures.map((venture) => (
+              <option key={venture.id} value={venture.id}>
+                {venture.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="submit"
+          className="inline-flex min-h-[44px] items-center rounded-lg bg-neutral-900 px-4 text-sm font-semibold text-white"
+        >
+          Apply
+        </button>
+        <a
+          href="/admin/reviews"
+          className="inline-flex min-h-[44px] items-center px-2 text-sm font-semibold text-gray-700 underline"
+        >
+          Reset
+        </a>
+      </form>
 
       <section>
         <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">
-          Recently published
+          {status === 'pending' ? 'Moderation queue' : status === 'published' ? 'Published reviews' : 'All reviews'}
         </h2>
-        <ul className="space-y-2">
-          {approved.length === 0 && (
-            <li className="text-sm text-gray-500">No published reviews yet.</li>
-          )}
-          {approved.map((review) => (
-            <li key={review.id} className="rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm">
-              <span className="font-semibold text-gray-900">{review.venture.title}</span>
-              <span className="ml-2 text-xs text-gray-500">
-                {review.rating}★ · {review.comment.slice(0, 80)}
-                {review.comment.length > 80 ? '…' : ''}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <AdminReviewQueue reviews={items} />
+        {reviews.length === 100 && (
+          <p className="mt-2 text-xs text-gray-500">
+            Showing the latest 100 reviews. Narrow the filters to see older entries.
+          </p>
+        )}
       </section>
     </div>
   );

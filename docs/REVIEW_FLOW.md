@@ -54,6 +54,42 @@ Created by `createReviewToken(customerId, bookingId)` in
 Legacy 30-day account tokens (`cl1`) are still accepted for reviews so old
 links do not break. New emails/QRs always use `rl1`.
 
+## 3a. Review source and badges
+
+`Review.source` (migration `20261108100000_review_source`):
+
+| Source | Badge | Meaning |
+|---|---|---|
+| `VERIFIED_BOOKING` | Verified trip | Paid booking, marked COMPLETED |
+| `FOUNDING_GUEST` | Founding guest | Real invited guest who did the activity without an online booking |
+| `IMPORTED` | Imported review | Real review collected from another platform with permission |
+
+Only `VERIFIED_BOOKING` may use the “Verified trip” badge. Never label a
+non-booking review as verified.
+
+## 3b. Guest photos
+
+- Max **3 photos** per review, **5 MB** each
+- Compressed in the browser to WebP, max edge 1600px (`src/lib/compressImage.ts`)
+- Uploaded one at a time to `POST /api/reviews/photos` using the scoped token
+- Stored in the public Supabase bucket named by `SUPABASE_REVIEW_BUCKET`
+  (default `reviews`)
+- Server re-validates MIME type and size and only accepts URLs from that bucket
+- Reviews **with photos always go through moderation**, even at 5★
+- Admin can remove individual photos before or after publishing
+- Photos render as a 4:3 grid (max 3) in review cards and the admin queue
+
+Create the bucket in Supabase Storage and mark it public. Without
+`NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, photo uploads return
+`503` and reviews can still be submitted without photos.
+
+## 3c. Review length
+
+Comments are **20–500 characters**. The form shows a live counter, cards clamp
+to three lines with “Read more”, and the 500-character cap keeps the mobile/PWA
+layout compact.
+
+
 ## 4. Delivery channels
 
 | Channel | What is sent | Notes |
@@ -72,13 +108,25 @@ failures never block checkout, ops, or review submission.
 
 | Case | Result |
 |---|---|
-| Verified + rating 4–5 + clean comment | **Auto-publish** |
+| Verified + rating 4–5 + clean comment, no photos | **Auto-publish** |
+| Verified + rating 4–5 + photos | Queue (photos are UGC) + support email |
 | Rating 1–3 | Queue + support email |
 | Link, email, phone number, `wa.me`, `t.me` | Queue + support email |
 | Severe profanity | Queue + support email |
 | Not verified / comment < 20 chars | Queue |
 
 Admin queue: `/admin/reviews` → Approve / Reject. Reject deletes the row.
+
+### Admin tooling (v3.7.2)
+
+- Coverage per product: published count vs target **10/product**, pending count,
+  progress bar, click to filter that product.
+- Filters: status (pending/published/all), source, product.
+- Bulk approve or delete up to 100 selected reviews.
+- Photo moderation: open a photo or remove it from the review.
+- Source badge on every row so imported/founding-guest reviews are never
+  confused with verified bookings.
+
 
 ## 6. Cron
 
@@ -104,10 +152,17 @@ Requires `CRON_SECRET`; without it the route returns 401.
 | `CRON_SECRET` | Authenticates the Vercel cron |
 | `CUSTOMER_LINK_SECRET` | Signs `rl1` tokens (falls back to `ADMIN_SESSION_SECRET`) |
 | `NEXT_PUBLIC_APP_URL` | Absolute links/QRs in email |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL for review photos |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only upload key |
+| `SUPABASE_REVIEW_BUCKET` | Public bucket name (default `reviews`) |
 
-**Current local status:** Resend, WhatsApp and `CRON_SECRET` are not configured,
-so outbound sends are recorded as `FAILED`. The QR/ops path and review form
-still work; configure the keys before production traffic.
+**Photo setup:** create a public bucket named `reviews` in Supabase Storage.
+Uploads use the service-role key server-side; the browser never sees it.
+
+**Current local status:** Resend, WhatsApp, `CRON_SECRET` and Supabase storage
+keys are not configured, so outbound sends are recorded as `FAILED` and photo
+upload returns `503`. QR/ops, text-only reviews and admin moderation still work.
+Configure the keys before production traffic.
 
 ## 8. Testing
 
@@ -115,16 +170,19 @@ Automated:
 
 ```bash
 npx jest src/lib/customerLink.test.ts src/lib/reviewSchema.test.ts \
-  src/lib/reviewModeration.test.ts src/components/features/ReviewForm.test.tsx
+  src/lib/reviewModeration.test.ts src/lib/reviewPhotos.test.ts \
+  src/lib/reviewFeed.test.ts src/components/features/ReviewForm.test.tsx
 ```
 
 Manual (local, after a booking is `COMPLETED`):
 
 1. Ops → Redeem → QR panel appears.
 2. Scan/open the link → review form loads.
-3. Submit 5★ clean comment → response `published: true`, PDP shows it.
-4. Submit 2★ → response `pendingModeration: true`, `/admin/reviews` lists it.
-5. Check `NotificationLog` for SENT/FAILED reasons.
+3. Add 1–3 photos → thumbnails appear, upload returns a Supabase public URL.
+4. Submit 5★ clean comment → response `published: true`, PDP shows it with photos.
+5. Submit 2★ → response `pendingModeration: true`, `/admin/reviews` lists it.
+6. Admin filters by product/source/status, approves in bulk, and removes a photo.
+7. Check `NotificationLog` for SENT/FAILED reasons.
 
 Never seed fake reviews into staging or production. Use a real test booking,
 then delete the test review row if the environment must stay clean.

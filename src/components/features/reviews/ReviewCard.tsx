@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState } from 'react';
@@ -11,11 +12,38 @@ interface ReviewCardProps {
   className?: string;
 }
 
-/** Airbnb-style review row: avatar, name, country, relative date and stars. */
+function sourceBadge(review: ReviewSummary) {
+  if (review.isVerified) {
+    return (
+      <span className="inline-flex items-center gap-0.5 rounded-full bg-green-50 px-1.5 py-0.5 text-xs font-semibold text-green-700">
+        <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
+        Verified trip
+      </span>
+    );
+  }
+  if (review.source === 'FOUNDING_GUEST') {
+    return (
+      <span className="rounded-full bg-brand/30 px-1.5 py-0.5 text-xs font-semibold text-neutral-800">
+        Founding guest
+      </span>
+    );
+  }
+  if (review.source === 'IMPORTED') {
+    return (
+      <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-xs font-semibold text-neutral-700">
+        Imported review
+      </span>
+    );
+  }
+  return null;
+}
+
+/** Airbnb-style review row: avatar, name, country, relative date, stars and photos. */
 export function ReviewCard({ review, className }: ReviewCardProps) {
   const [expanded, setExpanded] = useState(false);
   const isLong = review.comment.length > 220;
   const initial = review.author.trim().charAt(0).toUpperCase() || 'G';
+  const photos = review.photos?.slice(0, 3) ?? [];
 
   return (
     <article className={cn('space-y-2', className)}>
@@ -28,11 +56,9 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
         </span>
 
         <div className="min-w-0">
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900">
+          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm font-semibold text-neutral-900">
             <span className="truncate">{review.author}</span>
-            {review.isVerified && (
-              <BadgeCheck className="h-4 w-4 shrink-0 text-green-600" aria-label="Verified trip" />
-            )}
+            {sourceBadge(review)}
           </p>
           <p className="text-xs text-neutral-500">
             {[review.location ?? review.country, formatRelativeDate(review.createdAt)]
@@ -68,6 +94,29 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
       >
         {review.comment}
       </p>
+
+      {photos.length > 0 && (
+        <div className="grid grid-cols-3 gap-1.5">
+          {photos.map((photo, index) => (
+            <a
+              key={photo}
+              href={photo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block overflow-hidden rounded-lg bg-neutral-100"
+              aria-label={`Open guest photo ${index + 1}`}
+            >
+              <img
+                src={photo}
+                alt={`Guest photo from ${review.author}`}
+                loading="lazy"
+                decoding="async"
+                className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            </a>
+          ))}
+        </div>
+      )}
 
       {isLong && (
         <button
