@@ -10,13 +10,13 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles = {
   primary:
-    'bg-brand-ink text-brand hover:bg-neutral-900 active:bg-neutral-800 disabled:bg-neutral-400 disabled:text-neutral-700',
+    'bg-brand-ink text-brand hover:bg-brand-ink/90 active:bg-brand-ink/80 disabled:bg-line-strong disabled:text-foreground-muted',
   secondary:
-    'bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800 disabled:bg-gray-300',
+    'bg-button-secondary text-button-secondary-foreground hover:bg-button-secondary-hover active:bg-button-secondary-active disabled:bg-button-secondary/40',
   outline:
-    'border-2 border-brand-ink text-brand-ink hover:bg-brand active:bg-brand/80 disabled:border-neutral-300 disabled:text-neutral-600',
+    'border-2 border-brand-ink text-brand-ink hover:bg-brand active:bg-brand/80 disabled:border-line-strong disabled:text-foreground-muted',
   ghost:
-    'text-brand-ink hover:bg-brand/40 active:bg-brand/60 disabled:text-neutral-600',
+    'text-brand-ink hover:bg-brand/40 active:bg-brand/60 disabled:text-foreground-muted',
   danger:
     'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:bg-red-300',
 };

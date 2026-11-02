@@ -53,6 +53,13 @@ module.exports = {
         warning: 'rgb(var(--state-warning) / <alpha-value>)',
         danger: 'rgb(var(--state-danger) / <alpha-value>)',
         info: 'rgb(var(--state-info) / <alpha-value>)',
+        'button-secondary': {
+          DEFAULT: 'rgb(var(--button-secondary) / <alpha-value>)',
+          hover: 'rgb(var(--button-secondary-hover) / <alpha-value>)',
+          active: 'rgb(var(--button-secondary-active) / <alpha-value>)',
+        },
+        'button-secondary-foreground':
+          'rgb(var(--button-secondary-foreground) / <alpha-value>)',
       },
       keyframes: {
         'slide-up': {

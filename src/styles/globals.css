@@ -43,6 +43,12 @@
     --state-warning: 217 119 6;
     --state-danger: 220 38 38;
     --state-info: 37 99 235;
+
+    /* Secondary button keeps the existing slate look in both themes. */
+    --button-secondary: 75 85 99;
+    --button-secondary-hover: 55 65 81;
+    --button-secondary-active: 31 41 55;
+    --button-secondary-foreground: 255 255 255;
   }
 
   .dark {

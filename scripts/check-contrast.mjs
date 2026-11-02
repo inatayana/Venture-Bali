@@ -84,6 +84,9 @@ const pairs = [
   ['light', 'border-control on bg-base', 'border-control', 'bg-base', UI_MIN],
   ['light', 'border-control on bg-surface', 'border-control', 'bg-surface', UI_MIN],
   ['light', 'brand-ink on brand', 'brand-ink', 'brand', TEXT_MIN],
+  ['light', 'button-secondary fg on bg', 'button-secondary-foreground', 'button-secondary', TEXT_MIN],
+  ['light', 'button-secondary fg on hover', 'button-secondary-foreground', 'button-secondary-hover', TEXT_MIN],
+  ['light', 'button-secondary fg on active', 'button-secondary-foreground', 'button-secondary-active', TEXT_MIN],
   ['dark', 'text-primary on bg-base', 'text-primary', 'bg-base', TEXT_MIN],
   ['dark', 'text-primary on bg-surface', 'text-primary', 'bg-surface', TEXT_MIN],
   ['dark', 'text-secondary on bg-base', 'text-secondary', 'bg-base', TEXT_MIN],
@@ -93,6 +96,9 @@ const pairs = [
   ['dark', 'border-control on bg-base', 'border-control', 'bg-base', UI_MIN],
   ['dark', 'border-control on bg-surface', 'border-control', 'bg-surface', UI_MIN],
   ['dark', 'brand-ink on brand', 'brand-ink', 'brand', TEXT_MIN],
+  ['dark', 'button-secondary fg on bg', 'button-secondary-foreground', 'button-secondary', TEXT_MIN],
+  ['dark', 'button-secondary fg on hover', 'button-secondary-foreground', 'button-secondary-hover', TEXT_MIN],
+  ['dark', 'button-secondary fg on active', 'button-secondary-foreground', 'button-secondary-active', TEXT_MIN],
 ];
 
 const missing = new Set();
