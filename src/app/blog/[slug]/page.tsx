@@ -195,7 +195,7 @@ export default async function BlogDetailPage({ params }: { params: { slug: strin
 
         {article.venture && (
           <div className="mt-8 rounded-2xl bg-brand-ink p-6 text-white sm:p-8">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand">
               Related adventure
             </p>
             <Link

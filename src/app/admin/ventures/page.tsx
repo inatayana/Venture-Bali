@@ -33,7 +33,7 @@ export default async function AdminVenturesPage() {
       {ventures.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-10 text-center">
           <p className="text-gray-500">No ventures in the catalogue yet.</p>
-          <p className="text-sm text-gray-400 mt-2">
+          <p className="text-sm text-gray-600 mt-2">
             Run <code className="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">npm run db:seed</code>{' '}
             to load the demo catalogue.
           </p>
@@ -43,7 +43,7 @@ export default async function AdminVenturesPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase tracking-wider text-gray-400 border-b border-gray-200 bg-gray-50">
+                <tr className="text-left text-xs uppercase tracking-wider text-gray-600 border-b border-gray-200 bg-gray-50">
                   <th className="px-4 py-3 font-medium">Product</th>
                   <th className="px-4 py-3 font-medium">Category</th>
                   <th className="px-4 py-3 font-medium">Variants</th>
@@ -58,7 +58,7 @@ export default async function AdminVenturesPage() {
                   <tr key={venture.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
                     <td className="px-4 py-3">
                       <p className="font-medium text-gray-900">{venture.title}</p>
-                      <p className="text-xs text-gray-400 font-mono">{venture.slug}</p>
+                      <p className="text-xs text-gray-600 font-mono">{venture.slug}</p>
                     </td>
                     <td className="px-4 py-3 text-gray-600">{venture.category}</td>
                     <td className="px-4 py-3 text-gray-600">
@@ -72,7 +72,7 @@ export default async function AdminVenturesPage() {
                     </td>
                     <td className="px-4 py-3 text-gray-800 tabular-nums">
                       {venture.rating.toFixed(1)}
-                      <span className="text-gray-400"> ({venture.reviewCount})</span>
+                      <span className="text-gray-600"> ({venture.reviewCount})</span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">

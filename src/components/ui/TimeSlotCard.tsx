@@ -25,7 +25,7 @@ export function TimeSlotCard({
       disabled={isSoldOut}
       className={cn(
         'flex flex-col items-center p-4 rounded-xl border-2 transition-all min-w-[100px]',
-        isSoldOut && 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed',
+        isSoldOut && 'border-gray-200 bg-gray-50 text-gray-600 cursor-not-allowed',
         !isSoldOut && !isSelected && 'border-gray-200 bg-white hover:border-brand hover:bg-brand/20',
         isSelected && 'border-brand-ink bg-brand/30 ring-2 ring-brand',
         className
@@ -34,13 +34,13 @@ export function TimeSlotCard({
     >
       <span className={cn(
         'text-lg font-bold',
-        isSoldOut ? 'text-gray-400' : isSelected ? 'text-brand-ink' : 'text-gray-900'
+        isSoldOut ? 'text-gray-600' : isSelected ? 'text-brand-ink' : 'text-gray-900'
       )}>
         {slot.time}
       </span>
       <span className={cn(
         'text-xs mt-1',
-        isSoldOut ? 'text-gray-400' : isLow ? 'text-red-500 font-medium' : 'text-gray-500'
+        isSoldOut ? 'text-gray-600' : isLow ? 'text-red-500 font-medium' : 'text-gray-500'
       )}>
         {isSoldOut ? 'Sold out' : `${spotsLeft} left`}
       </span>

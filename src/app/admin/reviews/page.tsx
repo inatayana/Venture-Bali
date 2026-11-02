@@ -63,7 +63,7 @@ export default async function AdminReviewsPage() {
               <p className="mt-2 whitespace-pre-line text-sm text-gray-700">{review.comment}</p>
 
               <div className="mt-3 flex items-center justify-between gap-2 border-t border-gray-100 pt-3">
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-gray-600">
                   Submitted {review.createdAt.toISOString().slice(0, 10)}
                   {review.booking ? ' · verified trip' : ''}
                 </span>

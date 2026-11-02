@@ -35,7 +35,7 @@ export function PickupAddonsStep({
 
   if (addonsWithState.length === 0) {
     return (
-      <p className="text-sm text-gray-400" data-testid="pickup-addons-empty">
+      <p className="text-sm text-gray-600" data-testid="pickup-addons-empty">
         No add-ons available for this package.
       </p>
     );
@@ -78,10 +78,10 @@ export function PickupAddonsStep({
                 {checked && <Check className="w-3.5 h-3.5 text-white" />}
               </span>
               <div className="flex-1">
-                <span className={cn('font-medium text-sm block', addon.isDisabled ? 'text-gray-400' : 'text-gray-900')}>
+                <span className={cn('font-medium text-sm block', addon.isDisabled ? 'text-gray-600' : 'text-gray-900')}>
                   {addon.name}
                   {addon.isCombo && (
-                    <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold bg-purple-100 text-purple-700 rounded">COMBO</span>
+                    <span className="ml-2 px-1.5 py-0.5 text-xs font-bold bg-purple-100 text-purple-700 rounded">COMBO</span>
                   )}
                 </span>
                 {addon.description && (
@@ -89,7 +89,7 @@ export function PickupAddonsStep({
                 )}
                 {addon.isDisabled && <span className="text-xs text-amber-700">Requires hotel transfer</span>}
               </div>
-              <span className={cn('font-heading text-sm font-bold tabular-nums shrink-0', addon.isDisabled ? 'text-gray-400' : 'text-brand-ink')}>
+              <span className={cn('font-heading text-sm font-bold tabular-nums shrink-0', addon.isDisabled ? 'text-gray-600' : 'text-brand-ink')}>
                 + {formatPrice(addon.price)}/pax
               </span>
             </button>

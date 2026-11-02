@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.6.11
+> **Version:** 3.7.0
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -25,6 +25,7 @@
 > **Changelog v3.6.9:** Dark-theme contrast pass — calendar selected day yellow/black, clearer disabled/today states, time-slot selection, stepper borders, inputs and date-picker container separation.
 > **Changelog v3.6.10:** Hero left column — inline micro-trust strip (rating/instant confirmation/licensed operators) and five quick intent pills (Best Sellers, Water, Trekking, Combos, Tubing).
 > **Changelog v3.6.11:** Hero video-ready — poster remains LCP, `hero.mp4` loads on desktop after idle (reduced-motion/save-data aware), mobile stays poster-only.
+> **Changelog v3.7.0:** Quick Wins polish pass — hero reduced to 4 layers (badge, H1+subtitle, search, three documented promises) with mobile H1 28–32px and height ≤540px; mobile header consolidates language/currency/theme into one 44px settings sheet; mobile cards compress to ≤390px with one badge and a 6-card + Load More list; all text ≥12px and informative `neutral-400` replaced with `neutral-600`; PDP header keeps only back/breadcrumb/share-wishlist with a single price CTA source; cookie bar is thin, suppresses under `[role="dialog"]`, and publishes `--cookie-consent-height` so fixed CTAs never sit underneath it.
 
 ## 1. Design Principles
 
@@ -107,9 +108,13 @@ Aturan penerapan:
 10. **Urgency**: "🔥 X booking dalam 24 jam terakhir".
 
 ### Responsivitas
-- **Mobile**: 1–2 kolom, card height konsisten.
-- **Tablet**: 3 kolom.
-- **Desktop**: 4 kolom grid.
+- **Mobile (<768px)**: 1 kolom, kartu dipadatkan — gambar 160px, padding 16px, judul maksimal 2 baris, satu badge bisnis (Best Seller/Instant Booking) dan tanpa chip trust di kartu. Target tinggi **≤390px**.
+- **Tablet**: 2 kolom.
+- **Desktop**: 3 kolom grid.
+- **Daftar mobile**: 6 kartu pertama + tombol **Load more adventures (n)**; desktop selalu menampilkan seluruh katalog.
+
+### Touch target
+- Semua tombol/link minimal **44×44px** di mobile, termasuk link footer (tinggi baris 44px) dan tautan legal di cookie bar.
 
 ### Skeleton Loading
 ```
@@ -156,15 +161,15 @@ Aturan penerapan:
 | 6 | Location / Meeting Point Map & Related Adventures | `#location` |
 
 ### Sticky Header & Breadcrumb Bar
-- **Home hero (v3.6.11)**: hero sinematik memakai poster `/images/hero-bali.jpg` (LCP `priority`) sebagai fallback; jika `/public/videos/hero.mp4` tersedia, `HeroVideo` memuat video desktop setelah idle (muted, loop, playsInline) dan tetap poster di mobile/reduced-motion/save-data. Scrim kiri `from-black/90 via-black/60 to-black/5` menjaga teks terbaca. Headline editorial dua baris: `Book the [keyword]` (typewriter, kata kunci **`brand` tanpa kotak latar** + kursor berkedip) dan `Own the wild!`, dengan padding vertikal lega. Search desktop memakai **horizontal glass pill**; mobile memakai pil ringkas + bottom sheet. Di bawah search ada **micro-bar trust** (rating/review bila ada, 9 kategori, instant confirmation, 80% refund, secure checkout).
+- **Home hero (v3.7.0)**: exactly four layers — (1) badge “Bali's #1 Outdoor & Adventure OTA”, (2) H1 + subtitle (mobile H1 `clamp(1.75rem,7.5vw,2.25rem)`, leading 1.06), (3) search, (4) three documented promises: Instant confirmation, Free reschedule ≥24h, 80% refund ≥24h. Intent pills sit under the search as quick filters. No ticker and no duplicate trust bar. Mobile hero ≤540px; desktop ≤660px. Poster/video behaviour unchanged (`HeroVideo`).
 - **Search pill** desktop: hover memunculkan border aksen + shadow glow; mobile tetap pil ringkas yang membuka bottom sheet.
-- **Global switchers (v3.6.2)**: header beranda, PDP, checkout, dan footer menampilkan **EN/ID**, currency selector (IDR, USD, EUR, AUD, SGD, CNY, INR, KRW, JPY), dan **theme sun/moon**. Semua preferensi disimpan di localStorage; kunjungan pertama memakai `x-vercel-ip-country` (Geo-IP) lalu bahasa browser, fallback IDR/EN. Dark mode membalik permukaan putih → hitam dan teks hitam → putih (surface brand seperti hero/footer/tombol kuning tetap kontras), tanpa reload.
+- **Global switchers (v3.6.2)**: desktop menampilkan **EN/ID**, currency selector (IDR, USD, EUR, AUD, SGD, CNY, INR, KRW, JPY), dan **theme sun/moon**. Di mobile (<768px) ketiganya berada dalam satu tombol settings 44×44px di header (bottom sheet “Preferences”), sehingga header hanya berisi wordmark + satu trigger. Semua preferensi disimpan di localStorage; kunjungan pertama memakai `x-vercel-ip-country` (Geo-IP) lalu bahasa browser, fallback IDR/EN. Dark mode membalik permukaan putih → hitam dan teks hitam → putih (surface brand seperti hero/footer/tombol kuning tetap kontras), tanpa reload.
 - **Search widget per breakpoint (v3.6.8)**: <768px = pil ringkas + bottom sheet; **≥768px = satu horizontal glass pill** (Where / When / Guests + bulatan Search kuning) yang membuka sheet. Kartu search vertikal tidak lagi ditampilkan sehingga hero tetap lebar dan sinematik di desktop.
 - **Approximate pricing**: IDR tetap mata uang charge; kartu, paket, total booking sheet dan checkout menampilkan `≈ USD/EUR/...` dari rate harian (`/api/fx/rates`, fallback statis). Tidak ada angka yang dikirim ke Midtrans selain IDR.
-- **Hero intent pills & ticker (v3.6.1)**: empat pill ke Best Sellers (`?sort=popular`), combo, Mount Batur, tubing; ticker hanya tampil jika ada booking `PAID` nyata dan menampilkan relatif time, bukan social proof karangan.
-- **Hero left-column polish (v3.6.10)**: inline micro-trust strip di bawah deskripsi (rating asli bila ada, Instant confirmation, Licensed local operators) dan lima quick pills — Best Sellers, Water Adventures, Mountain Trekking, Adrenaline Combos, River Tubing — dengan aksen `brand`.
+- **Hero intent pills (v3.7.0)**: lima pill cepat di bawah search — Best Sellers (`?sort=popular`), Water Adventures, Mountain Trekking, Adrenaline Combos, River Tubing. Ticker booking dihapus dari hero agar hierarki tetap empat lapisan; bukti booking nyata tetap tersedia lewat rating/review di kartu dan PDP bila ada.
 - **Home**: brand header menempel di atas (`sticky top-0`, backdrop blur) saat halaman di-scroll, dengan tinggi ringkas agar grid produk tetap terlihat.
-- **PDP**: bar sticky setinggi 56px berisi tombol "All adventures", breadcrumb `Home › Kategori › Nama produk`, dan harga paket terpilih per guest (desktop). Bar tetap terlihat saat scroll, jadi user bisa kembali atau pindah halaman tanpa scroll ke atas.
+- **PDP (v3.7.0)**: bar sticky hanya berisi tombol kembali, breadcrumb `Home › Kategori › Nama produk`, dan aksi **wishlist + share**. Harga dan switcher global **tidak** lagi di header; satu-satunya sumber harga/CTA adalah kartu booking kanan (desktop) dan sticky bottom bar (mobile). Harga tetap reachable lewat `Show dates` di kedua surface tersebut.
+- **Cookie consent (v3.7.0)**: bar tipis melayang di bawah. Tidak pernah menutupi CTA karena tinggi bar dipublikasikan sebagai `--cookie-consent-height` dan sticky PDP CTA memakai offset tersebut. Bar otomatis disembunyikan saat ada `[role="dialog"]` (search sheet, booking sheet, lightbox, review modal).
 - **Section nav mengambang**: pill `Packages · What to expect · Reviews · Location` diposisikan **di tengah kolom konten kanan** (bukan full-width), `sticky top-64px`, dengan scrim gradien putih agar teks di bawahnya memudar. Pill **tidak tampil saat halaman dibuka**; muncul (fade + slide 8px) ketika section `#packages` mencapai header, dan memudar perlahan saat scroll kembali ke atas (`opacity/visibility` transition 300ms, `h-0` supaya tidak menyisakan ruang).
 - **Kategori = dropdown**: crumb kategori (`CategoryQuickMenu`) membuka 9 mega kategori beserta emoji; tiap item menuju `/?category=<slug>` (mis. `/?category=tubing`). `VentureExplorer` membaca query itu setelah hydration (homepage tetap statis) dan langsung menandai chip kategori terkait. Tutup dengan klik luar atau Escape.
 - Booking card kolom kiri (desktop) memakai `top: 76px` agar tidak tertutup bar; anchor section memakai `scroll-padding-top` 4.5rem.

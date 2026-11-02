@@ -144,7 +144,7 @@ export function AiContentWizard() {
               placeholder="Ubud Jungle ATV Ride through Rice Terraces and Waterfalls"
               className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
             />
-            <p className="text-xs text-gray-400 mt-1">{title.length} / 60 characters</p>
+            <p className="text-xs text-gray-600 mt-1">{title.length} / 60 characters</p>
           </div>
 
           <div>
@@ -267,15 +267,15 @@ export function AiContentWizard() {
         </div>
 
         {isLoading ? (
-          <p className="text-sm text-gray-400 p-6 text-center">Loading…</p>
+          <p className="text-sm text-gray-600 p-6 text-center">Loading…</p>
         ) : articles.length === 0 ? (
-          <p className="text-sm text-gray-400 p-6 text-center">No articles yet.</p>
+          <p className="text-sm text-gray-600 p-6 text-center">No articles yet.</p>
         ) : (
           <ul className="divide-y divide-gray-50">
             {articles.map((article) => (
               <li key={article.id} className="px-5 py-3">
                 <p className="font-medium text-gray-900 text-sm">{readTitle(article.title)}</p>
-                <p className="text-xs text-gray-400 font-mono mt-0.5">/blog/{article.slug}</p>
+                <p className="text-xs text-gray-600 font-mono mt-0.5">/blog/{article.slug}</p>
                 <div className="flex items-center gap-2 mt-1.5">
                   {article.publishedAt ? (
                     <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800">

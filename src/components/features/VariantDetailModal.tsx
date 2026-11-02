@@ -156,7 +156,7 @@ export function VariantDetailModal({
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-neutral-950/60 via-neutral-950/5 to-neutral-950/15" />
 
             {variant.badge && (
-              <span className="absolute left-4 top-4 rounded-full bg-brand px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-ink shadow-sm">
+              <span className="absolute left-4 top-4 rounded-full bg-brand px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand-ink shadow-sm">
                 {variant.badge}
               </span>
             )}
@@ -177,7 +177,7 @@ export function VariantDetailModal({
           {/* Right — full description and details */}
           <div className="flex flex-col gap-5 p-5 sm:p-6 lg:overflow-y-auto">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
                 Package details
               </p>
               <h2
@@ -194,7 +194,7 @@ export function VariantDetailModal({
             <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-4">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 {promoPriceIdr !== null && (
-                  <span className="text-sm tabular-nums text-neutral-400 line-through">
+                  <span className="text-sm tabular-nums text-neutral-600 line-through">
                     {formatPrice(listPriceIdr)}
                   </span>
                 )}
@@ -203,7 +203,7 @@ export function VariantDetailModal({
                 </span>
                 <span className="text-xs text-neutral-500">/ guest</span>
                 {discountPercent !== null && (
-                  <span className="ml-auto rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-green-800">
+                  <span className="ml-auto rounded-full bg-green-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-green-800">
                     {discountPercent}% off
                   </span>
                 )}
@@ -223,7 +223,7 @@ export function VariantDetailModal({
 
               {pickup && (
                 <p className="mt-1 flex items-center gap-1.5 text-xs text-neutral-600">
-                  <MapPin className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-neutral-600" />
                   <span className="font-medium text-neutral-800">{pickup.label}</span>
                   <span aria-hidden="true">·</span>
                   {pickup.detail}
@@ -231,13 +231,13 @@ export function VariantDetailModal({
               )}
 
               {showCoupon ? (
-                <p className="mt-2.5 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-800 ring-1 ring-neutral-200">
+                <p className="mt-2.5 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-neutral-800 ring-1 ring-neutral-200">
                   <Sparkles className="h-3.5 w-3.5 text-green-600" />
                   Get {promo.percent}% OFF with code
                   <span className="font-mono font-bold tracking-wide">{promo.code}</span>
                 </p>
               ) : (
-                <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-green-800 ring-1 ring-green-200">
+                <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-green-800 ring-1 ring-green-200">
                   <Tag className="h-3.5 w-3.5" />
                   Promo price applied — no code needed
                 </p>
@@ -248,7 +248,7 @@ export function VariantDetailModal({
               <div className="grid gap-4 sm:grid-cols-2">
                 {inclusions.length > 0 && (
                   <div>
-                    <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+                    <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-500">
                       What&apos;s included
                     </h3>
                     <ul className="space-y-1.5 text-sm text-neutral-700">
@@ -264,13 +264,13 @@ export function VariantDetailModal({
 
                 {exclusions.length > 0 && (
                   <div>
-                    <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+                    <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-500">
                       Not included
                     </h3>
                     <ul className="space-y-1.5 text-sm text-neutral-500">
                       {exclusions.map((item) => (
                         <li key={item} className="flex items-start gap-1.5">
-                          <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neutral-400" />
+                          <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neutral-600" />
                           <span>{item}</span>
                         </li>
                       ))}

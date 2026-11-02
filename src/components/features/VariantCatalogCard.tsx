@@ -64,13 +64,13 @@ export function VariantCatalogCard({
               className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
             />
           ) : (
-            <span className="flex h-full w-full items-center justify-center bg-neutral-100 text-neutral-400">
+            <span className="flex h-full w-full items-center justify-center bg-neutral-100 text-neutral-600">
               <ImageIcon className="h-6 w-6" aria-hidden="true" />
             </span>
           )}
 
           {promoPriceIdr !== null && (
-            <span className="absolute left-1.5 top-1.5 rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-ink shadow-sm">
+            <span className="absolute left-1.5 top-1.5 rounded-full bg-brand px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-brand-ink shadow-sm">
               Promo
             </span>
           )}
@@ -79,7 +79,7 @@ export function VariantCatalogCard({
         <div className="min-w-0 flex-1">
           <div className="min-w-0">
             {variant.badge && (
-              <span className="mb-1 inline-block rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-ink">
+              <span className="mb-1 inline-block rounded-full bg-brand px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-brand-ink">
                 {variant.badge}
               </span>
             )}
@@ -90,7 +90,7 @@ export function VariantCatalogCard({
                   event.stopPropagation();
                   openDetails();
                 }}
-                className="rounded text-left decoration-neutral-300 underline-offset-4 transition-colors hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/30 focus-visible:ring-offset-2 group-hover:underline"
+                className="inline-flex min-h-[44px] items-center rounded text-left decoration-neutral-300 underline-offset-4 transition-colors hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/30 focus-visible:ring-offset-2 group-hover:underline"
               >
                 {variant.title}
               </button>
@@ -101,7 +101,7 @@ export function VariantCatalogCard({
             {variant.shortDescription}
           </p>
 
-          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs">
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs sm:text-xs">
             <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 font-medium text-neutral-700">
               <Clock className="h-3.5 w-3.5" />
               {variant.duration ?? '—'}
@@ -126,7 +126,7 @@ export function VariantCatalogCard({
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
             <span className="text-xs font-medium text-neutral-500">From</span>
             {promoPriceIdr !== null && (
-              <span className="text-xs tabular-nums text-neutral-400 line-through">
+              <span className="text-xs tabular-nums text-neutral-600 line-through">
                 {formatPrice(listPriceIdr)}
               </span>
             )}
@@ -135,7 +135,7 @@ export function VariantCatalogCard({
             </span>
             <span className="text-xs text-neutral-500">/ guest</span>
             {lowestTierMinPax > 1 && (
-              <span className="text-xs text-neutral-400">· {lowestTierMinPax}+</span>
+              <span className="text-xs text-neutral-600">· {lowestTierMinPax}+</span>
             )}
           </div>
           <PriceApprox amountIdr={priceIdr} suffix=" / guest" className="mt-0.5 block" />
@@ -152,7 +152,7 @@ export function VariantCatalogCard({
           </p>
           {pickup && (
             <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-neutral-500">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-neutral-600" />
               <span className="font-medium text-neutral-700">{pickup.label}</span>
               <span aria-hidden="true">·</span>
               {pickup.detail}

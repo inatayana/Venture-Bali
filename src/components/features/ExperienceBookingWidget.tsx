@@ -302,8 +302,8 @@ export function ExperienceBookingWidget({
               />
               <span
                 className={cn(
-                  'mt-1 block text-[10px] font-semibold uppercase tracking-wide',
-                  isCurrent || progressStep.done ? 'text-neutral-900' : 'text-neutral-400'
+                  'mt-1 block text-xs font-semibold uppercase tracking-wide',
+                  isCurrent || progressStep.done ? 'text-neutral-900' : 'text-neutral-600'
                 )}
               >
                 {progressStep.label}
@@ -390,7 +390,7 @@ export function ExperienceBookingWidget({
           <Clock className="h-4 w-4" /> 3 · Departure time
         </h3>
         {!config.date && (
-          <p className="text-sm text-neutral-400">Pick a date to see available times</p>
+          <p className="text-sm text-neutral-600">Pick a date to see available times</p>
         )}
         {config.date && slotOptions.length === 0 && (
           <p className="text-sm text-neutral-500">No departures left for this date. Try another day.</p>
@@ -486,7 +486,7 @@ export function ExperienceBookingWidget({
                 disabled={config.isTba}
                 onChange={(event) => onChange({ hotelAddress: event.target.value })}
                 placeholder={config.isTba ? 'To be confirmed by H-1' : 'e.g. Villa Melati, Jl. Raya Seminyak'}
-                className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900 disabled:bg-neutral-100 disabled:text-neutral-400"
+                className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900 disabled:bg-neutral-100 disabled:text-neutral-600"
               />
               <label className="mt-2 flex min-h-[44px] items-center gap-2 text-sm text-neutral-700">
                 <input
@@ -623,7 +623,7 @@ export function ExperienceBookingWidget({
               type="button"
               onClick={applyCoupon}
               disabled={couponLoading || couponInput.trim().length < 3}
-              className="min-h-[44px] rounded-lg border-2 border-neutral-900 px-4 text-sm font-semibold text-neutral-900 disabled:border-neutral-200 disabled:text-neutral-400"
+              className="min-h-[44px] rounded-lg border-2 border-neutral-900 px-4 text-sm font-semibold text-neutral-900 disabled:border-neutral-200 disabled:text-neutral-600"
             >
               {couponLoading ? '…' : 'Apply'}
             </button>
@@ -749,7 +749,7 @@ export function ExperienceBookingWidget({
                 value={config.customerWhatsApp}
               />
             </div>
-            <p className="mt-1 text-[11px] text-neutral-500">
+            <p className="mt-1 text-xs text-neutral-500">
               Used for pickup coordination and your e-voucher.
             </p>
           </div>
@@ -846,7 +846,7 @@ export function ExperienceBookingWidget({
               <span className="block font-heading text-xl font-bold tabular-nums text-neutral-900">
                 {formatPrice(quote.totalPriceIdr)}
               </span>
-              <PriceApprox amountIdr={quote.totalPriceIdr} className="text-[11px]" />
+              <PriceApprox amountIdr={quote.totalPriceIdr} className="text-xs" />
             </span>
           </div>
         </div>
@@ -894,7 +894,7 @@ export function ExperienceBookingWidget({
           <p className="mt-1.5 text-center text-xs text-neutral-500">{missing[0]}</p>
         )}
 
-        <p className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-neutral-500">
+        <p className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-neutral-500">
           <span className="inline-flex items-center gap-1">
             <Shield className="h-3 w-3" aria-hidden="true" /> 80% refund ≥24h
           </span>

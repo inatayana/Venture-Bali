@@ -83,17 +83,17 @@ export default async function VoucherVerifyPage({ params }: VerifyPageProps) {
           <div className="mt-4 space-y-3 text-sm text-neutral-700">
             <p className="font-semibold text-neutral-900">{booking.variant.title}</p>
             <p className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-neutral-400" />
+              <Clock className="h-4 w-4 text-neutral-600" />
               {booking.bookingDate}
               {booking.slotTime ? ` · ${booking.slotTime.time}` : ''}
             </p>
             <p className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-neutral-400" />
+              <Users className="h-4 w-4 text-neutral-600" />
               {booking.paxCount} guests · {booking.customer.name}
             </p>
             {booking.fulfillmentMode !== 'SELF_DRIVE' && (
               <p className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-neutral-400" />
+                <MapPin className="h-4 w-4 text-neutral-600" />
                 {booking.isTba ? 'Pickup TBA by H-1' : booking.hotelAddress ?? 'Hotel pickup'}
               </p>
             )}

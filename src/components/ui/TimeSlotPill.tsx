@@ -38,7 +38,7 @@ export function TimeSlotPill({
       {typeof spotsLeft === 'number' && !disabled && (
         <span
           className={cn(
-            'text-[10px] font-normal leading-tight',
+            'text-xs font-normal leading-tight',
             selected ? 'text-white/70' : 'text-neutral-500'
           )}
         >

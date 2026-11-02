@@ -14,9 +14,9 @@ const variantStyles = {
   secondary:
     'bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800 disabled:bg-gray-300',
   outline:
-    'border-2 border-brand-ink text-brand-ink hover:bg-brand active:bg-brand/80 disabled:border-neutral-300 disabled:text-neutral-400',
+    'border-2 border-brand-ink text-brand-ink hover:bg-brand active:bg-brand/80 disabled:border-neutral-300 disabled:text-neutral-600',
   ghost:
-    'text-brand-ink hover:bg-brand/40 active:bg-brand/60 disabled:text-neutral-400',
+    'text-brand-ink hover:bg-brand/40 active:bg-brand/60 disabled:text-neutral-600',
   danger:
     'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:bg-red-300',
 };

@@ -97,7 +97,7 @@ export function CategoryTiles({
           <span className="text-xl leading-none" aria-hidden="true">
             🧭
           </span>
-          <span className="flex items-center gap-1 text-[11px] font-semibold leading-tight">
+          <span className="flex items-center gap-1 text-xs font-semibold leading-tight">
             All
             {hasSort && (
               <ChevronDown
@@ -106,7 +106,7 @@ export function CategoryTiles({
               />
             )}
           </span>
-          <span className="max-w-[76px] truncate text-[10px] tabular-nums opacity-70">
+          <span className="max-w-[76px] truncate text-xs tabular-nums opacity-70">
             {hasSort && activeSortLabel ? activeSortLabel : counts ? Object.values(counts).reduce((sum, value) => sum + value, 0) : ''}
           </span>
         </button>
@@ -131,7 +131,7 @@ export function CategoryTiles({
               </button>
             )}
 
-            <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+            <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-neutral-600">
               Sort by
             </p>
 
@@ -179,9 +179,9 @@ export function CategoryTiles({
             <span className="text-xl leading-none" aria-hidden="true">
               {CATEGORY_ICONS[category] ?? '📍'}
             </span>
-            <span className="text-[11px] font-semibold leading-tight">{category}</span>
+            <span className="text-xs font-semibold leading-tight">{category}</span>
             {counts && (
-              <span className="text-[10px] tabular-nums opacity-60">
+              <span className="text-xs tabular-nums opacity-60">
                 {counts[category] ?? 0}
               </span>
             )}

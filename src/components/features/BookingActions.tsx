@@ -128,7 +128,7 @@ export function BookingActions({
 
   if (!canCancel && !canReschedule) {
     return (
-      <p className="mt-3 rounded-lg bg-neutral-50 px-3 py-2 text-[11px] text-neutral-500">
+      <p className="mt-3 rounded-lg bg-neutral-50 px-3 py-2 text-xs text-neutral-500">
         Changes and cancellation close 24 hours before the activity.
       </p>
     );
@@ -201,7 +201,7 @@ export function BookingActions({
                     <span>Refund</span>
                     <strong className="text-green-700">{formatPrice(refundAmount)}</strong>
                   </div>
-                  <p className="mt-1 text-[11px] text-neutral-500">
+                  <p className="mt-1 text-xs text-neutral-500">
                     Processed within 3 business days to the original payment method.
                   </p>
                 </div>
@@ -263,7 +263,7 @@ export function BookingActions({
                         )}
                       >
                         {slot.time}
-                        <span className="ml-1 text-[10px] font-normal">{slot.spotsLeft} left</span>
+                        <span className="ml-1 text-xs font-normal">{slot.spotsLeft} left</span>
                       </button>
                     ))}
                   </div>

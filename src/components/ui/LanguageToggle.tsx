@@ -34,7 +34,7 @@ export function LanguageToggle({
           type="button"
           onClick={() => onLocaleChange(lang.code)}
           className={cn(
-            'px-3 py-1 text-sm font-medium rounded-md transition-all',
+            'min-h-[44px] rounded-md px-4 py-2 text-sm font-medium transition-all',
             locale === lang.code
               ? 'bg-white text-gray-900 shadow-sm'
               : 'text-gray-500 hover:text-gray-700'

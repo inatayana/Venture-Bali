@@ -9,12 +9,14 @@ const MESSAGES = {
   en: {
     headerTagline: 'Own the wild. Adventure, booked in minutes.',
     heroCategories: 'Bali · 9 adventure categories',
+    heroBadge: "Bali's #1 Outdoor & Adventure OTA",
     heroBook: 'Book the',
     heroOwn: 'Own the wild!',
     heroSub:
       'Rafting, ATV, tubing & trekking across Bali. Instant confirmation, free reschedule, and 100% locally operated.',
     idrNote: 'Prices in IDR · other currencies are approximate',
     trustInstant: 'Instant confirmation',
+    trustReschedule: 'Free reschedule ≥24h',
     trustRefund: '80% refund ≥24h',
     trustSecure: 'Secure checkout · VISA / QRIS',
     reviews: 'verified reviews',
@@ -48,12 +50,14 @@ const MESSAGES = {
   id: {
     headerTagline: 'Taklukkan alam liar. Petualangan, dipesan dalam hitungan menit.',
     heroCategories: 'Bali · 9 kategori petualangan',
+    heroBadge: 'OTA Petualangan & Aktivitas Outdoor #1 di Bali',
     heroBook: 'Pesan',
     heroOwn: 'Taklukkan alam liar!',
     heroSub:
       'Rafting, ATV, tubing & trekking di seluruh Bali. Konfirmasi instan, reschedule gratis, dan 100% dijalankan operator lokal.',
     idrNote: 'Harga dalam IDR · mata uang lain hanya perkiraan',
     trustInstant: 'Konfirmasi instan',
+    trustReschedule: 'Reschedule gratis ≥24 jam',
     trustRefund: 'Refund 80% ≥24 jam',
     trustSecure: 'Checkout aman · VISA / QRIS',
     reviews: 'ulasan terverifikasi',

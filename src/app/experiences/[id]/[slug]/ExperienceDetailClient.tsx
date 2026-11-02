@@ -19,10 +19,6 @@ import {
   BadgeCheck,
 } from 'lucide-react';
 import { BottomSheet, Stepper, VentureCard } from '@/components/ui';
-import { BrandWordmark } from '@/components/layout/BrandWordmark';
-import { CurrencySelector } from '@/components/currency/CurrencySelector';
-import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
-import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import {
   ExperienceBookingWidget,
   toDateKey,
@@ -364,7 +360,7 @@ export function ExperienceDetailClient({
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4">
           <a
             href="/"
-            className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-100"
+            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-100"
             aria-label="Back to all adventures"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -401,23 +397,29 @@ export function ExperienceDetailClient({
             </ol>
           </nav>
 
-          <div className="hidden shrink-0 items-center pl-3 md:flex">
-            <a href="/" aria-label="BaliWild home">
-              <BrandWordmark className="text-sm" />
-            </a>
-          </div>
-
-          <div className="hidden shrink-0 items-center gap-1 md:flex">
-            <LanguageSwitcher />
-            <CurrencySelector />
-            <ThemeSwitcher />
-          </div>
-
-          <div className="hidden shrink-0 items-baseline gap-1 pl-3 lg:flex">
-            <span className="font-heading text-base font-bold tabular-nums text-neutral-900">
-              {formatPrice(selectedPrice)}
-            </span>
-            <span className="text-xs text-neutral-500">/guest</span>
+          <div className="flex shrink-0 items-center gap-1 pl-2">
+            <button
+              type="button"
+              onClick={() => setWishlisted((prev) => !prev)}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
+              aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+              aria-pressed={wishlisted}
+            >
+              <Heart
+                className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-600')}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={share}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
+              aria-label="Share this adventure"
+            >
+              <Share2 className="h-5 w-5 text-neutral-600" />
+            </button>
+            {shareState === 'copied' && (
+              <span className="hidden text-xs font-medium text-green-700 sm:inline">Copied</span>
+            )}
           </div>
         </div>
       </div>
@@ -444,7 +446,7 @@ export function ExperienceDetailClient({
               <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <span className="text-xs font-medium text-neutral-500">From</span>
                 {estimate.promoActive && (
-                  <span className="text-sm tabular-nums text-neutral-400 line-through">
+                  <span className="text-sm tabular-nums text-neutral-600 line-through">
                     {formatPrice(estimate.listPricePerPaxIdr)}
                   </span>
                 )}
@@ -550,7 +552,7 @@ export function ExperienceDetailClient({
                         href={`#${section.id}`}
                         aria-current={isActive ? 'true' : undefined}
                         className={cn(
-                          'shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+                          'inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
                           isActive
                             ? 'bg-brand-ink text-brand'
                             : 'text-neutral-600 hover:bg-brand/25 hover:text-neutral-900'
@@ -620,7 +622,7 @@ export function ExperienceDetailClient({
                 ))}
               </div>
 
-              <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-neutral-950/55 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-white backdrop-blur">
+              <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-neutral-950/55 px-2.5 py-1 text-xs font-semibold tabular-nums text-white backdrop-blur">
                 {Math.min(mobileSlideIndex + 1, orderedGallery.length)} / {orderedGallery.length}
               </span>
 
@@ -659,32 +661,7 @@ export function ExperienceDetailClient({
                     {clampText(venture.hook3Sec, HOOK_MAX)}
                   </p>
                 </div>
-
-                <div className="flex shrink-0 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setWishlisted((prev) => !prev)}
-                    className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
-                    aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
-                    aria-pressed={wishlisted}
-                  >
-                    <Heart
-                      className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-600')}
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={share}
-                    className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
-                    aria-label="Share this adventure"
-                  >
-                    <Share2 className="h-5 w-5 text-neutral-600" />
-                  </button>
-                </div>
               </div>
-              {shareState === 'copied' && (
-                <p className="text-xs font-medium text-green-700">Link copied to clipboard.</p>
-              )}
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-600">
                 {reviewCount > 0 ? (
@@ -697,7 +674,7 @@ export function ExperienceDetailClient({
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-700">
-                    <Star className="h-3.5 w-3.5 text-neutral-400" />
+                    <Star className="h-3.5 w-3.5 text-neutral-600" />
                     New · no reviews yet
                   </span>
                 )}
@@ -765,7 +742,7 @@ export function ExperienceDetailClient({
                         <p className="mt-0.5 text-xs text-neutral-500">{addon.description}</p>
                       )}
                       {addon.requiresTransfer && (
-                        <p className="mt-1 text-[11px] font-medium text-neutral-500">
+                        <p className="mt-1 text-xs font-medium text-neutral-500">
                           Available with transfer packages
                         </p>
                       )}
@@ -836,7 +813,7 @@ export function ExperienceDetailClient({
                     <ul className="space-y-1.5 text-sm text-neutral-700">
                       {venture.essentialInfo.whatToBring.map((item) => (
                         <li key={item} className="flex items-start gap-2">
-                          <span aria-hidden="true" className="text-neutral-400">•</span>
+                          <span aria-hidden="true" className="text-neutral-600">•</span>
                           <span>{emphasiseLead(item)}</span>
                         </li>
                       ))}
@@ -851,7 +828,7 @@ export function ExperienceDetailClient({
                     <ul className="space-y-1.5 text-sm text-neutral-700">
                       {venture.essentialInfo.knowBeforeYouGo.map((item) => (
                         <li key={item} className="flex items-start gap-2">
-                          <span aria-hidden="true" className="text-neutral-400">•</span>
+                          <span aria-hidden="true" className="text-neutral-600">•</span>
                           <span>{emphasiseLead(item)}</span>
                         </li>
                       ))}
@@ -872,9 +849,9 @@ export function ExperienceDetailClient({
                       >
                         {faq.question}
                         {expandedFaq === index ? (
-                          <ChevronUp className="h-5 w-5 text-neutral-400" />
+                          <ChevronUp className="h-5 w-5 text-neutral-600" />
                         ) : (
-                          <ChevronDown className="h-5 w-5 text-neutral-400" />
+                          <ChevronDown className="h-5 w-5 text-neutral-600" />
                         )}
                       </button>
                       {expandedFaq === index && (
@@ -903,13 +880,13 @@ export function ExperienceDetailClient({
                       return (
                         <li key={`${item.time}-${index}`} className="relative">
                           <span
-                            className="absolute -left-[39px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-[11px] font-bold tabular-nums text-brand-ink ring-4 ring-white"
+                            className="absolute -left-[39px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold tabular-nums text-brand-ink ring-4 ring-white"
                             aria-hidden="true"
                           >
                             {index + 1}
                           </span>
                           {(item.durationMinutes || item.duration) && (
-                            <p className="text-[11px] font-semibold text-neutral-500">
+                            <p className="text-xs font-semibold text-neutral-500">
                               <span className="uppercase tracking-wide">Duration:</span>{' '}
                               <span className="tabular-nums">
                                 {item.duration ??
@@ -935,7 +912,7 @@ export function ExperienceDetailClient({
                         Total estimated duration:{' '}
                         <span className="tabular-nums">{formatDuration(itineraryTotal)}</span>
                       </p>
-                      <p className="mt-1 text-[11px] leading-relaxed text-neutral-500">
+                      <p className="mt-1 text-xs leading-relaxed text-neutral-500">
                         {TRANSFER_NOTE}
                       </p>
                     </div>
@@ -1031,10 +1008,10 @@ export function ExperienceDetailClient({
                 <li>• The activity safety waiver must be accepted at checkout.</li>
               </ul>
               <div className="mt-3 flex flex-wrap gap-3 text-sm font-medium">
-                <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline">
+                <a href="/terms" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center underline">
                   Booking terms
                 </a>
-                <a href="/waiver" target="_blank" rel="noopener noreferrer" className="underline">
+                <a href="/waiver" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center underline">
                   Safety waiver
                 </a>
               </div>
@@ -1066,8 +1043,11 @@ export function ExperienceDetailClient({
 
       <SiteFooter />
 
-      {/* Mobile sticky CTA */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden">
+      {/* Mobile sticky CTA — the only price/CTA source on phones. */}
+      <div
+        className="fixed inset-x-0 z-40 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden"
+        style={{ bottom: 'var(--cookie-consent-height, 0px)' }}
+      >
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <span className="block truncate text-xs text-neutral-500">

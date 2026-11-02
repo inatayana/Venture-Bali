@@ -43,7 +43,7 @@ export function SiteFooter() {
             </p>
             <a
               href={`mailto:${BRAND_EMAIL_HELLO}`}
-              className="mt-2 inline-flex items-center gap-1.5 text-xs text-white/60 transition-colors hover:text-brand"
+              className="mt-1 inline-flex min-h-[44px] items-center gap-1.5 text-xs text-white/60 transition-colors hover:text-brand"
             >
               <Mail className="h-3.5 w-3.5" aria-hidden="true" /> {BRAND_EMAIL_HELLO}
             </a>
@@ -53,7 +53,7 @@ export function SiteFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="BaliWild on Instagram"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
               >
                 <Instagram className="h-4 w-4" />
               </a>
@@ -62,7 +62,7 @@ export function SiteFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="BaliWild on TikTok"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
               >
                 <Music2 className="h-4 w-4" />
               </a>
@@ -71,7 +71,7 @@ export function SiteFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="BaliWild on YouTube"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
               >
                 <Youtube className="h-4 w-4" />
               </a>
@@ -80,7 +80,7 @@ export function SiteFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="BaliWild on Facebook"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors hover:border-brand hover:text-brand"
               >
                 <Facebook className="h-4 w-4" />
               </a>
@@ -101,7 +101,7 @@ export function SiteFooter() {
                 <li key={category.slug} className="min-w-0">
                   <Link
                     href={`/?category=${category.slug}`}
-                    className="inline-flex max-w-full items-center gap-1.5 text-white/70 transition-colors hover:text-brand focus-visible:text-brand"
+                    className="inline-flex min-h-[44px] max-w-full items-center gap-1.5 text-white/70 transition-colors hover:text-brand focus-visible:text-brand"
                   >
                     <span className="w-5 shrink-0 text-center" aria-hidden="true">
                       {category.emoji}
@@ -113,7 +113,7 @@ export function SiteFooter() {
               <li className="min-w-0">
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-1.5 font-semibold text-brand transition-colors hover:text-white"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 font-semibold text-brand transition-colors hover:text-white"
                 >
                   All adventures <span aria-hidden="true">→</span>
                 </Link>
@@ -125,31 +125,31 @@ export function SiteFooter() {
             <h2 className="text-xs font-bold uppercase tracking-[0.14em] text-white/50">
               Booking help
             </h2>
-            <ul className="mt-3 space-y-1.5 text-sm">
+            <ul className="mt-2 space-y-0 text-sm">
               <li>
-                <Link href="/terms" className="text-white/70 transition-colors hover:text-brand">
+                <Link href="/terms" className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand">
                   Booking terms
                 </Link>
               </li>
               <li>
-                <Link href="/waiver" className="text-white/70 transition-colors hover:text-brand">
+                <Link href="/waiver" className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand">
                   Safety waiver
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-white/70 transition-colors hover:text-brand">
+                <Link href="/blog" className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand">
                   Bali adventure guides
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-white/70 transition-colors hover:text-brand">
+                <Link href="/privacy" className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand">
                   Privacy policy
                 </Link>
               </li>
               <li>
                 <a
                   href={`mailto:${BRAND_EMAIL_SUPPORT}`}
-                  className="text-white/70 transition-colors hover:text-brand"
+                  className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand"
                 >
                   {BRAND_EMAIL_SUPPORT}
                 </a>
@@ -157,7 +157,7 @@ export function SiteFooter() {
               <li>
                 <a
                   href={`mailto:${BRAND_EMAIL_PARTNERS}`}
-                  className="text-white/70 transition-colors hover:text-brand"
+                  className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand"
                 >
                   Partner with us · {BRAND_EMAIL_PARTNERS}
                 </a>
@@ -187,7 +187,7 @@ export function SiteFooter() {
               {PAYMENT_BADGES.map((badge) => (
                 <span
                   key={badge}
-                  className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/60"
+                  className="rounded-md border border-white/20 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white/60"
                 >
                   {badge}
                 </span>

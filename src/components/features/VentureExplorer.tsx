@@ -6,9 +6,13 @@ import { CATEGORY_FILTERS, resolveCategory } from '@/lib/taxonomy';
 import { isDateAvailable, isSlotBookable } from '@/lib/pricing';
 import { CategoryTiles } from '@/components/features/CategoryTiles';
 import { useSearch } from '@/components/search/SearchProvider';
+import { cn } from '@/utils/cn';
 import type { VentureItem } from '@/types/venture';
 
 const CATEGORIES = CATEGORY_FILTERS;
+
+/** First screenful on phones; desktop always shows the full catalogue. */
+const MOBILE_INITIAL_CARDS = 6;
 
 const SORT_OPTIONS = [
   { value: 'recommended', label: 'Recommended' },
@@ -39,6 +43,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
   } = useSearch();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('recommended');
+  const [expanded, setExpanded] = useState(false);
 
   // Deep link support: the PDP breadcrumb links to /?category=<slug>. Reading it
   // after hydration keeps the homepage statically rendered. Date, guests and the
@@ -130,6 +135,13 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
     return counts;
   }, [ventures]);
 
+  // A new filter or sort starts a fresh, compact mobile list.
+  useEffect(() => {
+    setExpanded(false);
+  }, [search, selectedCategory, sortBy, dateFilter, paxFilter]);
+
+  const hasMoreOnMobile = filteredVentures.length > MOBILE_INITIAL_CARDS;
+
   return (
     <section id="results" className="container scroll-mt-24 mx-auto px-4 py-8">
       {/* Filters only: the search itself lives in the hero */}
@@ -158,7 +170,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
                 setDateFilter('');
                 setPaxFilter(1);
               }}
-              className="min-h-[32px] font-semibold text-gray-600 underline hover:text-gray-900"
+              className="min-h-[44px] font-semibold text-gray-600 underline hover:text-gray-900"
             >
               Clear
             </button>
@@ -181,15 +193,28 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
       </div>
 
       {/* Results */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredVentures.map((venture) => (
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {filteredVentures.map((venture, index) => (
           <VentureCard
             key={venture.id}
             venture={venture}
             href={`/experiences/${venture.id}/${venture.slug}`}
+            className={cn(!expanded && index >= MOBILE_INITIAL_CARDS && 'hidden md:block')}
           />
         ))}
       </div>
+
+      {hasMoreOnMobile && !expanded && (
+        <div className="mt-6 flex justify-center md:hidden">
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="inline-flex min-h-[44px] items-center rounded-full border border-neutral-300 bg-white px-6 text-sm font-semibold text-neutral-900 transition-colors hover:border-neutral-900"
+          >
+            Load more adventures ({filteredVentures.length - MOBILE_INITIAL_CARDS})
+          </button>
+        </div>
+      )}
 
       {filteredVentures.length === 0 && (
         <div className="text-center py-16">
@@ -205,7 +230,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
               setSelectedCategory(null);
               setSortBy('recommended');
             }}
-            className="px-4 py-2 text-sm font-medium text-brand-ink hover:underline"
+            className="min-h-[44px] px-4 py-2 text-sm font-medium text-brand-ink hover:underline"
           >
             Reset Filters
           </button>

@@ -85,7 +85,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
               aria-expanded={openField === 'where'}
               className="w-full rounded-xl px-3 py-3 text-left transition-colors hover:bg-white/5"
             >
-              <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
+              <span className="block text-xs font-bold uppercase tracking-[0.14em] text-white/50">
                 {t('searchWhere')}
               </span>
               <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-white">
@@ -106,7 +106,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
                   />
                 </div>
                 <div className="max-h-64 overflow-y-auto py-1">
-                  <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                  <p className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-neutral-600">
                     {t('searchNearby')}
                   </p>
                   {filteredHubs.map((hub) => (
@@ -119,7 +119,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
                       }}
                       className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-50"
                     >
-                      <MapPin className="h-3.5 w-3.5 text-neutral-400" aria-hidden="true" />
+                      <MapPin className="h-3.5 w-3.5 text-neutral-600" aria-hidden="true" />
                       {hub}
                     </button>
                   ))}
@@ -131,7 +131,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
 
                   {suggestions.length > 0 && (
                     <>
-                      <p className="mt-1 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                      <p className="mt-1 px-3 py-1 text-xs font-bold uppercase tracking-wider text-neutral-600">
                         {t('searchSuggested')}
                       </p>
                       {suggestions.slice(0, 4).map((suggestion) => (
@@ -160,7 +160,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
               aria-expanded={openField === 'date'}
               className="w-full rounded-xl px-3 py-3 text-left transition-colors hover:bg-white/5"
             >
-              <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
+              <span className="block text-xs font-bold uppercase tracking-[0.14em] text-white/50">
                 {t('searchWhen')}
               </span>
               <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-white">
@@ -206,7 +206,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           {/* Guests */}
           <div className="flex items-center justify-between rounded-xl px-3 py-3">
             <div>
-              <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">
+              <span className="block text-xs font-bold uppercase tracking-[0.14em] text-white/50">
                 {t('searchGuests')}
               </span>
               <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-white">
@@ -256,7 +256,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           className="flex min-h-[64px] w-full items-center gap-3 rounded-full border border-white/15 bg-[#111111]/15 px-4 text-left backdrop-blur-[6px] transition-colors hover:border-brand/50 hover:bg-[#111111]/25"
         >
           <span className="min-w-0 flex-1">
-            <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/50">
+            <span className="block text-xs font-bold uppercase tracking-[0.14em] text-white/50">
               {t('searchWhere')}
             </span>
             <span className="mt-0.5 block truncate text-sm font-medium text-white">
@@ -265,7 +265,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           </span>
           <span className="h-8 w-px shrink-0 bg-white/15" aria-hidden="true" />
           <span className="min-w-0 flex-1">
-            <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/50">
+            <span className="block text-xs font-bold uppercase tracking-[0.14em] text-white/50">
               {t('searchWhen')}
             </span>
             <span className="mt-0.5 block truncate text-sm font-medium text-white">
@@ -274,7 +274,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           </span>
           <span className="h-8 w-px shrink-0 bg-white/15" aria-hidden="true" />
           <span className="min-w-0 flex-1">
-            <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/50">
+            <span className="block text-xs font-bold uppercase tracking-[0.14em] text-white/50">
               {t('searchGuests')}
             </span>
             <span className="mt-0.5 block truncate text-sm font-medium text-white">
@@ -327,7 +327,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           <div>
             <label
               htmlFor="mobile-destination"
-              className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-neutral-500"
+              className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500"
             >
               {t('searchWhere')}
             </label>
@@ -358,7 +358,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           </div>
 
           <div>
-            <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+            <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500">
               {t('searchWhen')}
             </span>
             <div className="rounded-xl border border-neutral-200 p-2 dark:border-white/10">
@@ -380,7 +380,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           </div>
 
           <div>
-            <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+            <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500">
               {t('searchGuests')}
             </span>
             <div className="flex items-center justify-between rounded-xl border border-neutral-200 px-3 py-2">

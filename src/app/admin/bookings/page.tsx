@@ -103,7 +103,7 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs uppercase tracking-wider text-gray-400">
+                <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs uppercase tracking-wider text-gray-600">
                   <th className="px-4 py-3 font-medium">Code</th>
                   <th className="px-4 py-3 font-medium">Product</th>
                   <th className="px-4 py-3 font-medium">Date &amp; slot</th>
@@ -131,25 +131,25 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
                       </td>
                       <td className="px-4 py-3 text-gray-800">
                         {booking.variant?.venture?.title ?? '—'}
-                        <p className="text-xs text-gray-400">{booking.variant?.title}</p>
+                        <p className="text-xs text-gray-600">{booking.variant?.title}</p>
                       </td>
                       <td className="px-4 py-3 text-gray-600">
                         {booking.bookingDate}
-                        <p className="text-xs text-gray-400">{booking.slotTime?.time ?? '—'}</p>
+                        <p className="text-xs text-gray-600">{booking.slotTime?.time ?? '—'}</p>
                       </td>
                       <td className="px-4 py-3 text-gray-600">
                         {MODE_LABELS[booking.fulfillmentMode] ?? booking.fulfillmentMode}
                         {booking.vehicleClass && (
-                          <p className="text-xs text-gray-400">{booking.vehicleClass.label}</p>
+                          <p className="text-xs text-gray-600">{booking.vehicleClass.label}</p>
                         )}
                       </td>
                       <td className="px-4 py-3 text-gray-600">
                         {pickup}
-                        <p className="text-xs text-gray-400">{booking.pickupZone?.name ?? '—'}</p>
+                        <p className="text-xs text-gray-600">{booking.pickupZone?.name ?? '—'}</p>
                       </td>
                       <td className="px-4 py-3 text-gray-600">
                         {booking.customer?.name ?? '—'}
-                        <p className="text-xs text-gray-400">{booking.customer?.whatsapp}</p>
+                        <p className="text-xs text-gray-600">{booking.customer?.whatsapp}</p>
                       </td>
                       <td className="px-4 py-3 tabular-nums text-gray-600">{booking.paxCount}</td>
                       <td className="px-4 py-3 tabular-nums text-gray-800">
@@ -166,11 +166,11 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
                         >
                           {booking.paymentStatus}
                         </span>
-                        <p className="mt-1 text-[11px] text-gray-400">
+                        <p className="mt-1 text-xs text-gray-600">
                           {LIFECYCLE_LABELS[booking.lifecycleStatus]}
                         </p>
                         {booking.paymentStatus === 'PENDING' && booking.expiresAt && (
-                          <p className="text-[11px] text-amber-600">
+                          <p className="text-xs text-amber-600">
                             hold until {booking.expiresAt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                           </p>
                         )}

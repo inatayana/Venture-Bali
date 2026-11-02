@@ -115,7 +115,7 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
                     </p>
                     <p className="text-xs text-neutral-500">{booking.variant.title}</p>
                   </div>
-                  <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-semibold text-neutral-700">
+                  <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-semibold text-neutral-700">
                     {LIFECYCLE_LABELS[booking.lifecycleStatus]}
                   </span>
                 </div>
@@ -165,7 +165,7 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
                         Cancelled · refund {booking.refund.status.toLowerCase()}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-xs text-neutral-400">
+                      <span className="inline-flex items-center gap-1 text-xs text-neutral-600">
                         <CheckCircle className="h-4 w-4" /> Awaiting payment
                       </span>
                     )}
