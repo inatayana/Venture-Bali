@@ -28,7 +28,7 @@
 | `--bg-surface` | `#FFFFFF` | `#191919` | Header, sheets, sticky bars |
 | `--bg-card` | `#FFFFFF` | `#191919` | Product/booking cards |
 | `--bg-card-hover` | `#F8FAFC` | `#2A2A2A` | Card hover |
-| `--bg-inset` | `#F1F5F9` | `#191919` | Inputs, wells, skeletons |
+| `--bg-inset` | `#F1F5F9` | `#2A2A2A` | Inputs, wells, skeletons |
 | `--overlay` | `#000000` | `#000000` | Scrims (`bg-overlay/50`) |
 | `--text-primary` | `#0F172A` | `#F8F9FA` | Headings, prices |
 | `--text-secondary` | `#334155` | `#D1D5DB` | Body copy |
@@ -42,8 +42,8 @@
 | `--button-secondary-hover` | `#374151` | `#374151` | Secondary hover |
 | `--button-secondary-active` | `#1F2937` | `#1F2937` | Secondary active |
 | `--button-secondary-foreground` | `#FFFFFF` | `#FFFFFF` | Secondary label |
-| `--state-success` | `#16A34A` | `#4ADE80` | Success text/icons |
-| `--state-warning` | `#D97706` | `#FBBF24` | Warning text/icons |
+| `--state-success` | `#15803D` | `#4ADE80` | Success text/icons |
+| `--state-warning` | `#B45309` | `#FBBF24` | Warning text/icons |
 | `--state-danger` | `#DC2626` | `#F87171` | Error/destructive |
 | `--state-info` | `#2563EB` | `#60A5FA` | Informational |
 
@@ -86,6 +86,12 @@ Measured from the actual CSS by `npm run check:contrast`:
 
 `--text-muted` in light mode is intentionally at the AA floor (4.56:1). The
 future Outdoor/Sunlight mode will raise it to ≥ 7:1 and force opaque surfaces.
+
+State colours (`success`, `warning`, `danger`, `info`) are also checked on both
+base and surface in both themes. The dark `--bg-inset` has a separation floor
+from `--bg-surface` (currently 1.22:1) so skeletons, chips and hover states
+remain visible; that separation is enforced by the gate even though WCAG does
+not model it.
 
 ## 5. Theme resolution
 
