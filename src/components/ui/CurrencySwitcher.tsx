@@ -38,7 +38,7 @@ export function CurrencySwitcher({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex min-h-[36px] items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-current transition-colors hover:bg-brand/30"
+        className="flex min-h-[44px] items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-current transition-colors hover:bg-brand/30"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
@@ -61,7 +61,7 @@ export function CurrencySwitcher({
                 setIsOpen(false);
               }}
               className={cn(
-                'w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors',
+                'flex min-h-[44px] w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
                 currency.code === selectedCurrency
                   ? 'bg-brand/40 text-brand-ink font-medium'
                   : 'text-gray-700 hover:bg-gray-50'
@@ -71,7 +71,7 @@ export function CurrencySwitcher({
             >
               <span>{currency.flag}</span>
               <span>{currency.code}</span>
-              <span className="text-gray-400 ml-auto text-xs">{currency.symbol}</span>
+              <span className="text-gray-600 ml-auto text-xs">{currency.symbol}</span>
             </button>
           ))}
         </div>

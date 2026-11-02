@@ -54,7 +54,7 @@ export default async function RevenueReportPage() {
           { label: 'Average booking', value: formatPrice(summary.averageBookingValue) },
         ].map((card) => (
           <div key={card.label} className="rounded-xl border border-gray-100 bg-white p-4">
-            <p className="text-xs uppercase tracking-wider text-gray-400">{card.label}</p>
+            <p className="text-xs uppercase tracking-wider text-gray-600">{card.label}</p>
             <p className="mt-1 font-heading text-2xl font-bold tabular-nums text-gray-900">
               {card.value}
             </p>

@@ -82,7 +82,7 @@ export default function PrivacyPage() {
           </Link>
         </div>
         <div className="container mx-auto px-4 pb-14 pt-6">
-          <p className="font-heading text-[11px] font-bold uppercase tracking-[0.22em] text-brand">
+          <p className="font-heading text-xs font-bold uppercase tracking-[0.22em] text-brand">
             Trust & transparency
           </p>
           <h1 className="mt-3 font-heading text-4xl font-bold uppercase tracking-wide">

@@ -127,7 +127,7 @@ export default async function OperationsPage({ searchParams }: OperationsPagePro
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-mono text-xs text-gray-500">{booking.bookingCode}</span>
-                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-700">
+                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">
                             {LIFECYCLE_LABELS[booking.lifecycleStatus]}
                           </span>
                         </div>

@@ -180,7 +180,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
       <div className="mt-4 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wider text-gray-400">
+            <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wider text-gray-600">
               <th className="px-2 py-2 font-medium">Departure</th>
               <th className="px-2 py-2 font-medium">Capacity</th>
               <th className="px-2 py-2 font-medium">Booked</th>
@@ -230,7 +230,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
                     type="button"
                     onClick={() => deleteSlot(slot)}
                     disabled={pending === `delete-${slot.id}`}
-                    className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600"
                     aria-label={`Delete ${slot.time}`}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -280,7 +280,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
 
       <div className="mt-5 border-t border-gray-100 pt-4">
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
-          <CalendarOff className="h-4 w-4 text-gray-400" /> Blackout dates
+          <CalendarOff className="h-4 w-4 text-gray-600" /> Blackout dates
         </h3>
         <p className="mt-1 text-xs text-gray-500">
           Public holidays, seasonal closures or weather blockouts. Guests cannot book these dates.
@@ -288,7 +288,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {variant.blackoutDates.length === 0 && (
-            <span className="text-xs text-gray-400">No blackout dates.</span>
+            <span className="text-xs text-gray-600">No blackout dates.</span>
           )}
           {variant.blackoutDates.map((date) => (
             <span
@@ -300,7 +300,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
                 type="button"
                 onClick={() => removeBlackout(date)}
                 disabled={pending === `blackout-${date}`}
-                className="text-gray-400 hover:text-red-600"
+                className="text-gray-600 hover:text-red-600"
                 aria-label={`Remove blackout ${date}`}
               >
                 ✕
@@ -341,7 +341,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
             <tbody>
               {variant.addons.length === 0 && (
                 <tr>
-                  <td className="py-2 text-xs text-gray-400">No add-ons for this package.</td>
+                  <td className="py-2 text-xs text-gray-600">No add-ons for this package.</td>
                 </tr>
               )}
               {variant.addons.map((addon) => (
@@ -359,7 +359,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
                       type="button"
                       onClick={() => deleteAddon(addon)}
                       disabled={pending === `addon-${addon.id}`}
-                      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600"
+                      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600"
                       aria-label={`Delete add-on ${addon.name}`}
                     >
                       <Trash2 className="h-4 w-4" />

@@ -16,7 +16,7 @@ export function PriceApprox({ amountIdr, className, suffix = '' }: PriceApproxPr
   if (currency === 'IDR') return null;
 
   return (
-    <span className={cn('text-[11px] text-gray-500', className)}>
+    <span className={cn('text-xs text-gray-500', className)}>
       ≈ {formatMoney(amountIdr, currency, rates)}
       {suffix}
     </span>

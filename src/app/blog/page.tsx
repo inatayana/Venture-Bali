@@ -68,7 +68,7 @@ export default async function BlogPage() {
         </div>
 
         <div className="container mx-auto px-4 pb-12 pt-6">
-          <p className="font-heading text-[11px] font-bold uppercase tracking-[0.22em] text-brand">
+          <p className="font-heading text-xs font-bold uppercase tracking-[0.22em] text-brand">
             Field notes
           </p>
           <h1 className="mt-3 font-heading text-4xl font-bold uppercase tracking-wide sm:text-5xl">
@@ -115,7 +115,7 @@ export default async function BlogPage() {
                     ))}
                   </div>
                   <div className="mt-4 flex items-center justify-between gap-2 border-t border-neutral-100 pt-3">
-                    <p className="text-xs text-neutral-400">
+                    <p className="text-xs text-neutral-600">
                       {article.publishedAt &&
                         new Date(article.publishedAt).toLocaleDateString('en-GB', {
                           year: 'numeric',

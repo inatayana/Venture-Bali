@@ -223,7 +223,7 @@ export function ReviewModal({
 
             <div className="mt-3 space-y-1">
               {histogram.map(({ stars, percent }) => (
-                <div key={stars} className="flex items-center gap-2 text-[11px] text-neutral-500">
+                <div key={stars} className="flex items-center gap-2 text-xs text-neutral-500">
                   <span className="w-5 tabular-nums">{stars}</span>
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200">
                     <div className="h-full bg-brand" style={{ width: `${percent}%` }} />
@@ -247,7 +247,7 @@ export function ReviewModal({
 
         <div className="space-y-3 border-b border-neutral-100 p-4 sm:px-6">
           <label className="flex items-center gap-2 rounded-xl border border-neutral-200 px-3">
-            <Search className="h-4 w-4 shrink-0 text-neutral-400" aria-hidden="true" />
+            <Search className="h-4 w-4 shrink-0 text-neutral-600" aria-hidden="true" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}

@@ -265,7 +265,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
             value={pickupZoneId}
             disabled={isSelfDrive}
             onChange={(event) => setPickupZoneId(event.target.value)}
-            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 bg-white px-3 text-sm disabled:bg-gray-100 disabled:text-gray-400"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 bg-white px-3 text-sm disabled:bg-gray-100 disabled:text-gray-600"
           >
             <option value="">No locked zone — guest picks the area</option>
             {zones.map((zone) => (
@@ -279,7 +279,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
               </option>
             ))}
           </select>
-          <span className="mt-1 block font-normal text-gray-400">
+          <span className="mt-1 block font-normal text-gray-600">
             Locked zones preselect the area in the booking sheet and keep the
             surcharge visible on the package card.
           </span>
@@ -380,7 +380,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
                 type="button"
                 onClick={() => setTiers((current) => current.filter((_, i) => i !== index))}
                 disabled={tiers.length === 1}
-                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600 disabled:opacity-30"
+                className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-red-600 disabled:opacity-30"
                 aria-label={`Remove tier ${index + 1}`}
               >
                 <Trash2 className="h-4 w-4" />

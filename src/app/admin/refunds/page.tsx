@@ -59,7 +59,7 @@ export default async function AdminRefundsPage() {
                   </p>
                 </div>
                 <span
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                     STATUS_STYLES[refund.status] ?? 'bg-neutral-100 text-neutral-700'
                   }`}
                 >
@@ -114,7 +114,7 @@ export default async function AdminRefundsPage() {
                   {refund.method} · {formatPrice(refund.amountIdr)}
                 </span>
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-gray-600">
                 {refund.processedAt?.toISOString().slice(0, 10) ?? '—'}
               </span>
             </li>

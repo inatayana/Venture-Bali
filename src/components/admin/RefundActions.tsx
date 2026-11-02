@@ -64,7 +64,7 @@ export function RefundActions({ refundId, hasPayment, status }: RefundActionsPro
           Mark manual refund
         </button>
       </div>
-      {error && <p className="mt-1 max-w-xs text-[11px] text-red-600">{error}</p>}
+      {error && <p className="mt-1 max-w-xs text-xs text-red-600">{error}</p>}
     </div>
   );
 }

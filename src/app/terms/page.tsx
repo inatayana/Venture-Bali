@@ -30,7 +30,7 @@ export default function TermsPage() {
           ))}
         </div>
 
-        <p className="mt-10 text-xs text-neutral-400">
+        <p className="mt-10 text-xs text-neutral-600">
           This page is a draft prepared for launch and is pending final legal review.
         </p>
       </article>

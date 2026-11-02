@@ -176,7 +176,7 @@ export default function VoucherPage({ params }: VoucherPageProps) {
                   {booking.bookingCode}
                 </p>
                 {booking.voucher && (
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="mt-1 text-xs text-gray-600">
                     Voucher status: {booking.voucher.status}
                   </p>
                 )}

@@ -58,10 +58,10 @@ export function SortMenu({ value, options, onChange, className }: SortMenuProps)
         aria-label={`Sort adventures (now ${active?.label ?? 'Recommended'})`}
         className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 text-sm font-medium text-gray-700 transition-colors hover:border-brand-ink hover:bg-brand/20 sm:px-3"
       >
-        <ArrowUpDown className="h-4 w-4 shrink-0 text-gray-400" aria-hidden="true" />
+        <ArrowUpDown className="h-4 w-4 shrink-0 text-gray-600" aria-hidden="true" />
         <span className="hidden max-w-[8.5rem] truncate sm:inline">{active?.label}</span>
         <ChevronDown
-          className={cn('h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200', isOpen && 'rotate-180')}
+          className={cn('h-4 w-4 shrink-0 text-gray-600 transition-transform duration-200', isOpen && 'rotate-180')}
           aria-hidden="true"
         />
       </button>
@@ -72,7 +72,7 @@ export function SortMenu({ value, options, onChange, className }: SortMenuProps)
           aria-label="Sort adventures"
           className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-xl"
         >
-          <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+          <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-gray-600">
             Sort by
           </p>
 

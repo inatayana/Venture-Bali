@@ -120,12 +120,12 @@ export default async function AdminDashboardPage() {
           </div>
 
           {recentBookings.length === 0 ? (
-            <p className="text-sm text-gray-400 py-6 text-center">No bookings yet.</p>
+            <p className="text-sm text-gray-600 py-6 text-center">No bookings yet.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-xs uppercase tracking-wider text-gray-400 border-b border-gray-100">
+                  <tr className="text-left text-xs uppercase tracking-wider text-gray-600 border-b border-gray-100">
                     <th className="py-2 pr-3 font-medium">Code</th>
                     <th className="py-2 pr-3 font-medium">Product</th>
                     <th className="py-2 pr-3 font-medium">Customer</th>

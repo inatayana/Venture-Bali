@@ -264,7 +264,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                   <span className="text-lg font-semibold text-gray-900">Total</span>
                   <span className="text-right">
                     <span className="block text-2xl font-bold text-brand-ink">{formatPrice(amountDue)}</span>
-                    <PriceApprox amountIdr={amountDue} className="text-[11px]" />
+                    <PriceApprox amountIdr={amountDue} className="text-xs" />
                   </span>
                 </div>
               </div>

@@ -64,7 +64,7 @@ export function VentureCard({
 
   const content = (
     <>
-      <div className="relative h-48 w-full overflow-hidden bg-gray-200">
+      <div className="relative h-40 w-full overflow-hidden bg-gray-200 sm:h-48">
         <Image
           src={venture.imageUrl}
           alt={venture.title}
@@ -74,7 +74,7 @@ export function VentureCard({
         />
         <span
           className={cn(
-            'absolute top-3 left-3 px-2.5 py-1 rounded-full font-heading text-xs font-semibold uppercase tracking-wider',
+            'absolute left-2.5 top-2.5 rounded-full px-2 py-0.5 font-heading text-xs font-semibold uppercase tracking-wider sm:left-3 sm:top-3 sm:px-2.5 sm:py-1',
             CATEGORY_STYLES[venture.category] ?? DEFAULT_CATEGORY_STYLE
           )}
         >
@@ -86,49 +86,33 @@ export function VentureCard({
           {venture.category}
         </span>
         {venture.badge && (
-          <span className="absolute top-3 right-3 rounded-full bg-brand px-2.5 py-1 font-heading text-xs font-semibold uppercase tracking-wider text-brand-ink">
+          <span className="absolute right-2.5 top-2.5 rounded-full bg-brand px-2 py-0.5 font-heading text-xs font-semibold uppercase tracking-wider text-brand-ink sm:right-3 sm:top-3 sm:px-2.5 sm:py-1">
             {venture.badge}
           </span>
         )}
         {!venture.isAvailable && (
-          <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full font-heading text-xs font-semibold uppercase tracking-wider bg-red-100 text-red-800">
+          <span className="absolute right-2.5 top-2.5 rounded-full bg-red-100 px-2 py-0.5 font-heading text-xs font-semibold uppercase tracking-wider text-red-800 sm:right-3 sm:top-3 sm:px-2.5 sm:py-1">
             Sold Out
           </span>
         )}
       </div>
 
-      <div className="p-5">
-        <h3 className="font-heading text-lg font-bold text-gray-900 line-clamp-2 mb-2">
+      <div className="p-4 sm:p-5">
+        <h3 className="mb-1.5 line-clamp-2 font-heading text-base font-bold text-gray-900 sm:mb-2 sm:text-lg">
           {venture.title}
         </h3>
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600 mb-3">
-          <div className="flex items-center gap-1">
-            <MapPin className="w-4 h-4" aria-hidden="true" />
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-600 sm:text-sm">
+          <div className="flex min-w-0 items-center gap-1">
+            <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             <span className="line-clamp-1">{venture.location}</span>
           </div>
-          {venture.bookedThisMonth ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-[11px] font-medium text-neutral-800">
-              <Users className="w-3.5 h-3.5" aria-hidden="true" />
-              {venture.bookedThisMonth} booked this month
-            </span>
-          ) : null}
-        </div>
-
-        <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
           <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" aria-hidden="true" />
+            <Clock className="h-3.5 w-3.5" aria-hidden="true" />
             <span>{venture.durationHours}h</span>
           </div>
-          <div className="flex items-center gap-1">
-            <Users className="w-4 h-4" aria-hidden="true" />
-            <span>up to {venture.maxParticipants}</span>
-          </div>
-          <div className="flex items-center gap-1 ml-auto">
-            <Star
-              className="w-4 h-4 fill-brand text-brand"
-              aria-hidden="true"
-            />
+          <div className="ml-auto flex items-center gap-1">
+            <Star className="h-3.5 w-3.5 fill-brand text-brand" aria-hidden="true" />
             {venture.reviewCount > 0 ? (
               <>
                 <span className="font-medium text-gray-900">{venture.rating.toFixed(1)}</span>
@@ -140,28 +124,39 @@ export function VentureCard({
           </div>
         </div>
 
-        <div className="flex items-end justify-between gap-3 pt-4 border-t border-gray-100">
+        <div className="mt-2 hidden items-center gap-3 text-xs text-gray-600 sm:flex">
+          <span className="flex items-center gap-1">
+            <Users className="h-3.5 w-3.5" aria-hidden="true" />
+            up to {venture.maxParticipants}
+          </span>
+          {venture.bookedThisMonth ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 font-medium text-neutral-800">
+              <Users className="h-3 w-3" aria-hidden="true" />
+              {venture.bookedThisMonth} booked this month
+            </span>
+          ) : null}
+        </div>
+
+        <div className="mt-2.5 flex items-end justify-between gap-3 border-t border-gray-100 pt-2.5 sm:mt-3 sm:pt-3">
           <div className="min-w-0">
-            <span className="text-xs text-gray-500 block">From</span>
-            <span className="font-heading text-xl font-bold tabular-nums text-brand-ink">
+            <span className="block text-xs text-gray-600">From</span>
+            <span className="font-heading text-lg font-bold tabular-nums text-brand-ink sm:text-xl">
               {formatPrice(venture.priceIdr)}
             </span>
-            <span className="ml-1 text-xs text-gray-500">/ guest</span>
+            <span className="ml-1 text-xs text-gray-600">/ guest</span>
             {tierHint && tierHint.minPax > 1 && (
-              <span className="ml-1 text-xs text-gray-400">
-                · {tierHint.minPax}+ guests
-              </span>
+              <span className="ml-1 text-xs text-gray-600">· {tierHint.minPax}+ guests</span>
             )}
             <PriceApprox amountIdr={venture.priceIdr} suffix=" / person" className="mt-0.5 block" />
           </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700">
+        <div className="mt-2 hidden flex-wrap gap-1.5 sm:flex">
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
             <CheckCircle className="h-3 w-3" aria-hidden="true" />
             Instant Confirmation
           </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-[10px] font-semibold text-neutral-800">
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-xs font-semibold text-neutral-800">
             <RefreshCw className="h-3 w-3" aria-hidden="true" />
             Free reschedule ≥24h
           </span>
@@ -174,8 +169,8 @@ export function VentureCard({
     return (
       <article
         className={cn(
-          'group bg-white rounded-xl shadow-md overflow-hidden',
-          'transition-all duration-300 hover:shadow-xl hover:-translate-y-1',
+          'group overflow-hidden rounded-xl bg-white shadow-md',
+          'transition-all duration-300 hover:-translate-y-1 hover:shadow-xl',
           className,
         )}
         aria-label={`View details for ${venture.title}`}
@@ -191,8 +186,8 @@ export function VentureCard({
   return (
     <article
       className={cn(
-        'group bg-white rounded-xl shadow-md overflow-hidden',
-        'transition-all duration-300 hover:shadow-xl hover:-translate-y-1',
+        'group overflow-hidden rounded-xl bg-white shadow-md',
+        'transition-all duration-300 hover:-translate-y-1 hover:shadow-xl',
         onSelect && 'cursor-pointer',
         className,
       )}

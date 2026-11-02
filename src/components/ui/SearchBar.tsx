@@ -27,7 +27,7 @@ export function SearchBar({
         className
       )}
     >
-      <Search className="w-5 h-5 text-gray-400 ml-3 shrink-0" />
+      <Search className="w-5 h-5 text-gray-600 ml-3 shrink-0" />
       <input
         type="text"
         value={value}
@@ -35,7 +35,7 @@ export function SearchBar({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
-        className="w-full px-3 py-3 text-sm bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
+        className="w-full px-3 py-3 text-sm bg-transparent outline-none text-gray-900 placeholder:text-gray-600"
         aria-label="Search adventures"
       />
       {value && (
@@ -45,7 +45,7 @@ export function SearchBar({
           className="p-2 mr-1 rounded-full hover:bg-gray-100 transition-colors"
           aria-label="Clear search"
         >
-          <X className="w-4 h-4 text-gray-400" />
+          <X className="w-4 h-4 text-gray-600" />
         </button>
       )}
     </div>

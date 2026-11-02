@@ -66,7 +66,7 @@ export function OperationActions({ bookingId, lifecycleStatus }: OperationAction
           {pending === 'NO_SHOW' ? 'Saving…' : 'No-show'}
         </button>
       </div>
-      {error && <p className="text-[11px] text-red-600">{error}</p>}
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }
