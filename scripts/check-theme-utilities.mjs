@@ -17,15 +17,26 @@ const src = join(root, 'src');
 
 const BANNED = [
   /\bbg-white(?!\/)/,
-  /\bbg-white\/9[05]\b/,
+  // Only /5, /10, /15, /20 and /25 overlays are allowed on dark surfaces.
+  /\bbg-white\/(?!(?:5|10|15|20|25)\b)/,
   /\bbg-(?:gray|neutral)-(?:50|100|200)\b/,
   /\btext-(?:gray|neutral)-(?:300|400|500|600|700|800|900)\b/,
   /\btext-black\b/,
   /\bborder-(?:gray|neutral)-(?:50|100|200|300|400|900)\b/,
   /\bbg-green-50\b/,
-  /\btext-green-(?:700|800)\b/,
+  /\bbg-green-100\b/,
+  /\btext-green-(?:600|700|800|900)\b/,
+  /\bborder-green-(?:100|200|300)\b/,
   /\bbg-red-50\b/,
-  /\btext-red-(?:600|700)\b/,
+  /\bbg-red-100\b/,
+  /\btext-red-(?:500|600|700|800)\b/,
+  /\bborder-red-(?:100|200|300)\b/,
+  /\bbg-amber-(?:50|100)\b/,
+  /\btext-amber-(?:500|600|700|800|900)\b/,
+  /\bborder-amber-(?:200|300)\b/,
+  /\bdivide-(?:gray|neutral)-\d+\b/,
+  /\bring-(?:gray|neutral)-\d+\b/,
+  /\bbg-gray-900\b/,
 ];
 
 const files = [];
