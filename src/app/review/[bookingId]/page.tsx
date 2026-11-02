@@ -5,6 +5,7 @@ import { verifyReviewAccess } from '@/lib/customerLink';
 import { findCountry } from '@/lib/countries';
 import { canReviewBooking, reviewBlockedReason } from '@/lib/reviewSchema';
 import { ReviewForm } from '@/components/features/ReviewForm';
+import { isReviewPhotoStorageConfigured } from '@/lib/reviewPhotos';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 
 export const dynamic = 'force-dynamic';
@@ -96,6 +97,7 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
               ventureTitle={ventureTitle}
               defaultName={booking.customer.name}
               defaultLocation={findCountry(booking.customer.countryCode).name}
+              photosEnabled={isReviewPhotoStorageConfigured()}
             />
           )}
         </div>

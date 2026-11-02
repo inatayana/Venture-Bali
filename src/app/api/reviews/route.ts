@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyReviewAccess } from '@/lib/customerLink';
 import { canReviewBooking, reviewBlockedReason, reviewInputSchema } from '@/lib/reviewSchema';
 import { assessReviewForPublishing } from '@/lib/reviewModeration';
+import { isAllowedReviewPhotoUrl } from '@/lib/reviewPhotos';
 import { notifyReviewNeedsModeration } from '@/lib/notifications';
 import { clientIp, rateLimit } from '@/lib/rateLimit';
 
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { token, bookingId, rating, comment, guestName, guestLocation } = parsed.data;
+  const { token, bookingId, rating, comment, guestName, guestLocation, photos } = parsed.data;
 
   const session = verifyReviewAccess(token, bookingId);
   if (!session) {
@@ -106,10 +107,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const safePhotos = (photos ?? []).filter((url) => isAllowedReviewPhotoUrl(url));
+  if ((photos ?? []).length !== safePhotos.length) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'One of the photos is not valid.' },
+      },
+      { status: 400 }
+    );
+  }
+
   const decision = assessReviewForPublishing({
     rating,
     comment,
     verifiedBooking: true,
+    photoCount: safePhotos.length,
   });
   const guestDisplayName = guestName || booking.customer.name;
 
@@ -119,12 +132,13 @@ export async function POST(request: NextRequest) {
         ventureId: booking.variant.ventureId,
         customerId: booking.customerId,
         bookingId: booking.id,
+        source: 'VERIFIED_BOOKING',
         rating,
         comment,
         guestName: guestName || null,
         guestLocation: guestLocation || null,
         isApproved: decision.autoPublish,
-        photos: [],
+        photos: safePhotos,
       },
     });
   } catch (error) {

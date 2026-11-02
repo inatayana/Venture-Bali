@@ -95,6 +95,33 @@ describe('toReviewSummary', () => {
     expect(summary.location).toBe('Germany');
     expect(summary.isVerified).toBe(false);
   });
+
+  it('carries source and only three safe photo URLs', () => {
+    const summary = toReviewSummary({
+      id: 'r3',
+      rating: 5,
+      comment: 'Founding guest trip',
+      bookingId: null,
+      source: 'FOUNDING_GUEST',
+      photos: [
+        'https://cdn.example.com/1.webp',
+        'https://cdn.example.com/2.webp',
+        'https://cdn.example.com/3.webp',
+        'https://cdn.example.com/4.webp',
+        42,
+      ],
+      createdAt: new Date('2026-11-03T00:00:00.000Z'),
+      customer: { name: 'Marta Silva', countryCode: 'BR' },
+    });
+
+    expect(summary.source).toBe('FOUNDING_GUEST');
+    expect(summary.isVerified).toBe(false);
+    expect(summary.photos).toEqual([
+      'https://cdn.example.com/1.webp',
+      'https://cdn.example.com/2.webp',
+      'https://cdn.example.com/3.webp',
+    ]);
+  });
 });
 
 describe('histogramFromCounts', () => {

@@ -67,8 +67,22 @@ interface ReviewRecord {
   guestName?: string | null;
   guestLocation?: string | null;
   bookingId?: string | null;
+  source?: string | null;
+  photos?: unknown;
   createdAt: Date;
   customer?: { name: string; countryCode: string } | null;
+}
+
+function parsePhotoUrls(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is string => typeof item === 'string' && /^https?:\/\//.test(item))
+    .slice(0, 3);
+}
+
+function parseSource(value: string | null | undefined): ReviewSummary['source'] {
+  if (value === 'FOUNDING_GUEST' || value === 'IMPORTED') return value;
+  return 'VERIFIED_BOOKING';
 }
 
 /** Single mapping used by both the PDP server render and the review feed API. */
@@ -88,6 +102,8 @@ export function toReviewSummary(review: ReviewRecord): ReviewSummary {
     country: countryName,
     location: review.guestLocation?.trim() || countryName,
     isVerified: Boolean(review.bookingId),
+    source: parseSource(review.source),
+    photos: parsePhotoUrls(review.photos),
     createdAt: review.createdAt,
   };
 }

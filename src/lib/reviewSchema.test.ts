@@ -71,6 +71,39 @@ describe('review input', () => {
       }).success
     ).toBe(false);
   });
+
+  it('rejects comments over 500 characters', () => {
+    expect(
+      reviewInputSchema.safeParse({
+        token: 'cl1.payload.signature',
+        bookingId: 'bk-1',
+        rating: 5,
+        comment: 'a'.repeat(501),
+      }).success
+    ).toBe(false);
+  });
+
+  it('accepts up to three photo URLs', () => {
+    const photos = Array.from({ length: 3 }, (_, index) => `https://cdn.example.com/p${index}.webp`);
+    expect(
+      reviewInputSchema.safeParse({
+        token: 'cl1.payload.signature',
+        bookingId: 'bk-1',
+        rating: 5,
+        comment: 'The guide was brilliant and the river was perfect.',
+        photos,
+      }).success
+    ).toBe(true);
+    expect(
+      reviewInputSchema.safeParse({
+        token: 'cl1.payload.signature',
+        bookingId: 'bk-1',
+        rating: 5,
+        comment: 'The guide was brilliant and the river was perfect.',
+        photos: [...photos, 'https://cdn.example.com/p4.webp'],
+      }).success
+    ).toBe(false);
+  });
 });
 
 describe('canReviewBooking', () => {

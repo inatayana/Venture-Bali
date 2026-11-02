@@ -22,6 +22,13 @@ describe('review moderation', () => {
     });
   });
 
+  it('holds reviews with photos for a human', () => {
+    expect(assessReviewForPublishing({ ...clean, photoCount: 1 })).toEqual({
+      autoPublish: false,
+      reason: 'photos',
+    });
+  });
+
   it('never auto-publishes an unverified review', () => {
     expect(assessReviewForPublishing({ ...clean, verifiedBooking: false }).autoPublish).toBe(false);
   });

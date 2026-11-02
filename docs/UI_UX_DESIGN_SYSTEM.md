@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.7.1
+> **Version:** 3.7.2
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -27,6 +27,7 @@
 > **Changelog v3.6.11:** Hero video-ready — poster remains LCP, `hero.mp4` loads on desktop after idle (reduced-motion/save-data aware), mobile stays poster-only.
 > **Changelog v3.7.0:** Quick Wins polish pass — hero reduced to 4 layers (badge, H1+subtitle, search, three documented promises) with mobile H1 28–32px and height ≤540px; mobile header consolidates language/currency/theme into one 44px settings sheet; mobile cards compress to ≤390px with one badge and a 6-card + Load More list; all text ≥12px and informative `neutral-400` replaced with `neutral-600`; PDP header keeps only back/breadcrumb/share-wishlist with a single price CTA source; cookie bar is thin, suppresses under `[role="dialog"]`, and publishes `--cookie-consent-height` so fixed CTAs never sit underneath it.
 > **Changelog v3.7.1:** Review flow activated — invite is sent the moment ops marks a trip COMPLETED (scoped 180-day token), QR appears in the ops success panel and customer bookings, verified 4–5★ clean reviews publish instantly, lower ratings stay in the moderation queue with an email alert, and one D+3 reminder is sent by the fallback cron.
+> **Changelog v3.7.2:** Real-review collection — `Review.source` labels verified bookings vs founding guests vs imported reviews, guest photos (max 3, compressed WebP, 4:3) render in review cards and the admin queue, comments cap at 500 characters, and the admin gets per-product coverage (target 10), source/status/product filters, bulk approve/delete and photo removal.
 
 ## 1. Design Principles
 
@@ -221,9 +222,12 @@ Aturan penerapan:
   3. **Token review** memakai payload `rl1` berisi `cid + bid + scp=review`, berlaku **180 hari**, dan hanya membuka booking tersebut (tidak membuka `/my/bookings`).
   4. QR dirender oleh `GET /api/reviews/qr?bookingId=…&token=…` sebagai SVG; tampil di email, panel ops, dan `/my/bookings`.
   5. Tamu membuka `/review/[bookingId]?token=…` (tanpa akun), mengisi nama, lokasi, rating 1–5 dan komentar 20–1000 karakter.
-  6. **Auto-publish**: review dari booking `COMPLETED` dengan rating **4–5**, komentar bersih (tanpa link/email/nomor/kata kasar) langsung `isApproved = true`. Rating 1–3 atau terindikasi spam masuk `/admin/reviews` dan memicu email ke `support@`.
+  6. **Auto-publish**: review dari booking `COMPLETED` dengan rating **4–5**, komentar bersih (tanpa link/email/nomor/kata kasar) dan **tanpa foto** langsung `isApproved = true`. Rating 1–3, terindikasi spam, atau review dengan foto masuk `/admin/reviews` dan memicu email ke `support@` (foto adalah UGC dan selalu dimoderasi manusia).
   7. Review yang tampil di PDP selalu punya badge **Verified trip**; tidak ada review karangan.
   8. Booking `CONFIRMED`, `CANCELLED` dan `NO_SHOW` **tidak bisa** direview, dan tanggal trip harus sudah lewat.
+  9. **Foto tamu (v3.7.2)**: maksimal 3 foto, dikompres di browser ke WebP (maks 1600px, 5 MB), disimpan di bucket publik Supabase `SUPABASE_REVIEW_BUCKET`, dan hanya tampil setelah review approved.
+ 10. **Label sumber (v3.7.2)**: `VERIFIED_BOOKING` → “Verified trip”, `FOUNDING_GUEST` → “Founding guest”, `IMPORTED` → “Imported review”. Hanya booking nyata yang boleh memakai badge Verified trip.
+ 11. **Batas visual**: komentar maksimal **500 karakter**; kartu menampilkan 3 baris + “Read more”; foto memakai rasio 4:3 dan grid maksimal 3 kolom.
 - **Empty state**: bila `reviewCount = 0`, jangan tampilkan angka rating maupun histogram — tampilkan kartu "No verified reviews yet" (ikon bintang abu-abu + ajakan review setelah trip). Baris rating di header berubah menjadi chip "New · no reviews yet".
 
 ### Section 6: Location & Related Adventures

@@ -1,8 +1,13 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle, Loader2, Star } from 'lucide-react';
+import { CheckCircle, ImagePlus, Loader2, Star, X } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { compressReviewPhoto } from '@/lib/compressImage';
+
+const REVIEW_MAX_LENGTH = 500;
+const PHOTO_LIMIT = 3;
 
 interface ReviewFormProps {
   bookingId: string;
@@ -11,6 +16,8 @@ interface ReviewFormProps {
   /** Prefilled from the booking; the guest may change what is shown publicly. */
   defaultName?: string;
   defaultLocation?: string;
+  /** Hide the photo picker until Supabase Storage is configured. */
+  photosEnabled?: boolean;
 }
 
 const RATING_LABELS = ['', 'Not for me', 'Okay', 'Good', 'Great', 'Unforgettable'];
@@ -22,15 +29,57 @@ export function ReviewForm({
   ventureTitle,
   defaultName = '',
   defaultLocation = '',
+  photosEnabled = false,
 }: ReviewFormProps) {
   const [guestName, setGuestName] = useState(defaultName);
   const [guestLocation, setGuestLocation] = useState(defaultLocation);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [published, setPublished] = useState(false);
+
+  const uploadPhotos = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setPhotoError(null);
+
+    const remaining = PHOTO_LIMIT - photos.length;
+    if (remaining <= 0) {
+      setPhotoError('You can add up to 3 photos.');
+      return;
+    }
+
+    const selected = Array.from(files).slice(0, remaining);
+    if (files.length > remaining) {
+      setPhotoError(`Only ${remaining} more photo${remaining === 1 ? '' : 's'} allowed.`);
+    }
+
+    setUploading(true);
+    for (const file of selected) {
+      try {
+        if (!file.type.startsWith('image/')) throw new Error('Use a JPG, PNG or WebP photo.');
+        const compressed = await compressReviewPhoto(file);
+        const form = new FormData();
+        form.set('token', token);
+        form.set('bookingId', bookingId);
+        form.set('file', compressed);
+
+        const response = await fetch('/api/reviews/photos', { method: 'POST', body: form });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.error?.message ?? 'Could not upload the photo.');
+        }
+        setPhotos((current) => [...current, data.data.url].slice(0, PHOTO_LIMIT));
+      } catch (err) {
+        setPhotoError(err instanceof Error ? err.message : 'Could not upload the photo.');
+      }
+    }
+    setUploading(false);
+  };
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -57,6 +106,7 @@ export function ReviewForm({
           comment,
           guestName: guestName.trim(),
           guestLocation: guestLocation.trim() || undefined,
+          photos,
         }),
       });
       const data = await response.json();
@@ -157,15 +207,75 @@ export function ReviewForm({
         <textarea
           value={comment}
           onChange={(event) => setComment(event.target.value)}
-          rows={5}
+          rows={4}
           minLength={20}
-          maxLength={1000}
+          maxLength={REVIEW_MAX_LENGTH}
           required
           placeholder="What did you enjoy? Tips for the next guest — what to bring, what to expect…"
           className="mt-2 w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm font-normal normal-case tracking-normal text-neutral-900 outline-none focus:border-brand-ink"
         />
       </label>
-      <p className="mt-1 text-right text-xs text-neutral-600">{comment.length}/1000</p>
+      <p className="mt-1 text-right text-xs text-neutral-600">
+        {comment.length}/{REVIEW_MAX_LENGTH}
+      </p>
+
+      {photosEnabled && (
+        <div className="mt-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+            Photos <span className="font-normal normal-case tracking-normal">(optional, up to 3)</span>
+          </p>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {photos.map((photo, index) => (
+              <div key={photo} className="relative overflow-hidden rounded-xl bg-neutral-100">
+                <img
+                  src={photo}
+                  alt={`Review photo ${index + 1}`}
+                  className="aspect-[4/3] w-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => setPhotos((current) => current.filter((url) => url !== photo))}
+                  aria-label={`Remove photo ${index + 1}`}
+                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/70 text-white"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+
+            {photos.length < PHOTO_LIMIT && (
+              <label
+                className={cn(
+                  'flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-neutral-300 text-xs font-medium text-neutral-600 transition-colors hover:border-neutral-500',
+                  uploading && 'pointer-events-none opacity-60'
+                )}
+              >
+                {uploading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+                ) : (
+                  <ImagePlus className="h-5 w-5" aria-hidden="true" />
+                )}
+                {uploading ? 'Uploading…' : 'Add photo'}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  onChange={(event) => {
+                    void uploadPhotos(event.target.files);
+                    event.target.value = '';
+                  }}
+                  className="sr-only"
+                />
+              </label>
+            )}
+          </div>
+          {photoError && (
+            <p role="alert" className="mt-2 text-xs text-red-700">
+              {photoError}
+            </p>
+          )}
+        </div>
+      )}
 
       {error && (
         <p role="alert" className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -175,7 +285,7 @@ export function ReviewForm({
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || uploading}
         className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand transition-colors hover:bg-neutral-900 disabled:opacity-60"
       >
         {pending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}

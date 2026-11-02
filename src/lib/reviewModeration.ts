@@ -40,12 +40,14 @@ export interface ReviewModerationInput {
   comment: string;
   /** True only when the review is attached to a real paid booking. */
   verifiedBooking: boolean;
+  /** Guest photos are UGC and always need a human check. */
+  photoCount?: number;
 }
 
 export interface ReviewModerationDecision {
   autoPublish: boolean;
   /** Short machine-readable reason, useful in tests and admin tooling. */
-  reason: 'clean-verified-review' | 'not-verified' | 'low-rating' | 'contact-details' | 'profanity' | 'too-short';
+  reason: 'clean-verified-review' | 'not-verified' | 'low-rating' | 'photos' | 'contact-details' | 'profanity' | 'too-short';
 }
 
 function hasContactDetails(comment: string): boolean {
@@ -66,6 +68,9 @@ export function assessReviewForPublishing(
   }
   if (input.rating < AUTO_PUBLISH_MIN_RATING) {
     return { autoPublish: false, reason: 'low-rating' };
+  }
+  if ((input.photoCount ?? 0) > 0) {
+    return { autoPublish: false, reason: 'photos' };
   }
   if (comment.length < 20) {
     return { autoPublish: false, reason: 'too-short' };
