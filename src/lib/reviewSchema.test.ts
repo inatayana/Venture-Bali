@@ -6,6 +6,7 @@ const base = {
   paymentStatus: 'PAID',
   bookingDate: '2026-11-10',
   reviewId: null as string | null,
+  lifecycleStatus: 'COMPLETED',
 };
 
 describe('review input', () => {
@@ -89,12 +90,26 @@ describe('canReviewBooking', () => {
     expect(canReviewBooking({ ...base, reviewId: 'rev-1' }, today)).toBe(false);
   });
 
+  it('only allows completed trips', () => {
+    expect(canReviewBooking({ ...base, lifecycleStatus: 'CONFIRMED' }, today)).toBe(false);
+    expect(canReviewBooking({ ...base, lifecycleStatus: 'CANCELLED' }, today)).toBe(false);
+    expect(canReviewBooking({ ...base, lifecycleStatus: 'NO_SHOW' }, today)).toBe(false);
+  });
+
+  it('keeps the lifecycle optional for legacy callers', () => {
+    expect(canReviewBooking({ ...base, lifecycleStatus: undefined }, today)).toBe(true);
+  });
+
   it('explains why a booking cannot be reviewed', () => {
     expect(reviewBlockedReason({ ...base, reviewId: 'rev-1' }, today)).toMatch(/already reviewed/i);
     expect(reviewBlockedReason({ ...base, bookingDate: '2026-12-01' }, today)).toMatch(
       /after the activity day/i
     );
     expect(reviewBlockedReason({ ...base, paymentStatus: 'PENDING' }, today)).toMatch(/not paid/i);
+    expect(reviewBlockedReason({ ...base, lifecycleStatus: 'CONFIRMED' }, today)).toMatch(
+      /marked complete/i
+    );
+    expect(reviewBlockedReason({ ...base, lifecycleStatus: 'NO_SHOW' }, today)).toMatch(/no-show/i);
     expect(reviewBlockedReason(base, today)).toBeNull();
   });
 });

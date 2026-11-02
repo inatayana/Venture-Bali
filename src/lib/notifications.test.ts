@@ -7,6 +7,7 @@ const booking = {
   paxCount: 3,
   totalPrice: 1992000,
   fulfillmentMode: 'SHARED_TRANSFER',
+  lifecycleStatus: 'COMPLETED',
   hotelAddress: null,
   isTba: true,
   customer: {

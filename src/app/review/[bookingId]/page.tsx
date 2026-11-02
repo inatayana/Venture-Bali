@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import { verifyCustomerLinkToken } from '@/lib/customerLink';
+import { verifyReviewAccess } from '@/lib/customerLink';
 import { findCountry } from '@/lib/countries';
 import { canReviewBooking, reviewBlockedReason } from '@/lib/reviewSchema';
 import { ReviewForm } from '@/components/features/ReviewForm';
@@ -15,7 +15,7 @@ interface ReviewPageProps {
 }
 
 export default async function ReviewPage({ params, searchParams }: ReviewPageProps) {
-  const session = verifyCustomerLinkToken(searchParams.token);
+  const session = verifyReviewAccess(searchParams.token, params.bookingId);
   if (!session) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
@@ -43,6 +43,7 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
       customerId: true,
       paymentStatus: true,
       bookingDate: true,
+      lifecycleStatus: true,
       review: { select: { id: true } },
       customer: { select: { name: true, countryCode: true } },
       variant: { select: { title: true, venture: { select: { title: true } } } },
@@ -55,6 +56,7 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
     paymentStatus: booking.paymentStatus,
     bookingDate: booking.bookingDate,
     reviewId: booking.review?.id ?? null,
+    lifecycleStatus: booking.lifecycleStatus,
   };
   const blocked = reviewBlockedReason(reviewable);
   const ventureTitle = booking.variant?.venture.title ?? 'Your adventure';

@@ -54,6 +54,32 @@ describe('ReviewForm', () => {
     expect(body.rating).toBe(5);
   });
 
+  it('tells the guest when a verified review is live immediately', async () => {
+    const fetchMock = jest
+      .fn()
+      .mockResolvedValue(jsonResponse({ success: true, data: { published: true } }));
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const user = userEvent.setup();
+    render(
+      <ReviewForm
+        bookingId="booking-1"
+        token="rl1.payload.signature"
+        ventureTitle="Ubud River Tubing"
+        defaultName="Made Wijaya"
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: '5 stars' }));
+    await user.type(
+      screen.getByLabelText('Your review'),
+      'So amazing! Would definitely recommend this trip to anyone visiting Bali.'
+    );
+    await user.click(screen.getByRole('button', { name: /submit review/i }));
+
+    expect(await screen.findByText(/review is now live/i)).toBeInTheDocument();
+  });
+
   it('requires a display name', async () => {
     const user = userEvent.setup();
     render(

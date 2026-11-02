@@ -30,6 +30,7 @@ export function ReviewForm({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [published, setPublished] = useState(false);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -60,6 +61,7 @@ export function ReviewForm({
       });
       const data = await response.json();
       if (!data.success) throw new Error(data.error?.message ?? 'Could not save the review');
+      setPublished(data.data?.published === true);
       setDone(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save the review');
@@ -74,7 +76,9 @@ export function ReviewForm({
         <CheckCircle className="mx-auto h-8 w-8 text-green-600" aria-hidden="true" />
         <h2 className="mt-2 font-heading text-lg font-bold text-green-900">Thank you!</h2>
         <p className="mt-1 text-sm text-green-800">
-          Your review is waiting for a quick check and will appear on {ventureTitle} shortly.
+          {published
+            ? `Your review is now live on ${ventureTitle}.`
+            : `Your review is waiting for a quick check and will appear on ${ventureTitle} shortly.`}
         </p>
       </div>
     );
@@ -178,7 +182,7 @@ export function ReviewForm({
         Submit review
       </button>
       <p className="mt-2 text-center text-xs text-neutral-500">
-        Reviews are checked before they appear on the product page.
+        Verified 4–5 star reviews appear immediately. Other reviews are checked by our team.
       </p>
     </form>
   );

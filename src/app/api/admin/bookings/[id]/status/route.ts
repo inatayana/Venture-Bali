@@ -4,6 +4,9 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { ADMIN_SESSION_COOKIE, hasRole, verifySessionToken } from '@/lib/adminSession';
+import { createReviewToken } from '@/lib/customerLink';
+import { buildReviewQrUrl, buildReviewUrl } from '@/lib/reviewLink';
+import { sendReviewRequest } from '@/lib/notifications';
 
 const closeJobSchema = z.object({
   status: z.enum(['COMPLETED', 'NO_SHOW']),
@@ -60,11 +63,12 @@ export async function POST(
         });
       }
 
-      return { kind: 'ok' as const };
+      return { kind: 'ok' as const, customerId: booking.customerId };
     });
 
     revalidatePath('/admin/operations');
     revalidatePath('/admin/bookings');
+    revalidatePath('/my/bookings');
 
     if (result.kind === 'not_found') {
       return NextResponse.json(
@@ -79,7 +83,25 @@ export async function POST(
       );
     }
 
-    return NextResponse.json({ success: true, data: { id, status }, error: null });
+    let review: { url: string; qrUrl: string } | null = null;
+    if (status === 'COMPLETED') {
+      const token = createReviewToken(result.customerId, id);
+      if (token) {
+        review = {
+          url: buildReviewUrl(id, token),
+          qrUrl: buildReviewQrUrl(id, token),
+        };
+      }
+      // Primary trigger: send the invite the moment the trip is completed.
+      // Delivery failures are logged inside the notifier and never block ops.
+      try {
+        await sendReviewRequest(id);
+      } catch (error) {
+        console.error('Review request after completion failed:', error);
+      }
+    }
+
+    return NextResponse.json({ success: true, data: { id, status, review }, error: null });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

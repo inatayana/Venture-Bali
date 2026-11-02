@@ -24,6 +24,12 @@ export interface ReviewableBooking {
   bookingDate: string;
   /** Id of an existing review for this booking, if any. */
   reviewId: string | null;
+  /**
+   * Ops lifecycle. A trip only becomes reviewable once operations marks it
+   * COMPLETED, so no-shows and cancellations can never leave a review.
+   * Omit only for legacy callers without the field.
+   */
+  lifecycleStatus?: string | null;
 }
 
 function toLocalDateKey(date: Date): string {
@@ -39,6 +45,7 @@ function toLocalDateKey(date: Date): string {
 export function canReviewBooking(booking: ReviewableBooking, today: Date = new Date()): boolean {
   if (booking.paymentStatus !== 'PAID') return false;
   if (booking.reviewId) return false;
+  if (booking.lifecycleStatus && booking.lifecycleStatus !== 'COMPLETED') return false;
   return booking.bookingDate <= toLocalDateKey(today);
 }
 
@@ -49,6 +56,11 @@ export function reviewBlockedReason(
 ): string | null {
   if (booking.paymentStatus !== 'PAID') return 'This booking is not paid yet.';
   if (booking.reviewId) return 'You already reviewed this trip — thank you!';
+  if (booking.lifecycleStatus && booking.lifecycleStatus !== 'COMPLETED') {
+    if (booking.lifecycleStatus === 'CANCELLED') return 'This booking was cancelled.';
+    if (booking.lifecycleStatus === 'NO_SHOW') return 'This booking was marked as a no-show.';
+    return 'You can review this trip once it is marked complete.';
+  }
   if (booking.bookingDate > toLocalDateKey(today)) {
     return 'You can review this trip after the activity day.';
   }

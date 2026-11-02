@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { verifyCustomerLinkToken } from '@/lib/customerLink';
+import { verifyReviewAccess } from '@/lib/customerLink';
 import { canReviewBooking, reviewBlockedReason, reviewInputSchema } from '@/lib/reviewSchema';
+import { assessReviewForPublishing } from '@/lib/reviewModeration';
+import { notifyReviewNeedsModeration } from '@/lib/notifications';
 import { clientIp, rateLimit } from '@/lib/rateLimit';
 
 /**
@@ -43,7 +45,7 @@ export async function POST(request: NextRequest) {
 
   const { token, bookingId, rating, comment, guestName, guestLocation } = parsed.data;
 
-  const session = verifyCustomerLinkToken(token);
+  const session = verifyReviewAccess(token, bookingId);
   if (!session) {
     return NextResponse.json(
       {
@@ -61,14 +63,17 @@ export async function POST(request: NextRequest) {
     where: { id: bookingId },
     select: {
       id: true,
+      bookingCode: true,
       customerId: true,
       paymentStatus: true,
       bookingDate: true,
+      lifecycleStatus: true,
       review: { select: { id: true } },
+      customer: { select: { name: true } },
       variant: {
         select: {
           ventureId: true,
-          venture: { select: { id: true, slug: true } },
+          venture: { select: { id: true, slug: true, title: true } },
         },
       },
     },
@@ -85,6 +90,7 @@ export async function POST(request: NextRequest) {
     paymentStatus: booking.paymentStatus,
     bookingDate: booking.bookingDate,
     reviewId: booking.review?.id ?? null,
+    lifecycleStatus: booking.lifecycleStatus,
   };
 
   if (!canReviewBooking(reviewable)) {
@@ -100,6 +106,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const decision = assessReviewForPublishing({
+    rating,
+    comment,
+    verifiedBooking: true,
+  });
+  const guestDisplayName = guestName || booking.customer.name;
+
   try {
     await prisma.review.create({
       data: {
@@ -110,7 +123,7 @@ export async function POST(request: NextRequest) {
         comment,
         guestName: guestName || null,
         guestLocation: guestLocation || null,
-        isApproved: false,
+        isApproved: decision.autoPublish,
         photos: [],
       },
     });
@@ -132,8 +145,35 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (!decision.autoPublish) {
+    try {
+      await notifyReviewNeedsModeration({
+        bookingId: booking.id,
+        customerId: booking.customerId,
+        bookingCode: booking.bookingCode,
+        ventureTitle: booking.variant.venture.title,
+        rating,
+        comment,
+        guestName: guestDisplayName,
+      });
+    } catch (error) {
+      // Moderation email must never fail the guest's submission.
+      console.error('Moderation alert failed:', error);
+    }
+  }
+
   revalidatePath('/my/bookings');
+  revalidatePath('/admin/reviews');
   revalidatePath(`/experiences/${booking.variant.venture.id}/${booking.variant.venture.slug}`);
 
-  return NextResponse.json({ success: true, data: { pendingModeration: true } }, { status: 201 });
+  return NextResponse.json(
+    {
+      success: true,
+      data: {
+        pendingModeration: !decision.autoPublish,
+        published: decision.autoPublish,
+      },
+    },
+    { status: 201 }
+  );
 }
