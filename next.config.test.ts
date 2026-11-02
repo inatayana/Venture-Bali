@@ -22,4 +22,24 @@ describe('next.config', () => {
       contentDispositionType: 'inline',
     });
   });
+
+  it('ships report-only CSP and popup-safe headers', async () => {
+    const headersFn = nextConfig(PHASE_PRODUCTION_SERVER).headers;
+    if (!headersFn) throw new Error('headers() is not configured');
+
+    const [entry] = await headersFn();
+    const headers = Object.fromEntries(
+      (entry?.headers ?? []).map((header: { key: string; value: string }) => [
+        header.key,
+        header.value,
+      ]),
+    );
+
+    expect(headers['Content-Security-Policy-Report-Only']).toContain(
+      "default-src 'self'",
+    );
+    expect(headers['Content-Security-Policy']).toBeUndefined();
+    expect(headers['Cross-Origin-Opener-Policy']).toBe('same-origin-allow-popups');
+    expect(headers['X-DNS-Prefetch-Control']).toBe('on');
+  });
 });
