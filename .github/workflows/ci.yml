@@ -35,6 +35,9 @@ jobs:
       - name: Design token contrast
         run: npm run check:contrast
 
+      - name: Theme utility guard
+        run: npm run check:theme
+
       - name: Test
         run: npm test -- --ci
 
