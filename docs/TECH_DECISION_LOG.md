@@ -1,7 +1,7 @@
 # BaliWild — Technology Decision Log
 
-> **Version:** 1.0.0
-> **Last Updated:** October 2026
+> **Version:** 1.1.0
+> **Last Updated:** November 2026
 > **Status:** APPROVED — All team members must follow these decisions
 
 ---
@@ -239,7 +239,43 @@ When implementing authentication:
 
 ---
 
-## 12. Related Documents
+## 12. Dependency Security Patch — November 2026
+
+### Decision
+- Pin `next` and `eslint-config-next` to **14.2.35** (latest 14.x) and
+  `postcss` to **8.5.31**.
+- Keep the major upgrade (Next 15/16, React 19, Tailwind 4, Prisma 7) in the
+  dedicated upgrade sprint. It is not part of this patch.
+
+### Rationale
+- 14.2.5 was affected by CVE-2025-29927 (middleware authorization bypass) and
+  the wider set of 14.x advisories.
+- 14.2.35 closes the 14.x security backports, including the middleware bypass.
+  It is a strict improvement over 14.2.5 and can ship while the major upgrade is
+  planned.
+
+### Residual risk (tracked)
+- Next 14.x is end-of-life. `npm audit` still reports package-level
+  critical/high advisories that are only patched in Next 15.5.28 / 16.4.1.
+- Mitigations in place today:
+  - Production runs on Vercel (Linux) with the platform image optimizer.
+  - No `remotePatterns` are configured, so the Image Optimizer cannot fetch
+    external images.
+  - `dangerouslyAllowSVG` is limited to local placeholder assets; the app has no
+    user-supplied SVG upload path.
+- **Gate:** do not migrate to the Hostinger VPS until Next is upgraded to
+  `>=15.5.28` or `>=16.4.1` and the money-path e2e suite exists.
+- `zod` 3.x has no non-breaking fix. Public arrays are bounded in
+  `bookingSchema` and `experiences` as a compensating control.
+
+### Enforcement
+- `npm run audit:check` fails on new high/critical advisories and allowlists
+  only the three documented residuals (`next`, bundled `postcss`, `zod`).
+- CI runs `npm run build` and `npm run audit:check` on every PR to `main`.
+
+---
+
+## 13. Related Documents
 
 | Document | Location |
 |----------|----------|
