@@ -81,6 +81,35 @@ SUPABASE_PRODUCT_BUCKET=product-media
 If storage is not configured, the dropzones are hidden and the form shows a
 short setup note; URL paste still works.
 
+### Troubleshooting uploads
+
+1. `NEXT_PUBLIC_SUPABASE_URL` must be the real project URL, not
+   `https://your_project_ref.supabase.co`.
+2. `SUPABASE_SERVICE_ROLE_KEY` must be the **service_role** key (server only).
+3. The bucket named by `SUPABASE_PRODUCT_BUCKET` must exist and be **public**.
+4. Restart the dev server after editing `.env`; the form reads the status on the
+   server, not in the browser.
+
+Check `.env` from the repo root:
+
+```bash
+node --env-file=.env -e "console.log(Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL), Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY))"
+```
+
+Both must print `true`.
+
+### Dev ChunkLoadError / admin login stuck
+
+`next dev` writes to `.next-dev` while production uses `.next`. If a stale
+build or service worker serves old chunks:
+
+1. Stop port 3002, delete `.next-dev`, restart `npm run dev -- -p 3002`.
+2. In the browser: DevTools → Application → Service Workers → Unregister, then
+   Application → Storage → Clear site data, then reload.
+3. `PwaRegistration` now unregisters service workers in development and the
+   production worker cache version is bumped, but the existing browser needs one
+   clear to drop the old worker.
+
 Orphaned files can exist if an admin uploads and then abandons the form; they
 are harmless and can be cleaned from the bucket later.
 

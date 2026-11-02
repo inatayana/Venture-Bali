@@ -206,6 +206,7 @@ export function VentureForm({
   const [galleryDraft, setGalleryDraft] = useState('');
   const [videoUrl, setVideoUrl] = useState(initial?.videoUrl ?? '');
   const [uploading, setUploading] = useState<'hero' | 'gallery' | null>(null);
+  const [mediaError, setMediaError] = useState<string | null>(null);
   const [dragTarget, setDragTarget] = useState<'hero' | 'gallery' | null>(null);
   const [draggingPhoto, setDraggingPhoto] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -231,24 +232,24 @@ export function VentureForm({
     const value = galleryDraft.trim();
     if (!value) return;
     if (!isAssetUrl(value)) {
-      setError('Gallery needs a /images/... path or an https:// URL.');
+      setMediaError('Gallery needs a /images/... path or an https:// URL.');
       return;
     }
     if (value === imageUrl.trim()) {
-      setError('The hero image is already the first photo; no need to add it again.');
+      setMediaError('The hero image is already the first photo; no need to add it again.');
       return;
     }
     if (gallery.includes(value)) {
-      setError('That photo is already in the gallery.');
+      setMediaError('That photo is already in the gallery.');
       return;
     }
     if (gallery.length >= MAX_GALLERY) {
-      setError(`Gallery can hold up to ${MAX_GALLERY} photos.`);
+      setMediaError(`Gallery can hold up to ${MAX_GALLERY} photos.`);
       return;
     }
     setGallery([...gallery, value]);
     setGalleryDraft('');
-    setError(null);
+    setMediaError(null);
   };
 
   const moveGallery = (index: number, direction: -1 | 1) => {
@@ -303,13 +304,13 @@ export function VentureForm({
     const images = Array.from(files).filter((file) => file.type.startsWith('image/'));
     if (images.length === 0) return;
     if (!mediaUploadEnabled) {
-      setError(
-        'Direct upload is not configured. Add the Supabase product-media bucket and env first, or paste an image URL.'
+      setMediaError(
+        'Direct upload is not configured. Add the Supabase project URL, service-role key and product-media bucket first.'
       );
       return;
     }
 
-    setError(null);
+    setMediaError(null);
     setUploading(target);
     try {
       if (target === 'hero') {
@@ -318,11 +319,11 @@ export function VentureForm({
       } else {
         const slots = MAX_GALLERY - gallery.length;
         if (slots <= 0) {
-          setError(`Gallery can hold up to ${MAX_GALLERY} photos.`);
+          setMediaError(`Gallery can hold up to ${MAX_GALLERY} photos.`);
           return;
         }
         if (images.length > slots) {
-          setError(`Only ${slots} more photo${slots === 1 ? '' : 's'} can be added.`);
+          setMediaError(`Only ${slots} more photo${slots === 1 ? '' : 's'} can be added.`);
         }
         const uploaded: string[] = [];
         for (const file of images.slice(0, slots)) {
@@ -337,7 +338,7 @@ export function VentureForm({
         });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not upload the photo.');
+      setMediaError(err instanceof Error ? err.message : 'Could not upload the photo.');
     } finally {
       setUploading(null);
       setDragTarget(null);
@@ -876,7 +877,7 @@ export function VentureForm({
         description={
           mediaUploadEnabled
             ? 'Drag & drop or browse a photo. Hero is the main image; gallery holds up to 8 more.'
-            : 'Direct upload is not configured yet. Paste a /images/... or https:// URL, or set up the Supabase product-media bucket.'
+            : 'Direct upload is not configured yet. Set NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and SUPABASE_PRODUCT_BUCKET (bucket must be public). URL paste still works.'
         }
       >
         <label className={labelClass}>
@@ -929,9 +930,11 @@ export function VentureForm({
             />
           </label>
         ) : (
-          <p className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
-            To enable drag &amp; drop: create a public Supabase bucket <code>product-media</code> and set{' '}
-            <code>SUPABASE_PRODUCT_BUCKET=product-media</code>. URL paste still works.
+          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            Upload belum aktif. Isi <code>NEXT_PUBLIC_SUPABASE_URL</code>,{' '}
+            <code>SUPABASE_SERVICE_ROLE_KEY</code>, dan buat bucket publik{' '}
+            <code>product-media</code> (env <code>SUPABASE_PRODUCT_BUCKET</code>). Setelah itu
+            restart server. Sementara ini gunakan URL paste di bawah.
           </p>
         )}
 
@@ -1081,6 +1084,12 @@ export function VentureForm({
             </div>
           )}
         </div>
+
+        {mediaError && (
+          <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            {mediaError}
+          </p>
+        )}
 
         <label className={labelClass}>
           Video URL (optional)
