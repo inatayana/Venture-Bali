@@ -1,8 +1,10 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { THEME_KEY, resolveInitialTheme, type Theme } from '@/lib/theme';
 
-export type Theme = 'light' | 'dark';
+export { themeInitScript } from '@/lib/theme';
+export type { Theme } from '@/lib/theme';
 
 interface ThemeContextValue {
   theme: Theme;
@@ -16,19 +18,6 @@ const ThemeContext = createContext<ThemeContextValue>({
   toggleTheme: () => {},
 });
 
-const THEME_KEY = 'baliwild_theme';
-
-/** Runs before paint; keep in sync with ThemeProvider. */
-export const themeInitScript = `
-  (function () {
-    try {
-      var stored = localStorage.getItem('${THEME_KEY}');
-      if (stored === 'dark') document.documentElement.classList.add('dark');
-      document.documentElement.style.colorScheme = stored === 'dark' ? 'dark' : 'light';
-    } catch (e) {}
-  })();
-`;
-
 function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle('dark', theme === 'dark');
   document.documentElement.style.colorScheme = theme;
@@ -39,9 +28,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = window.localStorage.getItem(THEME_KEY);
-    const initial: Theme = stored === 'dark' ? 'dark' : 'light';
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const initial = resolveInitialTheme(stored, media.matches);
+
     setThemeState(initial);
     applyTheme(initial);
+
+    // Follow the OS only while the guest has not made an explicit choice.
+    const handleChange = (event: MediaQueryListEvent) => {
+      if (window.localStorage.getItem(THEME_KEY)) return;
+      const next: Theme = event.matches ? 'dark' : 'light';
+      setThemeState(next);
+      applyTheme(next);
+    };
+
+    media.addEventListener('change', handleChange);
+    return () => media.removeEventListener('change', handleChange);
   }, []);
 
   const value = useMemo(() => {
