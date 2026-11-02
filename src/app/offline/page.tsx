@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 
 export default function OfflinePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center">
-      <BrandWordmark className="text-2xl text-brand-ink" />
-      <span className="mb-5 mt-8 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100">
-        <WifiOff className="h-8 w-8 text-neutral-500" />
+    <main className="flex min-h-screen flex-col items-center justify-center bg-surface px-6 text-center">
+      <BrandWordmark className="text-2xl text-foreground" />
+      <span className="mb-5 mt-8 flex h-16 w-16 items-center justify-center rounded-full bg-inset">
+        <WifiOff className="h-8 w-8 text-foreground-muted" />
       </span>
-      <h1 className="font-heading text-2xl font-bold text-neutral-900">You&apos;re offline</h1>
-      <p className="mt-2 max-w-sm text-sm text-neutral-600">
+      <h1 className="font-heading text-2xl font-bold text-foreground">You&apos;re offline</h1>
+      <p className="mt-2 max-w-sm text-sm text-foreground-secondary">
         Your connection dropped. Pages you already visited are still available, and everything
         else comes back as soon as you reconnect.
       </p>

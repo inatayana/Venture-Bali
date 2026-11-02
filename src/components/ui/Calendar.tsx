@@ -112,7 +112,7 @@ export function Calendar({
               className={cn(
                 'aspect-square flex items-center justify-center rounded-lg text-sm transition-colors',
                 disabled && 'text-foreground-muted/50 cursor-not-allowed line-through',
-                !disabled && !selected && 'hover:bg-brand/30 text-foreground dark:hover:text-brand-ink',
+                !disabled && !selected && 'hover:bg-brand/30 text-foreground',
                 selected && 'bg-brand-ink text-brand font-bold dark:bg-brand dark:text-brand-ink',
                 isToday && !selected && 'ring-2 ring-brand'
               )}

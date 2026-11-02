@@ -37,7 +37,7 @@ export function RefundActions({ refundId, hasPayment, status }: RefundActionsPro
   };
 
   if (status === 'PROCESSED') {
-    return <span className="text-xs font-semibold text-green-700">Processed</span>;
+    return <span className="text-xs font-semibold text-success">Processed</span>;
   }
 
   return (
@@ -58,13 +58,13 @@ export function RefundActions({ refundId, hasPayment, status }: RefundActionsPro
           type="button"
           onClick={() => process('MANUAL')}
           disabled={pending !== null}
-          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-xs font-semibold text-neutral-700 disabled:opacity-60"
+          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-line-strong px-3 text-xs font-semibold text-foreground-secondary disabled:opacity-60"
         >
           {pending === 'MANUAL' && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           Mark manual refund
         </button>
       </div>
-      {error && <p className="mt-1 max-w-xs text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 max-w-xs text-xs text-danger">{error}</p>}
     </div>
   );
 }

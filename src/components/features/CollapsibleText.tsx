@@ -42,7 +42,7 @@ export function CollapsibleText({ text, limit = 225, className, id }: Collapsibl
           onClick={() => setExpanded((value) => !value)}
           aria-expanded={expanded}
           aria-controls={id}
-          className="mt-2 inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-neutral-900 underline decoration-brand decoration-2 underline-offset-4 transition-colors hover:text-neutral-700"
+          className="mt-2 inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-foreground underline decoration-brand decoration-2 underline-offset-4 transition-colors hover:text-foreground-secondary"
         >
           {expanded ? 'Read less' : 'Read more'}
           <ChevronDown

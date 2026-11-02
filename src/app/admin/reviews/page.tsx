@@ -93,8 +93,8 @@ export default async function AdminReviewsPage({ searchParams }: AdminReviewsPag
     <div className="space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-gray-900">Reviews</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="font-heading text-2xl font-bold text-foreground">Reviews</h1>
+          <p className="mt-1 text-sm text-foreground-muted">
             {pendingCount} waiting for moderation · {publishedCount} published
           </p>
         </div>
@@ -108,10 +108,10 @@ export default async function AdminReviewsPage({ searchParams }: AdminReviewsPag
 
       <section>
         <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-foreground-muted">
             Coverage · target {REVIEW_TARGET_PER_PRODUCT} published reviews per product
           </h2>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-foreground-muted">
             {ventures.filter((venture) => (coverage.get(venture.id)?.approved ?? 0) >= REVIEW_TARGET_PER_PRODUCT).length}
             /{ventures.length} products reached target
           </span>
@@ -127,16 +127,16 @@ export default async function AdminReviewsPage({ searchParams }: AdminReviewsPag
               <a
                 key={venture.id}
                 href={`/admin/reviews?status=all&venture=${venture.id}`}
-                className="min-w-0 rounded-xl border border-gray-200 bg-white px-3 py-2 transition-colors hover:border-gray-400"
+                className="min-w-0 rounded-xl border border-line bg-surface px-3 py-2 transition-colors hover:border-line-control"
               >
-                <p className="truncate text-sm font-semibold text-gray-900">{venture.title}</p>
-                <div className="mt-1 flex items-center justify-between text-xs text-gray-600">
+                <p className="truncate text-sm font-semibold text-foreground">{venture.title}</p>
+                <div className="mt-1 flex items-center justify-between text-xs text-foreground-secondary">
                   <span>
                     {counts.approved}/{REVIEW_TARGET_PER_PRODUCT} published
                   </span>
                   <span>{counts.pending} pending</span>
                 </div>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-inset">
                   <div className="h-full rounded-full bg-brand" style={{ width: `${percent}%` }} />
                 </div>
               </a>
@@ -145,25 +145,25 @@ export default async function AdminReviewsPage({ searchParams }: AdminReviewsPag
         </div>
       </section>
 
-      <form method="get" className="flex flex-wrap items-end gap-2 rounded-xl border border-gray-200 bg-white p-3">
-        <label className="text-xs font-semibold text-gray-600">
+      <form method="get" className="flex flex-wrap items-end gap-2 rounded-xl border border-line bg-surface p-3">
+        <label className="text-xs font-semibold text-foreground-secondary">
           Status
           <select
             name="status"
             defaultValue={status}
-            className="mt-1 block min-h-[44px] rounded-lg border border-gray-300 px-2 text-sm text-gray-900"
+            className="mt-1 block min-h-[44px] rounded-lg border border-line-strong px-2 text-sm text-foreground"
           >
             <option value="pending">Pending</option>
             <option value="published">Published</option>
             <option value="all">All</option>
           </select>
         </label>
-        <label className="text-xs font-semibold text-gray-600">
+        <label className="text-xs font-semibold text-foreground-secondary">
           Source
           <select
             name="source"
             defaultValue={source ?? ''}
-            className="mt-1 block min-h-[44px] rounded-lg border border-gray-300 px-2 text-sm text-gray-900"
+            className="mt-1 block min-h-[44px] rounded-lg border border-line-strong px-2 text-sm text-foreground"
           >
             <option value="">All sources</option>
             <option value="VERIFIED_BOOKING">Verified booking</option>
@@ -171,12 +171,12 @@ export default async function AdminReviewsPage({ searchParams }: AdminReviewsPag
             <option value="IMPORTED">Imported review</option>
           </select>
         </label>
-        <label className="min-w-0 flex-1 text-xs font-semibold text-gray-600">
+        <label className="min-w-0 flex-1 text-xs font-semibold text-foreground-secondary">
           Product
           <select
             name="venture"
             defaultValue={ventureId ?? ''}
-            className="mt-1 block min-h-[44px] w-full rounded-lg border border-gray-300 px-2 text-sm text-gray-900"
+            className="mt-1 block min-h-[44px] w-full rounded-lg border border-line-strong px-2 text-sm text-foreground"
           >
             <option value="">All products</option>
             {ventures.map((venture) => (
@@ -194,19 +194,19 @@ export default async function AdminReviewsPage({ searchParams }: AdminReviewsPag
         </button>
         <a
           href="/admin/reviews"
-          className="inline-flex min-h-[44px] items-center px-2 text-sm font-semibold text-gray-700 underline"
+          className="inline-flex min-h-[44px] items-center px-2 text-sm font-semibold text-foreground-secondary underline"
         >
           Reset
         </a>
       </form>
 
       <section>
-        <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">
+        <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground-muted">
           {status === 'pending' ? 'Moderation queue' : status === 'published' ? 'Published reviews' : 'All reviews'}
         </h2>
         <AdminReviewQueue reviews={items} />
         {reviews.length === 100 && (
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-foreground-muted">
             Showing the latest 100 reviews. Narrow the filters to see older entries.
           </p>
         )}

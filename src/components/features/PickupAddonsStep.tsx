@@ -35,7 +35,7 @@ export function PickupAddonsStep({
 
   if (addonsWithState.length === 0) {
     return (
-      <p className="text-sm text-gray-600" data-testid="pickup-addons-empty">
+      <p className="text-sm text-foreground-secondary" data-testid="pickup-addons-empty">
         No add-ons available for this package.
       </p>
     );
@@ -43,7 +43,7 @@ export function PickupAddonsStep({
 
   return (
     <div>
-      <h3 className="font-heading text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+      <h3 className="font-heading text-sm font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
         <Plus className="w-4 h-4" /> Combos &amp; Add-ons
       </h3>
       {fulfillmentMode !== 'PRIVATE_TRANSFER' && (
@@ -64,32 +64,32 @@ export function PickupAddonsStep({
               data-testid={`pickup-addon-${addon.id}`}
               className={cn(
                 'w-full flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all text-left min-h-[44px]',
-                addon.isDisabled && 'opacity-50 cursor-not-allowed border-gray-100',
+                addon.isDisabled && 'opacity-50 cursor-not-allowed border-line',
                 !addon.isDisabled && checked && 'border-brand-ink bg-brand/40',
-                !addon.isDisabled && !checked && 'border-gray-200 hover:border-gray-300',
+                !addon.isDisabled && !checked && 'border-line hover:border-line-strong',
               )}
             >
               <span
                 className={cn(
                   'w-5 h-5 rounded border-2 flex items-center justify-center shrink-0',
-                  checked ? 'bg-brand-ink border-brand-ink text-brand' : 'border-gray-300',
+                  checked ? 'bg-brand-ink border-brand-ink text-brand' : 'border-line-strong',
                 )}
               >
                 {checked && <Check className="w-3.5 h-3.5 text-white" />}
               </span>
               <div className="flex-1">
-                <span className={cn('font-medium text-sm block', addon.isDisabled ? 'text-gray-600' : 'text-gray-900')}>
+                <span className={cn('font-medium text-sm block', addon.isDisabled ? 'text-foreground-secondary' : 'text-foreground')}>
                   {addon.name}
                   {addon.isCombo && (
                     <span className="ml-2 px-1.5 py-0.5 text-xs font-bold bg-purple-100 text-purple-700 rounded">COMBO</span>
                   )}
                 </span>
                 {addon.description && (
-                  <span className="text-xs text-gray-500 block mt-0.5">{addon.description}</span>
+                  <span className="text-xs text-foreground-muted block mt-0.5">{addon.description}</span>
                 )}
                 {addon.isDisabled && <span className="text-xs text-amber-700">Requires hotel transfer</span>}
               </div>
-              <span className={cn('font-heading text-sm font-bold tabular-nums shrink-0', addon.isDisabled ? 'text-gray-600' : 'text-brand-ink')}>
+              <span className={cn('font-heading text-sm font-bold tabular-nums shrink-0', addon.isDisabled ? 'text-foreground-secondary' : 'text-foreground')}>
                 + {formatPrice(addon.price)}/pax
               </span>
             </button>

@@ -78,15 +78,15 @@ export default async function AdminReviewInvitesPage() {
     <div className="min-w-0 space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-gray-900">Review invites</h1>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500">
+          <h1 className="font-heading text-2xl font-bold text-foreground">Review invites</h1>
+          <p className="mt-1 max-w-2xl text-sm text-foreground-muted">
             Single-use links for real founding guests who completed an activity without an online
             booking. Each review is labelled <strong>Founding guest</strong> and waits for approval.
           </p>
         </div>
         <Link
           href="/admin/reviews"
-          className="inline-flex min-h-[44px] items-center rounded-lg border border-gray-300 px-4 text-sm font-semibold text-gray-800"
+          className="inline-flex min-h-[44px] items-center rounded-lg border border-line-strong px-4 text-sm font-semibold text-foreground"
         >
           ← Back to reviews
         </Link>

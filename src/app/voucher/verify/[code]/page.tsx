@@ -54,15 +54,15 @@ export default async function VoucherVerifyPage({ params }: VerifyPageProps) {
         };
 
   const toneClasses = {
-    green: 'border-green-200 bg-green-50 text-green-800',
+    green: 'border-green-200 bg-success/10 text-success',
     amber: 'border-amber-200 bg-amber-50 text-amber-800',
-    red: 'border-red-200 bg-red-50 text-red-800',
+    red: 'border-red-200 bg-danger/10 text-red-800',
   }[state.tone];
 
   const Icon = state.icon;
 
   return (
-    <main className="min-h-screen bg-neutral-50 px-4 py-8">
+    <main className="min-h-screen bg-base px-4 py-8">
       <div className="mx-auto max-w-md">
         <div className={`rounded-2xl border p-5 ${toneClasses}`}>
           <div className="flex items-center gap-3">
@@ -74,33 +74,33 @@ export default async function VoucherVerifyPage({ params }: VerifyPageProps) {
           </div>
         </div>
 
-        <div className="mt-4 rounded-2xl bg-white p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-neutral-500">Booking code</p>
-          <p className="font-mono text-2xl font-bold tracking-widest text-neutral-900">
+        <div className="mt-4 rounded-2xl bg-surface p-5 shadow-sm">
+          <p className="text-xs uppercase tracking-wide text-foreground-muted">Booking code</p>
+          <p className="font-mono text-2xl font-bold tracking-widest text-foreground">
             {booking.bookingCode}
           </p>
 
-          <div className="mt-4 space-y-3 text-sm text-neutral-700">
-            <p className="font-semibold text-neutral-900">{booking.variant.title}</p>
+          <div className="mt-4 space-y-3 text-sm text-foreground-secondary">
+            <p className="font-semibold text-foreground">{booking.variant.title}</p>
             <p className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-neutral-600" />
+              <Clock className="h-4 w-4 text-foreground-secondary" />
               {booking.bookingDate}
               {booking.slotTime ? ` · ${booking.slotTime.time}` : ''}
             </p>
             <p className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-neutral-600" />
+              <Users className="h-4 w-4 text-foreground-secondary" />
               {booking.paxCount} guests · {booking.customer.name}
             </p>
             {booking.fulfillmentMode !== 'SELF_DRIVE' && (
               <p className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-neutral-600" />
+                <MapPin className="h-4 w-4 text-foreground-secondary" />
                 {booking.isTba ? 'Pickup TBA by H-1' : booking.hotelAddress ?? 'Hotel pickup'}
               </p>
             )}
           </div>
         </div>
 
-        <p className="mt-4 flex items-center justify-center gap-2 text-xs text-neutral-500">
+        <p className="mt-4 flex items-center justify-center gap-2 text-xs text-foreground-muted">
           <ShieldCheck className="h-4 w-4" />
           Verified against the BaliWild booking database
         </p>

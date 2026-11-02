@@ -147,11 +147,11 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
       {/* Filters only: the search itself lives in the hero */}
       <div className="mb-6 space-y-4">
         {(dateFilter || paxFilter > 1) && (
-          <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-foreground-secondary">
             {dateFilter && (
-              <span className="rounded-full border border-gray-200 bg-white px-2.5 py-1">
+              <span className="rounded-full border border-line bg-surface px-2.5 py-1">
                 Date:{' '}
-                <strong className="font-semibold text-gray-900">
+                <strong className="font-semibold text-foreground">
                   {new Date(`${dateFilter}T00:00:00`).toLocaleDateString('en-GB', {
                     day: 'numeric',
                     month: 'short',
@@ -160,8 +160,8 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
               </span>
             )}
             {paxFilter > 1 && (
-              <span className="rounded-full border border-gray-200 bg-white px-2.5 py-1">
-                <strong className="font-semibold text-gray-900">{paxFilter}</strong> guests
+              <span className="rounded-full border border-line bg-surface px-2.5 py-1">
+                <strong className="font-semibold text-foreground">{paxFilter}</strong> guests
               </span>
             )}
             <button
@@ -170,11 +170,11 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
                 setDateFilter('');
                 setPaxFilter(1);
               }}
-              className="min-h-[44px] font-semibold text-gray-600 underline hover:text-gray-900"
+              className="min-h-[44px] font-semibold text-foreground-secondary underline hover:text-foreground"
             >
               Clear
             </button>
-            <span className="text-gray-500">
+            <span className="text-foreground-muted">
               · {filteredVentures.length}{' '}
               {filteredVentures.length === 1 ? 'adventure' : 'adventures'}
             </span>
@@ -209,7 +209,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
           <button
             type="button"
             onClick={() => setExpanded(true)}
-            className="inline-flex min-h-[44px] items-center rounded-full border border-neutral-300 bg-white px-6 text-sm font-semibold text-neutral-900 transition-colors hover:border-neutral-900"
+            className="inline-flex min-h-[44px] items-center rounded-full border border-line-strong bg-surface px-6 text-sm font-semibold text-foreground transition-colors hover:border-line-control"
           >
             Load more adventures ({filteredVentures.length - MOBILE_INITIAL_CARDS})
           </button>
@@ -219,10 +219,10 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
       {filteredVentures.length === 0 && (
         <div className="text-center py-16">
           <div className="text-4xl mb-4">🔍</div>
-          <h3 className="font-heading text-lg font-bold text-gray-900 mb-2">
+          <h3 className="font-heading text-lg font-bold text-foreground mb-2">
             No adventures found
           </h3>
-          <p className="text-gray-500 mb-4">Try another filter or search term</p>
+          <p className="text-foreground-muted mb-4">Try another filter or search term</p>
           <button
             type="button"
             onClick={() => {
@@ -230,7 +230,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
               setSelectedCategory(null);
               setSortBy('recommended');
             }}
-            className="min-h-[44px] px-4 py-2 text-sm font-medium text-brand-ink hover:underline"
+            className="min-h-[44px] px-4 py-2 text-sm font-medium text-foreground hover:underline"
           >
             Reset Filters
           </button>

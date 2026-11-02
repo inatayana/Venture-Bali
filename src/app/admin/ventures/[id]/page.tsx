@@ -43,14 +43,14 @@ export default async function AdminVentureDetailPage({ params }: AdminVentureDet
 
   return (
     <div className="space-y-5">
-      <Link href="/admin/ventures" className="text-sm text-brand-ink hover:underline">
+      <Link href="/admin/ventures" className="text-sm text-foreground hover:underline">
         ← Ventures
       </Link>
 
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-gray-900">{venture.title}</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="font-heading text-2xl font-bold text-foreground">{venture.title}</h1>
+          <p className="mt-1 text-sm text-foreground-muted">
             {venture.category} · {venture.duration} · {venture.variants.length} packages ·{' '}
             {venture.variants.reduce((sum, variant) => sum + variant._count.bookings, 0)} bookings
           </p>

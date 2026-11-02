@@ -15,7 +15,7 @@ interface ReviewCardProps {
 function sourceBadge(review: ReviewSummary) {
   if (review.isVerified) {
     return (
-      <span className="inline-flex items-center gap-0.5 rounded-full bg-green-50 px-1.5 py-0.5 text-xs font-semibold text-green-700">
+      <span className="inline-flex items-center gap-0.5 rounded-full bg-success/10 px-1.5 py-0.5 text-xs font-semibold text-success">
         <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
         Verified trip
       </span>
@@ -23,14 +23,14 @@ function sourceBadge(review: ReviewSummary) {
   }
   if (review.source === 'FOUNDING_GUEST') {
     return (
-      <span className="rounded-full bg-brand/30 px-1.5 py-0.5 text-xs font-semibold text-neutral-800">
+      <span className="rounded-full bg-brand/30 px-1.5 py-0.5 text-xs font-semibold text-foreground">
         Founding guest
       </span>
     );
   }
   if (review.source === 'IMPORTED') {
     return (
-      <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-xs font-semibold text-neutral-700">
+      <span className="rounded-full bg-inset px-1.5 py-0.5 text-xs font-semibold text-foreground-secondary">
         Imported review
       </span>
     );
@@ -49,18 +49,18 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
     <article className={cn('space-y-2', className)}>
       <div className="flex items-center gap-3">
         <span
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand/40 text-sm font-bold text-neutral-900"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand/40 text-sm font-bold text-foreground"
           aria-hidden="true"
         >
           {initial}
         </span>
 
         <div className="min-w-0">
-          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm font-semibold text-neutral-900">
+          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm font-semibold text-foreground">
             <span className="truncate">{review.author}</span>
             {sourceBadge(review)}
           </p>
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-foreground-muted">
             {[review.location ?? review.country, formatRelativeDate(review.createdAt)]
               .filter(Boolean)
               .join(' · ')}
@@ -78,7 +78,7 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
                 'h-3.5 w-3.5',
                 index < review.rating
                   ? 'fill-brand text-brand'
-                  : 'text-neutral-200'
+                  : 'text-line'
               )}
               aria-hidden="true"
             />
@@ -88,7 +88,7 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
 
       <p
         className={cn(
-          'text-sm leading-relaxed text-neutral-700',
+          'text-sm leading-relaxed text-foreground-secondary',
           !expanded && isLong && 'line-clamp-3'
         )}
       >
@@ -103,7 +103,7 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
               href={photo}
               target="_blank"
               rel="noopener noreferrer"
-              className="group block overflow-hidden rounded-lg bg-neutral-100"
+              className="group block overflow-hidden rounded-lg bg-inset"
               aria-label={`Open guest photo ${index + 1}`}
             >
               <img
@@ -123,7 +123,7 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
           type="button"
           onClick={() => setExpanded((value) => !value)}
           aria-expanded={expanded}
-          className="text-xs font-semibold text-neutral-900 underline underline-offset-4"
+          className="text-xs font-semibold text-foreground underline underline-offset-4"
         >
           {expanded ? 'Show less' : 'Read more'}
         </button>

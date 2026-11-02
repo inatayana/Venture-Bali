@@ -95,10 +95,10 @@ export function ReviewForm({
 
   if (done) {
     return (
-      <div className="rounded-2xl border border-green-200 bg-green-50 p-6 text-center">
+      <div className="rounded-2xl border border-green-200 bg-success/10 p-6 text-center">
         <CheckCircle className="mx-auto h-8 w-8 text-green-600" aria-hidden="true" />
         <h2 className="mt-2 font-heading text-lg font-bold text-green-900">Thank you!</h2>
-        <p className="mt-1 text-sm text-green-800">
+        <p className="mt-1 text-sm text-success">
           {published
             ? `Your review is now live on ${ventureTitle}.`
             : `Your review is waiting for a quick check and will appear on ${ventureTitle} shortly.`}
@@ -108,14 +108,14 @@ export function ReviewForm({
   }
 
   return (
-    <form onSubmit={submit} className="rounded-2xl border border-neutral-200 bg-white p-5">
-      <h2 className="font-heading text-lg font-bold text-neutral-900">{ventureTitle}</h2>
-      <p className="mt-1 text-sm text-neutral-600">
+    <form onSubmit={submit} className="rounded-2xl border border-line bg-surface p-5">
+      <h2 className="font-heading text-lg font-bold text-foreground">{ventureTitle}</h2>
+      <p className="mt-1 text-sm text-foreground-secondary">
         How was the trip? Your review helps other travellers pick the right adventure.
       </p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-foreground-muted">
           Your name
           <input
             type="text"
@@ -126,10 +126,10 @@ export function ReviewForm({
             required
             autoComplete="name"
             placeholder="First name"
-            className="mt-2 min-h-[44px] w-full rounded-xl border border-neutral-300 px-3 text-sm font-normal normal-case tracking-normal text-neutral-900 outline-none focus:border-brand-ink"
+            className="mt-2 min-h-[44px] w-full rounded-xl border border-line-strong px-3 text-sm font-normal normal-case tracking-normal text-foreground outline-none focus:border-brand-ink"
           />
         </label>
-        <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-foreground-muted">
           Where are you from?
           <input
             type="text"
@@ -138,13 +138,13 @@ export function ReviewForm({
             maxLength={80}
             autoComplete="address-level2"
             placeholder="City, country"
-            className="mt-2 min-h-[44px] w-full rounded-xl border border-neutral-300 px-3 text-sm font-normal normal-case tracking-normal text-neutral-900 outline-none focus:border-brand-ink"
+            className="mt-2 min-h-[44px] w-full rounded-xl border border-line-strong px-3 text-sm font-normal normal-case tracking-normal text-foreground outline-none focus:border-brand-ink"
           />
         </label>
       </div>
 
       <fieldset className="mt-4">
-        <legend className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
           Your rating
         </legend>
         <div className="mt-2 flex items-center gap-1">
@@ -162,20 +162,20 @@ export function ReviewForm({
                   'h-8 w-8',
                   value <= rating
                     ? 'fill-brand text-brand'
-                    : 'text-neutral-300'
+                    : 'text-foreground-muted/50'
                 )}
               />
             </button>
           ))}
           {rating > 0 && (
-            <span className="ml-2 text-sm font-medium text-neutral-700">
+            <span className="ml-2 text-sm font-medium text-foreground-secondary">
               {RATING_LABELS[rating]}
             </span>
           )}
         </div>
       </fieldset>
 
-      <label className="mt-4 block text-xs font-semibold uppercase tracking-wider text-neutral-500">
+      <label className="mt-4 block text-xs font-semibold uppercase tracking-wider text-foreground-muted">
         Your review
         <textarea
           value={comment}
@@ -185,10 +185,10 @@ export function ReviewForm({
           maxLength={REVIEW_MAX_LENGTH}
           required
           placeholder="What did you enjoy? Tips for the next guest — what to bring, what to expect…"
-          className="mt-2 w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm font-normal normal-case tracking-normal text-neutral-900 outline-none focus:border-brand-ink"
+          className="mt-2 w-full rounded-xl border border-line-strong px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground outline-none focus:border-brand-ink"
         />
       </label>
-      <p className="mt-1 text-right text-xs text-neutral-600">
+      <p className="mt-1 text-right text-xs text-foreground-secondary">
         {comment.length}/{REVIEW_MAX_LENGTH}
       </p>
 
@@ -202,7 +202,7 @@ export function ReviewForm({
       )}
 
       {error && (
-        <p role="alert" className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="mt-2 rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -215,7 +215,7 @@ export function ReviewForm({
         {pending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
         Submit review
       </button>
-      <p className="mt-2 text-center text-xs text-neutral-500">
+      <p className="mt-2 text-center text-xs text-foreground-muted">
         Verified 4–5 star reviews appear immediately. Other reviews are checked by our team.
       </p>
     </form>

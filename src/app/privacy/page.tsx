@@ -71,7 +71,7 @@ const SECTIONS = [
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-neutral-50">
+    <main className="min-h-screen bg-base">
       <header className="bg-brand-ink text-white">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <Link href="/" aria-label="BaliWild home">
@@ -95,15 +95,15 @@ export default function PrivacyPage() {
       </header>
 
       <article className="container mx-auto max-w-3xl px-4 py-10">
-        <div className="space-y-8 rounded-2xl border border-neutral-200 bg-white p-6 sm:p-10">
+        <div className="space-y-8 rounded-2xl border border-line bg-surface p-6 sm:p-10">
           {SECTIONS.map((section) => (
             <section key={section.title}>
-              <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-neutral-900">
+              <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-foreground">
                 {section.title}
               </h2>
               <div className="mt-2 space-y-2">
                 {section.body.map((paragraph) => (
-                  <p key={paragraph} className="text-sm leading-relaxed text-neutral-700">
+                  <p key={paragraph} className="text-sm leading-relaxed text-foreground-secondary">
                     {paragraph}
                   </p>
                 ))}
@@ -111,7 +111,7 @@ export default function PrivacyPage() {
             </section>
           ))}
 
-          <p className="border-t border-neutral-200 pt-4 text-xs text-neutral-500">
+          <p className="border-t border-line pt-4 text-xs text-foreground-muted">
             This policy is a plain-language summary and should be reviewed by Indonesian counsel
             before launch. It does not limit any rights you have under applicable data-protection law.
           </p>

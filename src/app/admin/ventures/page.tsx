@@ -17,33 +17,33 @@ export default async function AdminVenturesPage() {
     <div className="space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-gray-900">Ventures</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="font-heading text-2xl font-bold text-foreground">Ventures</h1>
+          <p className="text-sm text-foreground-muted mt-1">
             {ventures.length} products in the catalogue.
           </p>
         </div>
         <Link
           href="/admin/content"
-          className="text-sm text-brand-ink hover:underline"
+          className="text-sm text-foreground hover:underline"
         >
           Generate content
         </Link>
       </header>
 
       {ventures.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-10 text-center">
-          <p className="text-gray-500">No ventures in the catalogue yet.</p>
-          <p className="text-sm text-gray-600 mt-2">
-            Run <code className="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">npm run db:seed</code>{' '}
+        <div className="bg-surface rounded-xl shadow-sm border border-line p-10 text-center">
+          <p className="text-foreground-muted">No ventures in the catalogue yet.</p>
+          <p className="text-sm text-foreground-secondary mt-2">
+            Run <code className="font-mono text-xs bg-inset px-1.5 py-0.5 rounded">npm run db:seed</code>{' '}
             to load the demo catalogue.
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-surface rounded-xl shadow-sm border border-line overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase tracking-wider text-gray-600 border-b border-gray-200 bg-gray-50">
+                <tr className="text-left text-xs uppercase tracking-wider text-foreground-secondary border-b border-line bg-base">
                   <th className="px-4 py-3 font-medium">Product</th>
                   <th className="px-4 py-3 font-medium">Category</th>
                   <th className="px-4 py-3 font-medium">Variants</th>
@@ -55,36 +55,36 @@ export default async function AdminVenturesPage() {
               </thead>
               <tbody>
                 {ventures.map((venture) => (
-                  <tr key={venture.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
+                  <tr key={venture.id} className="border-b border-line last:border-0 hover:bg-base/50">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-gray-900">{venture.title}</p>
-                      <p className="text-xs text-gray-600 font-mono">{venture.slug}</p>
+                      <p className="font-medium text-foreground">{venture.title}</p>
+                      <p className="text-xs text-foreground-secondary font-mono">{venture.slug}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{venture.category}</td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-3 text-foreground-secondary">{venture.category}</td>
+                    <td className="px-4 py-3 text-foreground-secondary">
                       {venture.variants.map((v) => v.title).join(', ')}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 tabular-nums">
+                    <td className="px-4 py-3 text-foreground tabular-nums">
                       {formatPrice(venture.priceIdr)}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 tabular-nums">
+                    <td className="px-4 py-3 text-foreground-secondary tabular-nums">
                       {venture.maxParticipants}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 tabular-nums">
+                    <td className="px-4 py-3 text-foreground tabular-nums">
                       {venture.rating.toFixed(1)}
-                      <span className="text-gray-600"> ({venture.reviewCount})</span>
+                      <span className="text-foreground-secondary"> ({venture.reviewCount})</span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Link
                           href={`/admin/ventures/${venture.id}`}
-                          className="text-brand-ink hover:underline text-xs font-medium"
+                          className="text-foreground hover:underline text-xs font-medium"
                         >
                           Manage
                         </Link>
                         <Link
                           href={`/experiences/${venture.id}/${venture.slug}`}
-                          className="text-gray-500 hover:underline text-xs"
+                          className="text-foreground-muted hover:underline text-xs"
                         >
                           View
                         </Link>

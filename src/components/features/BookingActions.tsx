@@ -128,7 +128,7 @@ export function BookingActions({
 
   if (!canCancel && !canReschedule) {
     return (
-      <p className="mt-3 rounded-lg bg-neutral-50 px-3 py-2 text-xs text-neutral-500">
+      <p className="mt-3 rounded-lg bg-base px-3 py-2 text-xs text-foreground-muted">
         Changes and cancellation close 24 hours before the activity.
       </p>
     );
@@ -137,11 +137,11 @@ export function BookingActions({
   return (
     <>
       {success && (
-        <p className="mt-3 rounded-lg bg-green-50 px-3 py-2 text-xs font-medium text-green-800">
+        <p className="mt-3 rounded-lg bg-success/10 px-3 py-2 text-xs font-medium text-success">
           {success}
         </p>
       )}
-      <div className="mt-3 flex flex-wrap gap-2 border-t border-neutral-100 pt-3">
+      <div className="mt-3 flex flex-wrap gap-2 border-t border-line pt-3">
         {canReschedule && (
           <button
             type="button"
@@ -149,7 +149,7 @@ export function BookingActions({
               setModal('reschedule');
               setError(null);
             }}
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-xs font-semibold text-neutral-900 transition-colors hover:border-brand"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-line-strong px-3 text-xs font-semibold text-foreground transition-colors hover:border-brand"
           >
             <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
             Change date
@@ -162,7 +162,7 @@ export function BookingActions({
               setModal('cancel');
               setError(null);
             }}
-            className="inline-flex min-h-[44px] items-center rounded-lg px-3 text-xs font-semibold text-neutral-500 transition-colors hover:text-red-600"
+            className="inline-flex min-h-[44px] items-center rounded-lg px-3 text-xs font-semibold text-foreground-muted transition-colors hover:text-danger"
           >
             Cancel booking
           </button>
@@ -171,78 +171,78 @@ export function BookingActions({
 
       {modal && (
         <div className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center sm:p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={close} aria-hidden="true" />
+          <div className="absolute inset-0 bg-overlay/50" onClick={close} aria-hidden="true" />
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="booking-action-title"
-            className="relative w-full max-w-md rounded-t-2xl bg-white p-5 shadow-2xl sm:rounded-2xl"
+            className="relative w-full max-w-md rounded-t-2xl bg-surface p-5 shadow-2xl sm:rounded-2xl"
           >
             <button
               type="button"
               onClick={close}
               aria-label="Close"
-              className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
+              className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full text-foreground-muted hover:bg-inset"
             >
               <X className="h-4 w-4" />
             </button>
 
             {modal === 'cancel' ? (
               <>
-                <h2 id="booking-action-title" className="font-heading text-lg font-bold text-neutral-900">
+                <h2 id="booking-action-title" className="font-heading text-lg font-bold text-foreground">
                   Cancel this booking?
                 </h2>
-                <p className="mt-1 text-sm text-neutral-600">
+                <p className="mt-1 text-sm text-foreground-secondary">
                   You are eligible for an {refundAmount > 0 ? '80% refund' : 'no refund'}. The
                   remaining {formatPrice(feeAmount)} is the cancellation fee.
                 </p>
-                <div className="mt-3 rounded-xl bg-neutral-50 p-3 text-sm">
-                  <div className="flex justify-between text-neutral-600">
+                <div className="mt-3 rounded-xl bg-base p-3 text-sm">
+                  <div className="flex justify-between text-foreground-secondary">
                     <span>Refund</span>
-                    <strong className="text-green-700">{formatPrice(refundAmount)}</strong>
+                    <strong className="text-success">{formatPrice(refundAmount)}</strong>
                   </div>
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-1 text-xs text-foreground-muted">
                     Processed within 3 business days to the original payment method.
                   </p>
                 </div>
-                <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-foreground-muted">
                   Reason (optional)
                   <textarea
                     value={reason}
                     onChange={(event) => setReason(event.target.value)}
                     maxLength={500}
                     rows={3}
-                    className="mt-1.5 w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm font-normal normal-case tracking-normal outline-none focus:border-brand-ink"
+                    className="mt-1.5 w-full rounded-xl border border-line-strong px-3 py-2 text-sm font-normal normal-case tracking-normal outline-none focus:border-brand-ink"
                     placeholder="Tell us why you need to cancel"
                   />
                 </label>
               </>
             ) : (
               <>
-                <h2 id="booking-action-title" className="font-heading text-lg font-bold text-neutral-900">
+                <h2 id="booking-action-title" className="font-heading text-lg font-bold text-foreground">
                   Change your trip date
                 </h2>
-                <p className="mt-1 text-sm text-neutral-600">
+                <p className="mt-1 text-sm text-foreground-secondary">
                   Free reschedule, subject to availability. The price stays the same.
                 </p>
-                <label className="mt-4 block text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                <label className="mt-4 block text-xs font-semibold uppercase tracking-wide text-foreground-muted">
                   New date
                   <input
                     type="date"
                     value={date}
                     onChange={(event) => setDate(event.target.value)}
                     min={new Date(Date.now() + 86400000).toISOString().slice(0, 10)}
-                    className="mt-1.5 min-h-[44px] w-full rounded-xl border border-neutral-300 px-3 text-sm font-normal outline-none focus:border-brand-ink"
+                    className="mt-1.5 min-h-[44px] w-full rounded-xl border border-line-strong px-3 text-sm font-normal outline-none focus:border-brand-ink"
                   />
                 </label>
 
                 {loadingSlots && (
-                  <p className="mt-3 flex items-center gap-2 text-xs text-neutral-500">
+                  <p className="mt-3 flex items-center gap-2 text-xs text-foreground-muted">
                     <Loader2 className="h-3.5 w-3.5 animate-spin" /> Checking departures…
                   </p>
                 )}
                 {!loadingSlots && date && slots.length === 0 && (
-                  <p className="mt-3 text-xs text-neutral-500">
+                  <p className="mt-3 text-xs text-foreground-muted">
                     No departures on this date. Try another day.
                   </p>
                 )}
@@ -258,8 +258,8 @@ export function BookingActions({
                           'min-h-[44px] rounded-full border-2 px-4 text-sm font-semibold',
                           slotId === slot.id
                             ? 'border-brand-ink bg-brand-ink text-brand'
-                            : 'border-neutral-200 text-neutral-900',
-                          !slot.enabled && 'cursor-not-allowed border-neutral-100 text-neutral-300 line-through'
+                            : 'border-line text-foreground',
+                          !slot.enabled && 'cursor-not-allowed border-line text-foreground-muted/50 line-through'
                         )}
                       >
                         {slot.time}
@@ -272,7 +272,7 @@ export function BookingActions({
             )}
 
             {error && (
-              <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
+              <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-danger/10 px-3 py-2 text-xs text-danger">
                 <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {error}
               </p>
             )}
@@ -282,7 +282,7 @@ export function BookingActions({
                 type="button"
                 onClick={close}
                 disabled={pending}
-                className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 text-sm font-semibold text-neutral-700"
+                className="min-h-[44px] flex-1 rounded-xl border border-line-strong text-sm font-semibold text-foreground-secondary"
               >
                 Keep booking
               </button>

@@ -37,7 +37,7 @@ export function HomeHero({ hubs, suggestions }: HomeHeroProps) {
   return (
     <section className="relative isolate overflow-hidden bg-brand-ink text-white">
       <HeroVideo />
-      <div aria-hidden="true" className="absolute inset-0 bg-black/35 lg:bg-transparent" />
+      <div aria-hidden="true" className="absolute inset-0 bg-overlay/35 lg:bg-transparent" />
       {/* Editorial scrim: deep on the copy side, clear on the image side. */}
       <div
         aria-hidden="true"

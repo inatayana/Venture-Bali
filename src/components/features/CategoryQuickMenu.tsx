@@ -53,7 +53,7 @@ export function CategoryQuickMenu({ currentCategory }: CategoryQuickMenuProps) {
         aria-expanded={isOpen}
         aria-haspopup="menu"
         aria-label={`Change category (now ${currentCategory})`}
-        className="inline-flex min-h-[44px] items-center gap-1 rounded-lg px-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+        className="inline-flex min-h-[44px] items-center gap-1 rounded-lg px-1.5 text-xs font-medium text-foreground-secondary transition-colors hover:bg-inset hover:text-foreground"
       >
         <span className="max-w-[104px] truncate">{currentCategory}</span>
         <ChevronDown
@@ -66,9 +66,9 @@ export function CategoryQuickMenu({ currentCategory }: CategoryQuickMenuProps) {
         <div
           role="menu"
           aria-label="Browse by category"
-          className="absolute left-0 top-full z-50 mt-1.5 max-h-[min(70vh,22rem)] w-56 overflow-y-auto rounded-xl border border-neutral-200 bg-white py-1 shadow-xl"
+          className="absolute left-0 top-full z-50 mt-1.5 max-h-[min(70vh,22rem)] w-56 overflow-y-auto rounded-xl border border-line bg-surface py-1 shadow-xl"
         >
-          <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-neutral-600">
+          <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-foreground-secondary">
             Browse by category
           </p>
 
@@ -86,14 +86,14 @@ export function CategoryQuickMenu({ currentCategory }: CategoryQuickMenuProps) {
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
                   'flex min-h-[44px] items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-brand/25',
-                  isActive ? 'bg-brand/30 font-semibold text-neutral-900' : 'text-neutral-700'
+                  isActive ? 'bg-brand/30 font-semibold text-foreground' : 'text-foreground-secondary'
                 )}
               >
                 <span className="text-lg leading-none" aria-hidden="true">
                   {category.emoji}
                 </span>
                 <span className="flex-1">{category.short}</span>
-                {isActive && <Check className="h-4 w-4 text-brand-ink" aria-hidden="true" />}
+                {isActive && <Check className="h-4 w-4 text-foreground" aria-hidden="true" />}
               </a>
             );
           })}

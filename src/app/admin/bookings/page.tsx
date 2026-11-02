@@ -10,9 +10,9 @@ interface AdminBookingsPageProps {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  PAID: 'bg-green-100 text-green-800',
+  PAID: 'bg-green-100 text-success',
   PENDING: 'bg-amber-100 text-amber-800',
-  CANCELLED: 'bg-gray-100 text-gray-700',
+  CANCELLED: 'bg-inset text-foreground-secondary',
   FAILED: 'bg-red-100 text-red-800',
 };
 
@@ -57,8 +57,8 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-gray-900">Bookings</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="font-heading text-2xl font-bold text-foreground">Bookings</h1>
+          <p className="mt-1 text-sm text-foreground-muted">
             {bookings.length} {dateFilter ? `bookings on ${dateFilter}` : 'bookings in total'}.
           </p>
         </div>
@@ -66,7 +66,7 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
           <Link
             href="/admin/bookings"
             className={`inline-flex min-h-[44px] items-center rounded-lg border px-3 ${
-              dateFilter ? 'border-gray-200 text-gray-600' : 'border-brand bg-brand/20 text-neutral-900'
+              dateFilter ? 'border-line text-foreground-secondary' : 'border-brand bg-brand/20 text-foreground'
             }`}
           >
             All
@@ -75,8 +75,8 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
             href={`/admin/bookings?date=${witaDateKey()}`}
             className={`inline-flex min-h-[44px] items-center rounded-lg border px-3 ${
               dateFilter === witaDateKey()
-                ? 'border-brand bg-brand/20 text-neutral-900'
-                : 'border-gray-200 text-gray-600'
+                ? 'border-brand bg-brand/20 text-foreground'
+                : 'border-line text-foreground-secondary'
             }`}
           >
             Today
@@ -85,8 +85,8 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
             href={`/admin/bookings?date=${witaDateKey(1)}`}
             className={`inline-flex min-h-[44px] items-center rounded-lg border px-3 ${
               dateFilter === witaDateKey(1)
-                ? 'border-brand bg-brand/20 text-neutral-900'
-                : 'border-gray-200 text-gray-600'
+                ? 'border-brand bg-brand/20 text-foreground'
+                : 'border-line text-foreground-secondary'
             }`}
           >
             Tomorrow
@@ -95,15 +95,15 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
       </header>
 
       {bookings.length === 0 ? (
-        <div className="rounded-xl border border-gray-100 bg-white p-10 text-center">
-          <p className="text-gray-500">No bookings for this filter yet.</p>
+        <div className="rounded-xl border border-line bg-surface p-10 text-center">
+          <p className="text-foreground-muted">No bookings for this filter yet.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-gray-100 bg-white">
+        <div className="overflow-hidden rounded-xl border border-line bg-surface">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs uppercase tracking-wider text-gray-600">
+                <tr className="border-b border-line bg-base text-left text-xs uppercase tracking-wider text-foreground-secondary">
                   <th className="px-4 py-3 font-medium">Code</th>
                   <th className="px-4 py-3 font-medium">Product</th>
                   <th className="px-4 py-3 font-medium">Date &amp; slot</th>
@@ -125,34 +125,34 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
                         : (booking.hotelAddress ?? booking.pickupZone?.name ?? '—');
 
                   return (
-                    <tr key={booking.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                      <td className="px-4 py-3 font-mono text-xs text-gray-600">
+                    <tr key={booking.id} className="border-b border-line last:border-0 hover:bg-base/50">
+                      <td className="px-4 py-3 font-mono text-xs text-foreground-secondary">
                         {booking.bookingCode}
                       </td>
-                      <td className="px-4 py-3 text-gray-800">
+                      <td className="px-4 py-3 text-foreground">
                         {booking.variant?.venture?.title ?? '—'}
-                        <p className="text-xs text-gray-600">{booking.variant?.title}</p>
+                        <p className="text-xs text-foreground-secondary">{booking.variant?.title}</p>
                       </td>
-                      <td className="px-4 py-3 text-gray-600">
+                      <td className="px-4 py-3 text-foreground-secondary">
                         {booking.bookingDate}
-                        <p className="text-xs text-gray-600">{booking.slotTime?.time ?? '—'}</p>
+                        <p className="text-xs text-foreground-secondary">{booking.slotTime?.time ?? '—'}</p>
                       </td>
-                      <td className="px-4 py-3 text-gray-600">
+                      <td className="px-4 py-3 text-foreground-secondary">
                         {MODE_LABELS[booking.fulfillmentMode] ?? booking.fulfillmentMode}
                         {booking.vehicleClass && (
-                          <p className="text-xs text-gray-600">{booking.vehicleClass.label}</p>
+                          <p className="text-xs text-foreground-secondary">{booking.vehicleClass.label}</p>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-gray-600">
+                      <td className="px-4 py-3 text-foreground-secondary">
                         {pickup}
-                        <p className="text-xs text-gray-600">{booking.pickupZone?.name ?? '—'}</p>
+                        <p className="text-xs text-foreground-secondary">{booking.pickupZone?.name ?? '—'}</p>
                       </td>
-                      <td className="px-4 py-3 text-gray-600">
+                      <td className="px-4 py-3 text-foreground-secondary">
                         {booking.customer?.name ?? '—'}
-                        <p className="text-xs text-gray-600">{booking.customer?.whatsapp}</p>
+                        <p className="text-xs text-foreground-secondary">{booking.customer?.whatsapp}</p>
                       </td>
-                      <td className="px-4 py-3 tabular-nums text-gray-600">{booking.paxCount}</td>
-                      <td className="px-4 py-3 tabular-nums text-gray-800">
+                      <td className="px-4 py-3 tabular-nums text-foreground-secondary">{booking.paxCount}</td>
+                      <td className="px-4 py-3 tabular-nums text-foreground">
                         {formatPrice(booking.totalPrice)}
                         {booking.discountIdr > 0 && (
                           <p className="text-xs text-green-600">−{formatPrice(booking.discountIdr)}</p>
@@ -161,12 +161,12 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
                       <td className="px-4 py-3">
                         <span
                           className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                            STATUS_STYLES[booking.paymentStatus] ?? 'bg-gray-100 text-gray-700'
+                            STATUS_STYLES[booking.paymentStatus] ?? 'bg-inset text-foreground-secondary'
                           }`}
                         >
                           {booking.paymentStatus}
                         </span>
-                        <p className="mt-1 text-xs text-gray-600">
+                        <p className="mt-1 text-xs text-foreground-secondary">
                           {LIFECYCLE_LABELS[booking.lifecycleStatus]}
                         </p>
                         {booking.paymentStatus === 'PENDING' && booking.expiresAt && (

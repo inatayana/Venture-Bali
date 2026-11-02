@@ -56,12 +56,12 @@ export function SortMenu({ value, options, onChange, className }: SortMenuProps)
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label={`Sort adventures (now ${active?.label ?? 'Recommended'})`}
-        className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 text-sm font-medium text-gray-700 transition-colors hover:border-brand-ink hover:bg-brand/20 sm:px-3"
+        className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 text-sm font-medium text-foreground-secondary transition-colors hover:border-brand-ink hover:bg-brand/20 sm:px-3"
       >
-        <ArrowUpDown className="h-4 w-4 shrink-0 text-gray-600" aria-hidden="true" />
+        <ArrowUpDown className="h-4 w-4 shrink-0 text-foreground-secondary" aria-hidden="true" />
         <span className="hidden max-w-[8.5rem] truncate sm:inline">{active?.label}</span>
         <ChevronDown
-          className={cn('h-4 w-4 shrink-0 text-gray-600 transition-transform duration-200', isOpen && 'rotate-180')}
+          className={cn('h-4 w-4 shrink-0 text-foreground-secondary transition-transform duration-200', isOpen && 'rotate-180')}
           aria-hidden="true"
         />
       </button>
@@ -70,9 +70,9 @@ export function SortMenu({ value, options, onChange, className }: SortMenuProps)
         <div
           role="listbox"
           aria-label="Sort adventures"
-          className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-xl"
+          className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-line bg-surface py-1 shadow-xl"
         >
-          <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-gray-600">
+          <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-foreground-secondary">
             Sort by
           </p>
 
@@ -89,12 +89,12 @@ export function SortMenu({ value, options, onChange, className }: SortMenuProps)
                   setIsOpen(false);
                 }}
                 className={cn(
-                  'flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50',
-                  isSelected ? 'font-semibold text-gray-900' : 'text-gray-700'
+                  'flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-base',
+                  isSelected ? 'font-semibold text-foreground' : 'text-foreground-secondary'
                 )}
               >
                 <span className="flex-1">{option.label}</span>
-                {isSelected && <Check className="h-4 w-4 shrink-0 text-brand-ink" aria-hidden="true" />}
+                {isSelected && <Check className="h-4 w-4 shrink-0 text-foreground" aria-hidden="true" />}
               </button>
             );
           })}

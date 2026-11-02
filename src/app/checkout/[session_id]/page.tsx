@@ -166,19 +166,19 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-ink" />
+      <main className="min-h-screen bg-base flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-foreground" />
       </main>
     );
   }
 
   if (error || !booking) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <main className="min-h-screen bg-base flex items-center justify-center">
         <div className="text-center">
           <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Booking Not Found</h1>
-          <p className="text-gray-500 mb-6">{error || 'Invalid booking session'}</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Booking Not Found</h1>
+          <p className="text-foreground-muted mb-6">{error || 'Invalid booking session'}</p>
           <a href="/" className="inline-block px-6 py-3 bg-brand-ink text-brand rounded-lg font-medium hover:bg-neutral-900">
             Back to Home
           </a>
@@ -190,15 +190,15 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const amountDue = booking.totalPrice;
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-base">
       <div className="container mx-auto px-4 py-6">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <a href="/" className="inline-flex items-center gap-2 text-brand-ink">
+          <a href="/" className="inline-flex items-center gap-2 text-foreground">
             <ArrowLeft className="w-4 h-4" />
             Back to adventures
           </a>
           <a href="/" aria-label="BaliWild home">
-            <BrandWordmark className="text-xl text-brand-ink" />
+            <BrandWordmark className="text-xl text-foreground" />
           </a>
           <div className="flex items-center gap-1">
             <LanguageSwitcher />
@@ -209,19 +209,19 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
       </div>
 
       <div className="container mx-auto px-4 pb-12">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-8">Checkout</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Order Summary - Left Column */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-md p-6 sticky top-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Order Summary</h2>
+            <div className="bg-surface rounded-xl shadow-md p-6 sticky top-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4">Order Summary</h2>
 
               <div className="space-y-4 mb-6">
-                <div className="flex gap-4 pb-4 border-b border-gray-100">
+                <div className="flex gap-4 pb-4 border-b border-line">
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{booking.variant?.title ?? 'Adventure Booking'}</h3>
-                    <div className="mt-1 space-y-1 text-sm text-gray-600">
+                    <h3 className="font-medium text-foreground">{booking.variant?.title ?? 'Adventure Booking'}</h3>
+                    <div className="mt-1 space-y-1 text-sm text-foreground-secondary">
                       <div className="flex items-center gap-1">
                         <Users className="w-3 h-3" />
                         <span>{booking.paxCount} participants</span>
@@ -240,30 +240,30 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="font-semibold text-gray-900">{formatPrice(booking.totalPrice)}</span>
+                    <span className="font-semibold text-foreground">{formatPrice(booking.totalPrice)}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-gray-200 space-y-3">
+              <div className="pt-4 border-t border-line space-y-3">
                 {booking.discountIdr > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">
+                    <span className="text-foreground-secondary">
                       Discount{booking.appliedCouponCode ? ` (${booking.appliedCouponCode})` : ''}
                     </span>
-                    <span className="font-medium text-green-700">−{formatPrice(booking.discountIdr)}</span>
+                    <span className="font-medium text-success">−{formatPrice(booking.discountIdr)}</span>
                   </div>
                 )}
                 {booking.nightSurchargeIdr > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Evening surcharge</span>
+                    <span className="text-foreground-secondary">Evening surcharge</span>
                     <span className="font-medium">{formatPrice(booking.nightSurchargeIdr)}</span>
                   </div>
                 )}
-                <div className="flex justify-between gap-3 pt-4 border-t border-gray-200">
-                  <span className="text-lg font-semibold text-gray-900">Total</span>
+                <div className="flex justify-between gap-3 pt-4 border-t border-line">
+                  <span className="text-lg font-semibold text-foreground">Total</span>
                   <span className="text-right">
-                    <span className="block text-2xl font-bold text-brand-ink">{formatPrice(amountDue)}</span>
+                    <span className="block text-2xl font-bold text-foreground">{formatPrice(amountDue)}</span>
                     <PriceApprox amountIdr={amountDue} className="text-xs" />
                   </span>
                 </div>
@@ -273,25 +273,25 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
 
           {/* Payment - Right Column */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-md p-6 md:p-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Payment</h2>
+            <div className="bg-surface rounded-xl shadow-md p-6 md:p-8">
+              <h2 className="text-xl font-semibold text-foreground mb-6">Payment</h2>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
-                    <CreditCard className="w-6 h-6 text-brand-ink" />
+                <div className="flex items-center gap-3 p-4 bg-base rounded-lg">
+                  <div className="w-12 h-12 rounded-lg bg-surface flex items-center justify-center">
+                    <CreditCard className="w-6 h-6 text-foreground" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">Midtrans Snap</h3>
-                    <p className="text-sm text-gray-500">Credit Card, Debit Card, GoPay, QRIS, Bank Transfer</p>
+                    <h3 className="font-medium text-foreground">Midtrans Snap</h3>
+                    <p className="text-sm text-foreground-muted">Credit Card, Debit Card, GoPay, QRIS, Bank Transfer</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-gray-500">
+                <div className="flex items-center gap-2 text-xs text-foreground-muted">
                   <Shield className="w-4 h-4" />
                   <span>Secure checkout powered by Midtrans</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-gray-500">
+                <div className="flex items-center gap-2 text-xs text-foreground-muted">
                   <CheckCircle className="w-4 h-4" />
                   <span>PCI DSS Level 1 Certified</span>
                 </div>
@@ -301,7 +301,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                     className={`mt-4 flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
                       holdIsUrgent
                         ? 'border-amber-300 bg-amber-50 text-amber-900'
-                        : 'border-neutral-200 bg-neutral-50 text-neutral-700'
+                        : 'border-line bg-base text-foreground-secondary'
                     }`}
                   >
                     <Clock3 className="h-4 w-4 shrink-0" aria-hidden="true" />

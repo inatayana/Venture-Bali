@@ -160,7 +160,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
           onClick={() => setIsOpen(true)}
           className={
             isEditing
-              ? 'inline-flex items-center gap-1 text-xs font-semibold text-brand-ink hover:underline'
+              ? 'inline-flex items-center gap-1 text-xs font-semibold text-foreground hover:underline'
               : 'inline-flex items-center gap-1.5 rounded-lg bg-brand-ink px-3 py-2 text-sm font-semibold text-brand transition-colors hover:bg-neutral-800'
           }
         >
@@ -177,13 +177,13 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
                 ? `${variant?.bookingCount} booking(s) — packages with bookings cannot be deleted`
                 : 'Delete this package'
             }
-            className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:underline disabled:cursor-not-allowed disabled:text-gray-300 disabled:no-underline"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-danger hover:underline disabled:cursor-not-allowed disabled:text-foreground-muted/50 disabled:no-underline"
           >
             <Trash2 className="h-3.5 w-3.5" />
             Delete
           </button>
         )}
-        {error && <span className="text-xs text-red-600">{error}</span>}
+        {error && <span className="text-xs text-danger">{error}</span>}
       </div>
     );
   }
@@ -191,56 +191,56 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
   return (
     <div className="w-full rounded-xl border border-brand/50 bg-brand/10 p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <h3 className="font-heading text-sm font-bold text-gray-900">
+        <h3 className="font-heading text-sm font-bold text-foreground">
           {isEditing ? `Edit package · ${variant?.title}` : 'New package'}
         </h3>
         <button
           type="button"
           onClick={() => setIsOpen(false)}
-          className="text-xs font-semibold text-gray-500 hover:text-gray-800"
+          className="text-xs font-semibold text-foreground-muted hover:text-foreground"
         >
           Cancel
         </button>
       </div>
 
       {error && (
-        <p className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="mb-3 rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="text-xs font-medium text-gray-600">
+        <label className="text-xs font-medium text-foreground-secondary">
           Title
           <input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="South Bali: Private Transfer"
-            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-line-strong px-3 text-sm"
           />
         </label>
 
-        <label className="text-xs font-medium text-gray-600">
+        <label className="text-xs font-medium text-foreground-secondary">
           Duration
           <input
             value={duration}
             onChange={(event) => setDuration(event.target.value)}
             placeholder="3 hours"
-            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-line-strong px-3 text-sm"
           />
         </label>
 
-        <label className="text-xs font-medium text-gray-600 sm:col-span-2">
+        <label className="text-xs font-medium text-foreground-secondary sm:col-span-2">
           Short description
           <textarea
             value={shortDescription}
             onChange={(event) => setShortDescription(event.target.value)}
             rows={2}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-lg border border-line-strong px-3 py-2 text-sm"
           />
         </label>
 
-        <label className="text-xs font-medium text-gray-600">
+        <label className="text-xs font-medium text-foreground-secondary">
           Fulfilment mode
           <select
             value={fulfillmentMode}
@@ -249,7 +249,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
               setFulfillmentMode(next);
               if (next === 'SELF_DRIVE') setPickupZoneId('');
             }}
-            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 bg-white px-3 text-sm"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-line-strong bg-surface px-3 text-sm"
           >
             {MODE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -259,13 +259,13 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
           </select>
         </label>
 
-        <label className="text-xs font-medium text-gray-600">
+        <label className="text-xs font-medium text-foreground-secondary">
           Locked pickup zone
           <select
             value={pickupZoneId}
             disabled={isSelfDrive}
             onChange={(event) => setPickupZoneId(event.target.value)}
-            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 bg-white px-3 text-sm disabled:bg-gray-100 disabled:text-gray-600"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-line-strong bg-surface px-3 text-sm disabled:bg-inset disabled:text-foreground-secondary"
           >
             <option value="">No locked zone — guest picks the area</option>
             {zones.map((zone) => (
@@ -279,57 +279,57 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
               </option>
             ))}
           </select>
-          <span className="mt-1 block font-normal text-gray-600">
+          <span className="mt-1 block font-normal text-foreground-secondary">
             Locked zones preselect the area in the booking sheet and keep the
             surcharge visible on the package card.
           </span>
         </label>
 
-        <label className="text-xs font-medium text-gray-600">
+        <label className="text-xs font-medium text-foreground-secondary">
           Badge (optional)
           <input
             value={badge}
             onChange={(event) => setBadge(event.target.value)}
             placeholder="Most Popular"
-            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-line-strong px-3 text-sm"
           />
         </label>
 
-        <label className="text-xs font-medium text-gray-600">
+        <label className="text-xs font-medium text-foreground-secondary">
           Transport badge (optional)
           <input
             value={transportBadge}
             onChange={(event) => setTransportBadge(event.target.value)}
             placeholder="🚐 Shared Transfer"
-            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-line-strong px-3 text-sm"
           />
         </label>
 
-        <label className="text-xs font-medium text-gray-600">
+        <label className="text-xs font-medium text-foreground-secondary">
           Minimum spend (IDR, optional)
           <input
             value={minimumSpendIdr}
             onChange={(event) => setMinimumSpendIdr(event.target.value.replace(/[^\d]/g, ''))}
             inputMode="numeric"
             placeholder="1200000"
-            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-line-strong px-3 text-sm"
           />
         </label>
 
-        <label className="text-xs font-medium text-gray-600">
+        <label className="text-xs font-medium text-foreground-secondary">
           Sort order
           <input
             value={sortOrder}
             onChange={(event) => setSortOrder(event.target.value.replace(/[^\d]/g, ''))}
             inputMode="numeric"
-            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-line-strong px-3 text-sm"
           />
         </label>
       </div>
 
       <div className="mt-4">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
+          <span className="text-xs font-bold uppercase tracking-wider text-foreground-muted">
             Price tiers (per guest, IDR)
           </span>
           <button
@@ -337,7 +337,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
             onClick={() =>
               setTiers((current) => [...current, { minPax: '', maxPax: '', pricePerPax: '' }])
             }
-            className="text-xs font-semibold text-brand-ink hover:underline"
+            className="text-xs font-semibold text-foreground hover:underline"
           >
             + Add tier
           </button>
@@ -354,7 +354,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
                 inputMode="numeric"
                 placeholder="Min pax"
                 aria-label={`Tier ${index + 1} minimum pax`}
-                className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                className="min-h-[40px] rounded-lg border border-line-strong px-3 text-sm"
               />
               <input
                 value={tier.maxPax}
@@ -364,7 +364,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
                 inputMode="numeric"
                 placeholder="Max pax"
                 aria-label={`Tier ${index + 1} maximum pax`}
-                className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                className="min-h-[40px] rounded-lg border border-line-strong px-3 text-sm"
               />
               <input
                 value={tier.pricePerPax}
@@ -374,13 +374,13 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
                 inputMode="numeric"
                 placeholder="Price / guest"
                 aria-label={`Tier ${index + 1} price per guest`}
-                className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                className="min-h-[40px] rounded-lg border border-line-strong px-3 text-sm"
               />
               <button
                 type="button"
                 onClick={() => setTiers((current) => current.filter((_, i) => i !== index))}
                 disabled={tiers.length === 1}
-                className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-red-600 disabled:opacity-30"
+                className="rounded-lg p-2 text-foreground-secondary hover:bg-inset hover:text-danger disabled:opacity-30"
                 aria-label={`Remove tier ${index + 1}`}
               >
                 <Trash2 className="h-4 w-4" />
@@ -403,7 +403,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
         <button
           type="button"
           onClick={() => setIsOpen(false)}
-          className="text-sm font-medium text-gray-500 hover:text-gray-800"
+          className="text-sm font-medium text-foreground-muted hover:text-foreground"
         >
           Cancel
         </button>

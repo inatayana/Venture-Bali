@@ -21,7 +21,7 @@ export default async function Home() {
   }));
 
   return (
-    <main className="min-h-screen bg-neutral-50">
+    <main className="min-h-screen bg-base">
       <JsonLd data={generateWebsiteStructuredData(getBaseUrl())} />
       <HomeHeader />
 
@@ -33,7 +33,7 @@ export default async function Home() {
       <TrustStrip />
 
       {source === 'fallback' && (
-        <p className="container mx-auto px-4 pb-8 text-xs text-gray-600 text-center">
+        <p className="container mx-auto px-4 pb-8 text-xs text-foreground-secondary text-center">
           Showing the offline catalogue. Connect a database to browse the full inventory.
         </p>
       )}

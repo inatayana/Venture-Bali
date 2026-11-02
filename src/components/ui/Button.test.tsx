@@ -24,7 +24,7 @@ describe('Button Component', () => {
     expect(screen.getByRole('button')).toHaveClass('bg-red-600');
 
     rerender(<Button variant="outline">Outline</Button>);
-    expect(screen.getByRole('button')).toHaveClass('border-brand-ink');
+    expect(screen.getByRole('button')).toHaveClass('border-foreground');
   });
 
   it('applies size styles correctly', () => {

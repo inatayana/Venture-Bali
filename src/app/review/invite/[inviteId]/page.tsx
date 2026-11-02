@@ -14,10 +14,10 @@ interface InvitePageProps {
 
 function Unavailable({ title, message }: { title: string; message: string }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
-      <div className="max-w-md rounded-2xl bg-white p-6 text-center shadow-sm">
-        <h1 className="font-heading text-lg font-bold text-neutral-900">{title}</h1>
-        <p className="mt-2 text-sm text-neutral-600">{message}</p>
+    <main className="flex min-h-screen items-center justify-center bg-base px-4">
+      <div className="max-w-md rounded-2xl bg-surface p-6 text-center shadow-sm">
+        <h1 className="font-heading text-lg font-bold text-foreground">{title}</h1>
+        <p className="mt-2 text-sm text-foreground-secondary">{message}</p>
         <Link
           href="/"
           className="mt-4 inline-flex min-h-[44px] items-center rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand"
@@ -64,19 +64,19 @@ export default async function FoundingGuestReviewPage({ params, searchParams }: 
   }
 
   return (
-    <main className="min-h-screen bg-neutral-50 px-4 py-10">
+    <main className="min-h-screen bg-base px-4 py-10">
       <div className="mx-auto max-w-xl">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <Link href="/" className="inline-flex min-h-[44px] items-center text-sm text-neutral-600 hover:text-neutral-900">
+          <Link href="/" className="inline-flex min-h-[44px] items-center text-sm text-foreground-secondary hover:text-foreground">
             ← BaliWild
           </Link>
-          <Link href="/" aria-label="BaliWild home" className="inline-flex min-h-[44px] items-center text-brand-ink">
+          <Link href="/" aria-label="BaliWild home" className="inline-flex min-h-[44px] items-center text-foreground">
             <BrandWordmark className="text-lg" />
           </Link>
         </div>
 
-        <h1 className="mt-4 font-heading text-2xl font-bold text-neutral-900">Review your trip</h1>
-        <p className="mt-1 text-sm text-neutral-600">
+        <h1 className="mt-4 font-heading text-2xl font-bold text-foreground">Review your trip</h1>
+        <p className="mt-1 text-sm text-foreground-secondary">
           Founding guest · {invite.venture.title}
         </p>
 

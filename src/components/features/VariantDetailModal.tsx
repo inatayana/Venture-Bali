@@ -123,13 +123,13 @@ export function VariantDetailModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="variant-detail-title"
-        className="relative flex max-h-[93vh] w-full animate-slide-up flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:max-h-[88vh] sm:max-w-5xl sm:animate-fade-in sm:rounded-3xl"
+        className="relative flex max-h-[93vh] w-full animate-slide-up flex-col overflow-hidden rounded-t-3xl bg-surface shadow-2xl sm:max-h-[88vh] sm:max-w-5xl sm:animate-fade-in sm:rounded-3xl"
       >
         <button
           ref={closeRef}
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-md backdrop-blur transition-colors hover:bg-white hover:text-neutral-900 sm:right-4 sm:top-4"
+          className="absolute right-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-surface/90 text-foreground-secondary shadow-md backdrop-blur transition-colors hover:bg-surface hover:text-foreground sm:right-4 sm:top-4"
           aria-label="Close package details"
         >
           <X className="h-5 w-5" />
@@ -137,7 +137,7 @@ export function VariantDetailModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain lg:grid lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:overflow-hidden">
           {/* Left — package photo */}
-          <div className="relative aspect-[16/10] w-full overflow-hidden bg-neutral-100 sm:aspect-[2/1] lg:aspect-auto lg:h-full lg:min-h-[480px]">
+          <div className="relative aspect-[16/10] w-full overflow-hidden bg-inset sm:aspect-[2/1] lg:aspect-auto lg:h-full lg:min-h-[480px]">
             {imageUrl ? (
               <Image
                 src={imageUrl}
@@ -148,7 +148,7 @@ export function VariantDetailModal({
                 priority
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-neutral-300">
+              <div className="flex h-full w-full items-center justify-center text-foreground-muted/50">
                 <ImageIcon className="h-12 w-12" aria-hidden="true" />
               </div>
             )}
@@ -177,39 +177,39 @@ export function VariantDetailModal({
           {/* Right — full description and details */}
           <div className="flex flex-col gap-5 p-5 sm:p-6 lg:overflow-y-auto">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground-muted">
                 Package details
               </p>
               <h2
                 id="variant-detail-title"
-                className="mt-1 font-heading text-2xl font-bold leading-tight text-neutral-900"
+                className="mt-1 font-heading text-2xl font-bold leading-tight text-foreground"
               >
                 {variant.title}
               </h2>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+              <p className="mt-2 text-sm leading-relaxed text-foreground-secondary">
                 {variant.shortDescription}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-4">
+            <div className="rounded-2xl border border-line bg-base/70 p-4">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 {promoPriceIdr !== null && (
-                  <span className="text-sm tabular-nums text-neutral-600 line-through">
+                  <span className="text-sm tabular-nums text-foreground-secondary line-through">
                     {formatPrice(listPriceIdr)}
                   </span>
                 )}
-                <span className="font-heading text-2xl font-bold tabular-nums text-neutral-900">
+                <span className="font-heading text-2xl font-bold tabular-nums text-foreground">
                   {formatPrice(priceIdr)}
                 </span>
-                <span className="text-xs text-neutral-500">/ guest</span>
+                <span className="text-xs text-foreground-muted">/ guest</span>
                 {discountPercent !== null && (
-                  <span className="ml-auto rounded-full bg-green-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-green-800">
+                  <span className="ml-auto rounded-full bg-green-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-success">
                     {discountPercent}% off
                   </span>
                 )}
               </div>
 
-              <p className="mt-1 text-xs text-neutral-600">
+              <p className="mt-1 text-xs text-foreground-secondary">
                 {variant.minimumSpendIdr ? (
                   <>Minimum {formatPrice(variant.minimumSpendIdr)} to book</>
                 ) : addonCount > 0 ? (
@@ -222,22 +222,22 @@ export function VariantDetailModal({
               </p>
 
               {pickup && (
-                <p className="mt-1 flex items-center gap-1.5 text-xs text-neutral-600">
-                  <MapPin className="h-3.5 w-3.5 shrink-0 text-neutral-600" />
-                  <span className="font-medium text-neutral-800">{pickup.label}</span>
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-foreground-secondary">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-foreground-secondary" />
+                  <span className="font-medium text-foreground">{pickup.label}</span>
                   <span aria-hidden="true">·</span>
                   {pickup.detail}
                 </p>
               )}
 
               {showCoupon ? (
-                <p className="mt-2.5 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-neutral-800 ring-1 ring-neutral-200">
+                <p className="mt-2.5 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-foreground ring-1 ring-neutral-200">
                   <Sparkles className="h-3.5 w-3.5 text-green-600" />
                   Get {promo.percent}% OFF with code
                   <span className="font-mono font-bold tracking-wide">{promo.code}</span>
                 </p>
               ) : (
-                <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-green-800 ring-1 ring-green-200">
+                <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-success ring-1 ring-green-200">
                   <Tag className="h-3.5 w-3.5" />
                   Promo price applied — no code needed
                 </p>
@@ -248,10 +248,10 @@ export function VariantDetailModal({
               <div className="grid gap-4 sm:grid-cols-2">
                 {inclusions.length > 0 && (
                   <div>
-                    <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-500">
+                    <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground-muted">
                       What&apos;s included
                     </h3>
-                    <ul className="space-y-1.5 text-sm text-neutral-700">
+                    <ul className="space-y-1.5 text-sm text-foreground-secondary">
                       {inclusions.map((item) => (
                         <li key={item} className="flex items-start gap-1.5">
                           <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
@@ -264,13 +264,13 @@ export function VariantDetailModal({
 
                 {exclusions.length > 0 && (
                   <div>
-                    <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-500">
+                    <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground-muted">
                       Not included
                     </h3>
-                    <ul className="space-y-1.5 text-sm text-neutral-500">
+                    <ul className="space-y-1.5 text-sm text-foreground-muted">
                       {exclusions.map((item) => (
                         <li key={item} className="flex items-start gap-1.5">
-                          <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neutral-600" />
+                          <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground-secondary" />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -290,15 +290,15 @@ export function VariantDetailModal({
         </div>
 
         {/* Pinned action bar */}
-        <div className="shrink-0 border-t border-neutral-200 bg-white px-5 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3.5">
+        <div className="shrink-0 border-t border-line bg-surface px-5 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3.5">
           <div className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs text-neutral-500">
+              <p className="truncate text-xs text-foreground-muted">
                 {isSelected ? 'Selected package' : 'From'}
               </p>
-              <p className="font-heading text-lg font-bold tabular-nums text-neutral-900">
+              <p className="font-heading text-lg font-bold tabular-nums text-foreground">
                 {formatPrice(priceIdr)}
-                <span className="text-xs font-normal text-neutral-500"> /guest</span>
+                <span className="text-xs font-normal text-foreground-muted"> /guest</span>
               </p>
             </div>
             <button

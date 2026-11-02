@@ -95,18 +95,18 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
             </button>
 
             {openField === 'where' && (
-              <div className="absolute left-0 top-full z-40 mt-2 w-full overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl [text-shadow:none]">
-                <div className="border-b border-neutral-100 p-2">
+              <div className="absolute left-0 top-full z-40 mt-2 w-full overflow-hidden rounded-xl border border-line bg-surface shadow-xl [text-shadow:none]">
+                <div className="border-b border-line p-2">
                   <input
                     autoFocus
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder={t('searchPlaceholder')}
-                    className="min-h-[40px] w-full rounded-lg border border-neutral-200 px-3 text-sm text-neutral-900 outline-none focus:border-brand-ink"
+                    className="min-h-[40px] w-full rounded-lg border border-line px-3 text-sm text-foreground outline-none focus:border-brand-ink"
                   />
                 </div>
                 <div className="max-h-64 overflow-y-auto py-1">
-                  <p className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-neutral-600">
+                  <p className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-foreground-secondary">
                     {t('searchNearby')}
                   </p>
                   {filteredHubs.map((hub) => (
@@ -117,28 +117,28 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
                         setQuery(hub);
                         setOpenField(null);
                       }}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-50"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground-secondary hover:bg-base"
                     >
-                      <MapPin className="h-3.5 w-3.5 text-neutral-600" aria-hidden="true" />
+                      <MapPin className="h-3.5 w-3.5 text-foreground-secondary" aria-hidden="true" />
                       {hub}
                     </button>
                   ))}
                   {filteredHubs.length === 0 && (
-                    <p className="px-3 py-2 text-xs text-neutral-500">
+                    <p className="px-3 py-2 text-xs text-foreground-muted">
                       No destination matches — try “Ubud” or “Bali”.
                     </p>
                   )}
 
                   {suggestions.length > 0 && (
                     <>
-                      <p className="mt-1 px-3 py-1 text-xs font-bold uppercase tracking-wider text-neutral-600">
+                      <p className="mt-1 px-3 py-1 text-xs font-bold uppercase tracking-wider text-foreground-secondary">
                         {t('searchSuggested')}
                       </p>
                       {suggestions.slice(0, 4).map((suggestion) => (
                         <Link
                           key={suggestion.href}
                           href={suggestion.href}
-                          className="block px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                          className="block px-3 py-2 text-sm text-foreground-secondary hover:bg-base"
                         >
                           {suggestion.title}
                         </Link>
@@ -170,8 +170,8 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
             </button>
 
             {openField === 'date' && (
-              <div className="absolute left-0 top-full z-40 mt-2 w-full rounded-xl border border-neutral-200 bg-white p-3 shadow-xl [text-shadow:none]">
-                <div className="rounded-xl border border-neutral-200 p-2 dark:border-white/10">
+              <div className="absolute left-0 top-full z-40 mt-2 w-full rounded-xl border border-line bg-surface p-3 shadow-xl [text-shadow:none]">
+                <div className="rounded-xl border border-line p-2 dark:border-white/10">
                   <CalendarComponent
                     selectedDate={date ? new Date(`${date}T00:00:00`) : null}
                     onDateSelect={(value) => {
@@ -185,14 +185,14 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
                   <button
                     type="button"
                     onClick={() => setDate('')}
-                    className="text-xs font-semibold text-neutral-600 underline"
+                    className="text-xs font-semibold text-foreground-secondary underline"
                   >
                     {t('searchFlexible')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setOpenField(null)}
-                    className="text-xs font-semibold text-neutral-900"
+                    className="text-xs font-semibold text-foreground"
                   >
                     {t('searchDone')}
                   </button>
@@ -291,16 +291,16 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
       <button
         type="button"
         onClick={() => setIsSheetOpen(true)}
-        className="flex w-full items-center gap-3 rounded-full border border-white/15 bg-white/95 px-4 py-3 text-left shadow-xl backdrop-blur md:hidden"
+        className="flex w-full items-center gap-3 rounded-full border border-white/15 bg-surface/95 px-4 py-3 text-left shadow-xl backdrop-blur md:hidden"
       >
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-ink text-brand">
           <Search className="h-4 w-4" aria-hidden="true" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold text-neutral-900">
+          <span className="block truncate text-sm font-semibold text-foreground">
             {query.trim() || t('searchMobileWhere')}
           </span>
-          <span className="block truncate text-xs text-neutral-500">
+          <span className="block truncate text-xs text-foreground-muted">
             {formatDateLabel(date, t('searchAnyDate'))} · {pax}{' '}
             {pax === 1 ? t('searchGuestOne') : t('searchGuestMany')}
           </span>
@@ -327,7 +327,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           <div>
             <label
               htmlFor="mobile-destination"
-              className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500"
+              className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-foreground-muted"
             >
               {t('searchWhere')}
             </label>
@@ -336,7 +336,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Ubud, Seminyak, Nusa Dua…"
-              className="min-h-[44px] w-full rounded-xl border border-neutral-200 px-3 text-sm outline-none focus:border-brand-ink"
+              className="min-h-[44px] w-full rounded-xl border border-line px-3 text-sm outline-none focus:border-brand-ink"
             />
             <div className="mt-2 flex flex-wrap gap-1.5">
               {hubs.slice(0, 6).map((hub) => (
@@ -348,7 +348,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
                     'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
                     query === hub
                       ? 'border-brand-ink bg-brand-ink text-brand'
-                      : 'border-neutral-200 text-neutral-700 hover:border-neutral-400'
+                      : 'border-line text-foreground-secondary hover:border-line-control'
                   )}
                 >
                   {hub}
@@ -358,10 +358,10 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           </div>
 
           <div>
-            <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500">
+            <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-foreground-muted">
               {t('searchWhen')}
             </span>
-            <div className="rounded-xl border border-neutral-200 p-2 dark:border-white/10">
+            <div className="rounded-xl border border-line p-2 dark:border-white/10">
               <CalendarComponent
                 selectedDate={date ? new Date(`${date}T00:00:00`) : null}
                 onDateSelect={(value) => setDate(toDateKey(value))}
@@ -372,7 +372,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
               <button
                 type="button"
                 onClick={() => setDate('')}
-                className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-neutral-600 underline"
+                className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-foreground-secondary underline"
               >
                 <X className="h-3 w-3" aria-hidden="true" /> Clear date
               </button>
@@ -380,11 +380,11 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
           </div>
 
           <div>
-            <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500">
+            <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-foreground-muted">
               {t('searchGuests')}
             </span>
-            <div className="flex items-center justify-between rounded-xl border border-neutral-200 px-3 py-2">
-              <span className="text-sm font-medium text-neutral-900">
+            <div className="flex items-center justify-between rounded-xl border border-line px-3 py-2">
+              <span className="text-sm font-medium text-foreground">
                 {pax} {pax === 1 ? t('searchGuestOne') : t('searchGuestMany')}
               </span>
               <div className="flex items-center gap-2">
@@ -393,7 +393,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
                   onClick={() => setPax(pax - 1)}
                   disabled={pax <= 1}
                   aria-label="Fewer guests"
-                  className="h-10 w-10 rounded-full border border-neutral-200 text-lg leading-none text-neutral-700 disabled:text-neutral-300"
+                  className="h-10 w-10 rounded-full border border-line text-lg leading-none text-foreground-secondary disabled:text-foreground-muted/50"
                 >
                   −
                 </button>
@@ -402,7 +402,7 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
                   onClick={() => setPax(pax + 1)}
                   disabled={pax >= 20}
                   aria-label="More guests"
-                  className="h-10 w-10 rounded-full border border-neutral-200 text-lg leading-none text-neutral-700 disabled:text-neutral-300"
+                  className="h-10 w-10 rounded-full border border-line text-lg leading-none text-foreground-secondary disabled:text-foreground-muted/50"
                 >
                   +
                 </button>

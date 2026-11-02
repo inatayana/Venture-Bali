@@ -3,11 +3,11 @@ import { Skeleton } from '@/components/ui';
 /** Route-level skeleton for the product page. */
 export default function ExperienceLoading() {
   return (
-    <main className="min-h-screen bg-white">
-      <div className="h-14 border-b border-neutral-200 bg-white" />
+    <main className="min-h-screen bg-surface">
+      <div className="h-14 border-b border-line bg-surface" />
 
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-6 lg:grid-cols-[minmax(340px,380px)_1fr] lg:items-start">
-        <div className="hidden space-y-3 rounded-2xl border border-neutral-200 p-5 lg:block">
+        <div className="hidden space-y-3 rounded-2xl border border-line p-5 lg:block">
           <Skeleton className="h-3 w-1/2" />
           <Skeleton className="h-6 w-2/3" />
           <Skeleton className="h-9 w-1/2" />

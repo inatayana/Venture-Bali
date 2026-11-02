@@ -103,7 +103,7 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
 
   if (reviews.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-neutral-200 bg-white p-6 text-sm text-neutral-500">
+      <p className="rounded-xl border border-dashed border-line bg-surface p-6 text-sm text-foreground-muted">
         No reviews match these filters.
       </p>
     );
@@ -111,17 +111,17 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3">
-        <label className="flex min-h-[44px] items-center gap-2 text-sm font-medium text-neutral-700">
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3">
+        <label className="flex min-h-[44px] items-center gap-2 text-sm font-medium text-foreground-secondary">
           <input
             type="checkbox"
             checked={allSelected}
             onChange={toggleAll}
-            className="h-5 w-5 rounded border-neutral-300"
+            className="h-5 w-5 rounded border-line-strong"
           />
           Select all
         </label>
-        <span className="text-xs text-neutral-500">{selectedIds.length} selected</span>
+        <span className="text-xs text-foreground-muted">{selectedIds.length} selected</span>
         <div className="ml-auto flex flex-wrap gap-2">
           <button
             type="button"
@@ -136,7 +136,7 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
             type="button"
             onClick={() => runBulk('delete')}
             disabled={selectedIds.length === 0 || busy !== null}
-            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-red-200 px-3 text-xs font-semibold text-red-700 disabled:opacity-50"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-red-200 px-3 text-xs font-semibold text-danger disabled:opacity-50"
           >
             <Trash2 className="h-4 w-4" />
             Delete selected
@@ -145,7 +145,7 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
       </div>
 
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -154,8 +154,8 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
         <article
           key={review.id}
           className={cn(
-            'rounded-xl border bg-white p-4',
-            selected.has(review.id) ? 'border-brand-ink' : 'border-neutral-200'
+            'rounded-xl border bg-surface p-4',
+            selected.has(review.id) ? 'border-brand-ink' : 'border-line'
           )}
         >
           <div className="flex flex-wrap items-start gap-3">
@@ -164,27 +164,27 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
               checked={selected.has(review.id)}
               onChange={() => toggle(review.id)}
               aria-label={`Select review by ${review.guestName}`}
-              className="mt-1 h-5 w-5 rounded border-neutral-300"
+              className="mt-1 h-5 w-5 rounded border-line-strong"
             />
 
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-sm font-semibold text-neutral-900">{review.ventureTitle}</p>
-                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-700">
+                <p className="text-sm font-semibold text-foreground">{review.ventureTitle}</p>
+                <span className="rounded-full bg-inset px-2 py-0.5 text-xs font-semibold text-foreground-secondary">
                   {SOURCE_LABELS[review.source]}
                 </span>
                 <span
                   className={cn(
                     'rounded-full px-2 py-0.5 text-xs font-semibold',
                     review.isApproved
-                      ? 'bg-green-50 text-green-700'
+                      ? 'bg-success/10 text-success'
                       : 'bg-amber-50 text-amber-800'
                   )}
                 >
                   {review.isApproved ? 'Published' : 'Pending'}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-neutral-500">
+              <p className="mt-1 text-xs text-foreground-muted">
                 {review.guestName}
                 {review.guestLocation ? ` · ${review.guestLocation}` : ''} ·{' '}
                 {review.bookingCode ?? 'no booking'} ·{' '}
@@ -197,7 +197,7 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
                 ))}
               </div>
 
-              <p className="mt-2 whitespace-pre-line break-words text-sm text-neutral-700">
+              <p className="mt-2 whitespace-pre-line break-words text-sm text-foreground-secondary">
                 {review.comment}
               </p>
 
@@ -209,7 +209,7 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
                         <img
                           src={photo}
                           alt={`Guest photo for ${review.ventureTitle}`}
-                          className="h-24 w-32 rounded-lg border border-neutral-200 object-cover"
+                          className="h-24 w-32 rounded-lg border border-line object-cover"
                         />
                       </a>
                       <button
@@ -217,7 +217,7 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
                         onClick={() => removePhoto(review.id, photo)}
                         disabled={busy !== null}
                         aria-label="Remove photo"
-                        className="absolute -right-2 -top-2 flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-700 shadow-sm disabled:opacity-50"
+                        className="absolute -right-2 -top-2 flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface text-foreground-secondary shadow-sm disabled:opacity-50"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -226,8 +226,8 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
                 </div>
               )}
 
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-3">
-                <span className="text-xs text-neutral-500">
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
+                <span className="text-xs text-foreground-muted">
                   Submitted {review.createdAt.slice(0, 10)}
                 </span>
                 <ReviewModerationActions reviewId={review.id} isApproved={review.isApproved} />

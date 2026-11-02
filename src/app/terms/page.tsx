@@ -9,19 +9,19 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-white px-4 py-10">
+    <main className="min-h-screen bg-surface px-4 py-10">
       <article className="mx-auto max-w-2xl">
-        <Link href="/" className="text-sm text-neutral-500 underline">
+        <Link href="/" className="text-sm text-foreground-muted underline">
           ← Back to adventures
         </Link>
-        <h1 className="mt-4 font-heading text-3xl font-bold text-neutral-900">Booking terms</h1>
-        <p className="mt-2 text-sm text-neutral-500">Version {TERMS_VERSION}</p>
+        <h1 className="mt-4 font-heading text-3xl font-bold text-foreground">Booking terms</h1>
+        <p className="mt-2 text-sm text-foreground-muted">Version {TERMS_VERSION}</p>
 
         <div className="mt-8 space-y-7">
           {TERMS_SECTIONS.map((section) => (
             <section key={section.title}>
-              <h2 className="font-heading text-lg font-bold text-neutral-900">{section.title}</h2>
-              <div className="mt-2 space-y-2 text-sm leading-relaxed text-neutral-700">
+              <h2 className="font-heading text-lg font-bold text-foreground">{section.title}</h2>
+              <div className="mt-2 space-y-2 text-sm leading-relaxed text-foreground-secondary">
                 {section.body.map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
@@ -30,7 +30,7 @@ export default function TermsPage() {
           ))}
         </div>
 
-        <p className="mt-10 text-xs text-neutral-600">
+        <p className="mt-10 text-xs text-foreground-secondary">
           This page is a draft prepared for launch and is pending final legal review.
         </p>
       </article>

@@ -91,7 +91,7 @@ export function CategoryTiles({
             'w-full',
             selectedCategory === null
               ? 'border-brand-ink bg-brand-ink text-brand shadow-md'
-              : 'border-gray-200 bg-white text-gray-700 hover:border-brand-ink/40 hover:bg-brand/20'
+              : 'border-line bg-surface text-foreground-secondary hover:border-brand-ink/40 hover:bg-brand/20'
           )}
         >
           <span className="text-xl leading-none" aria-hidden="true">
@@ -115,7 +115,7 @@ export function CategoryTiles({
           <div
             role="menu"
             aria-label="Sort and filter"
-            className="absolute left-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-neutral-200 bg-white py-1 shadow-xl"
+            className="absolute left-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-line bg-surface py-1 shadow-xl"
           >
             {selectedCategory !== null && (
               <button
@@ -125,13 +125,13 @@ export function CategoryTiles({
                   onSelect(null);
                   setIsSortOpen(false);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-50"
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground-secondary hover:bg-base"
               >
                 All categories
               </button>
             )}
 
-            <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-neutral-600">
+            <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-foreground-secondary">
               Sort by
             </p>
 
@@ -148,12 +148,12 @@ export function CategoryTiles({
                     setIsSortOpen(false);
                   }}
                   className={cn(
-                    'flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-neutral-50',
-                    isActive ? 'font-semibold text-neutral-900' : 'text-neutral-700'
+                    'flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-base',
+                    isActive ? 'font-semibold text-foreground' : 'text-foreground-secondary'
                   )}
                 >
                   <span className="flex-1">{option.label}</span>
-                  {isActive && <Check className="h-4 w-4 text-brand-ink" aria-hidden="true" />}
+                  {isActive && <Check className="h-4 w-4 text-foreground" aria-hidden="true" />}
                 </button>
               );
             })}
@@ -173,7 +173,7 @@ export function CategoryTiles({
               tileBase,
               isActive
                 ? 'border-brand-ink bg-brand-ink text-brand shadow-md'
-                : 'border-gray-200 bg-white text-gray-700 hover:border-brand-ink/40 hover:bg-brand/20'
+                : 'border-line bg-surface text-foreground-secondary hover:border-brand-ink/40 hover:bg-brand/20'
             )}
           >
             <span className="text-xl leading-none" aria-hidden="true">

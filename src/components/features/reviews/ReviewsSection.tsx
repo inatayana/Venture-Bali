@@ -23,10 +23,10 @@ export function ReviewsSection({ reviews, average, count, ventureId }: ReviewsSe
 
   if (count === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-neutral-200 px-4 py-6 text-center">
-        <Star className="mx-auto h-6 w-6 text-neutral-300" aria-hidden="true" />
-        <p className="mt-2 text-sm font-medium text-neutral-700">No verified reviews yet</p>
-        <p className="mt-1 text-xs text-neutral-500">
+      <div className="rounded-xl border border-dashed border-line px-4 py-6 text-center">
+        <Star className="mx-auto h-6 w-6 text-foreground-muted/50" aria-hidden="true" />
+        <p className="mt-2 text-sm font-medium text-foreground-secondary">No verified reviews yet</p>
+        <p className="mt-1 text-xs text-foreground-muted">
           Guests can review after their trip — yours would be the first.
         </p>
       </div>
@@ -38,11 +38,11 @@ export function ReviewsSection({ reviews, average, count, ventureId }: ReviewsSe
       <button
         type="button"
         onClick={() => setIsModalOpen(true)}
-        className="flex w-full cursor-pointer flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-neutral-50 p-4 text-left transition-colors hover:bg-neutral-100"
+        className="flex w-full cursor-pointer flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-base p-4 text-left transition-colors hover:bg-inset"
         aria-haspopup="dialog"
       >
         <span className="flex items-baseline gap-2">
-          <span className="font-heading text-3xl font-bold tabular-nums text-neutral-900">
+          <span className="font-heading text-3xl font-bold tabular-nums text-foreground">
             {average.toFixed(1)}
           </span>
           <span className="inline-flex items-center gap-0.5" aria-hidden="true">
@@ -52,18 +52,18 @@ export function ReviewsSection({ reviews, average, count, ventureId }: ReviewsSe
                 className={
                   index < Math.round(average)
                     ? 'h-3.5 w-3.5 fill-brand text-brand'
-                    : 'h-3.5 w-3.5 text-neutral-300'
+                    : 'h-3.5 w-3.5 text-foreground-muted/50'
                 }
               />
             ))}
           </span>
         </span>
 
-        <span className="text-sm font-medium text-neutral-700">
+        <span className="text-sm font-medium text-foreground-secondary">
           {count.toLocaleString('en-US')} review{count === 1 ? '' : 's'}
         </span>
 
-        <span className="ml-auto inline-flex items-center gap-1 text-sm font-semibold text-neutral-900">
+        <span className="ml-auto inline-flex items-center gap-1 text-sm font-semibold text-foreground">
           Read all
           <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </span>
@@ -79,7 +79,7 @@ export function ReviewsSection({ reviews, average, count, ventureId }: ReviewsSe
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="mt-4 inline-flex min-h-[44px] items-center rounded-xl border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition-colors hover:border-neutral-900"
+          className="mt-4 inline-flex min-h-[44px] items-center rounded-xl border border-line-strong px-4 text-sm font-semibold text-foreground transition-colors hover:border-line-control"
         >
           Show all {count.toLocaleString('en-US')} reviews
         </button>

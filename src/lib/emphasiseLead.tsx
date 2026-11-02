@@ -13,7 +13,7 @@ export function emphasiseLead(item: string): ReactNode {
 
   return (
     <>
-      <strong className="font-semibold text-neutral-900">{lead}:</strong>
+      <strong className="font-semibold text-foreground">{lead}:</strong>
       {rest}
     </>
   );

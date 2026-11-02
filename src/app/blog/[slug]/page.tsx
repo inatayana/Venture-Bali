@@ -98,13 +98,13 @@ export default async function BlogDetailPage({ params }: { params: { slug: strin
   const description = readText(article.metaDesc);
 
   const htmlContent = article.content
-    .replace(/^## (.+)$/gm, '<h2 class="font-heading text-2xl font-bold uppercase tracking-wide text-neutral-900 mt-8 mb-4">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="font-heading text-3xl font-bold text-neutral-900 mb-4">$1</h1>')
+    .replace(/^## (.+)$/gm, '<h2 class="font-heading text-2xl font-bold uppercase tracking-wide text-foreground mt-8 mb-4">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="font-heading text-3xl font-bold text-foreground mb-4">$1</h1>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/\n\n/g, '</p><p class="text-neutral-700 leading-relaxed mb-4">')
-    .replace(/^(?!<h[12]|<p)(.+)$/gm, '<p class="text-neutral-700 leading-relaxed mb-4">$1</p>')
-    .replace(/<\/p><p class="text-neutral-700 leading-relaxed mb-4">/g, '</p>\n<p class="text-neutral-700 leading-relaxed mb-4">');
+    .replace(/\n\n/g, '</p><p class="text-foreground-secondary leading-relaxed mb-4">')
+    .replace(/^(?!<h[12]|<p)(.+)$/gm, '<p class="text-foreground-secondary leading-relaxed mb-4">$1</p>')
+    .replace(/<\/p><p class="text-foreground-secondary leading-relaxed mb-4">/g, '</p>\n<p class="text-foreground-secondary leading-relaxed mb-4">');
 
   const structuredData = generateArticleStructuredData(
     {
@@ -120,7 +120,7 @@ export default async function BlogDetailPage({ params }: { params: { slug: strin
   );
 
   return (
-    <main className="min-h-screen bg-neutral-50">
+    <main className="min-h-screen bg-base">
       <JsonLd data={structuredData} />
 
       <header className="bg-brand-ink text-white">
@@ -168,22 +168,22 @@ export default async function BlogDetailPage({ params }: { params: { slug: strin
       </header>
 
       <article className="container mx-auto -mt-8 max-w-3xl px-4 pb-12">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-10">
+        <div className="rounded-2xl border border-line bg-surface p-6 shadow-sm sm:p-10">
           <div
             className="prose prose-neutral max-w-none"
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
 
           {article.tags.length > 0 && (
-            <div className="mt-8 border-t border-neutral-200 pt-6">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-500">
+            <div className="mt-8 border-t border-line pt-6">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground-muted">
                 Tags
               </p>
               <div className="flex flex-wrap items-center gap-2">
                 {article.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full bg-brand/30 px-3 py-1 text-xs font-semibold text-neutral-900"
+                    className="rounded-full bg-brand/30 px-3 py-1 text-xs font-semibold text-foreground"
                   >
                     {tag}
                   </span>
@@ -216,7 +216,7 @@ export default async function BlogDetailPage({ params }: { params: { slug: strin
         <div className="mt-8">
           <Link
             href="/blog"
-            className="text-sm font-semibold text-neutral-700 underline underline-offset-4 hover:text-neutral-900"
+            className="text-sm font-semibold text-foreground-secondary underline underline-offset-4 hover:text-foreground"
           >
             ← Back to all field notes
           </Link>

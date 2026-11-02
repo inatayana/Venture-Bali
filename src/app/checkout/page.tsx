@@ -18,11 +18,11 @@ export default function CheckoutPage() {
   const getTotalPrice = useBookingStore((state) => state.getTotalPrice);
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-base">
       <div className="container mx-auto px-4 py-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-brand-ink hover:underline"
+          className="inline-flex items-center gap-2 text-foreground hover:underline"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to adventures
@@ -30,22 +30,22 @@ export default function CheckoutPage() {
       </div>
 
       <div className="container mx-auto px-4 pb-12">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-8">Checkout</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Order Summary - Left Column */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-md p-6 sticky top-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <div className="bg-surface rounded-xl shadow-md p-6 sticky top-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4">
                 Order Summary
               </h2>
 
               {bookings.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500 mb-4">No items selected</p>
+                  <p className="text-foreground-muted mb-4">No items selected</p>
                   <Link
                     href="/"
-                    className="text-brand-ink hover:underline font-medium"
+                    className="text-foreground hover:underline font-medium"
                   >
                     Browse Adventures
                   </Link>
@@ -56,13 +56,13 @@ export default function CheckoutPage() {
                     {bookings.map((booking, index) => (
                       <div
                         key={`${booking.ventureId}-${index}`}
-                        className="flex gap-4 pb-4 border-b border-gray-100 last:border-0"
+                        className="flex gap-4 pb-4 border-b border-line last:border-0"
                       >
                         <div className="flex-1">
-                          <h3 className="font-medium text-gray-900">
+                          <h3 className="font-medium text-foreground">
                             {booking.title}
                           </h3>
-                          <div className="mt-1 space-y-1 text-sm text-gray-600">
+                          <div className="mt-1 space-y-1 text-sm text-foreground-secondary">
                             <div className="flex items-center gap-1">
                               <Users className="w-3 h-3" />
                               <span>{booking.participants} participants</span>
@@ -83,7 +83,7 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="font-semibold text-gray-900">
+                          <span className="font-semibold text-foreground">
                             {formatPrice(booking.totalPrice)}
                           </span>
                         </div>
@@ -91,24 +91,24 @@ export default function CheckoutPage() {
                     ))}
                   </div>
 
-                  <div className="pt-4 border-t border-gray-200">
+                  <div className="pt-4 border-t border-line">
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Subtotal</span>
+                      <span className="text-foreground-secondary">Subtotal</span>
                       <span className="font-medium">
                         {formatPrice(getTotalPrice())}
                       </span>
                     </div>
                     <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-600">Tax (10%)</span>
+                      <span className="text-foreground-secondary">Tax (10%)</span>
                       <span className="font-medium">
                         {formatPrice(getTotalPrice() * 0.1)}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-                      <span className="text-lg font-semibold text-gray-900">
+                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-line">
+                      <span className="text-lg font-semibold text-foreground">
                         Total
                       </span>
-                      <span className="text-2xl font-bold text-brand-ink">
+                      <span className="text-2xl font-bold text-foreground">
                         {formatPrice(getTotalPrice() * 1.1)}
                       </span>
                     </div>
@@ -120,8 +120,8 @@ export default function CheckoutPage() {
 
           {/* Booking Form - Right Column */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-md p-6 md:p-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            <div className="bg-surface rounded-xl shadow-md p-6 md:p-8">
+              <h2 className="text-xl font-semibold text-foreground mb-6">
                 Contact Information
               </h2>
               <BookingForm />

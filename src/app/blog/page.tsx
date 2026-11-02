@@ -53,7 +53,7 @@ export default async function BlogPage() {
   const articles = await getArticles();
 
   return (
-    <main className="min-h-screen bg-neutral-50">
+    <main className="min-h-screen bg-base">
       <header className="bg-brand-ink text-white">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <Link href="/" aria-label="BaliWild home">
@@ -83,10 +83,10 @@ export default async function BlogPage() {
       <section className="container mx-auto px-4 py-10">
         {articles.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="font-heading text-xl font-bold uppercase tracking-wide text-neutral-900">
+            <p className="font-heading text-xl font-bold uppercase tracking-wide text-foreground">
               No field notes yet
             </p>
-            <p className="mt-2 text-sm text-neutral-500">
+            <p className="mt-2 text-sm text-foreground-muted">
               New Bali adventure guides are on the way.
             </p>
           </div>
@@ -95,27 +95,27 @@ export default async function BlogPage() {
             {articles.map((article) => (
               <article
                 key={article.id}
-                className="group overflow-hidden rounded-2xl border border-neutral-200 bg-white transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-xl"
+                className="group overflow-hidden rounded-2xl border border-line bg-surface transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-xl"
               >
                 <Link href={`/blog/${article.slug}`} className="block p-6">
-                  <h2 className="mb-2 line-clamp-2 font-heading text-xl font-bold text-neutral-900 group-hover:underline group-hover:decoration-brand group-hover:decoration-2 group-hover:underline-offset-4">
+                  <h2 className="mb-2 line-clamp-2 font-heading text-xl font-bold text-foreground group-hover:underline group-hover:decoration-brand group-hover:decoration-2 group-hover:underline-offset-4">
                     {readText(article.title)}
                   </h2>
-                  <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-neutral-600">
+                  <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-foreground-secondary">
                     {readText(article.metaDesc)}
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     {article.tags.slice(0, 3).map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full bg-brand/30 px-2 py-1 text-xs font-semibold text-neutral-900"
+                        className="rounded-full bg-brand/30 px-2 py-1 text-xs font-semibold text-foreground"
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <div className="mt-4 flex items-center justify-between gap-2 border-t border-neutral-100 pt-3">
-                    <p className="text-xs text-neutral-600">
+                  <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3">
+                    <p className="text-xs text-foreground-secondary">
                       {article.publishedAt &&
                         new Date(article.publishedAt).toLocaleDateString('en-GB', {
                           year: 'numeric',
@@ -123,7 +123,7 @@ export default async function BlogPage() {
                           day: 'numeric',
                         })}
                     </p>
-                    <span className="text-xs font-bold uppercase tracking-wider text-neutral-900">
+                    <span className="text-xs font-bold uppercase tracking-wider text-foreground">
                       Read guide →
                     </span>
                   </div>

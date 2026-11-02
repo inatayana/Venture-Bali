@@ -59,12 +59,12 @@ export function PhotoUploader({
 
   return (
     <div className="mt-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+      <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
         Photos <span className="font-normal normal-case tracking-normal">(optional, up to 3)</span>
       </p>
       <div className="mt-2 grid grid-cols-3 gap-2">
         {photos.map((photo, index) => (
-          <div key={photo} className="relative overflow-hidden rounded-xl bg-neutral-100">
+          <div key={photo} className="relative overflow-hidden rounded-xl bg-inset">
             <img
               src={photo}
               alt={`Review photo ${index + 1}`}
@@ -74,7 +74,7 @@ export function PhotoUploader({
               type="button"
               onClick={() => onChange(photos.filter((url) => url !== photo))}
               aria-label={`Remove photo ${index + 1}`}
-              className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/70 text-white"
+              className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-overlay/70 text-white"
             >
               <X className="h-4 w-4" />
             </button>
@@ -84,7 +84,7 @@ export function PhotoUploader({
         {photos.length < PHOTO_LIMIT && (
           <label
             className={cn(
-              'flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-neutral-300 text-xs font-medium text-neutral-600 transition-colors hover:border-neutral-500',
+              'flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-line-strong text-xs font-medium text-foreground-secondary transition-colors hover:border-line-control',
               uploading && 'pointer-events-none opacity-60'
             )}
           >
@@ -108,7 +108,7 @@ export function PhotoUploader({
         )}
       </div>
       {error && (
-        <p role="alert" className="mt-2 text-xs text-red-700">
+        <p role="alert" className="mt-2 text-xs text-danger">
           {error}
         </p>
       )}

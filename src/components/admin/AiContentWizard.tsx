@@ -118,8 +118,8 @@ export function AiContentWizard() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="font-heading text-2xl font-bold text-gray-900">AI Content</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="font-heading text-2xl font-bold text-foreground">AI Content</h1>
+        <p className="text-sm text-foreground-muted mt-1">
           Generate long-tail SEO articles. Every article is validated against the title
           constitution and the 9-category taxonomy before it is stored.
         </p>
@@ -127,11 +127,11 @@ export function AiContentWizard() {
 
       <form
         onSubmit={handleGenerate}
-        className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4"
+        className="bg-surface rounded-xl shadow-sm border border-line p-6 space-y-4"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="lg:col-span-2">
-            <label htmlFor="content-title" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-title" className="block text-sm font-medium text-foreground-secondary mb-1.5">
               Title (45-60 characters)
             </label>
             <input
@@ -142,13 +142,13 @@ export function AiContentWizard() {
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Ubud Jungle ATV Ride through Rice Terraces and Waterfalls"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-line-strong rounded-lg text-sm outline-none focus:border-brand-ink"
             />
-            <p className="text-xs text-gray-600 mt-1">{title.length} / 60 characters</p>
+            <p className="text-xs text-foreground-secondary mt-1">{title.length} / 60 characters</p>
           </div>
 
           <div>
-            <label htmlFor="content-keyword" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-keyword" className="block text-sm font-medium text-foreground-secondary mb-1.5">
               Primary keyword
             </label>
             <input
@@ -157,19 +157,19 @@ export function AiContentWizard() {
               value={primaryKeyword}
               onChange={(event) => setPrimaryKeyword(event.target.value)}
               placeholder="Ubud ATV"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-line-strong rounded-lg text-sm outline-none focus:border-brand-ink"
             />
           </div>
 
           <div>
-            <label htmlFor="content-category" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-category" className="block text-sm font-medium text-foreground-secondary mb-1.5">
               Category
             </label>
             <select
               id="content-category"
               value={category}
               onChange={(event) => setCategory(event.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-line-strong rounded-lg text-sm bg-surface outline-none focus:border-brand-ink"
             >
               {CATEGORY_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -180,7 +180,7 @@ export function AiContentWizard() {
           </div>
 
           <div>
-            <label htmlFor="content-destination" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-destination" className="block text-sm font-medium text-foreground-secondary mb-1.5">
               Destination (optional)
             </label>
             <input
@@ -188,19 +188,19 @@ export function AiContentWizard() {
               value={destination}
               onChange={(event) => setDestination(event.target.value)}
               placeholder="Ubud"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-line-strong rounded-lg text-sm outline-none focus:border-brand-ink"
             />
           </div>
 
           <div>
-            <label htmlFor="content-venture" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-venture" className="block text-sm font-medium text-foreground-secondary mb-1.5">
               Link to product (optional)
             </label>
             <select
               id="content-venture"
               value={ventureSlug}
               onChange={(event) => setVentureSlug(event.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-line-strong rounded-lg text-sm bg-surface outline-none focus:border-brand-ink"
             >
               <option value="">No product link</option>
               {ventures.map((venture) => (
@@ -212,14 +212,14 @@ export function AiContentWizard() {
           </div>
 
           <div>
-            <label htmlFor="content-language" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-language" className="block text-sm font-medium text-foreground-secondary mb-1.5">
               Language
             </label>
             <select
               id="content-language"
               value={language}
               onChange={(event) => setLanguage(event.target.value as 'en' | 'id')}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-line-strong rounded-lg text-sm bg-surface outline-none focus:border-brand-ink"
             >
               <option value="en">English</option>
               <option value="id">Bahasa Indonesia</option>
@@ -227,12 +227,12 @@ export function AiContentWizard() {
           </div>
 
           <div className="flex items-end">
-            <label className="flex items-center gap-2 text-sm text-gray-700 pb-2.5">
+            <label className="flex items-center gap-2 text-sm text-foreground-secondary pb-2.5">
               <input
                 type="checkbox"
                 checked={publish}
                 onChange={(event) => setPublish(event.target.checked)}
-                className="w-4 h-4 rounded border-gray-300"
+                className="w-4 h-4 rounded border-line-strong"
               />
               Publish immediately
             </label>
@@ -240,13 +240,13 @@ export function AiContentWizard() {
         </div>
 
         {error && (
-          <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+          <p role="alert" className="text-sm text-danger bg-danger/10 border border-red-100 rounded-lg px-3 py-2">
             {error}
           </p>
         )}
 
         {success && (
-          <p role="status" className="text-sm text-green-700 bg-green-50 border border-green-100 rounded-lg px-3 py-2">
+          <p role="status" className="text-sm text-success bg-success/10 border border-green-100 rounded-lg px-3 py-2">
             {success}
           </p>
         )}
@@ -261,24 +261,24 @@ export function AiContentWizard() {
         </button>
       </form>
 
-      <section className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="font-heading text-lg font-semibold text-gray-900">Articles</h2>
+      <section className="bg-surface rounded-xl shadow-sm border border-line">
+        <div className="px-5 py-4 border-b border-line">
+          <h2 className="font-heading text-lg font-semibold text-foreground">Articles</h2>
         </div>
 
         {isLoading ? (
-          <p className="text-sm text-gray-600 p-6 text-center">Loading…</p>
+          <p className="text-sm text-foreground-secondary p-6 text-center">Loading…</p>
         ) : articles.length === 0 ? (
-          <p className="text-sm text-gray-600 p-6 text-center">No articles yet.</p>
+          <p className="text-sm text-foreground-secondary p-6 text-center">No articles yet.</p>
         ) : (
           <ul className="divide-y divide-gray-50">
             {articles.map((article) => (
               <li key={article.id} className="px-5 py-3">
-                <p className="font-medium text-gray-900 text-sm">{readTitle(article.title)}</p>
-                <p className="text-xs text-gray-600 font-mono mt-0.5">/blog/{article.slug}</p>
+                <p className="font-medium text-foreground text-sm">{readTitle(article.title)}</p>
+                <p className="text-xs text-foreground-secondary font-mono mt-0.5">/blog/{article.slug}</p>
                 <div className="flex items-center gap-2 mt-1.5">
                   {article.publishedAt ? (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800">
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-success">
                       Published
                     </span>
                   ) : (
@@ -287,7 +287,7 @@ export function AiContentWizard() {
                     </span>
                   )}
                   {article.aiGenerated && (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand/40 text-neutral-900">
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand/40 text-foreground">
                       AI generated
                     </span>
                   )}

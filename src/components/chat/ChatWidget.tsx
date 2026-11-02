@@ -130,16 +130,16 @@ export function ChatWidget() {
       )}
 
       {isOpen && (
-        <div className="fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[45] flex max-h-[70vh] flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl sm:inset-x-auto sm:right-6 sm:w-96 lg:bottom-6">
-          <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
+        <div className="fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[45] flex max-h-[70vh] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl sm:inset-x-auto sm:right-6 sm:w-96 lg:bottom-6">
+          <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <div>
-              <p className="text-sm font-semibold text-neutral-900">BaliWild assistant</p>
-              <p className="text-xs text-neutral-500">Activities · prices · pickup · refunds</p>
+              <p className="text-sm font-semibold text-foreground">BaliWild assistant</p>
+              <p className="text-xs text-foreground-muted">Activities · prices · pickup · refunds</p>
             </div>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="flex h-11 w-11 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-foreground-muted hover:bg-inset"
               aria-label="Close chat"
             >
               <X className="h-5 w-5" />
@@ -153,7 +153,7 @@ export function ChatWidget() {
                 className={
                   message.role === 'user'
                     ? 'ml-auto max-w-[85%] whitespace-pre-line rounded-2xl rounded-br-sm bg-neutral-900 px-3 py-2 text-sm text-white'
-                    : 'mr-auto max-w-[85%] whitespace-pre-line rounded-2xl rounded-bl-sm bg-neutral-100 px-3 py-2 text-sm text-neutral-800'
+                    : 'mr-auto max-w-[85%] whitespace-pre-line rounded-2xl rounded-bl-sm bg-inset px-3 py-2 text-sm text-foreground'
                 }
               >
                 {message.text}
@@ -161,7 +161,7 @@ export function ChatWidget() {
             ))}
 
             {sending && (
-              <div className="mr-auto max-w-[85%] rounded-2xl rounded-bl-sm bg-neutral-100 px-3 py-2 text-sm text-neutral-500">
+              <div className="mr-auto max-w-[85%] rounded-2xl rounded-bl-sm bg-inset px-3 py-2 text-sm text-foreground-muted">
                 Typing…
               </div>
             )}
@@ -175,7 +175,7 @@ export function ChatWidget() {
                   key={reply}
                   type="button"
                   onClick={() => void send(reply)}
-                  className="min-h-[44px] rounded-full border border-neutral-200 px-3 text-xs font-medium text-neutral-700 hover:border-neutral-400"
+                  className="min-h-[44px] rounded-full border border-line px-3 text-xs font-medium text-foreground-secondary hover:border-line-control"
                 >
                   {reply}
                 </button>
@@ -188,14 +188,14 @@ export function ChatWidget() {
               event.preventDefault();
               void send();
             }}
-            className="flex items-center gap-2 border-t border-neutral-100 p-3"
+            className="flex items-center gap-2 border-t border-line p-3"
           >
             <input
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder="Ask about your adventure…"
               aria-label="Chat message"
-              className="min-h-[44px] flex-1 rounded-full border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+              className="min-h-[44px] flex-1 rounded-full border border-line-strong px-3 text-sm outline-none focus:border-line-control"
             />
             <button
               type="submit"

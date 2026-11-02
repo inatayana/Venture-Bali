@@ -140,7 +140,7 @@ export function VentureCard({
         <div className="mt-2.5 flex items-end justify-between gap-3 border-t border-line pt-2.5 sm:mt-3 sm:pt-3">
           <div className="min-w-0">
             <span className="block text-xs text-foreground-secondary">From</span>
-            <span className="font-heading text-lg font-bold tabular-nums text-brand-ink sm:text-xl">
+            <span className="font-heading text-lg font-bold tabular-nums text-foreground sm:text-xl">
               {formatPrice(venture.priceIdr)}
             </span>
             <span className="ml-1 text-xs text-foreground-secondary">/ guest</span>
@@ -152,7 +152,7 @@ export function VentureCard({
         </div>
 
         <div className="mt-2 hidden flex-wrap gap-1.5 sm:flex">
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
+          <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-xs font-semibold text-success">
             <CheckCircle className="h-3 w-3" aria-hidden="true" />
             Instant Confirmation
           </span>

@@ -63,7 +63,7 @@ export function CurrencySwitcher({
               className={cn(
                 'flex min-h-[44px] w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
                 currency.code === selectedCurrency
-                  ? 'bg-brand/40 text-brand-ink font-medium'
+                  ? 'bg-brand/40 text-foreground font-medium'
                   : 'text-foreground-secondary hover:bg-inset'
               )}
               role="option"

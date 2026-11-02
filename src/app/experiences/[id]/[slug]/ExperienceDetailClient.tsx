@@ -354,13 +354,13 @@ export function ExperienceDetailClient({
   const serviceType = selectedVariant?.fulfillmentMode === 'SELF_DRIVE' ? 'Meeting point' : 'Hotel pickup available';
 
   return (
-    <main className="min-h-screen bg-white pb-28 lg:pb-10">
+    <main className="min-h-screen bg-surface pb-28 lg:pb-10">
       {/* Sticky product bar: back link + breadcrumb stay reachable while scrolling */}
-      <div className="sticky top-0 z-40 bg-white/95 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
+      <div className="sticky top-0 z-40 bg-surface/95 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4">
           <a
             href="/"
-            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-100"
+            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-foreground transition-colors hover:bg-inset"
             aria-label="Back to all adventures"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -369,26 +369,26 @@ export function ExperienceDetailClient({
 
           <nav
             aria-label="Breadcrumb"
-            className="min-w-0 flex-1 border-l border-neutral-200 pl-3"
+            className="min-w-0 flex-1 border-l border-line pl-3"
           >
             <ol className="flex min-w-0 items-center gap-1.5 text-xs">
               <li className="hidden shrink-0 sm:block">
-                <a href="/" className="text-neutral-500 transition-colors hover:text-neutral-900">
+                <a href="/" className="text-foreground-muted transition-colors hover:text-foreground">
                   Home
                 </a>
               </li>
-              <li aria-hidden="true" className="hidden shrink-0 text-neutral-300 sm:block">
+              <li aria-hidden="true" className="hidden shrink-0 text-foreground-muted/50 sm:block">
                 <ChevronRight className="h-3.5 w-3.5" />
               </li>
               <li className="shrink-0">
                 <CategoryQuickMenu currentCategory={venture.category} />
               </li>
-              <li aria-hidden="true" className="shrink-0 text-neutral-300">
+              <li aria-hidden="true" className="shrink-0 text-foreground-muted/50">
                 <ChevronRight className="h-3.5 w-3.5" />
               </li>
               <li className="min-w-0">
                 <span
-                  className="block truncate font-medium text-neutral-800"
+                  className="block truncate font-medium text-foreground"
                   aria-current="page"
                 >
                   {venture.title}
@@ -401,24 +401,24 @@ export function ExperienceDetailClient({
             <button
               type="button"
               onClick={() => setWishlisted((prev) => !prev)}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-line transition-colors hover:bg-base"
               aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
               aria-pressed={wishlisted}
             >
               <Heart
-                className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-600')}
+                className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-red-500' : 'text-foreground-secondary')}
               />
             </button>
             <button
               type="button"
               onClick={share}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-line transition-colors hover:bg-base"
               aria-label="Share this adventure"
             >
-              <Share2 className="h-5 w-5 text-neutral-600" />
+              <Share2 className="h-5 w-5 text-foreground-secondary" />
             </button>
             {shareState === 'copied' && (
-              <span className="hidden text-xs font-medium text-green-700 sm:inline">Copied</span>
+              <span className="hidden text-xs font-medium text-success sm:inline">Copied</span>
             )}
           </div>
         </div>
@@ -435,36 +435,36 @@ export function ExperienceDetailClient({
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(340px,380px)_1fr] lg:items-start">
           {/* LEFT — sticky booking card (desktop only) */}
           <aside className="hidden lg:sticky lg:top-[76px] lg:block">
-            <div className="rounded-2xl border border-neutral-200 p-5 shadow-sm">
-              <p className="text-xs uppercase tracking-wider text-neutral-500">
+            <div className="rounded-2xl border border-line p-5 shadow-sm">
+              <p className="text-xs uppercase tracking-wider text-foreground-muted">
                 {selectedVariant ? 'Selected package' : 'Starting price'}
               </p>
-              <p className="mt-0.5 font-heading text-base font-bold text-neutral-900">
+              <p className="mt-0.5 font-heading text-base font-bold text-foreground">
                 {selectedVariant?.title ?? venture.title}
               </p>
 
               <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <span className="text-xs font-medium text-neutral-500">From</span>
+                <span className="text-xs font-medium text-foreground-muted">From</span>
                 {estimate.promoActive && (
-                  <span className="text-sm tabular-nums text-neutral-600 line-through">
+                  <span className="text-sm tabular-nums text-foreground-secondary line-through">
                     {formatPrice(estimate.listPricePerPaxIdr)}
                   </span>
                 )}
-                <span className="font-heading text-3xl font-bold tabular-nums text-neutral-900">
+                <span className="font-heading text-3xl font-bold tabular-nums text-foreground">
                   {formatPrice(selectedPrice)}
                 </span>
-                <span className="text-sm text-neutral-500">/ guest</span>
+                <span className="text-sm text-foreground-muted">/ guest</span>
               </div>
 
               {selectedVariant?.minimumSpendIdr ? (
-                <p className="mt-1 text-xs font-medium text-neutral-600">
+                <p className="mt-1 text-xs font-medium text-foreground-secondary">
                   Minimum {formatPrice(selectedVariant.minimumSpendIdr)} to book
                 </p>
               ) : (
-                <p className="mt-1 text-xs text-neutral-500">No minimum spend</p>
+                <p className="mt-1 text-xs text-foreground-muted">No minimum spend</p>
               )}
 
-              <div className="mt-3 rounded-xl bg-neutral-50 px-3 py-2">
+              <div className="mt-3 rounded-xl bg-base px-3 py-2">
                 <Stepper
                   label="Guests"
                   value={config.adults}
@@ -474,7 +474,7 @@ export function ExperienceDetailClient({
                 />
               </div>
 
-              <div className="mt-3 space-y-1 text-sm text-neutral-600">
+              <div className="mt-3 space-y-1 text-sm text-foreground-secondary">
                 <div className="flex justify-between">
                   <span>
                     {config.adults} × {formatPrice(estimate.unitPricePerPaxIdr)}
@@ -482,7 +482,7 @@ export function ExperienceDetailClient({
                   <span className="tabular-nums">{formatPrice(estimate.subtotalIdr)}</span>
                 </div>
                 {estimate.discountIdr > 0 && (
-                  <div className="flex justify-between text-green-700">
+                  <div className="flex justify-between text-success">
                     <span>Promo savings</span>
                     <span className="tabular-nums">−{formatPrice(estimate.discountIdr)}</span>
                   </div>
@@ -495,9 +495,9 @@ export function ExperienceDetailClient({
                 )}
               </div>
 
-              <div className="mt-3 flex items-center justify-between border-t border-neutral-200 pt-3">
-                <span className="text-sm font-medium text-neutral-900">Estimated total</span>
-                <span className="font-heading text-xl font-bold tabular-nums text-neutral-900">
+              <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
+                <span className="text-sm font-medium text-foreground">Estimated total</span>
+                <span className="font-heading text-xl font-bold tabular-nums text-foreground">
                   {formatPrice(estimate.totalPriceIdr)}
                 </span>
               </div>
@@ -509,11 +509,11 @@ export function ExperienceDetailClient({
               >
                 Show dates
               </button>
-              <p className="mt-2 text-center text-xs text-neutral-500">
+              <p className="mt-2 text-center text-xs text-foreground-muted">
                 Pickup and add-ons are added in the next step.
               </p>
 
-              <div className="mt-3 space-y-1.5 border-t border-neutral-100 pt-3 text-xs text-neutral-500">
+              <div className="mt-3 space-y-1.5 border-t border-line pt-3 text-xs text-foreground-muted">
                 <p className="flex items-center gap-2">
                   <Shield className="h-4 w-4" /> {CANCELLATION.description} · reschedule free ≥24h
                 </p>
@@ -542,7 +542,7 @@ export function ExperienceDetailClient({
               <div className="relative flex justify-center pt-1">
                 <nav
                   aria-label="Page sections"
-                  className="inline-flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full border border-neutral-200/80 bg-white/95 p-1 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.25)] backdrop-blur scrollbar-hide"
+                  className="inline-flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full border border-line/80 bg-surface/95 p-1 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.25)] backdrop-blur scrollbar-hide"
                 >
                   {PDP_SECTIONS.map((section) => {
                     const isActive = activeSection === section.id;
@@ -555,7 +555,7 @@ export function ExperienceDetailClient({
                           'inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
                           isActive
                             ? 'bg-brand-ink text-brand'
-                            : 'text-neutral-600 hover:bg-brand/25 hover:text-neutral-900'
+                            : 'text-foreground-secondary hover:bg-brand/25 hover:text-foreground'
                         )}
                       >
                         {section.label}
@@ -574,7 +574,7 @@ export function ExperienceDetailClient({
                   type="button"
                   onClick={() => setLightboxIndex(index)}
                   className={cn(
-                    'group relative overflow-hidden rounded-2xl bg-neutral-100',
+                    'group relative overflow-hidden rounded-2xl bg-inset',
                     index === 0 && 'row-span-3'
                   )}
                   aria-label={index === 0 ? 'Main product photo' : `View photo ${index + 1}`}
@@ -600,7 +600,7 @@ export function ExperienceDetailClient({
                 role="group"
                 aria-roledescription="carousel"
                 aria-label={`${venture.title} photos`}
-                className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl bg-neutral-100 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl bg-inset [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {orderedGallery.map((image, index) => (
                   <button
@@ -646,35 +646,35 @@ export function ExperienceDetailClient({
                 <span className="rounded-full bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-ink">
                   {venture.category}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-3 py-1 font-medium text-neutral-700">
+                <span className="inline-flex items-center gap-1 rounded-full bg-inset px-3 py-1 font-medium text-foreground-secondary">
                   <MapPin className="h-3.5 w-3.5" /> {venture.location || 'Bali'}
                 </span>
-                <span className="text-xs text-neutral-500">{serviceType}</span>
+                <span className="text-xs text-foreground-muted">{serviceType}</span>
               </div>
 
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h1 className="font-heading text-2xl font-bold leading-tight text-neutral-900 md:text-3xl">
+                  <h1 className="font-heading text-2xl font-bold leading-tight text-foreground md:text-3xl">
                     {venture.title}
                   </h1>
-                  <p className="mt-1 text-sm font-medium leading-relaxed text-neutral-700">
+                  <p className="mt-1 text-sm font-medium leading-relaxed text-foreground-secondary">
                     {clampText(venture.hook3Sec, HOOK_MAX)}
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-600">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-foreground-secondary">
                 {reviewCount > 0 ? (
                   <span className="inline-flex items-center gap-1">
                     <Star className="h-4 w-4 fill-brand text-brand" />
-                    <strong className="text-neutral-900">{venture.rating.toFixed(1)}</strong>
+                    <strong className="text-foreground">{venture.rating.toFixed(1)}</strong>
                     <span>
                       · {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
                     </span>
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-700">
-                    <Star className="h-3.5 w-3.5 text-neutral-600" />
+                  <span className="inline-flex items-center gap-1 rounded-full bg-inset px-2.5 py-1 text-xs font-medium text-foreground-secondary">
+                    <Star className="h-3.5 w-3.5 text-foreground-secondary" />
                     New · no reviews yet
                   </span>
                 )}
@@ -685,28 +685,28 @@ export function ExperienceDetailClient({
                   <Users className="h-4 w-4" /> Up to {venture.maxParticipants} guests
                 </span>
                 {venture.bookedThisMonth ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-xs font-medium text-neutral-800">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-xs font-medium text-foreground">
                     <Users className="h-3.5 w-3.5" /> {venture.bookedThisMonth} booked this month
                   </span>
                 ) : null}
               </div>
 
               <div className="grid gap-2 sm:grid-cols-3">
-                <span className="inline-flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2 text-xs font-medium text-green-800">
+                <span className="inline-flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-xs font-medium text-success">
                   <CheckCircle className="h-4 w-4" /> Instant confirmation
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs font-medium text-neutral-700">
+                <span className="inline-flex items-center gap-2 rounded-lg bg-base px-3 py-2 text-xs font-medium text-foreground-secondary">
                   <Wallet className="h-4 w-4" /> Reschedule free ≥24h
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs font-medium text-neutral-700">
+                <span className="inline-flex items-center gap-2 rounded-lg bg-base px-3 py-2 text-xs font-medium text-foreground-secondary">
                   <Shield className="h-4 w-4" /> {CANCELLATION.percentage}% refund ≥24h
                 </span>
               </div>
             </div>
 
             <section id="packages">
-              <h2 className="mb-1 font-heading text-lg font-bold text-neutral-900">Choose your package</h2>
-              <p className="mb-3 text-sm text-neutral-500">
+              <h2 className="mb-1 font-heading text-lg font-bold text-foreground">Choose your package</h2>
+              <p className="mb-3 text-sm text-foreground-muted">
                 Same adventure, different ways to get there. Prices per guest.
               </p>
               <div className="space-y-3">
@@ -726,43 +726,43 @@ export function ExperienceDetailClient({
 
             {(selectedVariant?.addons?.length ?? 0) > 0 && (
               <section>
-                <h2 className="mb-2 font-heading text-lg font-bold text-neutral-900">
+                <h2 className="mb-2 font-heading text-lg font-bold text-foreground">
                   Add-ons for this package
                 </h2>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {selectedVariant?.addons?.map((addon) => (
-                    <div key={addon.id} className="rounded-xl border border-neutral-200 p-3">
+                    <div key={addon.id} className="rounded-xl border border-line p-3">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-semibold text-neutral-900">{addon.name}</p>
-                        <span className="shrink-0 text-sm font-semibold tabular-nums text-neutral-900">
+                        <p className="text-sm font-semibold text-foreground">{addon.name}</p>
+                        <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
                           {formatPrice(addon.price)}
                         </span>
                       </div>
                       {addon.description && (
-                        <p className="mt-0.5 text-xs text-neutral-500">{addon.description}</p>
+                        <p className="mt-0.5 text-xs text-foreground-muted">{addon.description}</p>
                       )}
                       {addon.requiresTransfer && (
-                        <p className="mt-1 text-xs font-medium text-neutral-500">
+                        <p className="mt-1 text-xs font-medium text-foreground-muted">
                           Available with transfer packages
                         </p>
                       )}
                     </div>
                   ))}
                 </div>
-                <p className="mt-2 text-xs text-neutral-500">
+                <p className="mt-2 text-xs text-foreground-muted">
                   Select add-ons in the booking sheet after choosing a date.
                 </p>
               </section>
             )}
 
             {venture.highlights.length > 0 && (
-              <section className="rounded-2xl border border-neutral-200 p-5">
-                <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">Highlights</h2>
+              <section className="rounded-2xl border border-line p-5">
+                <h2 className="mb-3 font-heading text-lg font-bold text-foreground">Highlights</h2>
                 <ul className="grid gap-2 sm:grid-cols-2">
                   {venture.highlights.map((item, index) => (
                     <li
                       key={`${item}-${index}`}
-                      className="flex items-start gap-2 rounded-xl bg-neutral-50 px-3 py-2 text-sm text-neutral-700"
+                      className="flex items-start gap-2 rounded-xl bg-base px-3 py-2 text-sm text-foreground-secondary"
                     >
                       <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
                       <span>{clampText(item, HIGHLIGHT_MAX)}</span>
@@ -772,26 +772,26 @@ export function ExperienceDetailClient({
               </section>
             )}
 
-            <section id="safety" className="rounded-2xl border border-neutral-200 p-5">
-              <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">
+            <section id="safety" className="rounded-2xl border border-line p-5">
+              <h2 className="mb-3 font-heading text-lg font-bold text-foreground">
                 Safety & requirements
               </h2>
               <div className="grid gap-2 sm:grid-cols-3">
-                <div className="rounded-xl bg-neutral-50 px-3 py-2">
-                  <p className="text-xs uppercase tracking-wider text-neutral-500">Minimum age</p>
-                  <p className="mt-0.5 text-sm font-semibold text-neutral-900">
+                <div className="rounded-xl bg-base px-3 py-2">
+                  <p className="text-xs uppercase tracking-wider text-foreground-muted">Minimum age</p>
+                  <p className="mt-0.5 text-sm font-semibold text-foreground">
                     {venture.minAge ? `${venture.minAge}+ years` : 'All ages'}
                   </p>
                 </div>
-                <div className="rounded-xl bg-neutral-50 px-3 py-2">
-                  <p className="text-xs uppercase tracking-wider text-neutral-500">Maximum weight</p>
-                  <p className="mt-0.5 text-sm font-semibold text-neutral-900">
+                <div className="rounded-xl bg-base px-3 py-2">
+                  <p className="text-xs uppercase tracking-wider text-foreground-muted">Maximum weight</p>
+                  <p className="mt-0.5 text-sm font-semibold text-foreground">
                     {venture.maxWeightKg ? `${venture.maxWeightKg} kg` : '—'}
                   </p>
                 </div>
-                <div className="rounded-xl bg-neutral-50 px-3 py-2">
-                  <p className="text-xs uppercase tracking-wider text-neutral-500">Duration</p>
-                  <p className="mt-0.5 text-sm font-semibold text-neutral-900">
+                <div className="rounded-xl bg-base px-3 py-2">
+                  <p className="text-xs uppercase tracking-wider text-foreground-muted">Duration</p>
+                  <p className="mt-0.5 text-sm font-semibold text-foreground">
                     {selectedVariant?.duration ?? venture.duration}
                   </p>
                 </div>
@@ -807,13 +807,13 @@ export function ExperienceDetailClient({
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 {venture.essentialInfo.whatToBring.length > 0 && (
                   <div>
-                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-neutral-900">
+                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-foreground">
                       What to bring
                     </h3>
-                    <ul className="space-y-1.5 text-sm text-neutral-700">
+                    <ul className="space-y-1.5 text-sm text-foreground-secondary">
                       {venture.essentialInfo.whatToBring.map((item) => (
                         <li key={item} className="flex items-start gap-2">
-                          <span aria-hidden="true" className="text-neutral-600">•</span>
+                          <span aria-hidden="true" className="text-foreground-secondary">•</span>
                           <span>{emphasiseLead(item)}</span>
                         </li>
                       ))}
@@ -822,13 +822,13 @@ export function ExperienceDetailClient({
                 )}
                 {venture.essentialInfo.knowBeforeYouGo.length > 0 && (
                   <div>
-                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-neutral-900">
+                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-foreground">
                       Know before you go
                     </h3>
-                    <ul className="space-y-1.5 text-sm text-neutral-700">
+                    <ul className="space-y-1.5 text-sm text-foreground-secondary">
                       {venture.essentialInfo.knowBeforeYouGo.map((item) => (
                         <li key={item} className="flex items-start gap-2">
-                          <span aria-hidden="true" className="text-neutral-600">•</span>
+                          <span aria-hidden="true" className="text-foreground-secondary">•</span>
                           <span>{emphasiseLead(item)}</span>
                         </li>
                       ))}
@@ -839,23 +839,23 @@ export function ExperienceDetailClient({
 
               {faqs.length > 0 && (
                 <div className="mt-4 space-y-2">
-                  <h3 className="text-sm font-semibold text-neutral-900">Frequently asked</h3>
+                  <h3 className="text-sm font-semibold text-foreground">Frequently asked</h3>
                   {faqs.map((faq, index) => (
-                    <div key={index} className="overflow-hidden rounded-lg border border-neutral-200">
+                    <div key={index} className="overflow-hidden rounded-lg border border-line">
                       <button
                         type="button"
                         onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
-                        className="flex min-h-[44px] w-full items-center justify-between p-3.5 text-left text-sm font-medium text-neutral-900 hover:bg-neutral-50"
+                        className="flex min-h-[44px] w-full items-center justify-between p-3.5 text-left text-sm font-medium text-foreground hover:bg-base"
                       >
                         {faq.question}
                         {expandedFaq === index ? (
-                          <ChevronUp className="h-5 w-5 text-neutral-600" />
+                          <ChevronUp className="h-5 w-5 text-foreground-secondary" />
                         ) : (
-                          <ChevronDown className="h-5 w-5 text-neutral-600" />
+                          <ChevronDown className="h-5 w-5 text-foreground-secondary" />
                         )}
                       </button>
                       {expandedFaq === index && (
-                        <div className="px-3.5 pb-3.5 text-sm text-neutral-600">{faq.answer}</div>
+                        <div className="px-3.5 pb-3.5 text-sm text-foreground-secondary">{faq.answer}</div>
                       )}
                     </div>
                   ))}
@@ -863,18 +863,18 @@ export function ExperienceDetailClient({
               )}
             </section>
 
-            <section id="details" className="scroll-mt-28 rounded-2xl border border-neutral-200 p-5">
-              <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">What to expect</h2>
+            <section id="details" className="scroll-mt-28 rounded-2xl border border-line p-5">
+              <h2 className="mb-3 font-heading text-lg font-bold text-foreground">What to expect</h2>
               <CollapsibleText
                 text={venture.longDescription ?? venture.description}
                 limit={225}
                 id="venture-description"
-                className="mb-4 text-sm leading-relaxed text-neutral-600"
+                className="mb-4 text-sm leading-relaxed text-foreground-secondary"
               />
 
               {venture.itinerary.length > 0 && (
                 <div className="mb-4">
-                  <h3 className="mb-3 text-sm font-semibold text-neutral-900">Itinerary</h3>                  <ol className="relative ml-3 space-y-4 border-l-[3px] border-neutral-200 pl-6">
+                  <h3 className="mb-3 text-sm font-semibold text-foreground">Itinerary</h3>                  <ol className="relative ml-3 space-y-4 border-l-[3px] border-line pl-6">
                     {venture.itinerary.map((item, index) => {
                       const step = itineraryStepDisplay(item.activity);
                       return (
@@ -886,7 +886,7 @@ export function ExperienceDetailClient({
                             {index + 1}
                           </span>
                           {(item.durationMinutes || item.duration) && (
-                            <p className="text-xs font-semibold text-neutral-500">
+                            <p className="text-xs font-semibold text-foreground-muted">
                               <span className="uppercase tracking-wide">Duration:</span>{' '}
                               <span className="tabular-nums">
                                 {item.duration ??
@@ -894,11 +894,11 @@ export function ExperienceDetailClient({
                               </span>
                             </p>
                           )}
-                          <p className="mt-0.5 text-sm font-semibold leading-snug text-neutral-900">
+                          <p className="mt-0.5 text-sm font-semibold leading-snug text-foreground">
                             {step.title}
                           </p>
                           {step.description && (
-                            <p className="mt-0.5 text-xs leading-relaxed text-neutral-600">
+                            <p className="mt-0.5 text-xs leading-relaxed text-foreground-secondary">
                               {step.description}
                             </p>
                           )}
@@ -907,12 +907,12 @@ export function ExperienceDetailClient({
                     })}
                   </ol>
                   {itineraryTotal !== null && (
-                    <div className="mt-4 rounded-xl bg-neutral-50 px-3.5 py-3">
-                      <p className="text-xs font-semibold text-neutral-900">
+                    <div className="mt-4 rounded-xl bg-base px-3.5 py-3">
+                      <p className="text-xs font-semibold text-foreground">
                         Total estimated duration:{' '}
                         <span className="tabular-nums">{formatDuration(itineraryTotal)}</span>
                       </p>
-                      <p className="mt-1 text-xs leading-relaxed text-neutral-500">
+                      <p className="mt-1 text-xs leading-relaxed text-foreground-muted">
                         {TRANSFER_NOTE}
                       </p>
                     </div>
@@ -922,23 +922,23 @@ export function ExperienceDetailClient({
             </section>
 
             {/* Provider card — deliberately contains no partner name or photo (AGENTS.md §9). */}
-            <section className="flex items-center gap-3 rounded-2xl border border-neutral-200 p-4">
+            <section className="flex items-center gap-3 rounded-2xl border border-line p-4">
               <span className="flex h-14 w-14 items-center justify-center rounded-full bg-neutral-900 font-heading text-sm font-bold text-white">
                 VB
               </span>
               <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 text-sm font-bold text-neutral-900">
+                <p className="flex items-center gap-1.5 text-sm font-bold text-foreground">
                   Licensed local adventure team
                   <BadgeCheck className="h-4 w-4 text-green-600" />
                 </p>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-foreground-muted">
                   Verified operator · English-speaking guides · Bali, Indonesia
                 </p>
               </div>
             </section>
 
-            <section id="reviews" className="rounded-2xl border border-neutral-200 p-5">
-              <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">Reviews</h2>
+            <section id="reviews" className="rounded-2xl border border-line p-5">
+              <h2 className="mb-3 font-heading text-lg font-bold text-foreground">Reviews</h2>
               <ReviewsSection
                 reviews={reviews}
                 average={venture.rating}
@@ -947,40 +947,40 @@ export function ExperienceDetailClient({
               />
             </section>
 
-            <section id="coverage" className="rounded-2xl border border-neutral-200 p-5">
-              <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">
+            <section id="coverage" className="rounded-2xl border border-line p-5">
+              <h2 className="mb-3 font-heading text-lg font-bold text-foreground">
                 Coverage & meeting point
               </h2>
-              <div className="flex h-32 items-center justify-center rounded-xl bg-neutral-100">
-                <MapPin className="h-10 w-10 text-neutral-300" />
+              <div className="flex h-32 items-center justify-center rounded-xl bg-inset">
+                <MapPin className="h-10 w-10 text-foreground-muted/50" />
               </div>
 
-              <div className="mt-3 rounded-xl border border-neutral-200 p-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <div className="mt-3 rounded-xl border border-line p-3">
+                <p className="text-xs font-bold uppercase tracking-wider text-foreground-muted">
                   Meeting point
                 </p>
-                <p className="mt-1 text-sm font-medium text-neutral-900">
+                <p className="mt-1 text-sm font-medium text-foreground">
                   {venture.meetingPoint?.name ?? venture.location}
                 </p>
-                <p className="mt-0.5 text-xs text-neutral-500">
+                <p className="mt-0.5 text-xs text-foreground-muted">
                   For self-drive packages · transfers are picked up at your hotel
                 </p>
                 <a
                   href={mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-1 inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-neutral-900 underline"
+                  className="mt-1 inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-foreground underline"
                 >
                   <MapPin className="h-4 w-4" /> Open in Google Maps
                 </a>
               </div>
 
-              <h3 className="mt-4 text-sm font-semibold text-neutral-900">Hotel pickup zones</h3>
+              <h3 className="mt-4 text-sm font-semibold text-foreground">Hotel pickup zones</h3>
               <ul className="mt-2 space-y-1.5">
                 {zones.map((zone) => (
                   <li key={zone.id} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="text-neutral-700">{zone.name}</span>
-                    <span className="shrink-0 text-xs font-medium text-neutral-500">
+                    <span className="text-foreground-secondary">{zone.name}</span>
+                    <span className="shrink-0 text-xs font-medium text-foreground-muted">
                       {zone.isCustomQuote
                         ? 'Custom quote'
                         : zone.surchargeIdr > 0
@@ -990,17 +990,17 @@ export function ExperienceDetailClient({
                   </li>
                 ))}
               </ul>
-              <p className="mt-2 text-xs text-neutral-500">
+              <p className="mt-2 text-xs text-foreground-muted">
                 Pickup is available on Shared and Private transfer packages. Choose your area in the
                 booking sheet.
               </p>
             </section>
 
-            <section className="rounded-2xl border border-neutral-200 p-5">
-              <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">
+            <section className="rounded-2xl border border-line p-5">
+              <h2 className="mb-3 font-heading text-lg font-bold text-foreground">
                 Terms & cancellation
               </h2>
-              <ul className="space-y-1.5 text-sm text-neutral-700">
+              <ul className="space-y-1.5 text-sm text-foreground-secondary">
                 <li>• {CANCELLATION.percentage}% refund when cancelling at least 24 hours before the activity.</li>
                 <li>• Cancellation inside 24 hours is not possible.</li>
                 <li>• Reschedule is free at least 24 hours before.</li>
@@ -1022,7 +1022,7 @@ export function ExperienceDetailClient({
 
       {related.length > 0 && (
         <section id="related" className="mx-auto max-w-7xl px-4 pb-10 pt-2">
-          <h2 className="font-heading text-lg font-bold text-neutral-900">
+          <h2 className="font-heading text-lg font-bold text-foreground">
             More adventures to explore
           </h2>
           <div
@@ -1045,17 +1045,17 @@ export function ExperienceDetailClient({
 
       {/* Mobile sticky CTA — the only price/CTA source on phones. */}
       <div
-        className="fixed inset-x-0 z-40 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden"
+        className="fixed inset-x-0 z-40 border-t border-line bg-surface px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden"
         style={{ bottom: 'var(--cookie-consent-height, 0px)' }}
       >
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <span className="block truncate text-xs text-neutral-500">
+            <span className="block truncate text-xs text-foreground-muted">
               {selectedVariant?.title ?? 'From'}
             </span>
-            <span className="font-heading text-lg font-bold tabular-nums text-neutral-900">
+            <span className="font-heading text-lg font-bold tabular-nums text-foreground">
               {formatPrice(selectedPrice)}
-              <span className="text-xs font-normal text-neutral-500"> /guest</span>
+              <span className="text-xs font-normal text-foreground-muted"> /guest</span>
             </span>
           </div>
           <button

@@ -3,8 +3,8 @@ import { CardSkeleton, Skeleton } from '@/components/ui';
 /** Route-level skeleton: shows the hero and card shells while the catalogue loads. */
 export default function HomeLoading() {
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-40 h-[57px] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.08)]" />
+    <main className="min-h-screen bg-base">
+      <div className="sticky top-0 z-40 h-[57px] bg-surface shadow-[0_2px_10px_rgba(0,0,0,0.08)]" />
 
       <div className="bg-brand-ink">
         <div className="container mx-auto space-y-3 px-4 pt-10 sm:pt-16">

@@ -79,7 +79,7 @@ export function InstallPrompt() {
         <button
           type="button"
           onClick={install}
-          className="min-h-[44px] rounded-lg bg-white px-4 text-sm font-semibold text-neutral-900"
+          className="min-h-[44px] rounded-lg bg-surface px-4 text-sm font-semibold text-foreground"
         >
           Install
         </button>

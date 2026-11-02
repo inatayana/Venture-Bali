@@ -36,7 +36,7 @@ export default async function AdminLoginPage() {
           <p className="mt-1 text-sm text-white/50">Operator Panel</p>
         </div>
 
-        <div className="rounded-xl bg-white p-6 text-neutral-900 shadow-2xl">
+        <div className="rounded-xl bg-surface p-6 text-foreground shadow-2xl">
           <AdminLoginForm />
         </div>
 

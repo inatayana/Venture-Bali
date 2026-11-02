@@ -112,7 +112,7 @@ export function VariantCatalogCard({
               </span>
             )}
             {inclusions.length > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 font-medium text-green-700">
+              <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 font-medium text-success">
                 <Check className="h-3.5 w-3.5" />
                 {inclusions.length} included
               </span>

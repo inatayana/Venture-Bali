@@ -48,8 +48,8 @@ export function AdminSidebar() {
   };
 
   return (
-    <aside className="w-56 shrink-0 border-r border-gray-200 bg-white min-h-screen hidden lg:flex lg:flex-col">
-      <div className="border-b border-gray-200 bg-brand-ink p-5 text-white">
+    <aside className="w-56 shrink-0 border-r border-line bg-surface min-h-screen hidden lg:flex lg:flex-col">
+      <div className="border-b border-line bg-brand-ink p-5 text-white">
         <BrandWordmark className="text-xl" />
         <p className="mt-1 text-xs text-white/50">Operator Panel</p>
       </div>
@@ -70,7 +70,7 @@ export function AdminSidebar() {
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px]',
                 active
                   ? 'bg-brand text-brand-ink'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  : 'text-foreground-secondary hover:bg-base'
               )}
             >
               <Icon className="w-4 h-4" />
@@ -80,10 +80,10 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      <div className="p-3 border-t border-gray-200 space-y-1">
+      <div className="p-3 border-t border-line space-y-1">
         <Link
           href="/"
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-50"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground-muted hover:bg-base"
         >
           <ExternalLink className="w-4 h-4" />
           View public site
@@ -92,7 +92,7 @@ export function AdminSidebar() {
           type="button"
           onClick={handleSignOut}
           disabled={isSigningOut}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-50 disabled:opacity-60 min-h-[44px]"
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground-muted hover:bg-base disabled:opacity-60 min-h-[44px]"
         >
           <LogOut className="w-4 h-4" />
           {isSigningOut ? 'Signing out…' : 'Sign out'}

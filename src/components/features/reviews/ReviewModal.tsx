@@ -194,18 +194,18 @@ export function ReviewModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="reviews-modal-title"
-        className="relative flex max-h-[92vh] w-full animate-slide-up flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:max-w-2xl sm:animate-fade-in sm:rounded-3xl"
+        className="relative flex max-h-[92vh] w-full animate-slide-up flex-col overflow-hidden rounded-t-3xl bg-surface shadow-2xl sm:max-w-2xl sm:animate-fade-in sm:rounded-3xl"
       >
-        <div className="flex items-start gap-4 border-b border-neutral-100 p-5 sm:p-6">
+        <div className="flex items-start gap-4 border-b border-line p-5 sm:p-6">
           <div className="min-w-0">
             <div className="flex items-baseline gap-2">
               <span
                 id="reviews-modal-title"
-                className="font-heading text-3xl font-bold tabular-nums text-neutral-900"
+                className="font-heading text-3xl font-bold tabular-nums text-foreground"
               >
                 {average.toFixed(1)}
               </span>
-              <span className="text-sm text-neutral-500">
+              <span className="text-sm text-foreground-muted">
                 · {count} review{count === 1 ? '' : 's'}
               </span>
             </div>
@@ -215,7 +215,7 @@ export function ReviewModal({
                   key={index}
                   className={cn(
                     'h-4 w-4',
-                    index < Math.round(average) ? 'fill-brand text-brand' : 'text-neutral-200'
+                    index < Math.round(average) ? 'fill-brand text-brand' : 'text-line'
                   )}
                 />
               ))}
@@ -223,9 +223,9 @@ export function ReviewModal({
 
             <div className="mt-3 space-y-1">
               {histogram.map(({ stars, percent }) => (
-                <div key={stars} className="flex items-center gap-2 text-xs text-neutral-500">
+                <div key={stars} className="flex items-center gap-2 text-xs text-foreground-muted">
                   <span className="w-5 tabular-nums">{stars}</span>
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
                     <div className="h-full bg-brand" style={{ width: `${percent}%` }} />
                   </div>
                   <span className="w-8 text-right tabular-nums">{percent}%</span>
@@ -239,15 +239,15 @@ export function ReviewModal({
             type="button"
             onClick={onClose}
             aria-label="Close reviews"
-            className="ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-neutral-600 transition-colors hover:bg-neutral-100"
+            className="ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground-secondary transition-colors hover:bg-inset"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="space-y-3 border-b border-neutral-100 p-4 sm:px-6">
-          <label className="flex items-center gap-2 rounded-xl border border-neutral-200 px-3">
-            <Search className="h-4 w-4 shrink-0 text-neutral-600" aria-hidden="true" />
+        <div className="space-y-3 border-b border-line p-4 sm:px-6">
+          <label className="flex items-center gap-2 rounded-xl border border-line px-3">
+            <Search className="h-4 w-4 shrink-0 text-foreground-secondary" aria-hidden="true" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -268,7 +268,7 @@ export function ReviewModal({
                   'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
                   sort === option.value
                     ? 'border-brand-ink bg-brand-ink text-brand'
-                    : 'border-neutral-200 text-neutral-700 hover:border-neutral-400'
+                    : 'border-line text-foreground-secondary hover:border-line-control'
                 )}
               >
                 {option.label}
@@ -282,20 +282,20 @@ export function ReviewModal({
           aria-busy={loading}
         >
           {loading && (
-            <p className="mb-3 flex items-center gap-2 text-xs font-medium text-neutral-500">
+            <p className="mb-3 flex items-center gap-2 text-xs font-medium text-foreground-muted">
               <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
               Loading reviews…
             </p>
           )}
 
           {feedError && ventureId && (
-            <p className="mb-3 rounded-lg bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
+            <p className="mb-3 rounded-lg bg-base px-3 py-2 text-xs text-foreground-secondary">
               Live reviews could not load. Showing the reviews already on this page.
             </p>
           )}
 
           {!loading && visible.length === 0 ? (
-            <p className="py-10 text-center text-sm text-neutral-500">
+            <p className="py-10 text-center text-sm text-foreground-muted">
               No reviews match “{query}”.
             </p>
           ) : (
@@ -311,7 +311,7 @@ export function ReviewModal({
               type="button"
               onClick={loadMore}
               disabled={loadingMore}
-              className="mt-5 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition-colors hover:border-neutral-900 disabled:opacity-60"
+              className="mt-5 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-line-strong px-4 text-sm font-semibold text-foreground transition-colors hover:border-line-control disabled:opacity-60"
             >
               {loadingMore && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
               {loadingMore

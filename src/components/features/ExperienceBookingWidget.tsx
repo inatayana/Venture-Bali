@@ -297,13 +297,13 @@ export function ExperienceBookingWidget({
                     ? 'bg-brand'
                     : progressStep.done
                       ? 'bg-brand-ink'
-                      : 'bg-neutral-200'
+                      : 'bg-line'
                 )}
               />
               <span
                 className={cn(
                   'mt-1 block text-xs font-semibold uppercase tracking-wide',
-                  isCurrent || progressStep.done ? 'text-neutral-900' : 'text-neutral-600'
+                  isCurrent || progressStep.done ? 'text-foreground' : 'text-foreground-secondary'
                 )}
               >
                 {progressStep.label}
@@ -314,10 +314,10 @@ export function ExperienceBookingWidget({
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-heading text-base font-bold text-neutral-900">
+        <h2 className="font-heading text-base font-bold text-foreground">
           {step === 'plan' ? 'Plan your trip' : 'Guest details & pay'}
         </h2>
-        <span className="shrink-0 text-xs font-medium text-neutral-500">
+        <span className="shrink-0 text-xs font-medium text-foreground-muted">
           Step {stepIndex + 1} of 2
         </span>
       </div>
@@ -327,10 +327,10 @@ export function ExperienceBookingWidget({
 
       {/* 1 · Guest counter */}
       <section>
-        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-foreground-muted">
           <Users className="h-4 w-4" /> 1 · Guests
         </h3>
-        <div className="rounded-xl border border-neutral-200 p-4">
+        <div className="rounded-xl border border-line p-4">
           <Stepper
             label="Participants"
             value={config.adults}
@@ -338,7 +338,7 @@ export function ExperienceBookingWidget({
             max={maxGuests}
             onChange={(value) => onChange({ adults: value })}
           />
-          <p className="mt-2 text-xs text-neutral-500">
+          <p className="mt-2 text-xs text-foreground-muted">
             {guestCountTouched ? `${config.adults} guests` : `Price is shown per guest · up to ${maxGuests} guests`}
           </p>
         </div>
@@ -346,7 +346,7 @@ export function ExperienceBookingWidget({
 
       {/* 2 · Mini calendar */}
       <section>
-        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-foreground-muted">
           <CalendarDays className="h-4 w-4" /> 2 · Date
         </h3>
         <div className="mb-3 flex gap-2">
@@ -362,8 +362,8 @@ export function ExperienceBookingWidget({
                 className={cn(
                   'min-h-[44px] rounded-lg border-2 px-4 text-sm font-medium transition-colors',
                   active
-                    ? 'border-neutral-900 bg-neutral-900 text-white dark:border-brand dark:bg-brand dark:text-brand-ink'
-                    : 'border-neutral-200 text-neutral-600 hover:border-neutral-400'
+                    ? 'border-line-control bg-neutral-900 text-white dark:border-brand dark:bg-brand dark:text-brand-ink'
+                    : 'border-line text-foreground-secondary hover:border-line-control'
                 )}
               >
                 {quick.label}
@@ -371,7 +371,7 @@ export function ExperienceBookingWidget({
             );
           })}
         </div>
-        <div className="rounded-xl border border-neutral-200 p-3">
+        <div className="rounded-xl border border-line p-3">
           <CalendarComponent
             selectedDate={config.date}
             onDateSelect={(date) => onChange({ date, slot: null })}
@@ -380,20 +380,20 @@ export function ExperienceBookingWidget({
           />
         </div>
         {dateBlocked && (
-          <p className="mt-2 text-sm text-red-600">This date is not available. Please pick another day.</p>
+          <p className="mt-2 text-sm text-danger">This date is not available. Please pick another day.</p>
         )}
       </section>
 
       {/* 3 · Departure slots */}
       <section>
-        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-foreground-muted">
           <Clock className="h-4 w-4" /> 3 · Departure time
         </h3>
         {!config.date && (
-          <p className="text-sm text-neutral-600">Pick a date to see available times</p>
+          <p className="text-sm text-foreground-secondary">Pick a date to see available times</p>
         )}
         {config.date && slotOptions.length === 0 && (
-          <p className="text-sm text-neutral-500">No departures left for this date. Try another day.</p>
+          <p className="text-sm text-foreground-muted">No departures left for this date. Try another day.</p>
         )}
         {slotOptions.length > 0 && (
           <div className="flex flex-wrap gap-2">
@@ -411,7 +411,7 @@ export function ExperienceBookingWidget({
         )}
         {parseSlotHour(config.slot?.time) !== null &&
           (parseSlotHour(config.slot?.time) as number) >= NIGHT_SURCHARGE_FROM_HOUR && (
-            <p className="mt-2 text-xs text-neutral-500">
+            <p className="mt-2 text-xs text-foreground-muted">
               Evening departure · +{formatPrice(50_000)} per guest applies
             </p>
           )}
@@ -420,22 +420,22 @@ export function ExperienceBookingWidget({
       {/* 4 · Pickup details (conditional) */}
       {needsPickup && (
         <section id="pickup-step" className="scroll-mt-24">
-          <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+          <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-foreground-muted">
             <MapPin className="h-4 w-4" /> 4 · Pickup
           </h3>
-          <div className="space-y-3 rounded-xl border border-neutral-200 p-4">
+          <div className="space-y-3 rounded-xl border border-line p-4">
             <div>
-              <span className="mb-1.5 block text-xs font-medium text-neutral-500">
+              <span className="mb-1.5 block text-xs font-medium text-foreground-muted">
                 Pickup area
               </span>
 
               {zoneLocked && lockedZone ? (
-                <div className="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5">
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-base px-3 py-2.5">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-neutral-900">
+                    <p className="truncate text-sm font-semibold text-foreground">
                       {lockedZone.name}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-foreground-muted">
                       {lockedZone.isCustomQuote
                         ? 'Custom quote — confirmed by WhatsApp'
                         : lockedZone.surchargeIdr > 0
@@ -446,7 +446,7 @@ export function ExperienceBookingWidget({
                   <button
                     type="button"
                     onClick={() => setZoneOverride(true)}
-                    className="min-h-[44px] shrink-0 text-sm font-semibold text-neutral-900 underline"
+                    className="min-h-[44px] shrink-0 text-sm font-semibold text-foreground underline"
                   >
                     Change
                   </button>
@@ -456,7 +456,7 @@ export function ExperienceBookingWidget({
                   id="pickup-zone"
                   value={config.zoneId ?? ''}
                   onChange={(event) => onChange({ zoneId: event.target.value })}
-                  className="min-h-[44px] w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900"
+                  className="min-h-[44px] w-full rounded-lg border border-line-strong bg-surface px-3 text-sm text-foreground"
                 >
                   <option value="" disabled>
                     Select your area…
@@ -476,7 +476,7 @@ export function ExperienceBookingWidget({
             </div>
 
             <div>
-              <label htmlFor="hotel-address" className="mb-1.5 block text-xs font-medium text-neutral-500">
+              <label htmlFor="hotel-address" className="mb-1.5 block text-xs font-medium text-foreground-muted">
                 Hotel or villa address
               </label>
               <input
@@ -486,14 +486,14 @@ export function ExperienceBookingWidget({
                 disabled={config.isTba}
                 onChange={(event) => onChange({ hotelAddress: event.target.value })}
                 placeholder={config.isTba ? 'To be confirmed by H-1' : 'e.g. Villa Melati, Jl. Raya Seminyak'}
-                className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900 disabled:bg-neutral-100 disabled:text-neutral-600"
+                className="min-h-[44px] w-full rounded-lg border border-line-strong px-3 text-sm outline-none focus:border-line-control disabled:bg-inset disabled:text-foreground-secondary"
               />
-              <label className="mt-2 flex min-h-[44px] items-center gap-2 text-sm text-neutral-700">
+              <label className="mt-2 flex min-h-[44px] items-center gap-2 text-sm text-foreground-secondary">
                 <input
                   type="checkbox"
                   checked={config.isTba}
                   onChange={(event) => onChange({ isTba: event.target.checked })}
-                  className="h-5 w-5 rounded border-neutral-300"
+                  className="h-5 w-5 rounded border-line-strong"
                 />
                 Address TBA — I&apos;ll confirm by H-1
               </label>
@@ -501,7 +501,7 @@ export function ExperienceBookingWidget({
 
             {needsVehicle && (
               <div>
-                <span className="mb-2 block text-xs font-medium text-neutral-500">Vehicle class</span>
+                <span className="mb-2 block text-xs font-medium text-foreground-muted">Vehicle class</span>
                 <div className="space-y-2">
                   {vehicleClasses.map((item) => {
                     const active = config.vehicleClassType === item.name;
@@ -512,16 +512,16 @@ export function ExperienceBookingWidget({
                         onClick={() => onChange({ vehicleClassType: item.name })}
                         className={cn(
                           'flex min-h-[44px] w-full items-center justify-between rounded-lg border-2 px-3 py-2 text-left transition-colors',
-                          active ? 'border-neutral-900 bg-neutral-50 dark:border-brand dark:bg-brand/20' : 'border-neutral-200 hover:border-neutral-400'
+                          active ? 'border-line-control bg-base dark:border-brand dark:bg-brand/20' : 'border-line hover:border-line-control'
                         )}
                       >
                         <span>
-                          <span className="block text-sm font-semibold text-neutral-900">{item.label}</span>
-                          <span className="text-xs text-neutral-500">
+                          <span className="block text-sm font-semibold text-foreground">{item.label}</span>
+                          <span className="text-xs text-foreground-muted">
                             {item.description ?? `Up to ${item.vehicleMaxPax} guests`}
                           </span>
                         </span>
-                        <span className="text-sm font-semibold tabular-nums text-neutral-900">
+                        <span className="text-sm font-semibold tabular-nums text-foreground">
                           {item.deltaIdr > 0 ? `+${formatPrice(item.deltaIdr)}` : 'Included'}
                         </span>
                       </button>
@@ -533,8 +533,8 @@ export function ExperienceBookingWidget({
           </div>
 
           {(config.zoneId || config.hotelAddress.trim() || config.isTba) && (
-            <div className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-neutral-50 px-3 py-2">
-              <span className="min-w-0 truncate text-sm text-neutral-700">
+            <div className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-base px-3 py-2">
+              <span className="min-w-0 truncate text-sm text-foreground-secondary">
                 <strong className="font-semibold">Pickup</strong> ·{' '}
                 {zone?.name ?? 'area not selected'} ·{' '}
                 {config.isTba ? 'address TBA by H-1' : config.hotelAddress || 'add an address'}
@@ -549,7 +549,7 @@ export function ExperienceBookingWidget({
                   document.getElementById('pickup-step')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   document.getElementById('pickup-zone')?.focus();
                 }}
-                className="min-h-[44px] shrink-0 text-sm font-semibold text-neutral-900 underline"
+                className="min-h-[44px] shrink-0 text-sm font-semibold text-foreground underline"
               >
                 Change
               </button>
@@ -568,14 +568,14 @@ export function ExperienceBookingWidget({
       {/* Self-drive: show the exact base-camp meeting point */}
       {!needsPickup && (
         <section>
-          <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+          <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-foreground-muted">
             <MapPin className="h-4 w-4" /> 4 · Meeting point
           </h3>
-          <div className="rounded-xl border border-neutral-200 p-4">
-            <p className="text-sm font-semibold text-neutral-900">
+          <div className="rounded-xl border border-line p-4">
+            <p className="text-sm font-semibold text-foreground">
               {venture.meetingPoint?.name ?? venture.location}
             </p>
-            <p className="mt-0.5 text-xs text-neutral-500">
+            <p className="mt-0.5 text-xs text-foreground-muted">
               Make your own way here · arrive 15 minutes before departure
             </p>
             {venture.meetingPoint && (
@@ -583,7 +583,7 @@ export function ExperienceBookingWidget({
                 href={`https://www.google.com/maps/search/?api=1&query=${venture.meetingPoint.latitude},${venture.meetingPoint.longitude}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-neutral-900 underline"
+                className="mt-2 inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-foreground underline"
               >
                 <MapPin className="h-4 w-4" /> Open in Google Maps
               </a>
@@ -594,18 +594,18 @@ export function ExperienceBookingWidget({
 
       {/* 5 · Coupon */}
       <section>
-        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+        <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-foreground-muted">
           <Tag className="h-4 w-4" /> Promo code
         </h3>
         {appliedCoupon ? (
-          <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50 px-3 py-2.5">
-            <span className="text-sm text-green-800">
+          <div className="flex items-center justify-between rounded-xl border border-green-200 bg-success/10 px-3 py-2.5">
+            <span className="text-sm text-success">
               <strong>{appliedCoupon.code}</strong> applied · −{appliedCoupon.discountPercent}%
             </span>
             <button
               type="button"
               onClick={removeCoupon}
-              className="min-h-[44px] px-2 text-sm font-medium text-green-800 underline"
+              className="min-h-[44px] px-2 text-sm font-medium text-success underline"
             >
               Remove
             </button>
@@ -617,19 +617,19 @@ export function ExperienceBookingWidget({
               value={couponInput}
               onChange={(event) => setCouponInput(event.target.value.toUpperCase())}
               placeholder="Enter code"
-              className="min-h-[44px] flex-1 rounded-lg border border-neutral-300 px-3 text-sm uppercase outline-none focus:border-neutral-900"
+              className="min-h-[44px] flex-1 rounded-lg border border-line-strong px-3 text-sm uppercase outline-none focus:border-line-control"
             />
             <button
               type="button"
               onClick={applyCoupon}
               disabled={couponLoading || couponInput.trim().length < 3}
-              className="min-h-[44px] rounded-lg border-2 border-neutral-900 px-4 text-sm font-semibold text-neutral-900 disabled:border-neutral-200 disabled:text-neutral-600"
+              className="min-h-[44px] rounded-lg border-2 border-line-control px-4 text-sm font-semibold text-foreground disabled:border-line disabled:text-foreground-secondary"
             >
               {couponLoading ? '…' : 'Apply'}
             </button>
           </div>
         )}
-        {couponError && <p className="mt-2 text-sm text-red-600">{couponError}</p>}
+        {couponError && <p className="mt-2 text-sm text-danger">{couponError}</p>}
       </section>
 
       {/* 6 · Add-ons */}
@@ -646,24 +646,24 @@ export function ExperienceBookingWidget({
           {/* Step 2 · recap of the plan, editable without losing guest details */}
           <section
             aria-label="Your trip"
-            className="rounded-xl border border-neutral-200 bg-neutral-50 p-4"
+            className="rounded-xl border border-line bg-base p-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
                   Your trip
                 </p>
-                <p className="text-sm font-semibold text-neutral-900">
+                <p className="text-sm font-semibold text-foreground">
                   {config.date ? formatTripDate(config.date) : 'Date not set'}
                   {config.slot ? ` · ${config.slot.time}` : ''}
                 </p>
-                <p className="text-sm text-neutral-700">
+                <p className="text-sm text-foreground-secondary">
                   {config.adults} {config.adults === 1 ? 'guest' : 'guests'}
                   {selectedAddons.length > 0
                     ? ` · ${selectedAddons.map((addon) => addon.name).join(', ')}`
                     : ''}
                 </p>
-                <p className="text-sm text-neutral-700">
+                <p className="text-sm text-foreground-secondary">
                   {needsPickup
                     ? `Pickup · ${zone?.name ?? 'area not selected'}${
                         config.isTba
@@ -675,7 +675,7 @@ export function ExperienceBookingWidget({
                     : `Meeting point · ${venture.meetingPoint?.name ?? venture.location}`}
                 </p>
                 {appliedCoupon && (
-                  <p className="text-xs font-medium text-green-700">
+                  <p className="text-xs font-medium text-success">
                     Coupon {appliedCoupon.code} · −{appliedCoupon.discountPercent}%
                   </p>
                 )}
@@ -683,7 +683,7 @@ export function ExperienceBookingWidget({
               <button
                 type="button"
                 onClick={() => setStep('plan')}
-                className="min-h-[44px] shrink-0 text-sm font-semibold text-neutral-900 underline underline-offset-4"
+                className="min-h-[44px] shrink-0 text-sm font-semibold text-foreground underline underline-offset-4"
               >
                 Edit
               </button>
@@ -692,13 +692,13 @@ export function ExperienceBookingWidget({
 
           {/* Lead traveller + legal acceptance */}
           <section>
-            <h3 className="mb-3 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
+            <h3 className="mb-3 font-heading text-xs font-bold uppercase tracking-wider text-foreground-muted">
               Lead traveller
             </h3>
-        <div className="space-y-2.5 rounded-xl border border-neutral-200 p-4">
+        <div className="space-y-2.5 rounded-xl border border-line p-4">
           <input
             aria-label="Full name"
-            className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+            className="min-h-[44px] w-full rounded-lg border border-line-strong px-3 text-sm outline-none focus:border-line-control"
             onChange={(event) => onChange({ customerName: event.target.value })}
             placeholder="Full name"
             type="text"
@@ -706,21 +706,21 @@ export function ExperienceBookingWidget({
           />
           <input
             aria-label="Email address"
-            className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+            className="min-h-[44px] w-full rounded-lg border border-line-strong px-3 text-sm outline-none focus:border-line-control"
             onChange={(event) => onChange({ customerEmail: event.target.value })}
             placeholder="Email for the e-voucher"
             type="email"
             value={config.customerEmail}
           />
           <div>
-            <label htmlFor="guest-country" className="mb-1.5 block text-xs font-medium text-neutral-500">
+            <label htmlFor="guest-country" className="mb-1.5 block text-xs font-medium text-foreground-muted">
               Country
             </label>
             <select
               id="guest-country"
               value={config.countryCode}
               onChange={(event) => onChange({ countryCode: event.target.value })}
-              className="min-h-[44px] w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+              className="min-h-[44px] w-full rounded-lg border border-line-strong bg-surface px-3 text-sm text-foreground outline-none focus:border-line-control"
             >
               {COUNTRIES.map((country) => (
                 <option key={country.code} value={country.code}>
@@ -731,17 +731,17 @@ export function ExperienceBookingWidget({
           </div>
 
           <div>
-            <label htmlFor="guest-whatsapp" className="mb-1.5 block text-xs font-medium text-neutral-500">
+            <label htmlFor="guest-whatsapp" className="mb-1.5 block text-xs font-medium text-foreground-muted">
               WhatsApp number
             </label>
             <div className="flex">
-              <span className="flex min-h-[44px] items-center rounded-l-lg border border-r-0 border-neutral-300 bg-neutral-50 px-3 text-sm font-medium text-neutral-700">
+              <span className="flex min-h-[44px] items-center rounded-l-lg border border-r-0 border-line-strong bg-base px-3 text-sm font-medium text-foreground-secondary">
                 +{dialCode}
               </span>
               <input
                 id="guest-whatsapp"
                 aria-label="WhatsApp number"
-                className="min-h-[44px] w-full rounded-r-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
+                className="min-h-[44px] w-full rounded-r-lg border border-line-strong px-3 text-sm outline-none focus:border-line-control"
                 inputMode="tel"
                 onChange={(event) => onChange({ customerWhatsApp: event.target.value })}
                 placeholder="812 3456 7890"
@@ -749,22 +749,22 @@ export function ExperienceBookingWidget({
                 value={config.customerWhatsApp}
               />
             </div>
-            <p className="mt-1 text-xs text-neutral-500">
+            <p className="mt-1 text-xs text-foreground-muted">
               Used for pickup coordination and your e-voucher.
             </p>
           </div>
         </div>
 
-        <div className="mt-3 space-y-1 border-t border-neutral-100 pt-3">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+        <div className="mt-3 space-y-1 border-t border-line pt-3">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-foreground-muted">
             Before you pay
           </p>
-          <label className="flex min-h-[44px] items-start gap-2 text-sm text-neutral-700">
+          <label className="flex min-h-[44px] items-start gap-2 text-sm text-foreground-secondary">
             <input
               type="checkbox"
               checked={config.termsAccepted}
               onChange={(event) => onChange({ termsAccepted: event.target.checked })}
-              className="mt-0.5 h-5 w-5 shrink-0 rounded border-neutral-300"
+              className="mt-0.5 h-5 w-5 shrink-0 rounded border-line-strong"
             />
             <span>
               I accept the{' '}
@@ -774,12 +774,12 @@ export function ExperienceBookingWidget({
               , including the cancellation and no-show policy.
             </span>
           </label>
-          <label className="flex min-h-[44px] items-start gap-2 text-sm text-neutral-700">
+          <label className="flex min-h-[44px] items-start gap-2 text-sm text-foreground-secondary">
             <input
               type="checkbox"
               checked={config.waiverAccepted}
               onChange={(event) => onChange({ waiverAccepted: event.target.checked })}
-              className="mt-0.5 h-5 w-5 shrink-0 rounded border-neutral-300"
+              className="mt-0.5 h-5 w-5 shrink-0 rounded border-line-strong"
             />
             <span>
               I accept the{' '}
@@ -795,9 +795,9 @@ export function ExperienceBookingWidget({
       )}
 
       {/* Sticky summary + step action */}
-      <div className="sticky bottom-0 -mx-4 -mb-4 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
+      <div className="sticky bottom-0 -mx-4 -mb-4 border-t border-line bg-surface px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
         <div className="mb-2 space-y-1 text-sm">
-          <div className="flex justify-between text-neutral-600">
+          <div className="flex justify-between text-foreground-secondary">
             <span>
               {config.adults} × {formatPrice(quote.unitPricePerPaxIdr)}
               {quote.promoActive && (
@@ -807,25 +807,25 @@ export function ExperienceBookingWidget({
             <span className="tabular-nums">{formatPrice(quote.subtotalIdr)}</span>
           </div>
           {quote.discountIdr > 0 && (
-            <div className="flex justify-between text-green-700">
+            <div className="flex justify-between text-success">
               <span>Discount {appliedCoupon ? `(${appliedCoupon.code})` : '(promo price)'}</span>
               <span className="tabular-nums">−{formatPrice(quote.discountIdr)}</span>
             </div>
           )}
           {quote.minimumTopUpIdr > 0 && (
-            <div className="flex justify-between text-neutral-600">
+            <div className="flex justify-between text-foreground-secondary">
               <span>Minimum spend top-up</span>
               <span className="tabular-nums">{formatPrice(quote.minimumTopUpIdr)}</span>
             </div>
           )}
           {quote.nightSurchargeIdr > 0 && (
-            <div className="flex justify-between text-neutral-600">
+            <div className="flex justify-between text-foreground-secondary">
               <span>Evening surcharge</span>
               <span className="tabular-nums">{formatPrice(quote.nightSurchargeIdr)}</span>
             </div>
           )}
           {quote.transfer.totalFeeIdr > 0 && (
-            <div className="flex justify-between text-neutral-600">
+            <div className="flex justify-between text-foreground-secondary">
               <span>
                 {fulfillmentMode === 'SHARED_TRANSFER'
                   ? 'Shared shuttle · per guest'
@@ -835,15 +835,15 @@ export function ExperienceBookingWidget({
             </div>
           )}
           {quote.addonsTotalIdr > 0 && (
-            <div className="flex justify-between text-neutral-600">
+            <div className="flex justify-between text-foreground-secondary">
               <span>Add-ons</span>
               <span className="tabular-nums">{formatPrice(quote.addonsTotalIdr)}</span>
             </div>
           )}
-          <div className="flex items-center justify-between border-t border-neutral-100 pt-1.5">
-            <span className="text-sm font-medium text-neutral-900">Total</span>
+          <div className="flex items-center justify-between border-t border-line pt-1.5">
+            <span className="text-sm font-medium text-foreground">Total</span>
             <span className="text-right">
-              <span className="block font-heading text-xl font-bold tabular-nums text-neutral-900">
+              <span className="block font-heading text-xl font-bold tabular-nums text-foreground">
                 {formatPrice(quote.totalPriceIdr)}
               </span>
               <PriceApprox amountIdr={quote.totalPriceIdr} className="text-xs" />
@@ -860,7 +860,7 @@ export function ExperienceBookingWidget({
             disabled={!planReady}
             fullWidth
             size="lg"
-            className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500"
+            className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-foreground-muted"
           >
             Continue
           </Button>
@@ -883,7 +883,7 @@ export function ExperienceBookingWidget({
               disabled={!planReady || !detailsReady || isBooking}
               fullWidth
               size="lg"
-              className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500"
+              className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-foreground-muted"
             >
               {isBooking ? 'Processing…' : 'Continue to payment'}
             </Button>
@@ -891,10 +891,10 @@ export function ExperienceBookingWidget({
         )}
 
         {!((step === 'plan' && planReady) || (step === 'details' && detailsReady)) && (
-          <p className="mt-1.5 text-center text-xs text-neutral-500">{missing[0]}</p>
+          <p className="mt-1.5 text-center text-xs text-foreground-muted">{missing[0]}</p>
         )}
 
-        <p className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-neutral-500">
+        <p className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-foreground-muted">
           <span className="inline-flex items-center gap-1">
             <Shield className="h-3 w-3" aria-hidden="true" /> 80% refund ≥24h
           </span>

@@ -41,7 +41,7 @@ export function AdminLoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div>
-        <label htmlFor="admin-email" className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label htmlFor="admin-email" className="block text-sm font-medium text-foreground-secondary mb-1.5">
           Email
         </label>
         <input
@@ -51,13 +51,13 @@ export function AdminLoginForm() {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+          className="w-full px-3 py-2.5 border border-line-strong rounded-lg text-sm outline-none focus:border-brand-ink"
           placeholder="operator@baliwild.com"
         />
       </div>
 
       <div>
-        <label htmlFor="admin-password" className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label htmlFor="admin-password" className="block text-sm font-medium text-foreground-secondary mb-1.5">
           Password
         </label>
         <input
@@ -67,13 +67,13 @@ export function AdminLoginForm() {
           required
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+          className="w-full px-3 py-2.5 border border-line-strong rounded-lg text-sm outline-none focus:border-brand-ink"
           placeholder="••••••••"
         />
       </div>
 
       {error && (
-        <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+        <p role="alert" className="text-sm text-danger bg-danger/10 border border-red-100 rounded-lg px-3 py-2">
           {error}
         </p>
       )}

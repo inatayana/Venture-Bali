@@ -28,10 +28,10 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
     process.env.NODE_ENV === 'development' && error.message ? error.message : null;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-16">
+    <main className="flex min-h-screen items-center justify-center bg-base px-4 py-16">
       <div className="w-full max-w-lg text-center">
         <Link href="/" aria-label="BaliWild home" className="inline-flex">
-          <BrandWordmark className="text-2xl text-brand-ink" />
+          <BrandWordmark className="text-2xl text-foreground" />
         </Link>
 
         <div className="mt-8 flex justify-center">
@@ -40,23 +40,23 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           </span>
         </div>
 
-        <h1 className="mt-4 font-heading text-3xl font-bold uppercase tracking-wide text-gray-900">
+        <h1 className="mt-4 font-heading text-3xl font-bold uppercase tracking-wide text-foreground">
           Something went off the trail
         </h1>
-        <p className="mt-3 text-sm leading-relaxed text-gray-600">
+        <p className="mt-3 text-sm leading-relaxed text-foreground-secondary">
           This page could not load. Your booking data is safe. Try again, or contact support if it
           keeps happening.
         </p>
 
         {detail && (
-          <p className="mt-3 rounded-lg bg-white px-3 py-2 text-left text-xs text-gray-500 ring-1 ring-gray-200">
+          <p className="mt-3 rounded-lg bg-surface px-3 py-2 text-left text-xs text-foreground-muted ring-1 ring-gray-200">
             {detail}
           </p>
         )}
 
         {error.digest && (
-          <p className="mt-3 text-xs text-gray-500">
-            Reference: <span className="font-mono text-gray-700">{error.digest}</span>
+          <p className="mt-3 text-xs text-foreground-muted">
+            Reference: <span className="font-mono text-foreground-secondary">{error.digest}</span>
           </p>
         )}
 
@@ -67,7 +67,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           </Button>
           <Link
             href="/"
-            className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border-2 border-neutral-900 px-6 text-sm font-semibold uppercase tracking-wider text-neutral-900 transition-colors hover:bg-brand sm:w-auto"
+            className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border-2 border-line-control px-6 text-sm font-semibold uppercase tracking-wider text-foreground transition-colors hover:bg-brand sm:w-auto"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Back to home
@@ -76,7 +76,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
         <a
           href={`mailto:${BRAND_EMAIL_SUPPORT}`}
-          className="mt-5 inline-flex min-h-[44px] items-center gap-1.5 text-sm font-medium text-gray-600 underline-offset-4 hover:text-gray-900 hover:underline"
+          className="mt-5 inline-flex min-h-[44px] items-center gap-1.5 text-sm font-medium text-foreground-secondary underline-offset-4 hover:text-foreground hover:underline"
         >
           <Mail className="h-4 w-4" aria-hidden="true" />
           {BRAND_EMAIL_SUPPORT}

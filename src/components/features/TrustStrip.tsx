@@ -33,14 +33,14 @@ export function TrustStrip() {
         {POINTS.map(({ icon: Icon, title, detail }) => (
           <div
             key={title}
-            className="flex items-start gap-3 rounded-xl border border-neutral-200 bg-white p-4"
+            className="flex items-start gap-3 rounded-xl border border-line bg-surface p-4"
           >
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand/30">
-              <Icon className="h-4 w-4 text-brand-ink" aria-hidden="true" />
+              <Icon className="h-4 w-4 text-foreground" aria-hidden="true" />
             </span>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-neutral-900">{title}</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-neutral-600">{detail}</p>
+              <p className="text-sm font-semibold text-foreground">{title}</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-foreground-secondary">{detail}</p>
             </div>
           </div>
         ))}
