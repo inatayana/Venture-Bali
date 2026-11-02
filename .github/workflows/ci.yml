@@ -32,6 +32,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Design token contrast
+        run: npm run check:contrast
+
       - name: Test
         run: npm test -- --ci
 
