@@ -30,7 +30,7 @@ export function Stepper({
 
   return (
     <div className={cn('flex items-center justify-between', className)}>
-      <span className="text-sm font-medium text-gray-700">{label}</span>
+      <span className="text-sm font-medium text-foreground-secondary">{label}</span>
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -40,14 +40,14 @@ export function Stepper({
             'w-11 h-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center',
             'border-2 transition-colors',
             value <= min
-              ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-              : 'border-neutral-900 text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200'
+              ? 'border-line text-foreground-muted/50 cursor-not-allowed'
+              : 'border-line-control text-foreground hover:bg-inset active:bg-line'
           )}
           aria-label={`Decrease ${label}`}
         >
           <Minus className="w-4 h-4" />
         </button>
-        <span className="w-8 text-center text-lg font-bold text-gray-900">
+        <span className="w-8 text-center text-lg font-bold text-foreground">
           {value}
         </span>
         <button
@@ -58,8 +58,8 @@ export function Stepper({
             'w-11 h-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center',
             'border-2 transition-colors',
             value >= max
-              ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-              : 'border-neutral-900 text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200'
+              ? 'border-line text-foreground-muted/50 cursor-not-allowed'
+              : 'border-line-control text-foreground hover:bg-inset active:bg-line'
           )}
           aria-label={`Increase ${label}`}
         >

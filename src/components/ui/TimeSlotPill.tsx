@@ -30,8 +30,8 @@ export function TimeSlotPill({
         'flex flex-col items-center justify-center tabular-nums',
         selected
           ? 'border-brand-ink bg-brand-ink text-brand dark:border-brand dark:bg-brand dark:text-brand-ink'
-          : 'border-neutral-200 bg-white text-neutral-900 hover:border-neutral-400 dark:hover:border-brand',
-        disabled && 'border-neutral-100 bg-neutral-50 text-neutral-300 line-through cursor-not-allowed'
+          : 'border-line bg-surface text-foreground hover:border-line-control',
+        disabled && 'border-line bg-base text-foreground-muted/50 line-through cursor-not-allowed'
       )}
     >
       <span>{label}</span>
@@ -39,7 +39,9 @@ export function TimeSlotPill({
         <span
           className={cn(
             'text-xs font-normal leading-tight',
-            selected ? 'text-white/70' : 'text-neutral-500'
+            selected
+              ? 'text-white/70 dark:text-brand-ink/70'
+              : 'text-foreground-muted'
           )}
         >
           {spotsLeft} left

@@ -124,7 +124,7 @@ export function BottomSheet({
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-overlay/50"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -133,7 +133,7 @@ export function BottomSheet({
         ref={panelRef}
         className={cn(
           'relative w-full sm:max-w-lg flex flex-col overflow-hidden',
-          'bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl',
+          'bg-surface rounded-t-2xl sm:rounded-2xl shadow-2xl',
           'max-h-[92vh] animate-slide-up',
           className
         )}
@@ -154,18 +154,18 @@ export function BottomSheet({
           onPointerCancel={endDrag}
         >
           <div className="flex justify-center pt-2.5 pb-1" aria-hidden="true">
-            <span className="h-1.5 w-10 rounded-full bg-neutral-300" />
+            <span className="h-1.5 w-10 rounded-full bg-line-strong" />
           </div>
-          <div className="flex items-center justify-between px-4 pb-3 border-b border-neutral-100">
-            <h2 className="text-lg font-bold text-neutral-900">{title}</h2>
+          <div className="flex items-center justify-between px-4 pb-3 border-b border-line">
+            <h2 className="text-lg font-bold text-foreground">{title}</h2>
             <button
               type="button"
               onPointerDown={(event) => event.stopPropagation()}
               onClick={onClose}
-              className="p-2 -mr-1 rounded-full hover:bg-neutral-100 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-2 -mr-1 rounded-full hover:bg-card-hover transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label="Close"
             >
-              <X className="w-5 h-5 text-neutral-500" />
+              <X className="w-5 h-5 text-foreground-muted" />
             </button>
           </div>
         </div>
@@ -173,7 +173,7 @@ export function BottomSheet({
         <div className="flex-1 overflow-y-auto overscroll-contain p-4">{children}</div>
 
         {footer && (
-          <div className="shrink-0 border-t border-neutral-200 bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+          <div className="shrink-0 border-t border-line bg-surface px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
             {footer}
           </div>
         )}

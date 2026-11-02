@@ -46,15 +46,15 @@ export function VariantCatalogCard({
     <article
       onClick={openDetails}
       className={cn(
-        'group relative cursor-pointer overflow-hidden rounded-2xl border bg-white transition-all duration-300',
+        'group relative cursor-pointer overflow-hidden rounded-2xl border bg-surface transition-all duration-300',
         'shadow-[0_1px_2px_rgba(17,24,39,0.06)] hover:-translate-y-0.5 hover:shadow-[0_18px_36px_-20px_rgba(17,24,39,0.45)]',
         selected
-          ? 'border-neutral-900 ring-1 ring-neutral-900/10'
-          : 'border-neutral-200 hover:border-neutral-300'
+          ? 'border-foreground ring-1 ring-foreground/10'
+          : 'border-line hover:border-line-strong'
       )}
     >
       <div className="flex gap-3.5 p-3.5 sm:gap-4 sm:p-4">
-        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-neutral-100 sm:h-[120px] sm:w-[120px]">
+        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-inset sm:h-[120px] sm:w-[120px]">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -64,7 +64,7 @@ export function VariantCatalogCard({
               className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
             />
           ) : (
-            <span className="flex h-full w-full items-center justify-center bg-neutral-100 text-neutral-600">
+            <span className="flex h-full w-full items-center justify-center bg-inset text-foreground-secondary">
               <ImageIcon className="h-6 w-6" aria-hidden="true" />
             </span>
           )}
@@ -83,31 +83,31 @@ export function VariantCatalogCard({
                 {variant.badge}
               </span>
             )}
-            <h3 className="font-heading text-[15px] font-bold leading-snug text-neutral-900 sm:text-base">
+            <h3 className="font-heading text-[15px] font-bold leading-snug text-foreground sm:text-base">
               <button
                 type="button"
                 onClick={(event) => {
                   event.stopPropagation();
                   openDetails();
                 }}
-                className="inline-flex min-h-[44px] items-center rounded text-left decoration-neutral-300 underline-offset-4 transition-colors hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/30 focus-visible:ring-offset-2 group-hover:underline"
+                className="inline-flex min-h-[44px] items-center rounded text-left decoration-line-strong underline-offset-4 transition-colors hover:text-foreground-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2 group-hover:underline"
               >
                 {variant.title}
               </button>
             </h3>
           </div>
 
-          <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-neutral-600 sm:text-sm">
+          <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-foreground-secondary sm:text-sm">
             {variant.shortDescription}
           </p>
 
           <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs sm:text-xs">
-            <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 font-medium text-neutral-700">
+            <span className="inline-flex items-center gap-1 rounded-full bg-inset px-2.5 py-1 font-medium text-foreground-secondary">
               <Clock className="h-3.5 w-3.5" />
               {variant.duration ?? '—'}
             </span>
             {variant.transportBadge && (
-              <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 font-medium text-neutral-600 ring-1 ring-neutral-200">
+              <span className="inline-flex items-center rounded-full bg-surface px-2.5 py-1 font-medium text-foreground-secondary ring-1 ring-line">
                 {variant.transportBadge}
               </span>
             )}
@@ -121,25 +121,25 @@ export function VariantCatalogCard({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-2.5 border-t border-neutral-100 bg-neutral-50/50 px-3.5 py-3 sm:px-4">
+      <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-2.5 border-t border-line bg-base/50 px-3.5 py-3 sm:px-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="text-xs font-medium text-neutral-500">From</span>
+            <span className="text-xs font-medium text-foreground-muted">From</span>
             {promoPriceIdr !== null && (
-              <span className="text-xs tabular-nums text-neutral-600 line-through">
+              <span className="text-xs tabular-nums text-foreground-secondary line-through">
                 {formatPrice(listPriceIdr)}
               </span>
             )}
-            <span className="font-heading text-lg font-bold tabular-nums text-neutral-900">
+            <span className="font-heading text-lg font-bold tabular-nums text-foreground">
               {formatPrice(priceIdr)}
             </span>
-            <span className="text-xs text-neutral-500">/ guest</span>
+            <span className="text-xs text-foreground-muted">/ guest</span>
             {lowestTierMinPax > 1 && (
-              <span className="text-xs text-neutral-600">· {lowestTierMinPax}+</span>
+              <span className="text-xs text-foreground-secondary">· {lowestTierMinPax}+</span>
             )}
           </div>
           <PriceApprox amountIdr={priceIdr} suffix=" / guest" className="mt-0.5 block" />
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-foreground-muted">
             {variant.minimumSpendIdr ? (
               <>Minimum {formatPrice(variant.minimumSpendIdr)} to book</>
             ) : addonCount > 0 ? (
@@ -151,9 +151,9 @@ export function VariantCatalogCard({
             ) : null}
           </p>
           {pickup && (
-            <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-neutral-500">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-neutral-600" />
-              <span className="font-medium text-neutral-700">{pickup.label}</span>
+            <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-foreground-muted">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-foreground-secondary" />
+              <span className="font-medium text-foreground-secondary">{pickup.label}</span>
               <span aria-hidden="true">·</span>
               {pickup.detail}
             </p>
@@ -171,7 +171,7 @@ export function VariantCatalogCard({
               'inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold transition-colors sm:flex-none',
               selected
                 ? 'border-2 border-brand-ink bg-brand text-brand-ink'
-                : 'border-2 border-neutral-200 text-neutral-800 hover:border-neutral-400 hover:bg-white'
+                : 'border-2 border-line text-foreground hover:border-line-control hover:bg-surface'
             )}
           >
             {selected && <Check className="h-4 w-4" />}
@@ -183,7 +183,7 @@ export function VariantCatalogCard({
               event.stopPropagation();
               onShowDates();
             }}
-            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-ink px-4 text-sm font-semibold text-brand transition-colors hover:bg-neutral-900 sm:flex-none"
+            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-ink px-4 text-sm font-semibold text-brand transition-colors hover:bg-brand-ink/90 sm:flex-none"
           >
             <CalendarDays className="h-4 w-4" />
             Show dates

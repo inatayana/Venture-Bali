@@ -64,21 +64,21 @@ export function Calendar({
         <button
           type="button"
           onClick={handlePrev}
-          className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+          className="p-3 rounded-lg hover:bg-card-hover transition-colors"
           aria-label="Previous month"
         >
-          <ChevronLeft className="w-5 h-5 text-gray-600" />
+          <ChevronLeft className="w-5 h-5 text-foreground-secondary" />
         </button>
-        <span className="text-sm font-semibold text-gray-900">
+        <span className="text-sm font-semibold text-foreground">
           {format(currentMonth, 'MMMM yyyy')}
         </span>
         <button
           type="button"
           onClick={handleNext}
-          className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+          className="p-3 rounded-lg hover:bg-card-hover transition-colors"
           aria-label="Next month"
         >
-          <ChevronRight className="w-5 h-5 text-gray-600" />
+          <ChevronRight className="w-5 h-5 text-foreground-secondary" />
         </button>
       </div>
 
@@ -86,7 +86,7 @@ export function Calendar({
         {WEEKDAYS.map((day) => (
           <div
             key={day}
-            className="text-center text-xs font-medium text-gray-500 py-1"
+            className="text-center text-xs font-medium text-foreground-muted py-1"
           >
             {day}
           </div>
@@ -111,8 +111,8 @@ export function Calendar({
               disabled={disabled}
               className={cn(
                 'aspect-square flex items-center justify-center rounded-lg text-sm transition-colors',
-                disabled && 'text-gray-300 cursor-not-allowed line-through',
-                !disabled && !selected && 'hover:bg-brand/30 text-gray-900 dark:hover:text-brand-ink',
+                disabled && 'text-foreground-muted/50 cursor-not-allowed line-through',
+                !disabled && !selected && 'hover:bg-brand/30 text-foreground dark:hover:text-brand-ink',
                 selected && 'bg-brand-ink text-brand font-bold dark:bg-brand dark:text-brand-ink',
                 isToday && !selected && 'ring-2 ring-brand'
               )}

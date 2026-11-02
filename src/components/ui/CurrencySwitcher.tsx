@@ -49,7 +49,7 @@ export function CurrencySwitcher({
 
       {isOpen && (
         <div
-          className="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 max-h-60 overflow-y-auto"
+          className="absolute right-0 mt-1 w-48 bg-surface rounded-xl shadow-lg border border-line py-1 z-50 max-h-60 overflow-y-auto"
           role="listbox"
         >
           {currencies.map((currency) => (
@@ -64,14 +64,14 @@ export function CurrencySwitcher({
                 'flex min-h-[44px] w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
                 currency.code === selectedCurrency
                   ? 'bg-brand/40 text-brand-ink font-medium'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  : 'text-foreground-secondary hover:bg-inset'
               )}
               role="option"
               aria-selected={currency.code === selectedCurrency}
             >
               <span>{currency.flag}</span>
               <span>{currency.code}</span>
-              <span className="text-gray-600 ml-auto text-xs">{currency.symbol}</span>
+              <span className="text-foreground-muted ml-auto text-xs">{currency.symbol}</span>
             </button>
           ))}
         </div>

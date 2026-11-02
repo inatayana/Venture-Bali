@@ -29,7 +29,7 @@ const CATEGORY_STYLES: Record<string, string> = {
   Combo: 'bg-pink-100 text-pink-800',
 };
 
-const DEFAULT_CATEGORY_STYLE = 'bg-gray-100 text-gray-800';
+const DEFAULT_CATEGORY_STYLE = 'bg-inset text-foreground-secondary';
 
 /** Cheapest tier across the package list — used for the "N+ guests" price hint. */
 function cheapestTier(venture: VentureItem) {
@@ -64,7 +64,7 @@ export function VentureCard({
 
   const content = (
     <>
-      <div className="relative h-40 w-full overflow-hidden bg-gray-200 sm:h-48">
+      <div className="relative h-40 w-full overflow-hidden bg-inset sm:h-48">
         <Image
           src={venture.imageUrl}
           alt={venture.title}
@@ -98,11 +98,11 @@ export function VentureCard({
       </div>
 
       <div className="p-4 sm:p-5">
-        <h3 className="mb-1.5 line-clamp-2 font-heading text-base font-bold text-gray-900 sm:mb-2 sm:text-lg">
+        <h3 className="mb-1.5 line-clamp-2 font-heading text-base font-bold text-foreground sm:mb-2 sm:text-lg">
           {venture.title}
         </h3>
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-600 sm:text-sm">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground-secondary sm:text-sm">
           <div className="flex min-w-0 items-center gap-1">
             <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             <span className="line-clamp-1">{venture.location}</span>
@@ -115,37 +115,37 @@ export function VentureCard({
             <Star className="h-3.5 w-3.5 fill-brand text-brand" aria-hidden="true" />
             {venture.reviewCount > 0 ? (
               <>
-                <span className="font-medium text-gray-900">{venture.rating.toFixed(1)}</span>
-                <span className="text-gray-500">({venture.reviewCount})</span>
+                <span className="font-medium text-foreground">{venture.rating.toFixed(1)}</span>
+                <span className="text-foreground-muted">({venture.reviewCount})</span>
               </>
             ) : (
-              <span className="text-xs font-medium text-gray-500">New</span>
+              <span className="text-xs font-medium text-foreground-muted">New</span>
             )}
           </div>
         </div>
 
-        <div className="mt-2 hidden items-center gap-3 text-xs text-gray-600 sm:flex">
+        <div className="mt-2 hidden items-center gap-3 text-xs text-foreground-secondary sm:flex">
           <span className="flex items-center gap-1">
             <Users className="h-3.5 w-3.5" aria-hidden="true" />
             up to {venture.maxParticipants}
           </span>
           {venture.bookedThisMonth ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 font-medium text-neutral-800">
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 font-medium text-brand-ink">
               <Users className="h-3 w-3" aria-hidden="true" />
               {venture.bookedThisMonth} booked this month
             </span>
           ) : null}
         </div>
 
-        <div className="mt-2.5 flex items-end justify-between gap-3 border-t border-gray-100 pt-2.5 sm:mt-3 sm:pt-3">
+        <div className="mt-2.5 flex items-end justify-between gap-3 border-t border-line pt-2.5 sm:mt-3 sm:pt-3">
           <div className="min-w-0">
-            <span className="block text-xs text-gray-600">From</span>
+            <span className="block text-xs text-foreground-secondary">From</span>
             <span className="font-heading text-lg font-bold tabular-nums text-brand-ink sm:text-xl">
               {formatPrice(venture.priceIdr)}
             </span>
-            <span className="ml-1 text-xs text-gray-600">/ guest</span>
+            <span className="ml-1 text-xs text-foreground-secondary">/ guest</span>
             {tierHint && tierHint.minPax > 1 && (
-              <span className="ml-1 text-xs text-gray-600">· {tierHint.minPax}+ guests</span>
+              <span className="ml-1 text-xs text-foreground-secondary">· {tierHint.minPax}+ guests</span>
             )}
             <PriceApprox amountIdr={venture.priceIdr} suffix=" / person" className="mt-0.5 block" />
           </div>
@@ -156,7 +156,7 @@ export function VentureCard({
             <CheckCircle className="h-3 w-3" aria-hidden="true" />
             Instant Confirmation
           </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-xs font-semibold text-neutral-800">
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-xs font-semibold text-brand-ink">
             <RefreshCw className="h-3 w-3" aria-hidden="true" />
             Free reschedule ≥24h
           </span>
@@ -169,7 +169,7 @@ export function VentureCard({
     return (
       <article
         className={cn(
-          'group overflow-hidden rounded-xl bg-white shadow-md',
+          'group overflow-hidden rounded-xl bg-surface shadow-md',
           'transition-all duration-300 hover:-translate-y-1 hover:shadow-xl',
           className,
         )}
@@ -186,7 +186,7 @@ export function VentureCard({
   return (
     <article
       className={cn(
-        'group overflow-hidden rounded-xl bg-white shadow-md',
+        'group overflow-hidden rounded-xl bg-surface shadow-md',
         'transition-all duration-300 hover:-translate-y-1 hover:shadow-xl',
         onSelect && 'cursor-pointer',
         className,
