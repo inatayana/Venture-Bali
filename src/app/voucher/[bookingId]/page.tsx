@@ -64,8 +64,8 @@ export default function VoucherPage({ params }: VoucherPageProps) {
     return (
       <main className="min-h-screen bg-base flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-red-500" />
+          <div className="w-16 h-16 bg-danger/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-8 h-8 text-danger" />
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-2">Voucher Not Found</h1>
           <p className="text-foreground-muted mb-6">{error || 'Invalid voucher'}</p>
@@ -115,7 +115,7 @@ export default function VoucherPage({ params }: VoucherPageProps) {
 
             <div className="p-6 space-y-6">
               {!isPaid && (
-                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                <div className="rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
                   We are still waiting for the payment confirmation from Midtrans. Your voucher
                   becomes valid as soon as the payment settles. Keep this page and refresh it in a
                   few moments.
@@ -182,11 +182,11 @@ export default function VoucherPage({ params }: VoucherPageProps) {
                 )}
               </div>
 
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                <h3 className="font-medium text-amber-800 mb-2 flex items-center gap-2">
+              <div className="bg-warning/10 border border-warning/30 rounded-xl p-4">
+                <h3 className="font-medium text-warning mb-2 flex items-center gap-2">
                   <Shield className="w-4 h-4" /> Important reminders
                 </h3>
-                <ul className="text-sm text-amber-700 space-y-1">
+                <ul className="text-sm text-warning space-y-1">
                   <li>• Present this booking code at the meeting point</li>
                   <li>• Arrive 15 minutes before the scheduled time</li>
                   <li>• Bring a valid ID for verification</li>
@@ -226,7 +226,7 @@ export default function VoucherPage({ params }: VoucherPageProps) {
               </div>
               <p className="text-xs text-foreground-muted mt-3">
                 Payment status:{' '}
-                <span className={`font-medium ${isPaid ? 'text-green-600' : 'text-amber-600'}`}>
+                <span className={`font-medium ${isPaid ? 'text-success' : 'text-warning'}`}>
                   {STATUS_LABEL[booking.paymentStatus]}
                 </span>
               </p>

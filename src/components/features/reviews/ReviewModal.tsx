@@ -299,7 +299,7 @@ export function ReviewModal({
               No reviews match “{query}”.
             </p>
           ) : (
-            <div className={cn('divide-y divide-neutral-100', loading && 'opacity-60')}>
+            <div className={cn('divide-y divide-line', loading && 'opacity-60')}>
               {visible.map((review) => (
                 <ReviewCard key={review.id} review={review} className="py-4 first:pt-0 last:pb-0" />
               ))}

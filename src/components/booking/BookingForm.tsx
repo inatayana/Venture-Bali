@@ -77,7 +77,7 @@ export function BookingForm({ onSuccess }: BookingFormProps) {
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
         />
-        {errors.name && <span className="text-red-500 text-sm">{errors.name}</span>}
+        {errors.name && <span className="text-danger text-sm">{errors.name}</span>}
       </div>
       <div>
         <input
@@ -86,7 +86,7 @@ export function BookingForm({ onSuccess }: BookingFormProps) {
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
         />
-        {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
+        {errors.email && <span className="text-danger text-sm">{errors.email}</span>}
       </div>
       <div>
         <input
@@ -95,7 +95,7 @@ export function BookingForm({ onSuccess }: BookingFormProps) {
           value={formData.whatsapp}
           onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
         />
-        {errors.whatsapp && <span className="text-red-500 text-sm">{errors.whatsapp}</span>}
+        {errors.whatsapp && <span className="text-danger text-sm">{errors.whatsapp}</span>}
       </div>
       <div>
         <input
@@ -103,7 +103,7 @@ export function BookingForm({ onSuccess }: BookingFormProps) {
           value={formData.bookingDate}
           onChange={(e) => setFormData({ ...formData, bookingDate: e.target.value })}
         />
-        {errors.bookingDate && <span className="text-red-500 text-sm">{errors.bookingDate}</span>}
+        {errors.bookingDate && <span className="text-danger text-sm">{errors.bookingDate}</span>}
       </div>
       <div>
         <input

@@ -35,7 +35,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
         </Link>
 
         <div className="mt-8 flex justify-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-warning/10 text-warning">
             <AlertTriangle className="h-7 w-7" aria-hidden="true" />
           </span>
         </div>
@@ -49,7 +49,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
         </p>
 
         {detail && (
-          <p className="mt-3 rounded-lg bg-surface px-3 py-2 text-left text-xs text-foreground-muted ring-1 ring-gray-200">
+          <p className="mt-3 rounded-lg bg-surface px-3 py-2 text-left text-xs text-foreground-muted ring-1 ring-line">
             {detail}
           </p>
         )}

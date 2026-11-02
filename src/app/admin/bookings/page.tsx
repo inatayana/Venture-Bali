@@ -10,10 +10,10 @@ interface AdminBookingsPageProps {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  PAID: 'bg-green-100 text-success',
-  PENDING: 'bg-amber-100 text-amber-800',
+  PAID: 'bg-success/10 text-success',
+  PENDING: 'bg-warning/10 text-warning',
   CANCELLED: 'bg-inset text-foreground-secondary',
-  FAILED: 'bg-red-100 text-red-800',
+  FAILED: 'bg-danger/10 text-danger',
 };
 
 const MODE_LABELS: Record<string, string> = {
@@ -155,7 +155,7 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
                       <td className="px-4 py-3 tabular-nums text-foreground">
                         {formatPrice(booking.totalPrice)}
                         {booking.discountIdr > 0 && (
-                          <p className="text-xs text-green-600">−{formatPrice(booking.discountIdr)}</p>
+                          <p className="text-xs text-success">−{formatPrice(booking.discountIdr)}</p>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -170,7 +170,7 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
                           {LIFECYCLE_LABELS[booking.lifecycleStatus]}
                         </p>
                         {booking.paymentStatus === 'PENDING' && booking.expiresAt && (
-                          <p className="text-xs text-amber-600">
+                          <p className="text-xs text-warning">
                             hold until {booking.expiresAt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                           </p>
                         )}

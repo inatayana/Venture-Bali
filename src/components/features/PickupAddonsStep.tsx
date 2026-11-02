@@ -47,7 +47,7 @@ export function PickupAddonsStep({
         <Plus className="w-4 h-4" /> Combos &amp; Add-ons
       </h3>
       {fulfillmentMode !== 'PRIVATE_TRANSFER' && (
-        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2.5 mb-2">
+        <p className="text-xs text-warning bg-warning/10 border border-warning/30 rounded-lg p-2.5 mb-2">
           Combos require hotel transfer — select a transport option to unlock.
         </p>
       )}
@@ -87,7 +87,7 @@ export function PickupAddonsStep({
                 {addon.description && (
                   <span className="text-xs text-foreground-muted block mt-0.5">{addon.description}</span>
                 )}
-                {addon.isDisabled && <span className="text-xs text-amber-700">Requires hotel transfer</span>}
+                {addon.isDisabled && <span className="text-xs text-warning">Requires hotel transfer</span>}
               </div>
               <span className={cn('font-heading text-sm font-bold tabular-nums shrink-0', addon.isDisabled ? 'text-foreground-secondary' : 'text-foreground')}>
                 + {formatPrice(addon.price)}/pax

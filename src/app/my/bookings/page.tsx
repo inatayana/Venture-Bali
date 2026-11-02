@@ -33,7 +33,7 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
     return (
       <main className="flex min-h-screen items-center justify-center bg-base px-4">
         <div className="max-w-sm text-center">
-          <AlertCircle className="mx-auto mb-4 h-10 w-10 text-amber-500" />
+          <AlertCircle className="mx-auto mb-4 h-10 w-10 text-warning" />
           <h1 className="text-xl font-bold text-foreground">This link is invalid or expired</h1>
           <p className="mt-2 text-sm text-foreground-secondary">
             Open the latest email or WhatsApp message we sent with your booking confirmation. If
@@ -196,7 +196,7 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
                 </div>
 
                 {booking.refund && (
-                  <p className="mt-2 text-xs font-medium text-amber-700">
+                  <p className="mt-2 text-xs font-medium text-warning">
                     Refund {booking.refund.status.toLowerCase()} ·{' '}
                     {formatPrice(booking.refund.amountIdr)}
                   </p>

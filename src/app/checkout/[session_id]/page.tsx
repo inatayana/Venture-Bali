@@ -176,7 +176,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     return (
       <main className="min-h-screen bg-base flex items-center justify-center">
         <div className="text-center">
-          <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <Shield className="w-16 h-16 text-danger mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-foreground mb-2">Booking Not Found</h1>
           <p className="text-foreground-muted mb-6">{error || 'Invalid booking session'}</p>
           <a href="/" className="inline-block px-6 py-3 bg-brand-ink text-brand rounded-lg font-medium hover:bg-neutral-900">
@@ -300,7 +300,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                   <div
                     className={`mt-4 flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
                       holdIsUrgent
-                        ? 'border-amber-300 bg-amber-50 text-amber-900'
+                        ? 'border-warning/30 bg-warning/10 text-warning'
                         : 'border-line bg-base text-foreground-secondary'
                     }`}
                   >
@@ -314,7 +314,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                 )}
 
                 {holdExpired && (
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                  <div className="rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
                     <p className="font-semibold">Your reservation hold expired.</p>
                     <p className="mt-1">
                       We released the slot so it is not blocked for other guests. Pick the date and
@@ -332,11 +332,11 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                 {payError && (
                   <div
                     role="alert"
-                    className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+                    className="mt-6 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning"
                   >
                     <p className="font-semibold">Payment could not start</p>
-                    <p className="mt-1 text-amber-800">{payError}</p>
-                    <p className="mt-2 text-xs text-amber-700">
+                    <p className="mt-1 text-warning">{payError}</p>
+                    <p className="mt-2 text-xs text-warning">
                       You can retry in a moment, or contact us and we&apos;ll finish it manually.
                     </p>
                   </div>

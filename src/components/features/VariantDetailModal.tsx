@@ -203,7 +203,7 @@ export function VariantDetailModal({
                 </span>
                 <span className="text-xs text-foreground-muted">/ guest</span>
                 {discountPercent !== null && (
-                  <span className="ml-auto rounded-full bg-green-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-success">
+                  <span className="ml-auto rounded-full bg-success/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-success">
                     {discountPercent}% off
                   </span>
                 )}
@@ -231,8 +231,8 @@ export function VariantDetailModal({
               )}
 
               {showCoupon ? (
-                <p className="mt-2.5 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-foreground ring-1 ring-neutral-200">
-                  <Sparkles className="h-3.5 w-3.5 text-green-600" />
+                <p className="mt-2.5 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-foreground ring-1 ring-line">
+                  <Sparkles className="h-3.5 w-3.5 text-success" />
                   Get {promo.percent}% OFF with code
                   <span className="font-mono font-bold tracking-wide">{promo.code}</span>
                 </p>
@@ -254,7 +254,7 @@ export function VariantDetailModal({
                     <ul className="space-y-1.5 text-sm text-foreground-secondary">
                       {inclusions.map((item) => (
                         <li key={item} className="flex items-start gap-1.5">
-                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
+                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -281,7 +281,7 @@ export function VariantDetailModal({
             )}
 
             {variant.operationNotes && (
-              <p className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800">
+              <p className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/10 px-3 py-2 text-xs leading-relaxed text-warning">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 {variant.operationNotes}
               </p>

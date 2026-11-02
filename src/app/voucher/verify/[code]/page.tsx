@@ -54,9 +54,9 @@ export default async function VoucherVerifyPage({ params }: VerifyPageProps) {
         };
 
   const toneClasses = {
-    green: 'border-green-200 bg-success/10 text-success',
-    amber: 'border-amber-200 bg-amber-50 text-amber-800',
-    red: 'border-red-200 bg-danger/10 text-red-800',
+    green: 'border-success/30 bg-success/10 text-success',
+    amber: 'border-warning/30 bg-warning/10 text-warning',
+    red: 'border-danger/30 bg-danger/10 text-danger',
   }[state.tone];
 
   const Icon = state.icon;

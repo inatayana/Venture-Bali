@@ -406,7 +406,7 @@ export function ExperienceDetailClient({
               aria-pressed={wishlisted}
             >
               <Heart
-                className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-red-500' : 'text-foreground-secondary')}
+                className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-danger' : 'text-foreground-secondary')}
               />
             </button>
             <button
@@ -764,7 +764,7 @@ export function ExperienceDetailClient({
                       key={`${item}-${index}`}
                       className="flex items-start gap-2 rounded-xl bg-base px-3 py-2 text-sm text-foreground-secondary"
                     >
-                      <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+                      <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-success" />
                       <span>{clampText(item, HIGHLIGHT_MAX)}</span>
                     </li>
                   ))}
@@ -798,7 +798,7 @@ export function ExperienceDetailClient({
               </div>
 
               {venture.safetyBriefing && (
-                <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <p className="mt-3 rounded-xl border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning">
                   <Shield className="mr-1 inline h-4 w-4" />
                   {venture.safetyBriefing}
                 </p>
@@ -929,7 +929,7 @@ export function ExperienceDetailClient({
               <div className="min-w-0 flex-1">
                 <p className="flex items-center gap-1.5 text-sm font-bold text-foreground">
                   Licensed local adventure team
-                  <BadgeCheck className="h-4 w-4 text-green-600" />
+                  <BadgeCheck className="h-4 w-4 text-success" />
                 </p>
                 <p className="text-xs text-foreground-muted">
                   Verified operator · English-speaking guides · Bali, Indonesia

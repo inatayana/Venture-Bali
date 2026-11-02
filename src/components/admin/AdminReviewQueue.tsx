@@ -136,7 +136,7 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
             type="button"
             onClick={() => runBulk('delete')}
             disabled={selectedIds.length === 0 || busy !== null}
-            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-red-200 px-3 text-xs font-semibold text-danger disabled:opacity-50"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-danger/30 px-3 text-xs font-semibold text-danger disabled:opacity-50"
           >
             <Trash2 className="h-4 w-4" />
             Delete selected
@@ -178,7 +178,7 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
                     'rounded-full px-2 py-0.5 text-xs font-semibold',
                     review.isApproved
                       ? 'bg-success/10 text-success'
-                      : 'bg-amber-50 text-amber-800'
+                      : 'bg-warning/10 text-warning'
                   )}
                 >
                   {review.isApproved ? 'Published' : 'Pending'}

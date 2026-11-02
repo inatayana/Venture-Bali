@@ -172,7 +172,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
       </div>
 
       {error && (
-        <p className="mt-3 rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
+        <p className="mt-3 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -218,7 +218,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
                     disabled={pending === `toggle-${slot.id}`}
                     className={`min-h-[44px] rounded-full px-3 text-xs font-semibold ${
                       slot.isAvailable
-                        ? 'bg-green-100 text-success'
+                        ? 'bg-success/10 text-success'
                         : 'bg-inset text-foreground-secondary'
                     }`}
                   >
@@ -272,7 +272,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
           type="button"
           onClick={addSlot}
           disabled={pending === 'add'}
-          className="inline-flex min-h-[44px] items-center gap-1 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white disabled:opacity-50"
+          className="inline-flex min-h-[44px] items-center gap-1 rounded-lg bg-neutral-900 px-4 text-sm font-semibold text-white disabled:opacity-50"
         >
           <Plus className="h-4 w-4" /> Add
         </button>
@@ -406,7 +406,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
             type="button"
             onClick={addAddon}
             disabled={pending === 'addon-add'}
-            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white disabled:opacity-50"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg bg-neutral-900 px-4 text-sm font-semibold text-white disabled:opacity-50"
           >
             <Plus className="h-4 w-4" /> Add
           </button>

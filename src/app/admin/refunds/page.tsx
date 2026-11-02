@@ -5,7 +5,7 @@ import { formatPrice } from '@/lib/i18n';
 export const dynamic = 'force-dynamic';
 
 const STATUS_STYLES: Record<string, string> = {
-  PENDING: 'bg-amber-50 text-amber-800',
+  PENDING: 'bg-warning/10 text-warning',
   FAILED: 'bg-danger/10 text-danger',
   PROCESSED: 'bg-success/10 text-success',
 };

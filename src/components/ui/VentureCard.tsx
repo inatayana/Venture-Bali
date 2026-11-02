@@ -22,7 +22,7 @@ const CATEGORY_STYLES: Record<string, string> = {
   Rafting: 'bg-cyan-100 text-cyan-800',
   Tubing: 'bg-sky-100 text-sky-800',
   Cycling: 'bg-emerald-100 text-emerald-800',
-  Trekking: 'bg-amber-100 text-amber-800',
+  Trekking: 'bg-warning/10 text-warning',
   'Water Sports': 'bg-blue-100 text-blue-800',
   Snorkeling: 'bg-teal-100 text-teal-800',
   Extreme: 'bg-purple-100 text-purple-800',
@@ -91,7 +91,7 @@ export function VentureCard({
           </span>
         )}
         {!venture.isAvailable && (
-          <span className="absolute right-2.5 top-2.5 rounded-full bg-red-100 px-2 py-0.5 font-heading text-xs font-semibold uppercase tracking-wider text-red-800 sm:right-3 sm:top-3 sm:px-2.5 sm:py-1">
+          <span className="absolute right-2.5 top-2.5 rounded-full bg-danger/10 px-2 py-0.5 font-heading text-xs font-semibold uppercase tracking-wider text-danger sm:right-3 sm:top-3 sm:px-2.5 sm:py-1">
             Sold Out
           </span>
         )}

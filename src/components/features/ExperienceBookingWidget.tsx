@@ -557,7 +557,7 @@ export function ExperienceBookingWidget({
           )}
 
           {zone?.isCustomQuote && (
-            <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            <p className="mt-2 rounded-lg bg-warning/10 px-3 py-2 text-xs text-warning">
               Outer areas are quoted manually, so online payment is unavailable for this pickup
               area. Choose another area to book instantly.
             </p>
@@ -598,7 +598,7 @@ export function ExperienceBookingWidget({
           <Tag className="h-4 w-4" /> Promo code
         </h3>
         {appliedCoupon ? (
-          <div className="flex items-center justify-between rounded-xl border border-green-200 bg-success/10 px-3 py-2.5">
+          <div className="flex items-center justify-between rounded-xl border border-success/30 bg-success/10 px-3 py-2.5">
             <span className="text-sm text-success">
               <strong>{appliedCoupon.code}</strong> applied · −{appliedCoupon.discountPercent}%
             </span>

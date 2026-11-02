@@ -240,13 +240,13 @@ export function AiContentWizard() {
         </div>
 
         {error && (
-          <p role="alert" className="text-sm text-danger bg-danger/10 border border-red-100 rounded-lg px-3 py-2">
+          <p role="alert" className="text-sm text-danger bg-danger/10 border border-danger/30 rounded-lg px-3 py-2">
             {error}
           </p>
         )}
 
         {success && (
-          <p role="status" className="text-sm text-success bg-success/10 border border-green-100 rounded-lg px-3 py-2">
+          <p role="status" className="text-sm text-success bg-success/10 border border-success/30 rounded-lg px-3 py-2">
             {success}
           </p>
         )}
@@ -271,18 +271,18 @@ export function AiContentWizard() {
         ) : articles.length === 0 ? (
           <p className="text-sm text-foreground-secondary p-6 text-center">No articles yet.</p>
         ) : (
-          <ul className="divide-y divide-gray-50">
+          <ul className="divide-y divide-line">
             {articles.map((article) => (
               <li key={article.id} className="px-5 py-3">
                 <p className="font-medium text-foreground text-sm">{readTitle(article.title)}</p>
                 <p className="text-xs text-foreground-secondary font-mono mt-0.5">/blog/{article.slug}</p>
                 <div className="flex items-center gap-2 mt-1.5">
                   {article.publishedAt ? (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-success">
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-success/10 text-success">
                       Published
                     </span>
                   ) : (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-warning/10 text-warning">
                       Draft
                     </span>
                   )}

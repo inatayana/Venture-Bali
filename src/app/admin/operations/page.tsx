@@ -107,7 +107,7 @@ export default async function OperationsPage({ searchParams }: OperationsPagePro
                 </span>
               </div>
 
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-line">
                 {list.map((booking) => {
                   const isTransfer = booking.fulfillmentMode !== 'SELF_DRIVE';
                   const pickup = !isTransfer

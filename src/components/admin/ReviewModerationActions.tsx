@@ -62,7 +62,7 @@ export function ReviewModerationActions({ reviewId, isApproved = false }: Review
         type="button"
         onClick={() => run('reject')}
         disabled={pending !== null}
-        className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-line px-3 text-xs font-semibold text-foreground-secondary transition-colors hover:border-red-300 hover:text-danger disabled:opacity-60"
+        className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-line px-3 text-xs font-semibold text-foreground-secondary transition-colors hover:border-danger/30 hover:text-danger disabled:opacity-60"
       >
         {pending === 'reject' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
         {isApproved ? 'Delete' : 'Reject'}

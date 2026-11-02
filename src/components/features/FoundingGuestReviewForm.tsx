@@ -96,9 +96,9 @@ export function FoundingGuestReviewForm({
 
   if (done) {
     return (
-      <div className="rounded-2xl border border-green-200 bg-success/10 p-6 text-center">
-        <CheckCircle className="mx-auto h-8 w-8 text-green-600" aria-hidden="true" />
-        <h2 className="mt-2 font-heading text-lg font-bold text-green-900">Thank you!</h2>
+      <div className="rounded-2xl border border-success/30 bg-success/10 p-6 text-center">
+        <CheckCircle className="mx-auto h-8 w-8 text-success" aria-hidden="true" />
+        <h2 className="mt-2 font-heading text-lg font-bold text-success">Thank you!</h2>
         <p className="mt-1 text-sm text-success">
           Your founding guest review is waiting for a quick check and will appear on {ventureTitle}
           shortly.

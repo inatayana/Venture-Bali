@@ -306,7 +306,7 @@ export function AdminReviewInvites({ ventures, invites }: AdminReviewInvitesProp
                       type="button"
                       onClick={() => revoke(invite.id)}
                       disabled={busy !== null}
-                      className="inline-flex min-h-[44px] w-full items-center justify-center gap-1 rounded-lg border border-red-200 px-2 text-xs font-semibold text-danger disabled:opacity-50"
+                      className="inline-flex min-h-[44px] w-full items-center justify-center gap-1 rounded-lg border border-danger/30 px-2 text-xs font-semibold text-danger disabled:opacity-50"
                     >
                       <Trash2 className="h-4 w-4" /> Revoke
                     </button>
@@ -323,7 +323,7 @@ export function AdminReviewInvites({ ventures, invites }: AdminReviewInvitesProp
           <summary className="flex min-h-[44px] cursor-pointer items-center text-sm font-semibold text-foreground">
             Used & expired invites ({used.length})
           </summary>
-          <div className="mt-2 divide-y divide-gray-100">
+          <div className="mt-2 divide-y divide-line">
             {used.map((invite) => (
               <div key={invite.id} className="flex flex-wrap items-center gap-2 py-2 text-xs">
                 <span className="min-w-0 flex-1 truncate text-foreground-secondary">
