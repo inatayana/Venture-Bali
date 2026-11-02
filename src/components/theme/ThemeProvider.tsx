@@ -36,7 +36,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // Follow the OS only while the guest has not made an explicit choice.
     const handleChange = (event: MediaQueryListEvent) => {
-      if (window.localStorage.getItem(THEME_KEY)) return;
+      const current = window.localStorage.getItem(THEME_KEY);
+      if (current === 'dark' || current === 'light') return;
       const next: Theme = event.matches ? 'dark' : 'light';
       setThemeState(next);
       applyTheme(next);
@@ -49,7 +50,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(() => {
     const setTheme = (next: Theme) => {
       setThemeState(next);
-      window.localStorage.setItem(THEME_KEY, next);
+      try {
+        window.localStorage.setItem(THEME_KEY, next);
+      } catch {
+        // Private mode can reject writes; the current page still switches.
+      }
       applyTheme(next);
     };
     return {
