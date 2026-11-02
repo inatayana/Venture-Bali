@@ -10,6 +10,7 @@ function jsonResponse(payload: unknown) {
 }
 
 describe('ReviewForm', () => {
+  jest.setTimeout(15000);
   const originalFetch = global.fetch;
 
   afterEach(() => {

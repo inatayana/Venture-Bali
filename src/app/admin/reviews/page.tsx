@@ -79,7 +79,7 @@ export default async function AdminReviewsPage({ searchParams }: AdminReviewsPag
     ventureTitle: review.venture.title,
     rating: review.rating,
     comment: review.comment,
-    guestName: review.guestName?.trim() || review.customer.name,
+    guestName: review.guestName?.trim() || review.customer?.name || 'Founding guest',
     guestLocation: review.guestLocation?.trim() || null,
     bookingCode: review.booking?.bookingCode ?? null,
     bookingDate: review.booking?.bookingDate ?? null,
@@ -91,11 +91,19 @@ export default async function AdminReviewsPage({ searchParams }: AdminReviewsPag
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-heading text-2xl font-bold text-gray-900">Reviews</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          {pendingCount} waiting for moderation · {publishedCount} published
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-heading text-2xl font-bold text-gray-900">Reviews</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            {pendingCount} waiting for moderation · {publishedCount} published
+          </p>
+        </div>
+        <a
+          href="/admin/reviews/invites"
+          className="inline-flex min-h-[44px] items-center rounded-lg bg-neutral-900 px-4 text-sm font-semibold text-white"
+        >
+          Manage invites →
+        </a>
       </header>
 
       <section>

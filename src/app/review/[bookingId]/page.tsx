@@ -66,10 +66,10 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
     <main className="min-h-screen bg-neutral-50 px-4 py-10">
       <div className="mx-auto max-w-xl">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <Link href={`/my/bookings?token=${searchParams.token ?? ''}`} className="text-sm text-neutral-600 hover:text-neutral-900">
+          <Link href={`/my/bookings?token=${searchParams.token ?? ''}`} className="inline-flex min-h-[44px] items-center text-sm text-neutral-600 hover:text-neutral-900">
             ← My bookings
           </Link>
-          <Link href="/" aria-label="BaliWild home" className="text-brand-ink">
+          <Link href="/" aria-label="BaliWild home" className="inline-flex min-h-[44px] items-center text-brand-ink">
             <BrandWordmark className="text-lg" />
           </Link>
         </div>

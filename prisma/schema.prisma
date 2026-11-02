@@ -94,15 +94,15 @@ enum RefundMethod {
 // ============ CORE MODELS ============
 
 model Tenant {
-  id        String    @id @default(cuid())
-  domain    String    @unique
-  name      String
-  themeColor String   @default("#000000")
-  logoUrl   String?
-  isActive  Boolean   @default(true)
-  ventures  Venture[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         String    @id @default(cuid())
+  domain     String    @unique
+  name       String
+  themeColor String    @default("#000000")
+  logoUrl    String?
+  isActive   Boolean   @default(true)
+  ventures   Venture[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model AdminUser {
@@ -187,18 +187,18 @@ model Customer {
 // ============ PRODUCT MODELS ============
 
 model Venture {
-  id                String     @id @default(cuid())
-  slug              String     @unique
+  id                String         @id @default(cuid())
+  slug              String         @unique
   tenantId          String
-  tenant            Tenant     @relation(fields: [tenantId], references: [id])
+  tenant            Tenant         @relation(fields: [tenantId], references: [id])
   locationId        String?
-  location          Location?  @relation(fields: [locationId], references: [id])
+  location          Location?      @relation(fields: [locationId], references: [id])
   title             String
   hook3Sec          String
   shortDescription  String?
   /// Long-form "about + what to expect + what you get + what we expect" copy.
   /// Used by the product page's collapsible description; short copy stays for cards/meta.
-  longDescription   String?    @db.Text
+  longDescription   String?        @db.Text
   duration          String
   badge             String?
   /// Where guests meet for SELF_DRIVE packages.
@@ -214,21 +214,26 @@ model Venture {
   exclusions        Json
   itinerary         Json
   essentialInfo     Json
-  faqs              Json       @default("[]")
+  faqs              Json           @default("[]")
   languages         Json
   category          String
   subcategory       String?
   primaryKeyword    String?
-  secondaryKeywords Json       @default("[]")
-  searchTags        Json       @default("[]")
-  difficulty        Difficulty @default(EASY)
-  suitableFor       Json       @default("[]")
+  secondaryKeywords Json           @default("[]")
+  searchTags        Json           @default("[]")
+  difficulty        Difficulty     @default(EASY)
+  suitableFor       Json           @default("[]")
   imageUrl          String
   gallery           Json
   videoUrl          String?
-  rating            Float      @default(5.0)
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  rating            Float          @default(5.0)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  variants          Variant[]      @relation("VentureToVariant")
+  articles          Article[]      @relation("VentureToArticle")
+  reviews           Review[]       @relation("VentureToReview")
+  reviewInvites     ReviewInvite[] @relation("VentureToReviewInvite")
+  mediaAssets       MediaAsset[]   @relation("VentureToMediaAsset")
 
   @@index([slug])
   @@index([tenantId])
@@ -236,16 +241,30 @@ model Venture {
   @@index([category])
   @@index([difficulty])
   @@index([rating])
-  variants    Variant[]     @relation("VentureToVariant")
-  articles    Article[]     @relation("VentureToArticle")
-  reviews     Review[]      @relation("VentureToReview")
-  mediaAssets MediaAsset[]  @relation("VentureToMediaAsset")
+}
+
+model ReviewInvite {
+  id               String             @id @default(cuid())
+  ventureId        String
+  venture          Venture            @relation("VentureToReviewInvite", fields: [ventureId], references: [id], onDelete: Cascade)
+  /// Optional admin label to keep track of who received which link.
+  guestName        String?
+  guestCountryCode String?
+  status           ReviewInviteStatus @default(UNUSED)
+  expiresAt        DateTime
+  submittedAt      DateTime?
+  createdBy        String?
+  review           Review?
+  createdAt        DateTime           @default(now())
+
+  @@index([ventureId, status])
+  @@index([expiresAt])
 }
 
 model Variant {
-  id               String      @id @default(cuid())
+  id               String          @id @default(cuid())
   ventureId        String
-  venture          Venture     @relation("VentureToVariant", fields: [ventureId], references: [id], onDelete: Cascade)
+  venture          Venture         @relation("VentureToVariant", fields: [ventureId], references: [id], onDelete: Cascade)
   title            String
   shortDescription String
   badge            String?
@@ -263,23 +282,23 @@ model Variant {
   /// Operational notes shown under the price, e.g. "After 7 PM: +Rp50.000/pax".
   operationNotes   String?
   /// Package-level inclusions/exclusions; empty falls back to the venture lists.
-  inclusions       Json        @default("[]")
-  exclusions       Json        @default("[]")
+  inclusions       Json            @default("[]")
+  exclusions       Json            @default("[]")
   /// Optional minimum spend for this package (IDR). Enforced by computeQuote.
   minimumSpendIdr  Int?
   /// Zone-locked pickup. When set, the package already sells pickup from this
   /// zone: the booking sheet preselects and locks it, and the zone surcharge is
   /// still applied once by the pricing engine (never baked into the tier price).
   pickupZoneId     String?
-  pickupZone       PickupZone? @relation("PickupZoneToVariant", fields: [pickupZoneId], references: [id], onDelete: SetNull)
-  sortOrder        Int         @default(0)
-  priceTiers       PriceTier[] @relation("VariantToPriceTier")
+  pickupZone       PickupZone?     @relation("PickupZoneToVariant", fields: [pickupZoneId], references: [id], onDelete: SetNull)
+  sortOrder        Int             @default(0)
+  priceTiers       PriceTier[]     @relation("VariantToPriceTier")
   blackoutDates    Json
-  slotTimes        SlotTime[]  @relation("SlotTimeToVariant")
-  addons           Addon[]     @relation("AddonToVariant")
+  slotTimes        SlotTime[]      @relation("SlotTimeToVariant")
+  addons           Addon[]         @relation("AddonToVariant")
   bookings         Booking[]
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   @@index([ventureId])
   @@index([pickupZoneId])
@@ -297,15 +316,15 @@ model PriceTier {
 }
 
 model SlotTime {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   variantId       String
-  variant         Variant  @relation("SlotTimeToVariant", fields: [variantId], references: [id], onDelete: Cascade)
+  variant         Variant   @relation("SlotTimeToVariant", fields: [variantId], references: [id], onDelete: Cascade)
   time            String
   maxCapacity     Int
-  currentBookings Int      @default(0)
-  isAvailable     Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  currentBookings Int       @default(0)
+  isAvailable     Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
   bookings        Booking[]
 
   @@index([variantId])
@@ -346,53 +365,53 @@ model Coupon {
 }
 
 model Booking {
-  id               String          @id @default(cuid())
-  bookingCode      String          @unique
-  variantId        String
-  variant          Variant         @relation(fields: [variantId], references: [id], onDelete: Cascade)
-  customerId       String
-  customer         Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  bookingDate      String
-  slotTimeId       String?
-  slotTime         SlotTime?       @relation(fields: [slotTimeId], references: [id])
-  fulfillmentMode  FulfillmentMode
-  pickupZoneId     String?
-  pickupZone       PickupZone?     @relation(fields: [pickupZoneId], references: [id])
-  vehicleClassId   String?
-  vehicleClass     VehicleClass?   @relation(fields: [vehicleClassId], references: [id])
-  hotelAddress     String?
+  id                 String           @id @default(cuid())
+  bookingCode        String           @unique
+  variantId          String
+  variant            Variant          @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  customerId         String
+  customer           Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  bookingDate        String
+  slotTimeId         String?
+  slotTime           SlotTime?        @relation(fields: [slotTimeId], references: [id])
+  fulfillmentMode    FulfillmentMode
+  pickupZoneId       String?
+  pickupZone         PickupZone?      @relation(fields: [pickupZoneId], references: [id])
+  vehicleClassId     String?
+  vehicleClass       VehicleClass?    @relation(fields: [vehicleClassId], references: [id])
+  hotelAddress       String?
   /// True when the guest will confirm the pickup address by H-1 (TBA flow).
-  isTba            Boolean         @default(false)
-  paxCount         Int
-  vehicleCount     Int             @default(1)
-  zoneSurchargeIdr Int             @default(0)
+  isTba              Boolean          @default(false)
+  paxCount           Int
+  vehicleCount       Int              @default(1)
+  zoneSurchargeIdr   Int              @default(0)
   /// Night-slot surcharge captured at booking time (IDR).
-  nightSurchargeIdr Int            @default(0)
+  nightSurchargeIdr  Int              @default(0)
   /// Total discount captured at booking time (promo or coupon, never both).
-  discountIdr      Int             @default(0)
-  appliedCouponCode String?
-  selectedAddons   Json
-  totalPrice       Int
-  paymentStatus    PaymentStatus
+  discountIdr        Int              @default(0)
+  appliedCouponCode  String?
+  selectedAddons     Json
+  totalPrice         Int
+  paymentStatus      PaymentStatus
   /// Legal acceptance captured at checkout (versioned for audits).
-  termsAcceptedAt  DateTime?
-  waiverAcceptedAt DateTime?
-  waiverVersion    String?
-  billingAddress   Json?
+  termsAcceptedAt    DateTime?
+  waiverAcceptedAt   DateTime?
+  waiverVersion      String?
+  billingAddress     Json?
   /// Operational lifecycle used by the field-team job order.
-  lifecycleStatus  BookingLifecycle @default(AWAITING_PAYMENT)
+  lifecycleStatus    BookingLifecycle @default(AWAITING_PAYMENT)
   /// End of the temporary inventory hold. Null once paid or for legacy rows.
-  expiresAt        DateTime?
+  expiresAt          DateTime?
   /// Customer cancellation audit. The Refund row carries the money trail.
-  cancelledAt       DateTime?
+  cancelledAt        DateTime?
   cancellationReason String?
-  payment          Payment?
-  vouchers         Voucher[]
-  review           Review?         @relation("BookingToReview")
-  refund           Refund?
-  changes          BookingChange[]
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  payment            Payment?
+  vouchers           Voucher[]
+  review             Review?          @relation("BookingToReview")
+  refund             Refund?
+  changes            BookingChange[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 
   @@index([bookingCode])
   @@index([variantId])
@@ -406,9 +425,9 @@ model Booking {
 }
 
 model Payment {
-  id              String         @id @default(cuid())
-  bookingId       String         @unique
-  booking         Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  id              String        @id @default(cuid())
+  bookingId       String        @unique
+  booking         Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   midtransOrderId String
   snapToken       String?
   redirectUrl     String?
@@ -417,8 +436,8 @@ model Payment {
   transactionTime DateTime?
   rawResponse     Json?
   status          PaymentStatus
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@index([bookingId])
   @@index([midtransOrderId])
@@ -426,16 +445,16 @@ model Payment {
 }
 
 model Voucher {
-  id          String        @id @default(cuid())
-  bookingId   String        @unique
-  booking     Booking       @relation(fields: [bookingId], references: [id])
-  qrCodeData  String
-  issuedAt    DateTime      @default(now())
-  redeemedAt  DateTime?
-  redeemedBy  String?
-  status      VoucherStatus @default(ACTIVE)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id         String        @id @default(cuid())
+  bookingId  String        @unique
+  booking    Booking       @relation(fields: [bookingId], references: [id])
+  qrCodeData String
+  issuedAt   DateTime      @default(now())
+  redeemedAt DateTime?
+  redeemedBy String?
+  status     VoucherStatus @default(ACTIVE)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
   @@index([bookingId])
   @@index([status])
@@ -466,16 +485,16 @@ model Refund {
 
 /// Reschedule audit trail. One row per successful move.
 model BookingChange {
-  id         String   @id @default(cuid())
-  bookingId  String
-  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  fromDate   String
-  fromSlot   String?
-  toDate     String
-  toSlot     String?
-  changedBy  String   @default("customer")
-  reason     String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  fromDate  String
+  fromSlot  String?
+  toDate    String
+  toSlot    String?
+  changedBy String   @default("customer")
+  reason    String?
+  createdAt DateTime @default(now())
 
   @@index([bookingId, createdAt])
 }
@@ -509,27 +528,37 @@ enum ReviewSource {
   IMPORTED
 }
 
+enum ReviewInviteStatus {
+  UNUSED
+  SUBMITTED
+  EXPIRED
+}
+
 model Review {
-  id         String   @id @default(cuid())
-  ventureId  String
-  venture    Venture  @relation("VentureToReview", fields: [ventureId], references: [id])
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
+  id            String        @id @default(cuid())
+  ventureId     String
+  venture       Venture       @relation("VentureToReview", fields: [ventureId], references: [id])
+  /// Null for founding-guest reviews collected through an invite.
+  customerId    String?
+  customer      Customer?     @relation(fields: [customerId], references: [id])
   /// Booking the review belongs to. Present = verified trip; unique = one review per booking.
-  bookingId  String?  @unique
-  booking    Booking? @relation("BookingToReview", fields: [bookingId], references: [id], onDelete: SetNull)
+  bookingId     String?       @unique
+  booking       Booking?      @relation("BookingToReview", fields: [bookingId], references: [id], onDelete: SetNull)
+  /// Founding-guest invite used for this review, if any.
+  inviteId      String?       @unique
+  invite        ReviewInvite? @relation(fields: [inviteId], references: [id], onDelete: SetNull)
   /// How the review was collected. Verified booking is the only “Verified trip” badge.
-  source     ReviewSource @default(VERIFIED_BOOKING)
-  rating     Int
-  comment    String   @db.Text
+  source        ReviewSource  @default(VERIFIED_BOOKING)
+  rating        Int
+  comment       String        @db.Text
   /// Guest-supplied display name. Falls back to the booking customer's name.
   guestName     String?
   /// Guest-supplied origin, e.g. "Woodbridge Township, NJ".
   guestLocation String?
   /// Guest photos (public Supabase Storage URLs); max 3, shown only when approved.
-  photos     Json     @default("[]")
-  isApproved Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  photos        Json          @default("[]")
+  isApproved    Boolean       @default(false)
+  createdAt     DateTime      @default(now())
 
   @@index([ventureId, isApproved])
   @@index([customerId])
