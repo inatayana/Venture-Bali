@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.8.0
+> **Version:** 3.9.0
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -29,6 +29,7 @@
 > **Changelog v3.7.1:** Review flow activated — invite is sent the moment ops marks a trip COMPLETED (scoped 180-day token), QR appears in the ops success panel and customer bookings, verified 4–5★ clean reviews publish instantly, lower ratings stay in the moderation queue with an email alert, and one D+3 reminder is sent by the fallback cron.
 > **Changelog v3.7.2:** Real-review collection — `Review.source` labels verified bookings vs founding guests vs imported reviews, guest photos (max 3, compressed WebP, 4:3) render in review cards and the admin queue, comments cap at 500 characters, and the admin gets per-product coverage (target 10), source/status/product filters, bulk approve/delete and photo removal.
 > **Changelog v3.8.0:** Founding-guest invites — `/admin/reviews/invites` creates up to 10 single-use links/QR per product, signed `ri1` tokens can be regenerated from the invite id, guests submit without an account, and every founding-guest review is labelled **Founding guest** and waits for moderation. Invite coverage is tracked alongside published reviews.
+> **Changelog v3.9.0:** Semantic dual-theme token foundation — channel-based surfaces/text/borders/state di `src/styles/globals.css`, mapping Tailwind (`bg-surface`, `text-foreground-muted`, `border-line-control`), resolusi tema localStorage → `prefers-color-scheme` tanpa FOUC, dan contrast gate di CI. Tidak ada perubahan visual komponen pada langkah ini; primitives dimigrasikan di PR2.
 
 ## 1. Design Principles
 
@@ -69,6 +70,7 @@ Aturan penerapan:
   - CTA utama: `bg-brand-ink text-brand` (`Button` variant primary, "Show dates", "Create package").
   - Status fungsional tetap semantik: hijau = included/instant, merah = error/hapus; `brand` bukan pengganti warna status.
   - Area admin masih memakai aksen biru; belum termasuk rebrand ini.
+- **Semantic tokens (v3.9.0)**: surface, text, border dan state tersedia sebagai kanal RGB di `src/styles/globals.css` dan dipetakan di `tailwind.config.js` (`bg-surface`, `text-foreground-muted`, `border-line-control`, dst.). Lihat `docs/DESIGN_TOKENS.md`. Komponen dimigrasikan bertahap di PR2; jangan menambah override `!important` baru.
 
 ### Trust & Conversion Signals
 - **Payment badges**: logo VISA, Mastercard, GoPay, QRIS visible di bawah harga.

@@ -40,6 +40,9 @@
 - Canonical domain: **https://baliwild.com** (`NEXT_PUBLIC_APP_URL`).
 - Palette: black `#000000` + Bali Flash Yellow `#FFEE00`, driven by
   `--brand` / `--brand-ink`; the accent is never hardcoded in components.
+- Dark palette is fixed at page `#212121`, surface/card `#191919`, hover
+  `#2A2A2A` (November 2026 owner decision). Semantic tokens are documented in
+  `docs/DESIGN_TOKENS.md`; the token work does not change these values.
 - All public brand strings live in `src/lib/brand.ts`.
 
 ### Rationale
