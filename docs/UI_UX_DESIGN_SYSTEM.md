@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.9.2
+> **Version:** 3.10.0
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -32,6 +32,7 @@
 > **Changelog v3.9.0:** Semantic dual-theme token foundation — channel-based surfaces/text/borders/state di `src/styles/globals.css`, mapping Tailwind (`bg-surface`, `text-foreground-muted`, `border-line-control`), resolusi tema localStorage → `prefers-color-scheme` tanpa FOUC, dan contrast gate di CI. Tidak ada perubahan visual komponen pada langkah ini; primitives dimigrasikan di PR2.
 > **Changelog v3.9.1:** Primitives migrated to semantic tokens — Button (secondary tokens), BottomSheet, HomeHeader, HeaderSettings, VentureCard, VariantCatalogCard, Skeleton, Calendar, TimeSlotPill, Stepper, CurrencySwitcher, LanguageToggle. Design smoke test covers light/dark surfaces and 360px overflow. Legacy `!important` overrides remain for page-level utilities until PR2b.
 > **Changelog v3.9.2:** Review hardening — dark `--bg-inset` separated from surface (`#2A2A2A`), light success/warning darkened to AA, control borders standardised to `border-line-control`, the contrast gate now rejects hex tokens and checks state/separation pairs, and the design smoke test covers dark 360px plus system preference.
+> **Changelog v3.10.0:** Page-level theme migration — 1,308 raw palette utilities across 71 files replaced with semantic tokens; the 24 global `!important` overrides removed; base canvas and native controls use tokens without important rules; `npm run check:theme` prevents regressions. Translucent `bg-white/5`–`/25` overlays remain intentional on dark/brand surfaces.
 
 ## 1. Design Principles
 

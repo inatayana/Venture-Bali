@@ -113,15 +113,20 @@ localStorage('baliwild_theme') > prefers-color-scheme > light
 | Step | Scope | Visual change |
 |---|---|---|
 | **PR1** | Tokens, Tailwind mapping, resolver, contrast gate, docs | None; components keep their existing classes |
-| **PR2 (this)** | Button, BottomSheet, cards, header, skeleton, calendar, time-slot, stepper, currency/language controls → semantic utilities | Minor intentional changes on control borders; verified by the design smoke test |
-| **PR2b** | Remaining page-level raw utilities; remove the legacy `!important` overrides once no component depends on them | None intended |
+| **PR2** | Button, BottomSheet, cards, header, skeleton, calendar, time-slot, stepper, currency/language controls → semantic utilities | Done; verified by the design smoke test |
+| **PR2b (this)** | Page-level raw utilities migrated; 24 global `!important` overrides removed; base canvas and native controls use tokens | Done; 0 `!important`, `check:theme` guard green |
 | **PR3** | Home/PDP quick wins, mobile cards, cookie banner, PDP CTA | Intentional |
 | **PR4** | Outdoor/Sunlight mode (AAA, opaque), admin token adoption, docs v4 | Intentional |
 
-The legacy `!important` overrides in `globals.css` remain for page-level
-utilities that have not migrated yet. Migrated primitives no longer depend on
-them, but do not remove the global overrides until PR2b confirms zero remaining
-`bg-white` / `text-gray-*` dependencies. Do not add new ones.
+PR2b removed the 24 global `!important` overrides. The base canvas and native
+controls now use tokens without important rules. `npm run check:theme` fails if
+a legacy palette utility returns. Translucent white overlays
+(`bg-white/5`–`bg-white/25`) are intentionally allowed because they sit on dark
+or brand surfaces; they are not theme surfaces.
+
+The migration touched **1,308 occurrences across 71 files**. Raw dark fills such
+as `bg-neutral-900` and `text-white` remain where the design is explicitly
+theme-independent (dark buttons, image overlays, footer).
 
 ## 7. Guardrails
 
@@ -131,15 +136,18 @@ them, but do not remove the global overrides until PR2b confirms zero remaining
 - Control boundaries (inputs, buttons, focus rings) use `border-line-control`,
   not `border-line`.
 - Every new token pair must be added to `scripts/check-contrast.mjs`.
+- Do not reintroduce `bg-white`, `text-gray-*`, `border-neutral-*`, or the old
+  green/red palettes. `npm run check:theme` fails the build if they return.
 
 ## 8. Verify
 
 ```bash
 npm run check:contrast   # WCAG gate
+npm run check:theme      # no legacy palette utilities
 npm run lint
 npm run typecheck
 npm test
 npm run build
 ```
 
-The contrast gate also runs in `.github/workflows/ci.yml`.
+Both guards also run in `.github/workflows/ci.yml`.
