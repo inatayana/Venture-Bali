@@ -223,9 +223,11 @@ export function VentureForm({
   const slugValid = isVentureSlugValid(slug);
 
   const toggleSuitable = (value: string) => {
-    setSuitableFor((current) =>
-      current.includes(value) ? current.filter((item) => item !== value) : [...current, value]
-    );
+    setSuitableFor((current) => {
+      if (current.includes(value)) return current.filter((item) => item !== value);
+      if (current.length >= 5) return current;
+      return [...current, value];
+    });
   };
 
   const addGallery = () => {
@@ -706,7 +708,9 @@ export function VentureForm({
             />
           </label>
           <div>
-            <span className={labelClass}>Suitable for</span>
+            <span className={labelClass}>
+              Suitable for <span className="font-normal normal-case tracking-normal">({suitableFor.length}/5)</span>
+            </span>
             <div className="mt-2 flex flex-wrap gap-2">
               {SUITABLE_FOR.map((option) => {
                 const active = suitableFor.includes(option.value);
@@ -715,12 +719,14 @@ export function VentureForm({
                     key={option.value}
                     type="button"
                     aria-pressed={active}
+                    disabled={!active && suitableFor.length >= 5}
                     onClick={() => toggleSuitable(option.value)}
                     className={cn(
                       'inline-flex min-h-[44px] items-center rounded-full border px-3 text-sm transition-colors',
                       active
                         ? 'border-brand-ink bg-brand-ink text-brand'
-                        : 'border-neutral-300 text-neutral-800 hover:border-neutral-500'
+                        : 'border-neutral-300 text-neutral-800 hover:border-neutral-500',
+                      !active && suitableFor.length >= 5 && 'cursor-not-allowed opacity-40'
                     )}
                   >
                     {option.label}
