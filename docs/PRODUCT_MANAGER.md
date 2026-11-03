@@ -113,9 +113,13 @@ build or service worker serves old chunks:
 Orphaned files can exist if an admin uploads and then abandons the form; they
 are harmless and can be cleaned from the bucket later.
 
-> **Next PR:** automatic WebP compression to **≤ 300 KB per photo** is
-> specified in `docs/MEMO_PRODUCT_MEDIA_COMPRESSION.md`. Until that ships, the
-> client caps dimensions at 1600px and the server accepts up to 5 MB.
+> **Next PR:** the approved media architecture (single WebP master ≤ 300 KB
+> per photo, per-device delivery via the Vercel image optimizer, informative
+> upload validation, `venture-assets` bucket hierarchy, and a 7-photo
+> product structure — 1 main cover + 6 itinerary gallery photos, variant
+> covers reused from those 7, no variant galleries) is specified in
+> `docs/MEMO_MEDIA_ARCHITECTURE.md`. Until that ships, the client caps
+> dimensions at 1600px and the server accepts up to 5 MB.
 
 ## Revalidation
 

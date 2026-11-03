@@ -1,7 +1,7 @@
 # BaliWild — Technology Decision Log
 
-> **Version:** 1.0.0
-> **Last Updated:** October 2026
+> **Version:** 1.1.0
+> **Last Updated:** November 2026
 > **Status:** APPROVED — All team members must follow these decisions
 
 ---
@@ -216,6 +216,33 @@ When implementing authentication:
 - **Product images, voucher QR codes:** Supabase Storage (bucket: `venture-assets`)
 - **Public CDN:** Supabase provides public URLs with caching
 - **Private files (contracts, receipts):** Private bucket with signed URLs
+
+### 9.1 Media Delivery — Single Master + Device-Appropriate Sizes (2026-11-03)
+
+**Decision** (owner-approved, `docs/MEMO_MEDIA_ARCHITECTURE.md`):
+- Store **one** compressed WebP master per photo in the public
+  `venture-assets` bucket, organised by prefix:
+  `products/`, `content/`, `reviews/` (single bucket, folder hierarchy).
+- File names are **content hashes** (SHA-256 of compressed bytes) so
+  identical uploads never create duplicates.
+- Device-appropriate sizes come from the **Vercel image optimizer**
+  (`/_next/image` via `next/image` + `sizes`), cached at the edge —
+  variants are never stored in Supabase.
+- Compression and validation happen **in the browser at file-pick time**
+  (no server-side encoder, no new dependencies).
+
+**Rationale:** avoids storing 3–4 duplicates per photo (multi-variant
+srcset), avoids the Supabase Pro plan (image transformations), and reuses
+the existing `next/image` display layer that already sets `sizes`/`priority`.
+
+**Rejected alternatives:** multi-variant storage (duplicates the same
+visual), Supabase Image Transform (paid plan), server-side `sharp`
+(new dependency, against AGENTS.md §4 until approved).
+
+**Known risks:** Vercel Hobby image-optimization quota (~1,000 unique
+source images/month — sufficient for the current catalog); Phase 2 VPS will
+need `sharp` installed on the server for the optimizer (decision deferred
+to that time).
 
 ---
 
