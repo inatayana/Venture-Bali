@@ -13,6 +13,7 @@ import {
   BarChart3,
   MessageSquareQuote,
   Ticket,
+  Globe,
   ExternalLink,
   LogOut,
 } from 'lucide-react';
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
   { href: '/admin/reviews/invites', label: 'Invites', icon: Ticket },
   { href: '/admin/reports', label: 'Revenue', icon: BarChart3 },
   { href: '/admin/content', label: 'AI Content', icon: Sparkles },
+  { href: '/admin/seo', label: 'Expert SEO', icon: Globe },
 ];
 
 export function AdminSidebar() {

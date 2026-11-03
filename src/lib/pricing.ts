@@ -9,6 +9,14 @@ export interface PriceBreakdown {
   currency: Currency;
 }
 
+export interface AgeTieredPriceBreakdown {
+  adults: { count: number; pricePerPax: number; subtotal: number };
+  kids: { count: number; pricePerPax: number; subtotal: number };
+  youth: { count: number; pricePerPax: number; subtotal: number };
+  totalPax: number;
+  subtotal: number;
+}
+
 /**
  * Find the applicable price tier for a given pax count
  * Tiers are expected to be sorted by minPax ascending
@@ -33,6 +41,41 @@ export function getPriceTierForPax(
   return paxCount > priceTiers[priceTiers.length - 1].maxPax
     ? priceTiers[priceTiers.length - 1]
     : priceTiers[0];
+}
+
+/**
+ * Calculate age-tiered price breakdown for AGE_TIERED pricing model.
+ * Kids (3-10): 75% of adult price
+ * Youth (11-16): 100% of adult price (same as adult)
+ * Adult (17+): 100% of adult price (base pricePerPax)
+ * 
+ * Admin only sets adult price per variant. Kids/Youth prices auto-computed.
+ */
+export function calculateAgeTieredBreakdown(
+  tier: PriceTier,
+  adults: number,
+  kids: number,
+  youth: number
+): AgeTieredPriceBreakdown {
+  if (tier.pricingModel !== 'AGE_TIERED') {
+    throw new Error('Tier is not AGE_TIERED');
+  }
+
+  const adultPrice = tier.pricePerPax;
+  const kidsPrice = Math.round(adultPrice * 0.75); // 75% of adult price
+  const youthPrice = adultPrice; // 100% of adult price (same as adult)
+
+  const adultsSubtotal = adultPrice * adults;
+  const kidsSubtotal = kidsPrice * kids;
+  const youthSubtotal = youthPrice * youth;
+
+  return {
+    adults: { count: adults, pricePerPax: adultPrice, subtotal: adultsSubtotal },
+    kids: { count: kids, pricePerPax: kidsPrice, subtotal: kidsSubtotal },
+    youth: { count: youth, pricePerPax: youthPrice, subtotal: youthSubtotal },
+    totalPax: adults + kids + youth,
+    subtotal: adultsSubtotal + kidsSubtotal + youthSubtotal,
+  };
 }
 
 /**
@@ -289,6 +332,10 @@ export interface QuoteInput {
   vehicleClass?: VehicleClass | null;
   selectedAddons?: Addon[];
   now?: Date;
+  // Age-tiered pricing fields
+  adultsCount?: number;
+  kidsCount?: number;
+  youthCount?: number;
 }
 
 export interface QuoteBreakdown extends TotalPriceBreakdown {
@@ -306,6 +353,12 @@ export interface QuoteBreakdown extends TotalPriceBreakdown {
   nightSurchargeIdr: number;
   /** Extra amount added to reach the package minimum spend. */
   minimumTopUpIdr: number;
+  /** Age-tiered pricing breakdown (only present for AGE_TIERED pricing model) */
+  ageBreakdown?: {
+    adults: { count: number; pricePerPax: number; subtotal: number };
+    kids: { count: number; pricePerPax: number; subtotal: number };
+    youth: { count: number; pricePerPax: number; subtotal: number };
+  };
 }
 
 function toTime(value: Date | string | null | undefined): number | null {
@@ -369,75 +422,167 @@ export function computeQuote(input: QuoteInput): QuoteBreakdown {
   const { priceTiers, paxCount, fulfillmentMode } = input;
   const tier = getPriceTierForPax(priceTiers, paxCount);
 
-  const listPricePerPaxIdr = tier.pricePerPax;
-  const promoPrice = input.promoPriceIdr ?? null;
-  const promoActive = promoPrice !== null && promoPrice > 0 && promoPrice < listPricePerPaxIdr;
-  const unitPricePerPaxIdr = promoActive ? (promoPrice as number) : listPricePerPaxIdr;
+  const isAgeTiered = tier.pricingModel === 'AGE_TIERED';
+  const { adultsCount = 0, kidsCount = 0, youthCount = 0 } = input;
+  const totalPaxFromAges = adultsCount + kidsCount + youthCount;
 
-  const listTotalIdr = listPricePerPaxIdr * paxCount;
-  const subtotalIdr = unitPricePerPaxIdr * paxCount;
-  let discountIdr = listTotalIdr - subtotalIdr;
-  let couponDiscountIdr = 0;
-
-  let couponCode: string | null = null;
-  let couponRejection: CouponRejectionReason | null = null;
-  if (input.coupon) {
-    couponRejection = getCouponRejection(
-      input.coupon,
-      paxCount,
-      promoActive,
-      input.now ?? new Date()
-    );
-    if (couponRejection === null) {
-      const percent = Math.min(100, Math.max(0, input.coupon.discountPercent));
-      couponDiscountIdr = Math.round((subtotalIdr * percent) / 100);
-      discountIdr += couponDiscountIdr;
-      couponCode = input.coupon.code;
+  if (isAgeTiered) {
+    if (totalPaxFromAges !== paxCount) {
+      throw new Error('Age breakdown total does not match paxCount');
     }
+    const ageBreakdown = calculateAgeTieredBreakdown(tier, adultsCount, kidsCount, youthCount);
+    
+    const listPricePerPaxIdr = tier.pricePerPax;
+    const promoPrice = input.promoPriceIdr ?? null;
+    const promoActive = promoPrice !== null && promoPrice > 0 && promoPrice < listPricePerPaxIdr;
+    const unitPricePerPaxIdr = promoActive ? (promoPrice as number) : listPricePerPaxIdr;
+
+    const listTotalIdr = listPricePerPaxIdr * paxCount;
+    const subtotalIdr = ageBreakdown.subtotal;
+    let discountIdr = listTotalIdr - subtotalIdr;
+    let couponDiscountIdr = 0;
+
+    let couponCode: string | null = null;
+    let couponRejection: CouponRejectionReason | null = null;
+    if (input.coupon) {
+      couponRejection = getCouponRejection(
+        input.coupon,
+        paxCount,
+        promoActive,
+        input.now ?? new Date()
+      );
+      if (couponRejection === null) {
+        const percent = Math.min(100, Math.max(0, input.coupon.discountPercent));
+        couponDiscountIdr = Math.round((subtotalIdr * percent) / 100);
+        discountIdr += couponDiscountIdr;
+        couponCode = input.coupon.code;
+      }
+    }
+
+    const hour = parseSlotHour(input.slotTimeLabel);
+    const nightSurchargeIdr =
+      hour !== null && hour >= NIGHT_SURCHARGE_FROM_HOUR ? NIGHT_SURCHARGE_IDR * paxCount : 0;
+
+    const payableSubtotal = subtotalIdr - couponDiscountIdr;
+    const minimumTopUpIdr = Math.max(0, (input.minimumSpendIdr ?? 0) - payableSubtotal);
+
+    const transfer =
+      fulfillmentMode === 'PRIVATE_TRANSFER'
+        ? calculateTransferFee(paxCount, input.zone ?? null, input.vehicleClass ?? null)
+        : fulfillmentMode === 'SHARED_TRANSFER'
+          ? calculateSharedTransferFee(paxCount, input.zone ?? null)
+          : calculateTransferFee(0, null, null);
+
+    const selectedAddons = input.selectedAddons ?? [];
+    const addonsTotalIdr = selectedAddons.reduce((sum, addon) => sum + addon.price, 0) * paxCount;
+
+    const totalPriceIdr =
+      payableSubtotal + minimumTopUpIdr + nightSurchargeIdr + transfer.totalFeeIdr + addonsTotalIdr;
+
+    return {
+      tier,
+      paxCount,
+      currency: 'IDR',
+      fulfillmentMode,
+      pricePerPax: unitPricePerPaxIdr,
+      totalPrice: subtotalIdr,
+      listPricePerPaxIdr,
+      unitPricePerPaxIdr,
+      promoActive,
+      listTotalIdr,
+      subtotalIdr,
+      discountIdr,
+      couponCode,
+      couponRejection,
+      nightSurchargeIdr,
+      minimumTopUpIdr,
+      transfer,
+      addonsTotalIdr,
+      totalPriceIdr,
+      ageBreakdown: {
+        adults: { count: adultsCount, pricePerPax: tier.pricePerPax, subtotal: tier.pricePerPax * adultsCount },
+        kids: { count: kidsCount, pricePerPax: Math.round(tier.pricePerPax * 0.75), subtotal: Math.round(tier.pricePerPax * 0.75) * kidsCount },
+        youth: { count: youthCount, pricePerPax: tier.pricePerPax, subtotal: tier.pricePerPax * youthCount },
+      },
+    };
+  } else {
+    // EXISTING LOGIC (FLAT_PER_GUEST)
+    const listPricePerPaxIdr = tier.pricePerPax;
+    const promoPrice = input.promoPriceIdr ?? null;
+    const promoActive = promoPrice !== null && promoPrice > 0 && promoPrice < listPricePerPaxIdr;
+    const unitPricePerPaxIdr = promoActive ? (promoPrice as number) : listPricePerPaxIdr;
+
+    const listTotalIdr = listPricePerPaxIdr * paxCount;
+    const subtotalIdr = unitPricePerPaxIdr * paxCount;
+    let discountIdr = listTotalIdr - subtotalIdr;
+    let couponDiscountIdr = 0;
+
+    let couponCode: string | null = null;
+    let couponRejection: CouponRejectionReason | null = null;
+    if (input.coupon) {
+      couponRejection = getCouponRejection(
+        input.coupon,
+        paxCount,
+        promoActive,
+        input.now ?? new Date()
+      );
+      if (couponRejection === null) {
+        const percent = Math.min(100, Math.max(0, input.coupon.discountPercent));
+        couponDiscountIdr = Math.round((subtotalIdr * percent) / 100);
+        discountIdr += couponDiscountIdr;
+        couponCode = input.coupon.code;
+      }
+    }
+
+    const hour = parseSlotHour(input.slotTimeLabel);
+    const nightSurchargeIdr =
+      hour !== null && hour >= NIGHT_SURCHARGE_FROM_HOUR ? NIGHT_SURCHARGE_IDR * paxCount : 0;
+
+    const payableSubtotal = subtotalIdr - couponDiscountIdr;
+    const minimumTopUpIdr = Math.max(0, (input.minimumSpendIdr ?? 0) - payableSubtotal);
+
+    const transfer =
+      fulfillmentMode === 'PRIVATE_TRANSFER'
+        ? calculateTransferFee(paxCount, input.zone ?? null, input.vehicleClass ?? null)
+        : fulfillmentMode === 'SHARED_TRANSFER'
+          ? calculateSharedTransferFee(paxCount, input.zone ?? null)
+          : calculateTransferFee(0, null, null);
+
+    const selectedAddons = input.selectedAddons ?? [];
+    const addonsTotalIdr = selectedAddons.reduce((sum, addon) => sum + addon.price, 0) * paxCount;
+
+    const totalPriceIdr =
+      payableSubtotal + minimumTopUpIdr + nightSurchargeIdr + transfer.totalFeeIdr + addonsTotalIdr;
+
+    return {
+      tier,
+      paxCount,
+      currency: 'IDR',
+      fulfillmentMode,
+      pricePerPax: unitPricePerPaxIdr,
+      totalPrice: subtotalIdr,
+      listPricePerPaxIdr,
+      unitPricePerPaxIdr,
+      promoActive,
+      listTotalIdr,
+      subtotalIdr,
+      discountIdr,
+      couponCode,
+      couponRejection,
+      nightSurchargeIdr,
+      minimumTopUpIdr,
+      transfer,
+      addonsTotalIdr,
+      totalPriceIdr,
+    };
   }
-
-  const hour = parseSlotHour(input.slotTimeLabel);
-  const nightSurchargeIdr =
-    hour !== null && hour >= NIGHT_SURCHARGE_FROM_HOUR ? NIGHT_SURCHARGE_IDR * paxCount : 0;
-
-  const payableSubtotal = subtotalIdr - couponDiscountIdr;
-  const minimumTopUpIdr = Math.max(0, (input.minimumSpendIdr ?? 0) - payableSubtotal);
-
-  const transfer =
-    fulfillmentMode === 'PRIVATE_TRANSFER'
-      ? calculateTransferFee(paxCount, input.zone ?? null, input.vehicleClass ?? null)
-      : fulfillmentMode === 'SHARED_TRANSFER'
-        ? calculateSharedTransferFee(paxCount, input.zone ?? null)
-        : calculateTransferFee(0, null, null);
-
-  const selectedAddons = input.selectedAddons ?? [];
-  const addonsTotalIdr = selectedAddons.reduce((sum, addon) => sum + addon.price, 0) * paxCount;
-
-  const totalPriceIdr =
-    payableSubtotal + minimumTopUpIdr + nightSurchargeIdr + transfer.totalFeeIdr + addonsTotalIdr;
-
-  return {
-    tier,
-    paxCount,
-    currency: 'IDR',
-    fulfillmentMode,
-    pricePerPax: unitPricePerPaxIdr,
-    totalPrice: subtotalIdr,
-    listPricePerPaxIdr,
-    unitPricePerPaxIdr,
-    promoActive,
-    listTotalIdr,
-    subtotalIdr,
-    discountIdr,
-    couponCode,
-    couponRejection,
-    nightSurchargeIdr,
-    minimumTopUpIdr,
-    transfer,
-    addonsTotalIdr,
-    totalPriceIdr,
-  };
 }
+
+// ============ EXPORTED UTILITIES (used by other modules) ============
+
+
+// ============ EXPORTED UTILITIES (used by other modules) ============
+
 
 /**
  * Dependent selection matrix: filter add-ons allowed for a fulfillment mode.
@@ -540,3 +685,5 @@ export function isSlotBookable(
   const deadline = dayStartWita - 24 * 60 * 60 * 1000 + 22 * 60 * 60 * 1000;
   return nowWita <= deadline;
 }
+
+// ============ EXPORTED UTILITIES (used by other modules) ============
