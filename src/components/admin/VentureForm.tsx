@@ -18,10 +18,11 @@ import {
 import { MEGA_CATEGORIES } from '@/lib/taxonomy';
 import { buildVentureSlug } from '@/lib/slug';
 import { isVentureSlugValid, validateVentureTitle } from '@/lib/titleValidator';
-import { compressReviewPhoto } from '@/lib/compressImage';
+import { compressToTarget, PRODUCT_MIN_SOURCE_EDGE } from '@/lib/compressImage';
 import { cn } from '@/utils/cn';
 
-const MAX_GALLERY = 8;
+/** 1 main cover + up to 6 itinerary gallery photos per product (media memo). */
+const MAX_GALLERY = 6;
 const DIFFICULTIES = [
   { value: 'EASY', label: 'Easy' },
   { value: 'MODERATE', label: 'Moderate' },
@@ -207,6 +208,14 @@ export function VentureForm({
   const [videoUrl, setVideoUrl] = useState(initial?.videoUrl ?? '');
   const [uploading, setUploading] = useState<'hero' | 'gallery' | null>(null);
   const [mediaError, setMediaError] = useState<string | null>(null);
+  /** Result of the last successful upload, shown so admins see the final master. */
+  const [lastUpload, setLastUpload] = useState<{
+    url: string;
+    bytes: number;
+    width: number;
+    height: number;
+    cropWarning: string | null;
+  } | null>(null);
   const [dragTarget, setDragTarget] = useState<'hero' | 'gallery' | null>(null);
   const [draggingPhoto, setDraggingPhoto] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -284,20 +293,30 @@ export function VentureForm({
     setGallery(nextGallery.slice(0, MAX_GALLERY));
   };
 
-  const uploadOne = async (file: File): Promise<string> => {
+  const uploadOne = async (file: File, target: 'hero' | 'gallery'): Promise<string> => {
     if (!mediaUploadEnabled) {
       throw new Error(
-        'Direct upload is not configured. Add the Supabase product-media bucket and env first, or paste an image URL.'
+        'Direct upload is not configured. Add the Supabase venture-assets bucket and env first, or paste an image URL.'
       );
     }
-    const compressed = await compressReviewPhoto(file);
+    const compressed = await compressToTarget(file, {
+      minSourceEdge:
+        target === 'hero' ? PRODUCT_MIN_SOURCE_EDGE.hero : PRODUCT_MIN_SOURCE_EDGE.gallery,
+    });
     const form = new FormData();
-    form.set('file', compressed);
+    form.set('file', compressed.file);
     const response = await fetch('/api/admin/product-media', { method: 'POST', body: form });
     const data = await response.json();
     if (!response.ok || !data.success) {
       throw new Error(data.error?.message ?? 'Could not upload the photo.');
     }
+    setLastUpload({
+      url: data.data.url as string,
+      bytes: compressed.bytes,
+      width: compressed.width,
+      height: compressed.height,
+      cropWarning: compressed.cropWarning,
+    });
     return data.data.url as string;
   };
 
@@ -307,7 +326,7 @@ export function VentureForm({
     if (images.length === 0) return;
     if (!mediaUploadEnabled) {
       setMediaError(
-        'Direct upload is not configured. Add the Supabase project URL, service-role key and product-media bucket first.'
+        'Direct upload is not configured. Add the Supabase project URL, service-role key and venture-assets bucket first.'
       );
       return;
     }
@@ -316,7 +335,7 @@ export function VentureForm({
     setUploading(target);
     try {
       if (target === 'hero') {
-        const url = await uploadOne(images[0]);
+        const url = await uploadOne(images[0], 'hero');
         setImageUrl(url);
       } else {
         const slots = MAX_GALLERY - gallery.length;
@@ -329,7 +348,7 @@ export function VentureForm({
         }
         const uploaded: string[] = [];
         for (const file of images.slice(0, slots)) {
-          uploaded.push(await uploadOne(file));
+          uploaded.push(await uploadOne(file, 'gallery'));
         }
         setGallery((current) => {
           const next = [...current];
@@ -882,8 +901,8 @@ export function VentureForm({
         title="Media"
         description={
           mediaUploadEnabled
-            ? 'Drag & drop or browse a photo. Hero is the main image; gallery holds up to 8 more.'
-            : 'Direct upload is not configured yet. Set NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and SUPABASE_PRODUCT_BUCKET (bucket must be public). URL paste still works.'
+            ? 'Drag & drop or browse a photo. Hero is the main cover; gallery holds up to 6 itinerary photos (1 cover + 6 per product).'
+            : 'Direct upload is not configured yet. Set NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and SUPABASE_ASSETS_BUCKET (bucket venture-assets must be public). URL paste still works.'
         }
       >
         <label className={labelClass}>
@@ -924,7 +943,9 @@ export function VentureForm({
               {uploading === 'hero' ? 'Uploading hero…' : 'Drag hero photo here or '}
               {uploading !== 'hero' && <span className="font-semibold underline">browse</span>}
             </span>
-            <span className="text-xs text-neutral-500">JPG, PNG or WebP · max 5 MB · compressed to WebP</span>
+            <span className="text-xs text-neutral-500">
+              JPG, PNG or WebP · min 1200px longest side · auto-compressed to WebP ≤ 300 KB
+            </span>
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp"
@@ -939,7 +960,7 @@ export function VentureForm({
           <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
             Upload belum aktif. Isi <code>NEXT_PUBLIC_SUPABASE_URL</code>,{' '}
             <code>SUPABASE_SERVICE_ROLE_KEY</code>, dan buat bucket publik{' '}
-            <code>product-media</code> (env <code>SUPABASE_PRODUCT_BUCKET</code>). Setelah itu
+            <code>venture-assets</code> (env <code>SUPABASE_ASSETS_BUCKET</code>). Setelah itu
             restart server. Sementara ini gunakan URL paste di bawah.
           </p>
         )}
@@ -949,9 +970,9 @@ export function VentureForm({
             <img
               src={imageUrl}
               alt="Hero preview"
-              className="h-40 w-full rounded-lg border border-neutral-200 object-cover sm:w-72"
+              className="aspect-[3/2] w-full rounded-lg border border-neutral-200 object-cover sm:w-72"
             />
-            <p className="mt-1 text-xs text-neutral-500">Hero preview</p>
+            <p className="mt-1 text-xs text-neutral-500">Hero preview (shown in the 3:2 slot)</p>
           </div>
         )}
 
@@ -989,7 +1010,8 @@ export function VentureForm({
                 {uploading !== 'gallery' && <span className="font-semibold underline">browse</span>}
               </span>
               <span className="text-xs text-neutral-500">
-                Add up to {MAX_GALLERY - gallery.length} more · drag cards to reorder
+                Add up to {MAX_GALLERY - gallery.length} more · min 1000px longest side · auto WebP
+                ≤ 300 KB · drag cards to reorder
               </span>
               <input
                 type="file"
@@ -1090,6 +1112,28 @@ export function VentureForm({
             </div>
           )}
         </div>
+
+        {lastUpload && (
+          <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-700">
+            <p>
+              Last upload: <span className="font-semibold">WebP</span> ·{' '}
+              {Math.max(1, Math.round(lastUpload.bytes / 1024))} KB · {lastUpload.width}×
+              {lastUpload.height} · meets the standard
+            </p>
+            {lastUpload.cropWarning && (
+              <div className="mt-2">
+                <img
+                  src={lastUpload.url}
+                  alt="3:2 crop preview"
+                  className="aspect-[3/2] w-full rounded-lg border border-amber-300 object-cover sm:w-72"
+                />
+                <p className="mt-1 text-amber-800">
+                  {lastUpload.cropWarning} The preview shows exactly how the 3:2 slot crops it.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {mediaError && (
           <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">

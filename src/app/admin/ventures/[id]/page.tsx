@@ -45,6 +45,11 @@ export default async function AdminVentureDetailPage({
 
   if (!venture) notFound();
 
+  // Product photos a variant cover may reuse (main cover first, no duplicates).
+  const productPhotos = Array.from(
+    new Set([venture.imageUrl, ...asStringArray(venture.gallery)]),
+  );
+
   return (
     <div className="space-y-5">
       <Link href="/admin/ventures" className="text-sm text-brand-ink hover:underline">
@@ -72,7 +77,7 @@ export default async function AdminVentureDetailPage({
           >
             Edit product
           </Link>
-          <VariantPackageEditor ventureId={venture.id} zones={zones} />
+          <VariantPackageEditor ventureId={venture.id} zones={zones} photos={productPhotos} />
         </div>
       </header>
 
@@ -116,6 +121,7 @@ export default async function AdminVentureDetailPage({
               <VariantPackageEditor
                 ventureId={venture.id}
                 zones={zones}
+                photos={productPhotos}
                 variant={{
                   id: variant.id,
                   title: variant.title,
@@ -127,6 +133,7 @@ export default async function AdminVentureDetailPage({
                   transportBadge: variant.transportBadge,
                   minimumSpendIdr: variant.minimumSpendIdr,
                   sortOrder: variant.sortOrder,
+                  imageUrl: variant.imageUrl,
                   priceTiers: variant.priceTiers.map((tier) => ({
                     minPax: tier.minPax,
                     maxPax: tier.maxPax,

@@ -104,6 +104,23 @@ describe('admin variant input', () => {
   it('requires at least one price tier', () => {
     expect(adminVariantSchema.safeParse({ ...base, priceTiers: [] }).success).toBe(false);
   });
+
+  it('accepts an optional cover that reuses a product photo', () => {
+    const parsed = adminVariantSchema.safeParse({
+      ...base,
+      imageUrl: '/images/tubing-hero.webp',
+    });
+    expect(parsed.success).toBe(true);
+
+    expect(adminVariantSchema.safeParse({ ...base, imageUrl: null }).success).toBe(true);
+    expect(adminVariantSchema.safeParse(base).success).toBe(true);
+  });
+
+  it('rejects a variant cover that is not a local path or https URL', () => {
+    for (const imageUrl of ['javascript:alert(1)', '', 'ftp://example.com/photo.webp']) {
+      expect(adminVariantSchema.safeParse({ ...base, imageUrl }).success).toBe(false);
+    }
+  });
 });
 
 const validProduct = {
@@ -137,11 +154,17 @@ describe('admin venture write schema', () => {
     ).toBe(false);
   });
 
-  it('caps the gallery at 8 photos', () => {
+  it('caps the gallery at 6 itinerary photos (1 main cover + 6 per product)', () => {
     expect(
       adminVentureWriteSchema.safeParse({
         ...validProduct,
-        gallery: Array.from({ length: 9 }, (_, index) => `/images/${index}.webp`),
+        gallery: Array.from({ length: 6 }, (_, index) => `/images/${index}.webp`),
+      }).success
+    ).toBe(true);
+    expect(
+      adminVentureWriteSchema.safeParse({
+        ...validProduct,
+        gallery: Array.from({ length: 7 }, (_, index) => `/images/${index}.webp`),
       }).success
     ).toBe(false);
   });

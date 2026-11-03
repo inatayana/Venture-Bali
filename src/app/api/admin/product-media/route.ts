@@ -4,6 +4,7 @@ import { clientIp, rateLimit } from '@/lib/rateLimit';
 import {
   ProductMediaError,
   PRODUCT_PHOTO_MAX_BYTES,
+  PRODUCT_PHOTO_RAW_MAX_BYTES,
   uploadProductPhoto,
   validateProductPhoto,
 } from '@/lib/productMedia';
@@ -32,6 +33,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Cap the raw request before parsing the body (defence in depth — the
+  // browser compressor normally keeps uploads far below this).
+  const contentLength = Number(request.headers.get('content-length') ?? '0');
+  if (contentLength > PRODUCT_PHOTO_RAW_MAX_BYTES) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: 'FILE_TOO_LARGE',
+          message: 'Uploads must be 15 MB or less — the form compresses photos automatically.',
+        },
+      },
+      { status: 413 },
+    );
+  }
+
   let form: FormData;
   try {
     form = await request.formData();
@@ -52,7 +69,13 @@ export async function POST(request: NextRequest) {
 
   if (file.size > PRODUCT_PHOTO_MAX_BYTES) {
     return NextResponse.json(
-      { success: false, error: { code: 'FILE_TOO_LARGE', message: 'Each photo must be under 5 MB.' } },
+      {
+        success: false,
+        error: {
+          code: 'FILE_TOO_LARGE',
+          message: `Each photo must be ${PRODUCT_PHOTO_MAX_BYTES / 1024} KB or less after compression.`,
+        },
+      },
       { status: 413 },
     );
   }

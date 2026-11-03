@@ -172,26 +172,26 @@ Setelah lolos, UI menampilkan hasil final sebelum save:
 
 ## Perubahan kode (checklist PR implementasi)
 
-1. [ ] `next.config.js`: tambah `images.remotePatterns` untuk host Supabase
+1. [x] `next.config.js`: tambah `images.remotePatterns` untuk host Supabase
        (dari `NEXT_PUBLIC_SUPABASE_URL`, pathname
        `/storage/v1/object/public/**`) — **blokade utama delivery**
-2. [ ] `src/lib/compressImage.ts`: `compressToTarget()` + gate resolusi
+2. [x] `src/lib/compressImage.ts`: `compressToTarget()` + gate resolusi
        minimal + test unit (dimensi, pilihan quality, batas 300 KB)
-3. [ ] `src/components/admin/VentureForm.tsx`: pakai `compressToTarget`,
+3. [x] `src/components/admin/VentureForm.tsx`: pakai `compressToTarget`,
        tampilkan `WebP · KB · dimensi` di kartu media, preview crop 3:2,
        error inline, standar terlihat di dropzone, gate maks 6 foto gallery
-4. [ ] `src/lib/adminVentureSchema.ts`: gallery `.max(8)` → `.max(6)`
+4. [x] `src/lib/adminVentureSchema.ts`: gallery `.max(8)` → `.max(6)`
        dengan pesan baru + update test
-5. [ ] Editor paket varian: picker variant cover (pilih dari 7 foto
+5. [x] Editor paket varian: picker variant cover (pilih dari 7 foto
        produk, opsional) — tutup gap `Variant.imageUrl` yang belum bisa
        di-set dari admin
-6. [ ] `src/lib/productMedia.ts`: bucket `venture-assets` (env
+6. [x] `src/lib/productMedia.ts`: bucket `venture-assets` (env
        `SUPABASE_ASSETS_BUCKET`), path content-hash, `x-upsert: true`,
        hanya `image/webp` ≤ 300 KB
-7. [ ] `POST /api/admin/product-media`: hanya `image/webp`, tolak > 300 KB
+7. [x] `POST /api/admin/product-media`: hanya `image/webp`, tolak > 300 KB
        dengan 413 `FILE_TOO_LARGE`
-8. [ ] `.env.example` + `docs/DEPLOYMENT_STRATEGY.md`: env baru
-9. [ ] `docs/PRODUCT_MANAGER.md`: bagian Media upload disesuaikan
+8. [x] `.env.example` + `docs/DEPLOYMENT_STRATEGY.md`: env baru
+9. [x] `docs/PRODUCT_MANAGER.md`: bagian Media upload disesuaikan
 10. [ ] Uji manual: JPG 10 MB, PNG transparan, foto < 1200px (pesan jelas),
         foto portrait (preview crop), 6 foto + main cover, EXIF miring,
         mobile 390px

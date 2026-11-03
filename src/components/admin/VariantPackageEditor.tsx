@@ -25,11 +25,15 @@ export interface AdminVariantDraft {
   sortOrder: number;
   priceTiers: { minPax: number; maxPax: number; pricePerPax: number }[];
   bookingCount: number;
+  /** Optional variant cover; must reuse one of the product's photos. */
+  imageUrl: string | null;
 }
 
 interface VariantPackageEditorProps {
   ventureId: string;
   zones: AdminPickupZone[];
+  /** The product's photos (main cover first) the variant cover may reuse. */
+  photos?: string[];
   /** Omit to render the "Add package" trigger instead of "Edit". */
   variant?: AdminVariantDraft;
 }
@@ -64,7 +68,12 @@ function toTierDrafts(variant?: AdminVariantDraft): TierDraft[] {
  * click "Add package" or "Edit" to expand the form, save to POST/PATCH, and the
  * router refresh pulls the new row in.
  */
-export function VariantPackageEditor({ ventureId, zones, variant }: VariantPackageEditorProps) {
+export function VariantPackageEditor({
+  ventureId,
+  zones,
+  photos = [],
+  variant,
+}: VariantPackageEditorProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [pending, setPending] = useState(false);
@@ -81,6 +90,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
     variant?.minimumSpendIdr ? String(variant.minimumSpendIdr) : ''
   );
   const [sortOrder, setSortOrder] = useState(String(variant?.sortOrder ?? 0));
+  const [imageUrl, setImageUrl] = useState(variant?.imageUrl ?? '');
   const [tiers, setTiers] = useState<TierDraft[]>(() => toTierDrafts(variant));
 
   const isEditing = Boolean(variant);
@@ -107,6 +117,7 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
         transportBadge: transportBadge.trim() || null,
         minimumSpendIdr: minimumSpendIdr === '' ? null : Number(minimumSpendIdr),
         sortOrder: Number(sortOrder),
+        imageUrl: imageUrl || null,
         priceTiers: tiers.map((tier) => ({
           minPax: Number(tier.minPax),
           maxPax: Number(tier.maxPax),
@@ -314,6 +325,28 @@ export function VariantPackageEditor({ ventureId, zones, variant }: VariantPacka
             placeholder="1200000"
             className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
           />
+        </label>
+
+        <label className="text-xs font-medium text-gray-600 sm:col-span-2">
+          Cover photo (optional)
+          <select
+            value={imageUrl}
+            onChange={(event) => setImageUrl(event.target.value)}
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 bg-white px-3 text-sm"
+          >
+            <option value="">Use the product hero</option>
+            {photos.map((photo, index) => (
+              <option key={photo} value={photo}>
+                {index === 0 ? 'Main cover' : `Gallery photo ${index}`} ·{' '}
+                {photo.split('/').pop() ?? photo}
+              </option>
+            ))}
+          </select>
+          <span className="mt-1 block font-normal text-gray-600">
+            Reuses one of the product&apos;s 7 photos — variants never store their own gallery.
+            Set a cover only when this package looks physically different (private car,
+            equipment, group size).
+          </span>
         </label>
 
         <label className="text-xs font-medium text-gray-600">

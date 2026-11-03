@@ -126,6 +126,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
             ? { minimumSpendIdr: input.minimumSpendIdr }
             : {}),
           ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
+          ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl || null } : {}),
           // Always keep the stored zone consistent with the saved mode.
           pickupZoneId: nextMode === 'SELF_DRIVE' ? null : nextZoneId ?? null,
         },

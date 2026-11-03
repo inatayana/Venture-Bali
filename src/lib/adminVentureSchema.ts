@@ -59,6 +59,16 @@ export const variantPriceTierSchema = z
     path: ['maxPax'],
   });
 
+const assetUrlSchema = z
+  .string()
+  .trim()
+  .min(1, 'An image is required')
+  .max(500)
+  .refine(
+    (value) => value.startsWith('/') || /^https?:\/\//i.test(value),
+    'Use a /images/... path or an https:// URL',
+  );
+
 const variantBaseSchema = z.object({
   title: z.string().trim().min(3, 'Title is too short').max(80, 'Title is too long'),
   shortDescription: z
@@ -78,6 +88,8 @@ const variantBaseSchema = z.object({
     .array(variantPriceTierSchema)
     .min(1, 'Add at least one price tier')
     .max(10, 'Too many price tiers'),
+  /** Optional cover: reuses one of the product's photos (no variant gallery). */
+  imageUrl: assetUrlSchema.nullable().optional(),
 });
 
 function checkTiersDoNotOverlap(
@@ -119,16 +131,6 @@ export const adminVariantUpdateSchema = variantBaseSchema.partial().superRefine(
  * reviews, tenant is resolved by the route, and variants are managed on their
  * own endpoint.
  */
-
-const assetUrlSchema = z
-  .string()
-  .trim()
-  .min(1, 'An image is required')
-  .max(500)
-  .refine(
-    (value) => value.startsWith('/') || /^https?:\/\//i.test(value),
-    'Use a /images/... path or an https:// URL',
-  );
 
 const textListSchema = z.array(z.string().trim().min(1).max(200)).max(20);
 
@@ -210,7 +212,10 @@ export const adminVentureWriteSchema = z
     secondaryKeywords: z.array(z.string().trim().min(1).max(80)).max(10).default([]),
     searchTags: z.array(z.string().trim().min(1).max(60)).max(15).default([]),
     imageUrl: assetUrlSchema,
-    gallery: z.array(assetUrlSchema).max(8, 'Add at most 8 gallery photos').default([]),
+    gallery: z
+      .array(assetUrlSchema)
+      .max(6, 'Add at most 6 gallery photos — 1 main cover + 6 itinerary photos per product')
+      .default([]),
     videoUrl: z
       .string()
       .trim()

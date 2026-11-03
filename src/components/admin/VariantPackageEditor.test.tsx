@@ -35,7 +35,14 @@ const existing: AdminVariantDraft = {
   sortOrder: 3,
   priceTiers: [{ minPax: 1, maxPax: 10, pricePerPax: 450000 }],
   bookingCount: 0,
+  imageUrl: null,
 };
+
+const photos = [
+  '/images/tubing-hero.webp',
+  '/images/tubing-river.webp',
+  '/images/tubing-guide.webp',
+];
 
 const originalFetch = globalThis.fetch;
 
@@ -84,6 +91,7 @@ describe('VariantPackageEditor', () => {
       title: 'Ubud: Private Transfer',
       fulfillmentMode: 'PRIVATE_TRANSFER',
       pickupZoneId: 'zone-1',
+      imageUrl: null,
       priceTiers: [{ minPax: 1, maxPax: 10, pricePerPax: 500000 }],
     });
     await waitFor(() => expect(refresh).toHaveBeenCalled());
@@ -125,6 +133,65 @@ describe('VariantPackageEditor', () => {
     const payload = JSON.parse(String(fetchMock.mock.calls[0][1].body));
     expect(payload.fulfillmentMode).toBe('SELF_DRIVE');
     expect(payload.pickupZoneId).toBeNull();
+  });
+
+  it('reuses one of the product photos as the package cover', async () => {
+    const user = userEvent.setup();
+    const fetchMock = mockFetch({ success: true, data: { id: 'var-3' } });
+
+    render(<VariantPackageEditor ventureId="vtr-1" zones={zones} photos={photos} />);
+
+    await user.click(screen.getByRole('button', { name: /add package/i }));
+
+    const cover = screen.getByLabelText(/cover photo/i);
+    expect(cover).toHaveValue('');
+    expect(screen.getByRole('option', { name: /use the product hero/i })).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText(/title/i), 'Ubud: Private Transfer');
+    await user.type(
+      screen.getByLabelText(/short description/i),
+      'Private car and driver for your group in Ubud'
+    );
+    await user.selectOptions(cover, photos[1]);
+    await user.click(screen.getByRole('button', { name: /create package/i }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    const payload = JSON.parse(String(fetchMock.mock.calls[0][1].body));
+    expect(payload.imageUrl).toBe('/images/tubing-river.webp');
+  }, 20000);
+
+  it('sends a null cover when the package keeps the product hero', async () => {
+    const user = userEvent.setup();
+    const fetchMock = mockFetch({ success: true, data: { id: 'var-1' } });
+
+    render(
+      <VariantPackageEditor
+        ventureId="vtr-1"
+        zones={zones}
+        photos={photos}
+        variant={existing}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: /^edit$/i }));
+    await user.selectOptions(screen.getByLabelText(/cover photo/i), photos[0]);
+    await user.selectOptions(screen.getByLabelText(/cover photo/i), '');
+    await user.click(screen.getByRole('button', { name: /save changes/i }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    const payload = JSON.parse(String(fetchMock.mock.calls[0][1].body));
+    // "" clears the variant cover so the product hero is used again.
+    expect(payload.imageUrl).toBeNull();
+  }, 20000);
+
+  it('renders safely without the product photos prop', async () => {
+    const user = userEvent.setup();
+    render(<VariantPackageEditor ventureId="vtr-1" zones={zones} />);
+
+    await user.click(screen.getByRole('button', { name: /add package/i }));
+
+    expect(screen.getByLabelText(/cover photo/i)).toHaveValue('');
+    expect(screen.getAllByRole('option', { name: /use the product hero/i })).toHaveLength(1);
   });
 
   it('blocks deleting a package that already has bookings', () => {

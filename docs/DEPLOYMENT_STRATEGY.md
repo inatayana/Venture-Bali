@@ -45,6 +45,8 @@ The application codebase remains **identical** — only the deployment target ch
 | `NEXT_PUBLIC_SUPABASE_URL` | All | Supabase → Settings → API → Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | All | Supabase → Settings → API → anon/public key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Production, Preview | Supabase → Settings → API → service_role key |
+| `SUPABASE_ASSETS_BUCKET` | All | `venture-assets` (public bucket; prefixes `products/`, `content/`) |
+| `SUPABASE_REVIEW_BUCKET` | All | `reviews` (public bucket for guest review photos) |
 | `MIDTRANS_SERVER_KEY` | Production | Midtrans Dashboard → Settings → Server Key |
 | `MIDTRANS_CLIENT_KEY` | All | Midtrans Dashboard → Settings → Client Key |
 | `NEXT_PUBLIC_MIDTRANS_CLIENT_KEY` | All | Same as `MIDTRANS_CLIENT_KEY` |
@@ -319,6 +321,8 @@ nano .env  # Edit with real values
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_ASSETS_BUCKET=venture-assets`
+- `SUPABASE_REVIEW_BUCKET=reviews`
 - `MIDTRANS_SERVER_KEY`
 - `MIDTRANS_CLIENT_KEY`
 - `NEXT_PUBLIC_MIDTRANS_CLIENT_KEY`

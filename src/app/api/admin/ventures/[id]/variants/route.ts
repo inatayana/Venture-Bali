@@ -94,6 +94,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         transportBadge: input.transportBadge ?? null,
         minimumSpendIdr: input.minimumSpendIdr ?? null,
         sortOrder: input.sortOrder ?? 0,
+        imageUrl: input.imageUrl ?? null,
         blackoutDates: [],
         inclusions: [],
         exclusions: [],

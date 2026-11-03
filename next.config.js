@@ -10,6 +10,30 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants');
  * same time, and keep `.next` as the deploy output Vercel expects.
  */
 /** @type {(phase: string) => import('next').NextConfig} */
+
+/**
+ * Allow uploaded Supabase Storage media through the next/image optimizer so
+ * visitors get device-appropriate sizes from the edge (media architecture
+ * memo: 1 stored master, variants generated on demand).
+ */
+function supabaseImagePatterns() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!url) return [];
+  try {
+    const { hostname, protocol } = new URL(url);
+    if (!hostname || (protocol !== 'https:' && protocol !== 'http:')) return [];
+    return [
+      {
+        protocol: protocol.replace(/:$/, ''),
+        hostname,
+        pathname: '/storage/v1/object/public/**',
+      },
+    ];
+  } catch {
+    return [];
+  }
+}
+
 const nextConfig = phase => ({
   distDir: phase === PHASE_DEVELOPMENT_SERVER ? '.next-dev' : '.next',
   reactStrictMode: true,
@@ -17,6 +41,7 @@ const nextConfig = phase => ({
     // Allow local SVG placeholders through the next/image optimizer (demo mode)
     dangerouslyAllowSVG: true,
     contentDispositionType: 'inline',
+    remotePatterns: supabaseImagePatterns(),
   },
   async headers() {
     const securityHeaders = [

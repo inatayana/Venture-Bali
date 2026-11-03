@@ -38,7 +38,8 @@ it cannot be booked until a variant exists.
 - **Content:** highlights, inclusions, exclusions, languages, suitable-for,
   itinerary rows, essential info (`perfectFor`, `whatToBring`,
   `knowBeforeYouGo`), FAQs.
-- **Media:** hero image URL, gallery up to **8** photos, video URL.
+- **Media:** hero image URL (main cover), gallery up to **6** itinerary photos,
+  video URL.
 - **SEO:** primary keyword, secondary keywords, search tags.
 
 ## Validation
@@ -49,7 +50,8 @@ Server-side (`src/lib/adminVentureSchema.ts`):
 - Category must resolve to one of the 9 mega categories.
 - Slug lowercase/hyphen only, unique, no brand name.
 - Hero and gallery accept `/images/...` or `https://` only.
-- Gallery max 8; hero is de-duplicated from gallery.
+- Gallery max 6 (1 main cover + 6 itinerary photos per product); hero is
+  de-duplicated from gallery.
 - Meeting point name and coordinates must be provided together.
 - Location id must exist.
 - Tenant is resolved server-side; rating is never edited here (it comes from
@@ -58,7 +60,7 @@ Server-side (`src/lib/adminVentureSchema.ts`):
 Errors return `{ success: false, error: { message, fields } }`; the form shows
 the first actionable message.
 
-## Media upload (v3.9.0)
+## Media upload (v3.9.0 → media architecture)
 
 The form supports both direct upload and URL paste:
 
@@ -67,16 +69,29 @@ The form supports both direct upload and URL paste:
 - **Reorder:** drag cards, or use the up/down buttons.
 - **Hero selection:** “Set hero” on any gallery card swaps it with the current hero.
 - **Remove:** delete any gallery photo before saving.
-- **Limits:** 8 gallery photos, 5 MB each, JPG/PNG/WebP, compressed to WebP.
+- **Limits:** 6 gallery photos (1 main cover + 6 itinerary photos per
+  product). Hero sources must be at least **1200px** and gallery sources at
+  least **1000px** on the longest side; JPG/PNG/WebP up to 15 MB raw. Every
+  upload is compressed in the browser to a **single WebP master ≤ 300 KB**
+  (see `docs/MEMO_MEDIA_ARCHITECTURE.md`). Photos below the minimum are
+  rejected with the photo's actual dimensions and the required minimum;
+  non-3:2 photos are accepted with a 3:2 crop preview and a warning.
+- **Delivery:** stored masters are served through the Vercel image optimizer
+  (`next/image`), so each device downloads a right-sized variant without
+  storing duplicates.
 
-Uploads go to the public Supabase bucket named by `SUPABASE_PRODUCT_BUCKET`
-(default `product-media`). Create the bucket in Supabase Storage and set:
+Uploads go to the public Supabase bucket named by `SUPABASE_ASSETS_BUCKET`
+(default `venture-assets`, folder prefix `products/`). Create the bucket in
+Supabase Storage and set:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=...
 SUPABASE_SERVICE_ROLE_KEY=...
-SUPABASE_PRODUCT_BUCKET=product-media
+SUPABASE_ASSETS_BUCKET=venture-assets
 ```
+
+Files are stored as `products/YYYY-MM/<content-hash>.webp` — re-uploading
+the same photo overwrites it instead of creating a duplicate.
 
 If storage is not configured, the dropzones are hidden and the form shows a
 short setup note; URL paste still works.
@@ -86,7 +101,7 @@ short setup note; URL paste still works.
 1. `NEXT_PUBLIC_SUPABASE_URL` must be the real project URL, not
    `https://your_project_ref.supabase.co`.
 2. `SUPABASE_SERVICE_ROLE_KEY` must be the **service_role** key (server only).
-3. The bucket named by `SUPABASE_PRODUCT_BUCKET` must exist and be **public**.
+3. The bucket named by `SUPABASE_ASSETS_BUCKET` must exist and be **public**.
 4. Restart the dev server after editing `.env`; the form reads the status on the
    server, not in the browser.
 
@@ -113,13 +128,12 @@ build or service worker serves old chunks:
 Orphaned files can exist if an admin uploads and then abandons the form; they
 are harmless and can be cleaned from the bucket later.
 
-> **Next PR:** the approved media architecture (single WebP master ≤ 300 KB
-> per photo, per-device delivery via the Vercel image optimizer, informative
-> upload validation, `venture-assets` bucket hierarchy, and a 7-photo
-> product structure — 1 main cover + 6 itinerary gallery photos, variant
-> covers reused from those 7, no variant galleries) is specified in
-> `docs/MEMO_MEDIA_ARCHITECTURE.md`. Until that ships, the client caps
-> dimensions at 1600px and the server accepts up to 5 MB.
+> **Shipped with the media architecture PR:** the standards above follow
+> `docs/MEMO_MEDIA_ARCHITECTURE.md` (single WebP master ≤ 300 KB, per-device
+> delivery via the Vercel image optimizer, informative upload validation,
+> `venture-assets` bucket hierarchy, 7 photos per product — 1 main cover +
+> 6 itinerary gallery photos, variant covers reused from those 7, no
+> variant galleries).
 
 ## Revalidation
 
