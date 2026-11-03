@@ -132,6 +132,34 @@ npm run db:push      # or: npx prisma db push
 - Always use `DIRECT_URL` (port 5432) for `npx prisma migrate deploy`; the
   pooled `DATABASE_URL` is for runtime queries only.
 
+### 2.5.1 Cron jobs (Hobby plan)
+
+Vercel **Hobby** only allows cron jobs that run **at most once per day**
+(and at most two of them). A minute-level schedule such as `*/10 * * * *`
+is rejected **before the build starts**, so every deployment fails with
+`Hobby accounts are limited to daily cron jobs`.
+
+`vercel.json` therefore keeps all three jobs on daily schedules:
+
+| Path | Schedule | Purpose |
+|------|----------|---------|
+| `/api/cron/reminders` | `0 1 * * *` | Morning trip reminders |
+| `/api/cron/review-requests` | `0 2 * * *` | Review invitations |
+| `/api/cron/reap-holds` | `0 3 * * *` | Expired booking holds (safety net) |
+
+**Expired holds must be reaped every ~10 minutes** (`BOOKING_HOLD_MINUTES`),
+so the daily run is only a safety net. Trigger the endpoint externally, for
+example with cron-job.org (free, 1-minute granularity):
+
+```
+POST https://baliwild.com/api/cron/reap-holds
+Authorization: Bearer <CRON_SECRET>
+```
+
+Keep `CRON_SECRET` in Vercel and in the external scheduler. On Vercel Pro,
+restore `"schedule": "*/10 * * * *"` in `vercel.json` and remove the external
+job.
+
 ### 2.6 Domain Configuration
 
 **Vercel-Managed Domain:**
