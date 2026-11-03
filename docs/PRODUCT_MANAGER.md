@@ -113,6 +113,10 @@ build or service worker serves old chunks:
 Orphaned files can exist if an admin uploads and then abandons the form; they
 are harmless and can be cleaned from the bucket later.
 
+> **Next PR:** automatic WebP compression to **≤ 300 KB per photo** is
+> specified in `docs/MEMO_PRODUCT_MEDIA_COMPRESSION.md`. Until that ships, the
+> client caps dimensions at 1600px and the server accepts up to 5 MB.
+
 ## Revalidation
 
 Create/update revalidates `/`, `/admin/ventures`, the product page (old and new
