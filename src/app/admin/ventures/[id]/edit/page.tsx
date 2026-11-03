@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { isProductMediaConfigured } from '@/lib/productMedia';
+import { normaliseSuitableFor } from '@/lib/ventureSuitableFor';
 import {
   VentureForm,
   type VentureFormInitial,
@@ -54,6 +55,7 @@ function asFaqs(value: unknown): VentureFormInitial['faqs'] {
     .filter((item) => item.question || item.answer);
 }
 
+
 export default async function AdminEditVenturePage({ params }: AdminEditVenturePageProps) {
   const [venture, locations] = await Promise.all([
     prisma.venture.findUnique({ where: { id: params.id } }),
@@ -87,7 +89,7 @@ export default async function AdminEditVenturePage({ params }: AdminEditVentureP
     inclusions: asStringArray(venture.inclusions),
     exclusions: asStringArray(venture.exclusions),
     languages: asStringArray(venture.languages),
-    suitableFor: asStringArray(venture.suitableFor),
+    suitableFor: normaliseSuitableFor(venture.suitableFor),
     itinerary: asItinerary(venture.itinerary),
     essentialInfo: asEssentialInfo(venture.essentialInfo),
     faqs: asFaqs(venture.faqs),

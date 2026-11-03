@@ -197,7 +197,7 @@ export const adminVentureWriteSchema = z
     languages: z.array(z.string().trim().min(2).max(5)).max(6).default(['en', 'id']),
     suitableFor: z
       .array(z.enum(['KIDS', 'COUPLE', 'FAMILY', 'SOLO', 'GROUP']))
-      .max(5)
+      .max(5, 'Choose up to 5 suitable groups')
       .default([]),
     itinerary: itinerarySchema.default([]),
     essentialInfo: essentialInfoSchema.default({
