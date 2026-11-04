@@ -499,8 +499,8 @@ export function ExperienceBookingWidget({
                       {lockedZone.isCustomQuote
                         ? 'Custom quote — confirmed by WhatsApp'
                         : lockedZone.surchargeIdr > 0
-                          ? `+${formatPrice(lockedZone.surchargeIdr)}${fulfillmentMode === 'SHARED_TRANSFER' ? '/guest' : '/vehicle'}`
-                          : 'Included in this package'}
+                          ? `+${formatPrice(lockedZone.surchargeIdr)}/vehicle`
+                          : '+Rp 0/vehicle'}
                     </p>
                   </div>
                   <button
@@ -512,30 +512,45 @@ export function ExperienceBookingWidget({
                   </button>
                 </div>
               ) : (
-                <select
-                  id="pickup-zone"
-                  value={config.zoneId ?? ''}
-                  onChange={(event) => onChange({ zoneId: event.target.value })}
-                  className="min-h-[44px] w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900"
-                >
-                  <option value="" disabled>
-                    Select your area…
-                  </option>
+                <div className="space-y-2" role="radiogroup" aria-label="Pickup area">
                   {zones.map((item) => (
-                    <option
+                    <label
                       key={item.id}
-                      value={item.id}
-                      disabled={item.isCustomQuote}
+                      className={cn(
+                        'flex items-center gap-3 min-h-[44px] rounded-lg border-2 px-3 py-2 transition-colors cursor-pointer',
+                        config.zoneId === item.id
+                          ? 'border-neutral-900 bg-neutral-50'
+                          : 'border-neutral-200 hover:border-neutral-400',
+                        item.isCustomQuote && 'opacity-50 cursor-not-allowed'
+                      )}
                     >
-                      {item.name}
-                      {item.isCustomQuote
-                        ? ' — Not Available / Read Only'
-                        : item.surchargeIdr > 0
-                          ? ` (+${formatPrice(item.surchargeIdr)}/vehicle)`
-                          : ' (included)'}
-                    </option>
+                      <input
+                        type="radio"
+                        name="pickup-zone"
+                        value={item.id}
+                        checked={config.zoneId === item.id}
+                        onChange={() => {
+                          if (!item.isCustomQuote) {
+                            onChange({ zoneId: item.id });
+                          }
+                        }}
+                        disabled={item.isCustomQuote}
+                        className="h-4 w-4 text-brand-ink border-neutral-300 focus:ring-2 focus:ring-brand"
+                        aria-disabled={item.isCustomQuote}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="truncate text-sm font-semibold text-neutral-900">{item.name}</p>
+                        <p className="text-xs text-neutral-500">
+                          {item.isCustomQuote
+                            ? 'Not Available / Read Only — Outer areas are beyond our daily transport coverage. Please contact support or arrange transport to the nearest Core Area.'
+                            : item.surchargeIdr > 0
+                              ? `+${formatPrice(item.surchargeIdr)}/vehicle`
+                              : '+Rp 0/vehicle'}
+                        </p>
+                      </div>
+                    </label>
                   ))}
-                </select>
+                </div>
               )}
             </div>
 
@@ -547,9 +562,13 @@ export function ExperienceBookingWidget({
                 id="hotel-address"
                 type="text"
                 value={config.hotelAddress}
-                disabled={config.isTba}
+                disabled={config.isTba || !config.zoneId}
                 onChange={(event) => onChange({ hotelAddress: event.target.value })}
-                placeholder={config.isTba ? 'To be confirmed by H-1' : 'e.g. Villa Melati, Jl. Raya Seminyak'}
+                placeholder={!config.zoneId
+                  ? 'Select a pickup area first'
+                  : config.isTba
+                    ? 'To be confirmed by H-1'
+                    : 'e.g. Villa Melati, Jl. Raya Seminyak'}
                 className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900 disabled:bg-neutral-100 disabled:text-neutral-600"
               />
               <label className="mt-2 flex min-h-[44px] items-center gap-2 text-sm text-neutral-700">
@@ -557,10 +576,14 @@ export function ExperienceBookingWidget({
                   type="checkbox"
                   checked={config.isTba}
                   onChange={(event) => onChange({ isTba: event.target.checked })}
-                  className="h-5 w-5 rounded border-neutral-300"
+                  disabled={!config.zoneId}
+                  className="h-5 w-5 rounded border-neutral-300 disabled:opacity-50"
                 />
                 Address TBA — I&apos;ll confirm by H-1
               </label>
+              {!config.zoneId && (
+                <p className="mt-1 text-xs text-amber-700">Please select a pickup area to enable the address field.</p>
+              )}
             </div>
 
             {needsVehicle && (
@@ -921,14 +944,22 @@ export function ExperienceBookingWidget({
             </div>
           )}
           {quote.transfer.totalFeeIdr > 0 && (
-            <div className="flex justify-between text-neutral-600">
-              <span>
-                {fulfillmentMode === 'SHARED_TRANSFER'
-                  ? 'Shared shuttle · per guest'
-                  : `Private transfer · per group (${quote.transfer.vehicleCount} vehicle${quote.transfer.vehicleCount > 1 ? 's' : ''})`}
-              </span>
-              <span className="tabular-nums">{formatPrice(quote.transfer.totalFeeIdr)}</span>
-            </div>
+            <>
+              <div className="flex justify-between text-neutral-600">
+                <span>
+                  {fulfillmentMode === 'SHARED_TRANSFER'
+                    ? 'Shared shuttle · per guest'
+                    : `Private Transfer (${zone?.name ?? 'area not selected'})`}
+                </span>
+                <span className="tabular-nums">{formatPrice(quote.transfer.zoneSurchargeIdr * quote.transfer.vehicleCount)}</span>
+              </div>
+              {fulfillmentMode === 'PRIVATE_TRANSFER' && quote.transfer.vehicleClassDeltaIdr > 0 && (
+                <div className="flex justify-between text-neutral-600">
+                  <span>Vehicle Upgrade ({vehicleClass?.label ?? 'Premium MPV'})</span>
+                  <span className="tabular-nums">{formatPrice(quote.transfer.vehicleClassDeltaIdr * quote.transfer.vehicleCount)}</span>
+                </div>
+              )}
+            </>
           )}
           {quote.addonsTotalIdr > 0 && (
             <div className="flex justify-between text-neutral-600">
