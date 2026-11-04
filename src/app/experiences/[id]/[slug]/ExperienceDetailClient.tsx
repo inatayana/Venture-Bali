@@ -469,15 +469,26 @@ export function ExperienceDetailClient({
               <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <span className="text-xs font-medium text-neutral-500">From</span>
                 {estimate.promoActive && (
-                  <span className="text-sm tabular-nums text-neutral-600 line-through">
+                  <span className="text-sm tabular-nums text-red-500 line-through">
                     {formatPrice(estimate.listPricePerPaxIdr)}
                   </span>
                 )}
                 <span className="font-heading text-3xl font-bold tabular-nums text-neutral-900">
                   {formatPrice(selectedPrice)}
                 </span>
+                {isAgeTiered && (
+                  <p className="mt-2 text-xs text-neutral-500">
+                    Kids from {formatPrice(kidsFromPrice ?? 0)} · youth from {formatPrice(youthFromPrice ?? 0)}
+                  </p>
+                )}
                 <span className="text-sm text-neutral-500">/ guest</span>
               </div>
+
+              {isAgeTiered && (
+                <p className="mt-2 text-sm text-neutral-600">
+                  More guests = lower price per person. Kids & youth get their own price.
+                </p>
+              )}
 
               {selectedVariant?.minimumSpendIdr ? (
                 <p className="mt-1 text-xs font-medium text-neutral-600">
@@ -496,9 +507,8 @@ export function ExperienceDetailClient({
                   onChange={(value) => patchConfig({ adults: value })}
                 />
                 {isAgeTiered && (
-                  <p className="mt-2 text-xs text-neutral-500">
-                    Kids from {formatPrice(kidsFromPrice ?? 0)} · youth from{' '}
-                    {formatPrice(youthFromPrice ?? 0)} — choose the age mix in the booking sheet.
+                  <p className="mt-2 text-sm text-neutral-600">
+                    More guests = lower price per person. Kids & youth get their own price.
                   </p>
                 )}
               </div>
@@ -512,8 +522,8 @@ export function ExperienceDetailClient({
                 </div>
                 {estimate.discountIdr > 0 && (
                   <div className="flex justify-between text-green-700">
-                    <span>Promo savings</span>
-                    <span className="tabular-nums">−{formatPrice(estimate.discountIdr)}</span>
+                    <span>Anda hemat</span>
+                    <span className="tabular-nums">{formatPrice(estimate.discountIdr)}</span>
                   </div>
                 )}
                 {estimate.minimumTopUpIdr > 0 && (
