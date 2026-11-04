@@ -11,6 +11,7 @@ import {
   ImagePlus,
   Loader2,
   Plus,
+  Sparkles,
   Star,
   Trash2,
   UploadCloud,
@@ -220,6 +221,7 @@ export function VentureForm({
   const [draggingPhoto, setDraggingPhoto] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generatingHook, setGeneratingHook] = useState(false);
 
   useEffect(() => {
     if (!slugTouched) setSlug(buildVentureSlug(title));
@@ -231,6 +233,34 @@ export function VentureForm({
   );
   const slugValid = isVentureSlugValid(slug);
 
+  const generateHook = async () => {
+    if (!title.trim()) return;
+    setGeneratingHook(true);
+    try {
+      const response = await fetch('/api/admin/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'hook', title, category }),
+      });
+      const payload = await response.json();
+      if (payload.success) setHook3Sec(payload.data);
+    } catch {
+      setError('Could not generate hook.');
+    } finally {
+      setGeneratingHook(false);
+    }
+  };
+
+  const addMinutesToTime = (time: string, minutes: number): string => {
+    const match = time.match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) return time;
+    const hours = Number(match[1]);
+    const mins = Number(match[2]);
+    const total = hours * 60 + mins + minutes;
+    const newH = Math.floor(total / 60) % 24;
+    const newM = total % 60;
+    return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+  };
   const toggleSuitable = (value: string) => {
     setSuitableFor((current) => {
       if (current.includes(value)) return current.filter((item) => item !== value);
@@ -576,15 +606,26 @@ export function VentureForm({
 
         <label className={labelClass}>
           Hook (3 seconds)
-          <input
-            value={hook3Sec}
-            onChange={(event) => setHook3Sec(event.target.value)}
-            required
-            minLength={10}
-            maxLength={120}
-            className={inputClass}
-            placeholder="Float a hidden canyon, then lunch by the river."
-          />
+          <div className="flex gap-2">
+            <input
+              value={hook3Sec}
+              onChange={(event) => setHook3Sec(event.target.value)}
+              required
+              minLength={10}
+              maxLength={120}
+              className={inputClass}
+              placeholder="Float a hidden canyon, then lunch by the river."
+            />
+            <button
+              type="button"
+              onClick={generateHook}
+              disabled={generatingHook || !title.trim()}
+              className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-neutral-300 px-3 text-xs font-semibold text-neutral-900 hover:bg-neutral-50 disabled:opacity-50"
+            >
+              {generatingHook ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              AI
+            </button>
+          </div>
         </label>
         <label className={labelClass}>
           Short description (card + meta, max 200)
@@ -807,10 +848,18 @@ export function VentureForm({
                   value={row.durationMinutes ?? ''}
                   onChange={(event) => {
                     const next = [...itinerary];
+                    const mins = event.target.value ? Number(event.target.value) : null;
                     next[index] = {
                       ...next[index],
-                      durationMinutes: event.target.value ? Number(event.target.value) : null,
+                      durationMinutes: mins,
                     };
+                    // Auto-calculate next row's start time
+                    if (mins && next[index].time && index + 1 < next.length) {
+                      next[index + 1] = {
+                        ...next[index + 1],
+                        time: addMinutesToTime(next[index].time, mins),
+                      };
+                    }
                     setItinerary(next);
                   }}
                   placeholder="Min"
