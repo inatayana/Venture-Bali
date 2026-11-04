@@ -241,6 +241,11 @@ export interface Variant {
    */
   pickupZoneId?: string;
   pickupZone?: VariantPickupZone;
+  /**
+   * Real paid bookings for this package in the last 48 hours (demand window,
+   * see ventureWithRelations). Powers the honest "N× booked" badge.
+   */
+  bookedLast48h?: number;
   sortOrder: number;
   priceTiers: PriceTier[];
   blackoutDates: string[];

@@ -98,7 +98,7 @@ export async function loadVentures(): Promise<{
 }> {
   try {
     const rows = await prisma.venture.findMany({
-      include: ventureWithRelations,
+      include: ventureWithRelations(),
       orderBy: [{ rating: 'desc' }, { title: 'asc' }],
     });
 

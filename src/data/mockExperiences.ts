@@ -175,6 +175,7 @@ function toPrismaShape(venture: VentureSeed): VentureWithRelations {
       sortOrder: variant.sortOrder ?? variantIndex,
       vendorId: null,
       blackoutDates: variant.blackoutDates,
+      _count: { bookings: 0 },
       createdAt: MOCK_NOW,
       updatedAt: MOCK_NOW,
       priceTiers: variant.priceTiers.map((tier, tierIndex) => ({

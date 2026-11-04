@@ -104,6 +104,7 @@ function buildVenture(overrides: Partial<VentureWithRelations> = {}): VentureWit
             updatedAt: NOW,
           },
         ],
+        _count: { bookings: 0 },
       },
     ],
     reviews: [
@@ -347,5 +348,14 @@ describe('toVentureItem', () => {
     });
     expect(typeof item.description).toBe('string');
     expect(item.description.length).toBeGreaterThan(0);
+  });
+});
+
+describe('variant demand signal', () => {
+  it('maps the filtered paid-booking count onto each package', () => {
+    const venture = buildVenture();
+    venture.variants[0]._count = { bookings: 7 };
+    const item = toVentureItem(venture);
+    expect(item.variants[0].bookedLast48h).toBe(7);
   });
 });

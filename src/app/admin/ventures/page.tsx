@@ -8,14 +8,16 @@ import { mockExperiences } from '@/data/mockExperiences';
 export const dynamic = 'force-dynamic';
 
 /** Row shape with the relations toVentureItem needs. */
-type AdminVentureRow = Prisma.VentureGetPayload<{ include: typeof ventureWithRelations }>;
+type AdminVentureRow = Prisma.VentureGetPayload<{
+  include: ReturnType<typeof ventureWithRelations>;
+}>;
 
 export default async function AdminVenturesPage() {
   let rows: AdminVentureRow[] = [];
-  
+
   try {
     rows = await prisma.venture.findMany({
-      include: ventureWithRelations,
+      include: ventureWithRelations(),
       orderBy: [{ category: 'asc' }, { title: 'asc' }],
     });
   } catch (error) {

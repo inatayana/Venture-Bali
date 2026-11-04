@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { CalendarDays, Check, Clock, ImageIcon, Info, MapPin, Sparkles, Tag, X } from 'lucide-react';
 import { formatPrice } from '@/lib/i18n';
 import { couponAppliesTo, getVariantPickupDisplay, getVariantPriceDisplay } from '@/lib/variantDisplay';
+import { demandBadgeIsHot, demandBadgeLabel } from '@/lib/demand';
 import type { Variant } from '@/types/venture';
 
 export interface VariantPromo {
@@ -106,6 +107,8 @@ export function VariantDetailModal({
   const inclusions = variant.inclusions ?? [];
   const exclusions = variant.exclusions ?? [];
   const addonCount = variant.addons?.length ?? 0;
+  const demandLabel = demandBadgeLabel(variant.bookedLast48h);
+  const demandHot = demandBadgeIsHot(variant.bookedLast48h);
   const showCoupon = couponAppliesTo(variant);
   const pickup = getVariantPickupDisplay(variant);
   const imageUrl = variant.imageUrl ?? fallbackImageUrl;
@@ -208,6 +211,17 @@ export function VariantDetailModal({
                   </span>
                 )}
               </div>
+
+              {demandLabel && (
+                <p
+                  className={`mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    demandHot ? 'bg-brand/25 text-neutral-900' : 'bg-neutral-100 text-neutral-700'
+                  }`}
+                  title="Real paid bookings for this package"
+                >
+                  {demandLabel}
+                </p>
+              )}
 
               <p className="mt-1 text-xs text-neutral-600">
                 {variant.minimumSpendIdr ? (

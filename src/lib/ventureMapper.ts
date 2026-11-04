@@ -35,26 +35,43 @@ import type {
 
 // ============ RELATION SHAPE ============
 
-export const ventureWithRelations = {
-  location: true,
-  variants: {
-    include: {
-      priceTiers: { orderBy: { minPax: 'asc' } },
-      slotTimes: { orderBy: { time: 'asc' } },
-      addons: true,
-      pickupZone: true,
+/** How far back the per-package demand signal looks. */
+export const DEMAND_WINDOW_MS = 48 * 60 * 60 * 1000;
+
+/**
+ * Venture include with the relations the public pages render.
+ *
+ * `paidSince` powers the per-package demand signal (VariantCatalogCard /
+ * VariantDetailModal): only REAL paid bookings inside the window are counted,
+ * so the badge never invents social proof. Defaults to the last 48 hours.
+ */
+export function ventureWithRelations(paidSince: Date = new Date(Date.now() - DEMAND_WINDOW_MS)) {
+  return {
+    location: true,
+    variants: {
+      include: {
+        priceTiers: { orderBy: { minPax: 'asc' } },
+        slotTimes: { orderBy: { time: 'asc' } },
+        addons: true,
+        pickupZone: true,
+        _count: {
+          select: {
+            bookings: { where: { paymentStatus: 'PAID', createdAt: { gte: paidSince } } },
+          },
+        },
+      },
+      orderBy: { sortOrder: 'asc' },
     },
-    orderBy: { sortOrder: 'asc' },
-  },
-  reviews: {
-    where: { isApproved: true },
-    orderBy: { createdAt: 'desc' },
-    include: { customer: { select: { name: true, countryCode: true } } },
-  },
-} satisfies Prisma.VentureInclude;
+    reviews: {
+      where: { isApproved: true },
+      orderBy: { createdAt: 'desc' },
+      include: { customer: { select: { name: true, countryCode: true } } },
+    },
+  } satisfies Prisma.VentureInclude;
+}
 
 export type VentureWithRelations = Prisma.VentureGetPayload<{
-  include: typeof ventureWithRelations;
+  include: ReturnType<typeof ventureWithRelations>;
 }>;
 
 // ============ SAFE JSON PARSERS ============
@@ -255,6 +272,8 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
       transportBadge: variant.transportBadge ?? undefined,
       imageUrl: variant.imageUrl ?? undefined,
       duration: variant.duration ?? undefined,
+      /** Paid bookings inside the demand window — see ventureWithRelations. */
+      bookedLast48h: variant._count.bookings,
       fulfillmentMode: variant.fulfillmentMode,
       promoPriceIdr: variant.promoPriceIdr ?? undefined,
       operationNotes: variant.operationNotes ?? undefined,

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { CalendarDays, Check, Clock, ImageIcon, MapPin } from 'lucide-react';
 import { formatPrice } from '@/lib/i18n';
 import { getVariantPickupDisplay, getVariantPriceDisplay } from '@/lib/variantDisplay';
+import { demandBadgeIsHot, demandBadgeLabel } from '@/lib/demand';
 import type { Variant } from '@/types/venture';
 import { cn } from '@/utils/cn';
 import { PriceApprox } from '@/components/currency/PriceApprox';
@@ -39,6 +40,8 @@ export function VariantCatalogCard({
   const pickup = getVariantPickupDisplay(variant);
   const inclusions = variant.inclusions ?? [];
   const addonCount = variant.addons?.length ?? 0;
+  const demandLabel = demandBadgeLabel(variant.bookedLast48h);
+  const demandHot = demandBadgeIsHot(variant.bookedLast48h);
   const openDetails = onOpenDetails ?? onSelect;
   const imageUrl = variant.imageUrl ?? fallbackImageUrl;
 
@@ -115,6 +118,17 @@ export function VariantCatalogCard({
               <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 font-medium text-green-700">
                 <Check className="h-3.5 w-3.5" />
                 {inclusions.length} included
+              </span>
+            )}
+            {demandLabel && (
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold',
+                  demandHot ? 'bg-brand/25 text-neutral-900' : 'bg-neutral-100 text-neutral-700'
+                )}
+                title="Real paid bookings for this package"
+              >
+                {demandLabel}
               </span>
             )}
           </div>

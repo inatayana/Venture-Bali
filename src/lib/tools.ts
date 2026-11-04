@@ -42,7 +42,7 @@ async function resolveVenture(productId?: string): Promise<VentureItem | null> {
     try {
       const row = await prisma.venture.findFirst({
         where: { OR: [{ id: productId }, { slug: productId }] },
-        include: ventureWithRelations,
+        include: ventureWithRelations(),
       });
       if (row) return toVentureItem(row);
     } catch (error) {
@@ -61,7 +61,7 @@ async function resolveVenture(productId?: string): Promise<VentureItem | null> {
   try {
     const row = await prisma.venture.findFirst({
       orderBy: { rating: 'desc' },
-      include: ventureWithRelations,
+      include: ventureWithRelations(),
     });
     if (row) return toVentureItem(row);
   } catch (error) {
