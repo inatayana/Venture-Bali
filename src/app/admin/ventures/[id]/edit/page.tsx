@@ -61,7 +61,7 @@ export default async function AdminEditVenturePage({ params }: AdminEditVentureP
     prisma.venture.findUnique({ where: { id: params.id } }),
     prisma.location.findMany({
       orderBy: [{ region: 'asc' }, { name: 'asc' }],
-      select: { id: true, name: true, region: true },
+      select: { id: true, name: true, region: true, desa: true, kecamatan: true, kabupaten: true, provinsi: true },
     }),
   ]);
 

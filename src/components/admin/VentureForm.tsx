@@ -41,6 +41,10 @@ export interface VentureFormLocation {
   id: string;
   name: string;
   region: string;
+  desa?: string | null;
+  kecamatan?: string | null;
+  kabupaten?: string | null;
+  provinsi?: string | null;
 }
 
 export interface VentureFormInitial {
