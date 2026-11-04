@@ -522,12 +522,16 @@ export function ExperienceBookingWidget({
                     Select your area…
                   </option>
                   {zones.map((item) => (
-                    <option key={item.id} value={item.id}>
+                    <option
+                      key={item.id}
+                      value={item.id}
+                      disabled={item.isCustomQuote}
+                    >
                       {item.name}
                       {item.isCustomQuote
-                        ? ' (custom quote)'
+                        ? ' — Not Available / Read Only'
                         : item.surchargeIdr > 0
-                          ? ` (+${formatPrice(item.surchargeIdr)}${fulfillmentMode === 'SHARED_TRANSFER' ? '/guest' : '/vehicle'})`
+                          ? ` (+${formatPrice(item.surchargeIdr)}/vehicle)`
                           : ' (included)'}
                     </option>
                   ))}

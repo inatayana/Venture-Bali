@@ -56,33 +56,32 @@ export const TENANT_DOMAIN = 'baliwild.com';
 export const TENANT_NAME = 'BaliWild';
 export const TENANT_THEME = '#000000';
 
-// Pickup zones — surcharge applies when the pickup zone differs from the
-// activity zone. Zone 1 (core Bali) and the Nusa Dua / Ubud corridor are
-// surcharge-free (see BOOKING_ARCHITECTURE.md §3).
+// Pickup zones — surcharge per vehicle for PRIVATE_TRANSFER
+// Core Area and South zones are bookable; Outer is disabled (custom quote only).
 export const PICKUP_ZONES = [
   {
     name: 'Core Area — Ubud & Gianyar',
     areaType: 'ZONE_1' as const,
-    surchargeIdr: 0,
+    surchargeIdr: 500000,
     isCustomQuote: false,
     vehicleMaxPax: 6,
   },
   {
-    name: 'South 1 — Kuta, Seminyak, Canggu, Sanur',
+    name: 'South Zone 1 — Kuta, Seminyak, Canggu, Sanur',
     areaType: 'ZONE_2' as const,
-    surchargeIdr: 224000,
+    surchargeIdr: 700000,
     isCustomQuote: false,
     vehicleMaxPax: 6,
   },
   {
-    name: 'South 2 — Nusa Dua, Jimbaran, Uluwatu',
+    name: 'South Zone 2 — Nusa Dua, Jimbaran, Uluwatu',
     areaType: 'ZONE_3' as const,
-    surchargeIdr: 320000,
+    surchargeIdr: 800000,
     isCustomQuote: false,
     vehicleMaxPax: 6,
   },
   {
-    name: 'Outer — Amed, Lovina, Pemuteran, Tulamben',
+    name: 'Outer Area — Amed, Lovina, Pemuteran, Tulamben',
     areaType: 'ZONE_4' as const,
     surchargeIdr: 0,
     isCustomQuote: true,
@@ -93,26 +92,26 @@ export const PICKUP_ZONES = [
 export const VEHICLE_CLASSES = [
   {
     name: 'STANDARD_SUV' as const,
-    label: 'Standard SUV · up to 4 pax',
-    description: 'Compact SUV, comfortable for small groups',
-    vehicleMaxPax: 4,
+    label: 'Standard SUV · up to 5 pax',
+    description: 'Avanza/Xenia, comfortable for small groups',
+    vehicleMaxPax: 5,
     deltaIdr: 0,
     sortOrder: 1,
   },
   {
     name: 'PREMIUM_MPV' as const,
     label: 'Premium MPV · up to 6 pax',
-    description: 'Spacious MPV with extra legroom',
+    description: 'Toyota Innova, spacious MPV with extra legroom',
     vehicleMaxPax: 6,
-    deltaIdr: 100000,
+    deltaIdr: 400000,
     sortOrder: 2,
   },
   {
     name: 'MINIVAN' as const,
-    label: 'Minivan · up to 12 pax',
-    description: 'Large minivan for groups',
-    vehicleMaxPax: 12,
-    deltaIdr: 250000,
+    label: 'Minivan · up to 14 pax',
+    description: 'HIACE, large minivan for groups',
+    vehicleMaxPax: 14,
+    deltaIdr: 1000000,
     sortOrder: 3,
   },
 ];
