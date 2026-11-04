@@ -121,6 +121,10 @@ model Location {
   id        String    @id @default(cuid())
   name      String
   region    String
+  desa      String?
+  kecamatan String?
+  kabupaten String?
+  provinsi  String    @default("Bali")
   latitude  Float
   longitude Float
   ventures  Venture[]
@@ -129,6 +133,23 @@ model Location {
 
   @@index([name])
   @@index([region])
+  @@index([kabupaten])
+}
+
+model Vendor {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  name          String
+  activityType  String
+  meetingPoint  String?
+  mapsUrl       String?
+  isActive      Boolean   @default(true)
+  variants      Variant[] @relation("VendorToVariant")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([code])
+  @@index([activityType])
 }
 
 model PickupZone {
@@ -203,6 +224,7 @@ model Venture {
   badge             String?
   /// Where guests meet for SELF_DRIVE packages.
   meetingPoint      String?
+  meetingPointMapsUrl String?
   meetingPointLat   Float?
   meetingPointLng   Float?
   /// Structured safety requirements shown on the product page.
@@ -291,6 +313,9 @@ model Variant {
   /// still applied once by the pricing engine (never baked into the tier price).
   pickupZoneId     String?
   pickupZone       PickupZone?     @relation("PickupZoneToVariant", fields: [pickupZoneId], references: [id], onDelete: SetNull)
+  /// Hidden vendor/partner that executes this variant. Not exposed to customers.
+  vendorId         String?
+  vendor           Vendor?         @relation("VendorToVariant", fields: [vendorId], references: [id], onDelete: SetNull)
   sortOrder        Int             @default(0)
   priceTiers       PriceTier[]     @relation("VariantToPriceTier")
   blackoutDates    Json
@@ -305,14 +330,20 @@ model Variant {
 }
 
 model PriceTier {
-  id          String  @id @default(cuid())
-  minPax      Int
-  maxPax      Int
-  pricePerPax Int
-  variantId   String
-  variant     Variant @relation("VariantToPriceTier", fields: [variantId], references: [id], onDelete: Cascade)
+  id           String       @id @default(cuid())
+  minPax       Int
+  maxPax       Int
+  pricePerPax  Int          // Adult price (base price)
+  pricingModel PricingModel @default(FLAT_PER_GUEST)
+  variantId    String
+  variant      Variant      @relation("VariantToPriceTier", fields: [variantId], references: [id], onDelete: Cascade)
 
   @@index([variantId])
+}
+
+enum PricingModel {
+  FLAT_PER_GUEST
+  AGE_TIERED
 }
 
 model SlotTime {
@@ -383,6 +414,9 @@ model Booking {
   /// True when the guest will confirm the pickup address by H-1 (TBA flow).
   isTba              Boolean          @default(false)
   paxCount           Int
+  adultsCount        Int              @default(0)
+  kidsCount          Int              @default(0)
+  youthCount         Int              @default(0)
   vehicleCount       Int              @default(1)
   zoneSurchargeIdr   Int              @default(0)
   /// Night-slot surcharge captured at booking time (IDR).
@@ -397,6 +431,16 @@ model Booking {
   termsAcceptedAt    DateTime?
   waiverAcceptedAt   DateTime?
   waiverVersion      String?
+  waiverDigitalSignature String?
+  waiverSignatureMethod  String?
+  waiverHealthDeclaration  Json?
+  waiverEmergencyContact   Json?
+  waiverIdVerified     Boolean        @default(false)
+  waiverPhotoId          String?
+  waiverSignedBy         String?
+  waiverSignedAt         DateTime?
+  waiverIpAddress        String?
+  waiverUserAgent        String?
   billingAddress     Json?
   /// Operational lifecycle used by the field-team job order.
   lifecycleStatus    BookingLifecycle @default(AWAITING_PAYMENT)
