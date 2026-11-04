@@ -23,7 +23,7 @@ export function VendorManager() {
   const loadVendors = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/vendors');
+      const res = await fetch('/api/admin/vendors', { cache: 'no-store' });
       const json = await res.json();
       if (json.success) setVendors(json.data);
     } catch {
@@ -43,12 +43,15 @@ export function VendorManager() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
+        cache: 'no-store',
       });
       const json = await res.json();
       if (json.success) {
         setForm({ code: '', name: '', activityType: '', meetingPoint: '', mapsUrl: '' });
         setShowForm(false);
         await loadVendors();
+      } else {
+        alert(json.error || 'Failed to save vendor');
       }
     } catch {
       console.error('Failed to create vendor');

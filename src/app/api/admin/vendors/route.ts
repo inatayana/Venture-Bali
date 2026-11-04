@@ -23,7 +23,14 @@ export async function POST(request: Request) {
     }
 
     const vendor = await prisma.vendor.create({
-      data: { code, name, activityType, meetingPoint, mapsUrl, isActive: isActive ?? true },
+      data: {
+        code,
+        name,
+        activityType,
+        meetingPoint: meetingPoint || null,
+        mapsUrl: mapsUrl || null,
+        isActive: isActive ?? true,
+      },
     });
 
     return NextResponse.json({ success: true, data: vendor });
