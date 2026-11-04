@@ -125,8 +125,10 @@ model Location {
   kecamatan String?
   kabupaten String?
   provinsi  String    @default("Bali")
-  latitude  Float
-  longitude Float
+  /// Nullable: desa-level locations are created from the admin area cascade
+  /// without coordinates; precise coordinates live on Venture.meetingPoint*.
+  latitude  Float?
+  longitude Float?
   ventures  Venture[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
