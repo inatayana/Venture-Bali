@@ -39,7 +39,7 @@ export interface BacklinkStrategy {
  */
 export async function auditCatalogueSeo(): Promise<SeoAuditResult> {
   const ventures = await prisma.venture.findMany({
-    select: { id: true, title: true, category: true, location: { select: { name: true } } },
+    select: { id: true, title: true, category: true, location: { select: { name: true } }, primaryKeyword: true },
   });
 
   const issues: SeoAuditResult['issues'] = [];
@@ -48,7 +48,7 @@ export async function auditCatalogueSeo(): Promise<SeoAuditResult> {
   for (const venture of ventures) {
     const check = validateVentureTitle({
       title: venture.title,
-      primaryKeyword: `${venture.location?.name || ''} ${venture.category}`, // approximation
+      primaryKeyword: venture.primaryKeyword || `${venture.location?.name || ''} ${venture.category}`,
     });
 
     if (!check.valid) {
