@@ -904,8 +904,8 @@ export function ExperienceBookingWidget({
           )}
           {quote.discountIdr > 0 && (
             <div className="flex justify-between text-green-700">
-              <span>Discount {appliedCoupon ? `(${appliedCoupon.code})` : '(promo price)'}</span>
-              <span className="tabular-nums">−{formatPrice(quote.discountIdr)}</span>
+              <span>You Save {appliedCoupon ? `(${appliedCoupon.code})` : ''}</span>
+              <span className="tabular-nums">{formatPrice(quote.discountIdr)}</span>
             </div>
           )}
           {quote.minimumTopUpIdr > 0 && (
