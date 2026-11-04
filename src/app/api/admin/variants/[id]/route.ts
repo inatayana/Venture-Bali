@@ -127,6 +127,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
             : {}),
           ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
           ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl || null } : {}),
+          ...(input.promoPriceIdr !== undefined ? { promoPriceIdr: input.promoPriceIdr } : {}),
+          ...(input.promoLabel !== undefined ? { promoLabel: input.promoLabel || null } : {}),
+          ...(input.promoStartsAt !== undefined ? { promoStartsAt: input.promoStartsAt } : {}),
+          ...(input.promoEndsAt !== undefined ? { promoEndsAt: input.promoEndsAt } : {}),
           ...(input.inclusions !== undefined ? { inclusions: input.inclusions } : {}),
           ...(input.exclusions !== undefined ? { exclusions: input.exclusions } : {}),
           // Always keep the stored zone consistent with the saved mode.

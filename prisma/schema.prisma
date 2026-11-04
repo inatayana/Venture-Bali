@@ -303,6 +303,13 @@ model Variant {
   /// List price per pax is stored in PriceTier; this is the active promo price (IDR).
   /// When set (and lower than the tier price) the UI renders a strikethrough price.
   promoPriceIdr    Int?
+  /// Optional campaign metadata for the promo price: the caption guests see
+  /// (e.g. "Promo September Ceria") and the active window. The mapper only
+  /// exposes the promo while `now` is inside the window — a promo without
+  /// dates is always active (legacy behaviour).
+  promoLabel       String?
+  promoStartsAt    DateTime?
+  promoEndsAt      DateTime?
   /// Operational notes shown under the price, e.g. "After 7 PM: +Rp50.000/pax".
   operationNotes   String?
   /// Package-level inclusions/exclusions; empty falls back to the venture lists.

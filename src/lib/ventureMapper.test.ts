@@ -1,4 +1,5 @@
-import {
+﻿import {
+  activeVariantPromo,
   toVentureItem,
   parseDurationHours,
   deriveFromPrice,
@@ -20,7 +21,7 @@ function buildVenture(overrides: Partial<VentureWithRelations> = {}): VentureWit
     shortDescription: 'Guided ATV adventure through the jungles of Ubud.',
     duration: '2.5 hours',
     badge: 'Best Seller',
-    meetingPoint: 'Ubud ATV Base Camp — Payangan',
+    meetingPoint: 'Ubud ATV Base Camp â€” Payangan',
     meetingPointLat: -8.435,
     meetingPointLng: 115.272,
     highlights: ['Quad bike through rice paddies', 'Certified guide'],
@@ -63,11 +64,14 @@ function buildVenture(overrides: Partial<VentureWithRelations> = {}): VentureWit
         title: 'Self Drive',
         shortDescription: 'Ride the ATV yourself',
         badge: null,
-        transportBadge: '📍 Meeting Point',
+        transportBadge: 'ðŸ“ Meeting Point',
         imageUrl: '/images/atv-ubud.svg',
         duration: '2.5 hrs',
         fulfillmentMode: 'SELF_DRIVE',
         promoPriceIdr: null,
+        promoLabel: null,
+        promoStartsAt: null,
+        promoEndsAt: null,
         operationNotes: null,
         sortOrder: 1,
         blackoutDates: ['2026-12-25'],
@@ -202,7 +206,7 @@ describe('toVentureItem', () => {
     expect(item.slug).toBe('ubud-atv-jungle-ride');
     expect(item.title).toBe('Ubud ATV Jungle Ride through Rice Terraces and Waterfalls');
     expect(item.category).toBe('ATV');
-    // The fixture has one approved 5★ review, which now drives the rating.
+    // The fixture has one approved 5â˜… review, which now drives the rating.
     expect(item.rating).toBe(5);
   });
 
@@ -285,11 +289,12 @@ describe('toVentureItem', () => {
     const item = toVentureItem(buildVenture());
     expect(item.highlights).toEqual(['Quad bike through rice paddies', 'Certified guide']);
     expect(item.meetingPoint).toEqual({
-      name: 'Ubud ATV Base Camp — Payangan',
+      name: 'Ubud ATV Base Camp â€” Payangan',
       latitude: -8.435,
       longitude: 115.272,
     });
-    expect(item.variants[0].imageUrl).toBe('/images/atv-ubud.svg');
+    // Seeded SVG covers are placeholders — packages fall back to the product photos.
+    expect(item.variants[0].imageUrl).toBeUndefined();
     expect(item.variants[0].duration).toBe('2.5 hrs');
     expect(item.inclusions).toEqual(['ATV rental', 'Safety gear']);
     expect(item.exclusions).toEqual(['Personal expenses']);
@@ -357,5 +362,61 @@ describe('variant demand signal', () => {
     venture.variants[0]._count = { bookings: 7 };
     const item = toVentureItem(venture);
     expect(item.variants[0].bookedLast48h).toBe(7);
+  });
+});
+
+describe('activeVariantPromo window', () => {
+  const now = new Date('2026-11-04T10:00:00.000Z');
+
+  it('returns null when there is no promo price', () => {
+    expect(activeVariantPromo({ promoPriceIdr: null }, now)).toBeNull();
+    expect(activeVariantPromo({ promoPriceIdr: 0 }, now)).toBeNull();
+  });
+
+  it('treats a promo without dates as always active', () => {
+    expect(activeVariantPromo({ promoPriceIdr: 380000 }, now)).toEqual({ price: 380000 });
+    expect(
+      activeVariantPromo({ promoPriceIdr: 380000, promoLabel: 'Promo September Ceria' }, now)
+    ).toEqual({ price: 380000, label: 'Promo September Ceria' });
+  });
+
+  it('hides promos that have not started or already ended', () => {
+    expect(
+      activeVariantPromo(
+        { promoPriceIdr: 380000, promoStartsAt: new Date('2026-11-10T00:00:00.000Z') },
+        now
+      )
+    ).toBeNull();
+    expect(
+      activeVariantPromo(
+        { promoPriceIdr: 380000, promoEndsAt: new Date('2026-11-01T00:00:00.000Z') },
+        now
+      )
+    ).toBeNull();
+  });
+
+  it('exposes a promo inside its window with its caption', () => {
+    expect(
+      activeVariantPromo(
+        {
+          promoPriceIdr: 300000,
+          promoLabel: 'Promo September Ceria',
+          promoStartsAt: new Date('2026-11-01T00:00:00.000Z'),
+          promoEndsAt: new Date('2026-11-30T23:59:59.000Z'),
+        },
+        now
+      )
+    ).toEqual({ price: 300000, label: 'Promo September Ceria' });
+  });
+});
+
+describe('variant cover fallback', () => {
+  it('keeps a real (non-SVG) cover', () => {
+    const venture = buildVenture();
+    venture.variants[0].imageUrl = 'https://example.supabase.co/storage/v1/object/public/venture-assets/products/2026-11/abc.webp';
+    const item = toVentureItem(venture);
+    expect(item.variants[0].imageUrl).toBe(
+      'https://example.supabase.co/storage/v1/object/public/venture-assets/products/2026-11/abc.webp'
+    );
   });
 });

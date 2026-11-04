@@ -230,6 +230,8 @@ export interface Variant {
   duration?: string;
   fulfillmentMode: FulfillmentMode;
   promoPriceIdr?: number;
+  /** Campaign caption for the promo price (e.g. "Promo September Ceria"). */
+  promoLabel?: string;
   operationNotes?: string;
   inclusions?: string[];
   exclusions?: string[];

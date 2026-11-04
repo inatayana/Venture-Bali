@@ -36,6 +36,10 @@ const existing: AdminVariantDraft = {
   priceTiers: [{ minPax: 1, maxPax: 10, pricePerPax: 450000 }],
   bookingCount: 0,
   imageUrl: null,
+  promoPriceIdr: null,
+  promoLabel: null,
+  promoStartsAt: null,
+  promoEndsAt: null,
   inclusions: ['ATV rental', 'Safety gear', 'Hotel shuttle'],
   exclusions: ['Personal expenses'],
 };

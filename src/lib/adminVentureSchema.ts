@@ -93,6 +93,11 @@ const variantBaseSchema = z.object({
     .max(10, 'Too many price tiers'),
   /** Optional cover: reuses one of the product's photos (no variant gallery). */
   imageUrl: assetUrlSchema.nullable().optional(),
+  /** Optional dated promo. A promo without dates is always active (legacy). */
+  promoPriceIdr: z.number().int().min(0).max(50_000_000).nullable().optional(),
+  promoLabel: z.string().trim().min(1).max(80).nullable().optional(),
+  promoStartsAt: z.coerce.date().nullable().optional(),
+  promoEndsAt: z.coerce.date().nullable().optional(),
   /**
    * Variant-level included/excluded items. When empty the public mapper falls
    * back to the venture-level standard list; a non-empty list is the
@@ -128,10 +133,32 @@ export const adminVariantSchema = variantBaseSchema.superRefine((value, ctx) => 
     });
   }
   checkTiersDoNotOverlap(value.priceTiers, ctx);
+  if (
+    value.promoStartsAt &&
+    value.promoEndsAt &&
+    value.promoEndsAt.getTime() <= value.promoStartsAt.getTime()
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['promoEndsAt'],
+      message: 'Promo end must be after the start',
+    });
+  }
 });
 
 export const adminVariantUpdateSchema = variantBaseSchema.partial().superRefine((value, ctx) => {
   if (value.priceTiers) checkTiersDoNotOverlap(value.priceTiers, ctx);
+  if (
+    value.promoStartsAt &&
+    value.promoEndsAt &&
+    value.promoEndsAt.getTime() <= value.promoStartsAt.getTime()
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['promoEndsAt'],
+      message: 'Promo end must be after the start',
+    });
+  }
 });
 
 /**

@@ -253,7 +253,7 @@ export function VariantDetailModal({
               ) : (
                 <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-green-800 ring-1 ring-green-200">
                   <Tag className="h-3.5 w-3.5" />
-                  Promo price applied — no code needed
+                  {variant.promoLabel ? `${variant.promoLabel} — promo price applied, no code needed` : 'Promo price applied — no code needed'}
                 </p>
               )}
             </div>

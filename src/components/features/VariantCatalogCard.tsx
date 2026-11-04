@@ -153,6 +153,9 @@ export function VariantCatalogCard({
             )}
           </div>
           <PriceApprox amountIdr={priceIdr} suffix=" / guest" className="mt-0.5 block" />
+          {promoPriceIdr !== null && variant.promoLabel && (
+            <p className="mt-0.5 text-xs font-semibold text-green-700">{variant.promoLabel}</p>
+          )}
           <p className="text-xs text-neutral-500">
             {variant.minimumSpendIdr ? (
               <>Minimum {formatPrice(variant.minimumSpendIdr)} to book</>

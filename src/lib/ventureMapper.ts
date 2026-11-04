@@ -85,6 +85,36 @@ function asStringArray(value: unknown): string[] {
   return value.filter((item): item is string => typeof item === 'string');
 }
 
+/** Seeded SVG covers ("/images/tubing.svg") are illustrations with a helpful
+ *  watermark, not photography — treat them as "no cover" so packages fall
+ *  back to the product's real photos. */
+function isPlaceholderCover(url: string | null): boolean {
+  return Boolean(url && url.trim().toLowerCase().endsWith('.svg'));
+}
+
+interface VariantPromoInput {
+  promoPriceIdr: number | null;
+  promoLabel?: string | null;
+  promoStartsAt?: Date | null;
+  promoEndsAt?: Date | null;
+}
+
+/**
+ * The promo price only reaches guests while `now` sits inside its window.
+ * A promo without dates is always active, so legacy rows keep working.
+ */
+export function activeVariantPromo(
+  variant: VariantPromoInput,
+  now: Date = new Date()
+): { price: number; label?: string } | null {
+  const price = variant.promoPriceIdr;
+  if (!price || price <= 0) return null;
+  if (variant.promoStartsAt && variant.promoStartsAt.getTime() > now.getTime()) return null;
+  if (variant.promoEndsAt && variant.promoEndsAt.getTime() <= now.getTime()) return null;
+  const label = variant.promoLabel?.trim() || undefined;
+  return label ? { price, label } : { price };
+}
+
 function asItinerary(value: unknown): ItineraryItem[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((item) => {
@@ -263,19 +293,25 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
     createdAt: venture.createdAt,
     updatedAt: venture.updatedAt,
 
-    variants: venture.variants.map((variant) => ({
+    variants: venture.variants.map((variant) => {
+      const promo = activeVariantPromo(variant);
+      return {
       id: variant.id,
       ventureId: variant.ventureId,
       title: variant.title,
       shortDescription: variant.shortDescription,
       badge: variant.badge ?? undefined,
       transportBadge: variant.transportBadge ?? undefined,
-      imageUrl: variant.imageUrl ?? undefined,
+      /** Seeded SVG covers are illustrations, not photography — packages
+       *  without a real photo fall back to the product's photos. */
+      imageUrl: isPlaceholderCover(variant.imageUrl) ? undefined : variant.imageUrl ?? undefined,
       duration: variant.duration ?? undefined,
       /** Paid bookings inside the demand window — see ventureWithRelations. */
       bookedLast48h: variant._count.bookings,
       fulfillmentMode: variant.fulfillmentMode,
-      promoPriceIdr: variant.promoPriceIdr ?? undefined,
+      /** Only exposed while the promo window is active. */
+      promoPriceIdr: promo?.price,
+      promoLabel: promo?.label,
       operationNotes: variant.operationNotes ?? undefined,
       inclusions: (() => {
         const list = asStringArray(variant.inclusions);
@@ -327,7 +363,8 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
       })),
       createdAt: variant.createdAt,
       updatedAt: variant.updatedAt,
-    })),
+      };
+    }),
 
     // ---- derived view-model fields ----
     description: venture.shortDescription ?? venture.hook3Sec,

@@ -22,6 +22,11 @@ export interface AdminVariantDraft {
   badge: string | null;
   transportBadge: string | null;
   minimumSpendIdr: number | null;
+  /** Dated promo (nullable = no promo). Dates arrive as ISO strings. */
+  promoPriceIdr: number | null;
+  promoLabel: string | null;
+  promoStartsAt: string | null;
+  promoEndsAt: string | null;
   sortOrder: number;
   priceTiers: { minPax: number; maxPax: number; pricePerPax: number }[];
   bookingCount: number;
@@ -103,6 +108,13 @@ export function VariantPackageEditor({
   const [minimumSpendIdr, setMinimumSpendIdr] = useState(
     variant?.minimumSpendIdr ? String(variant.minimumSpendIdr) : ''
   );
+  const [promoPrice, setPromoPrice] = useState(
+    variant?.promoPriceIdr ? String(variant.promoPriceIdr) : ''
+  );
+  const [promoLabel, setPromoLabel] = useState(variant?.promoLabel ?? '');
+  /** datetime-local inputs need "YYYY-MM-DDTHH:mm" (strip seconds/Z). */
+  const [promoStartsAt, setPromoStartsAt] = useState(variant?.promoStartsAt?.slice(0, 16) ?? '');
+  const [promoEndsAt, setPromoEndsAt] = useState(variant?.promoEndsAt?.slice(0, 16) ?? '');
   const [sortOrder, setSortOrder] = useState(String(variant?.sortOrder ?? 0));
   const [imageUrl, setImageUrl] = useState(variant?.imageUrl ?? '');
   const [inclusions, setInclusions] = useState((variant?.inclusions ?? []).join('\n'));
@@ -132,6 +144,10 @@ export function VariantPackageEditor({
         badge: badge.trim() || null,
         transportBadge: transportBadge.trim() || null,
         minimumSpendIdr: minimumSpendIdr === '' ? null : Number(minimumSpendIdr),
+        promoPriceIdr: promoPrice === '' ? null : Number(promoPrice),
+        promoLabel: promoLabel.trim() || null,
+        promoStartsAt: promoStartsAt ? new Date(promoStartsAt).toISOString() : null,
+        promoEndsAt: promoEndsAt ? new Date(promoEndsAt).toISOString() : null,
         sortOrder: Number(sortOrder),
         imageUrl: imageUrl || null,
         inclusions: splitTextLines(inclusions),
@@ -376,6 +392,52 @@ export function VariantPackageEditor({
             className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
           />
         </label>
+
+        <label className="text-xs font-medium text-gray-600 sm:col-span-2">
+          Promo price (IDR, optional)
+          <input
+            value={promoPrice}
+            onChange={(event) => setPromoPrice(event.target.value.replace(/[^\d]/g, ''))}
+            inputMode="numeric"
+            placeholder="380000 — shows a strikethrough price while active"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+          />
+        </label>
+
+        <label className="text-xs font-medium text-gray-600">
+          Promo caption (optional)
+          <input
+            value={promoLabel}
+            onChange={(event) => setPromoLabel(event.target.value)}
+            placeholder="Promo September Ceria — no code needed"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+          />
+        </label>
+
+        <label className="text-xs font-medium text-gray-600">
+          Promo starts (optional)
+          <input
+            type="datetime-local"
+            value={promoStartsAt}
+            onChange={(event) => setPromoStartsAt(event.target.value)}
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+          />
+        </label>
+
+        <label className="text-xs font-medium text-gray-600">
+          Promo ends (optional)
+          <input
+            type="datetime-local"
+            value={promoEndsAt}
+            onChange={(event) => setPromoEndsAt(event.target.value)}
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+          />
+        </label>
+
+        <p className="text-xs text-gray-600 sm:col-span-2">
+          Promo tanpa tanggal selalu aktif. Dengan tanggal, harga promo otomatis
+          hilang dari halaman publik begitu periode berakhir — tanpa perlu edit manual.
+        </p>
 
         <label className="text-xs font-medium text-gray-600 sm:col-span-2">
           Cover photo (optional)
