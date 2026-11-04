@@ -45,7 +45,17 @@ interface BookingForNotification {
   hotelAddress: string | null;
   isTba: boolean;
   customer: { id: string; name: string; email: string; whatsapp: string };
-  variant: { title: string };
+  /** Venture details that make reminders package-specific (what to bring,
+   *  where exactly to go). Optional so legacy callers still type-check. */
+  variant: {
+    title: string;
+    venture?: {
+      title?: string;
+      meetingPoint?: string | null;
+      meetingPointMapsUrl?: string | null;
+      essentialInfo?: unknown;
+    } | null;
+  };
   slotTime: { time: string } | null;
 }
 
@@ -78,9 +88,40 @@ function voucherUrl(bookingCode: string): string {
   return `${getBaseUrl()}/voucher/verify/${encodeURIComponent(bookingCode)}`;
 }
 
+/** Google Maps link for the venture meeting point (explicit URL wins). */
+function ventureMapsUrl(booking: BookingForNotification): string | null {
+  const venture = booking.variant.venture;
+  if (!venture) return null;
+  if (venture.meetingPointMapsUrl) return venture.meetingPointMapsUrl;
+  if (!venture.meetingPoint) return null;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    `${venture.meetingPoint} Bali`
+  )}`;
+}
+
+/** Up to four what-to-bring items from the venture's essential info. */
+function whatToBringLines(booking: BookingForNotification): string[] {
+  const info = booking.variant.venture?.essentialInfo;
+  if (!isRecord(info)) return [];
+  const items = info.whatToBring;
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    .slice(0, 4);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 function pickupLine(booking: BookingForNotification): string {
   if (booking.fulfillmentMode === 'SELF_DRIVE') {
-    return 'Meeting point: make your own way to the activity location.';
+    const meetingPoint = booking.variant.venture?.meetingPoint;
+    const maps = ventureMapsUrl(booking);
+    const where = meetingPoint ?? 'the activity location — see your voucher for the pin';
+    return maps
+      ? `Meeting point: ${where} · Map: ${maps}`
+      : `Meeting point: ${where}.`;
   }
   if (booking.isTba) {
     return 'Pickup: hotel address to be confirmed by H-1.';
@@ -105,12 +146,14 @@ export function buildConfirmationText(booking: BookingForNotification): string {
 }
 
 export function buildReminderText(booking: BookingForNotification, hoursBefore: number): string {
+  const bring = whatToBringLines(booking);
   return [
     `Reminder: your adventure is ${hoursBefore === 24 ? 'tomorrow' : 'coming up'}.`,
     `${booking.variant.title} · ${booking.bookingCode}`,
     `Date: ${formatLongDate(booking.bookingDate)}${booking.slotTime ? ` at ${booking.slotTime.time}` : ''}`,
     `Guests: ${booking.paxCount}`,
     pickupLine(booking),
+    ...(bring.length > 0 ? ['', 'What to bring:', ...bring.map((item) => `• ${item}`)] : []),
     '',
     'Please arrive 15 minutes early and bring valid ID.',
     `Voucher & QR: ${voucherUrl(booking.bookingCode)}`,
@@ -169,6 +212,7 @@ function emailHtml(
   options: { title: string; intro: string },
 ): string {
   const manageUrl = buildCustomerBookingsUrl(booking.customer.id);
+  const bring = whatToBringLines(booking);
   const rows = [
     ['Booking code', booking.bookingCode],
     ['Activity', booking.variant.title],
@@ -177,6 +221,7 @@ function emailHtml(
     ['Guests', String(booking.paxCount)],
     ['Total paid', formatIdr(booking.totalPrice)],
     ['Pickup', pickupLine(booking)],
+    ...(bring.length > 0 ? [['What to bring', bring.join(', ')]] : []),
   ];
 
   return `
@@ -315,7 +360,19 @@ async function deliver(
 function bookingInclude() {
   return {
     customer: { select: { id: true, name: true, email: true, whatsapp: true } },
-    variant: { select: { title: true } },
+    variant: {
+      select: {
+        title: true,
+        venture: {
+          select: {
+            title: true,
+            meetingPoint: true,
+            meetingPointMapsUrl: true,
+            essentialInfo: true,
+          },
+        },
+      },
+    },
     slotTime: { select: { time: true } },
   } as const;
 }

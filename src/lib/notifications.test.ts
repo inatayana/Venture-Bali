@@ -74,3 +74,28 @@ describe('buildReviewRequestText', () => {
     expect(text).toContain('BK-TEST-001');
   });
 });
+describe('variant-specific reminders', () => {
+  it('makes the self-drive reminder carry the meeting point and what to bring', () => {
+    const selfDrive = {
+      ...booking,
+      fulfillmentMode: 'SELF_DRIVE',
+      isTba: false,
+      hotelAddress: 'Jl. Raya Ubud 12',
+      variant: {
+        title: 'Ubud ATV Jungle Ride',
+        venture: {
+          title: 'Ubud ATV Jungle Ride',
+          meetingPoint: 'Basecamp Ubud, Jl. Raya Tegallalang',
+          meetingPointMapsUrl: 'https://maps.google.com/?q=basecamp',
+          essentialInfo: { whatToBring: ['Closed shoes', 'Change of clothes', 'Sunscreen'] },
+        },
+      },
+    };
+    const text = buildReminderText(selfDrive as unknown as Parameters<typeof buildReminderText>[0], 24);
+    expect(text).toContain('Ubud ATV Jungle Ride');
+    expect(text).toContain('Basecamp Ubud, Jl. Raya Tegallalang');
+    expect(text).toContain('Map: https://maps.google.com/?q=basecamp');
+    expect(text).toContain('What to bring:');
+    expect(text).toContain('• Closed shoes');
+  });
+});
