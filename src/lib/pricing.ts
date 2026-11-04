@@ -439,7 +439,6 @@ export function computeQuote(input: QuoteInput): QuoteBreakdown {
     const kidsList = tier.kidsPricePerPax ?? adultList;
     const youthList = tier.youthPricePerPax ?? adultList;
 
-    const listPricePerPaxIdr = adultList;
     const promoPrice = input.promoPriceIdr ?? null;
     const promoActive = promoPrice !== null && promoPrice > 0 && promoPrice < adultList;
     /** The promo price is the discounted adult /guest; kids and youth follow

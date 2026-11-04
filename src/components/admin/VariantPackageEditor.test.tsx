@@ -40,6 +40,7 @@ const existing: AdminVariantDraft = {
   promoLabel: null,
   promoStartsAt: null,
   promoEndsAt: null,
+  infantEnabled: false,
   inclusions: ['ATV rental', 'Safety gear', 'Hotel shuttle'],
   exclusions: ['Personal expenses'],
 };

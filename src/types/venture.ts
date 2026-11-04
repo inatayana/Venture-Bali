@@ -187,9 +187,9 @@ export interface PriceTier {
   /** Default FLAT_PER_GUEST. AGE_TIERED prices kids/youth separately. */
   pricingModel?: PricingModel;
   /** Kids (3-10) flat price. Blank = the adult price applies. Never above the adult price. */
-  kidsPricePerPax?: number;
+  kidsPricePerPax?: number | null;
   /** Youth (11-16) flat price. Blank = the adult price applies. Never above the adult price. */
-  youthPricePerPax?: number;
+  youthPricePerPax?: number | null;
 }
 
 export interface SlotTime {
@@ -248,13 +248,12 @@ export interface Variant {
    */
   pickupZoneId?: string;
   pickupZone?: VariantPickupZone;
-  /**
-   * Real paid bookings for this package in the last 48 hours (demand window,
+  /** Infants (0-2) ride free and are never counted in pax/capacity. */
+  infantEnabled?: boolean;
+  /** Real paid bookings for this package in the last 48 hours (demand window,
    * see ventureWithRelations). Powers the honest "N× booked" badge.
    */
   bookedLast48h?: number;
-  /** Infants (0-2) ride free and are never counted in pax/capacity. */
-  infantEnabled?: boolean;
   sortOrder: number;
   priceTiers: PriceTier[];
   blackoutDates: string[];

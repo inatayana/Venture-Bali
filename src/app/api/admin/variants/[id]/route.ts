@@ -131,6 +131,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           ...(input.promoLabel !== undefined ? { promoLabel: input.promoLabel || null } : {}),
           ...(input.promoStartsAt !== undefined ? { promoStartsAt: input.promoStartsAt } : {}),
           ...(input.promoEndsAt !== undefined ? { promoEndsAt: input.promoEndsAt } : {}),
+          ...(input.infantEnabled !== undefined ? { infantEnabled: input.infantEnabled } : {}),
           ...(input.inclusions !== undefined ? { inclusions: input.inclusions } : {}),
           ...(input.exclusions !== undefined ? { exclusions: input.exclusions } : {}),
           // Always keep the stored zone consistent with the saved mode.
@@ -146,6 +147,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
             minPax: tier.minPax,
             maxPax: tier.maxPax,
             pricePerPax: tier.pricePerPax,
+            pricingModel: tier.pricingModel,
+            kidsPricePerPax: tier.kidsPricePerPax ?? null,
+            youthPricePerPax: tier.youthPricePerPax ?? null,
           })),
         });
       }

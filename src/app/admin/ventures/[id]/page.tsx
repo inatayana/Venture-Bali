@@ -136,6 +136,7 @@ export default async function AdminVentureDetailPage({
                   promoLabel: variant.promoLabel,
                   promoStartsAt: variant.promoStartsAt?.toISOString() ?? null,
                   promoEndsAt: variant.promoEndsAt?.toISOString() ?? null,
+                  infantEnabled: variant.infantEnabled,
                   sortOrder: variant.sortOrder,
                   imageUrl: variant.imageUrl,
                   inclusions: asStringArray(variant.inclusions),

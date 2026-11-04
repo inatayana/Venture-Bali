@@ -109,6 +109,14 @@ export function VariantDetailModal({
   const addonCount = variant.addons?.length ?? 0;
   const demandLabel = demandBadgeLabel(variant.bookedLast48h);
   const demandHot = demandBadgeIsHot(variant.bookedLast48h);
+  const tiers = variant.priceTiers ?? [];
+  const isAgeTiered = tiers.some((tier) => tier.pricingModel === 'AGE_TIERED');
+  const kidsFromPrice = isAgeTiered
+    ? Math.min(...tiers.map((tier) => tier.kidsPricePerPax ?? tier.pricePerPax))
+    : null;
+  const youthFromPrice = isAgeTiered
+    ? Math.min(...tiers.map((tier) => tier.youthPricePerPax ?? tier.pricePerPax))
+    : null;
   const showCoupon = couponAppliesTo(variant);
   const pickup = getVariantPickupDisplay(variant);
   const imageUrl = variant.imageUrl ?? fallbackImageUrl;
@@ -220,6 +228,13 @@ export function VariantDetailModal({
                   title="Real paid bookings for this package"
                 >
                   {demandLabel}
+                </p>
+              )}
+
+              {isAgeTiered && kidsFromPrice !== null && (
+                <p className="mt-1.5 text-xs text-neutral-600">
+                  Kids (3-10): {formatPrice(kidsFromPrice)} · Youth (11-16):{' '}
+                  {formatPrice(youthFromPrice ?? 0)} · adult price tiers by group size
                 </p>
               )}
 

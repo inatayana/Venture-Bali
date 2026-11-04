@@ -27,8 +27,17 @@ export interface AdminVariantDraft {
   promoLabel: string | null;
   promoStartsAt: string | null;
   promoEndsAt: string | null;
+  /** Infants (0-2) may be declared — never priced or capacity-counted. */
+  infantEnabled: boolean;
   sortOrder: number;
-  priceTiers: { minPax: number; maxPax: number; pricePerPax: number }[];
+  priceTiers: {
+    minPax: number;
+    maxPax: number;
+    pricePerPax: number;
+    pricingModel?: 'FLAT_PER_GUEST' | 'AGE_TIERED';
+    kidsPricePerPax?: number | null;
+    youthPricePerPax?: number | null;
+  }[];
   bookingCount: number;
   /** Optional variant cover; must reuse one of the product's photos. */
   imageUrl: string | null;
@@ -53,6 +62,9 @@ interface TierDraft {
   minPax: string;
   maxPax: string;
   pricePerPax: string;
+  pricingModel: 'FLAT_PER_GUEST' | 'AGE_TIERED';
+  kidsPricePerPax: string;
+  youthPricePerPax: string;
 }
 
 const MODE_OPTIONS = [
@@ -63,12 +75,24 @@ const MODE_OPTIONS = [
 
 function toTierDrafts(variant?: AdminVariantDraft): TierDraft[] {
   if (!variant || variant.priceTiers.length === 0) {
-    return [{ minPax: '1', maxPax: '10', pricePerPax: '500000' }];
+    return [
+      {
+        minPax: '1',
+        maxPax: '10',
+        pricePerPax: '500000',
+        pricingModel: 'FLAT_PER_GUEST',
+        kidsPricePerPax: '',
+        youthPricePerPax: '',
+      },
+    ];
   }
   return variant.priceTiers.map((tier) => ({
     minPax: String(tier.minPax),
     maxPax: String(tier.maxPax),
     pricePerPax: String(tier.pricePerPax),
+    pricingModel: tier.pricingModel ?? 'FLAT_PER_GUEST',
+    kidsPricePerPax: tier.kidsPricePerPax ? String(tier.kidsPricePerPax) : '',
+    youthPricePerPax: tier.youthPricePerPax ? String(tier.youthPricePerPax) : '',
   }));
 }
 
@@ -115,6 +139,7 @@ export function VariantPackageEditor({
   /** datetime-local inputs need "YYYY-MM-DDTHH:mm" (strip seconds/Z). */
   const [promoStartsAt, setPromoStartsAt] = useState(variant?.promoStartsAt?.slice(0, 16) ?? '');
   const [promoEndsAt, setPromoEndsAt] = useState(variant?.promoEndsAt?.slice(0, 16) ?? '');
+  const [infantEnabled, setInfantEnabled] = useState(variant?.infantEnabled ?? false);
   const [sortOrder, setSortOrder] = useState(String(variant?.sortOrder ?? 0));
   const [imageUrl, setImageUrl] = useState(variant?.imageUrl ?? '');
   const [inclusions, setInclusions] = useState((variant?.inclusions ?? []).join('\n'));
@@ -148,6 +173,7 @@ export function VariantPackageEditor({
         promoLabel: promoLabel.trim() || null,
         promoStartsAt: promoStartsAt ? new Date(promoStartsAt).toISOString() : null,
         promoEndsAt: promoEndsAt ? new Date(promoEndsAt).toISOString() : null,
+        infantEnabled,
         sortOrder: Number(sortOrder),
         imageUrl: imageUrl || null,
         inclusions: splitTextLines(inclusions),
@@ -156,6 +182,9 @@ export function VariantPackageEditor({
           minPax: Number(tier.minPax),
           maxPax: Number(tier.maxPax),
           pricePerPax: Number(tier.pricePerPax),
+          pricingModel: tier.pricingModel,
+          kidsPricePerPax: tier.pricingModel === 'AGE_TIERED' && tier.kidsPricePerPax !== '' ? Number(tier.kidsPricePerPax) : null,
+          youthPricePerPax: tier.pricingModel === 'AGE_TIERED' && tier.youthPricePerPax !== '' ? Number(tier.youthPricePerPax) : null,
         })),
       };
 
@@ -439,6 +468,20 @@ export function VariantPackageEditor({
           hilang dari halaman publik begitu periode berakhir — tanpa perlu edit manual.
         </p>
 
+        <label className="flex items-start gap-2 rounded-lg border border-gray-200 p-3 text-xs font-medium text-gray-600 sm:col-span-2">
+          <input
+            type="checkbox"
+            checked={infantEnabled}
+            onChange={(event) => setInfantEnabled(event.target.checked)}
+            className="mt-0.5 h-4 w-4"
+          />
+          <span>
+            Allow infants (0-2) on this package — guests declare them at booking, they ride
+            free and are never counted in capacity or price. Turn this off for adventures
+            that are unsafe for infants.
+          </span>
+        </label>
+
         <label className="text-xs font-medium text-gray-600 sm:col-span-2">
           Cover photo (optional)
           <select
@@ -480,7 +523,17 @@ export function VariantPackageEditor({
           <button
             type="button"
             onClick={() =>
-              setTiers((current) => [...current, { minPax: '', maxPax: '', pricePerPax: '' }])
+              setTiers((current) => [
+                ...current,
+                {
+                  minPax: '',
+                  maxPax: '',
+                  pricePerPax: '',
+                  pricingModel: current[0]?.pricingModel ?? 'FLAT_PER_GUEST',
+                  kidsPricePerPax: '',
+                  youthPricePerPax: '',
+                },
+              ])
             }
             className="text-xs font-semibold text-brand-ink hover:underline"
           >
@@ -490,49 +543,100 @@ export function VariantPackageEditor({
 
         <div className="space-y-2">
           {tiers.map((tier, index) => (
-            <div key={index} className="grid grid-cols-[1fr_1fr_1.2fr_auto] items-center gap-2">
-              <input
-                value={tier.minPax}
-                onChange={(event) =>
-                  updateTier(index, { minPax: event.target.value.replace(/[^\d]/g, '') })
-                }
-                inputMode="numeric"
-                placeholder="Min pax"
-                aria-label={`Tier ${index + 1} minimum pax`}
-                className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
-              />
-              <input
-                value={tier.maxPax}
-                onChange={(event) =>
-                  updateTier(index, { maxPax: event.target.value.replace(/[^\d]/g, '') })
-                }
-                inputMode="numeric"
-                placeholder="Max pax"
-                aria-label={`Tier ${index + 1} maximum pax`}
-                className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
-              />
-              <input
-                value={tier.pricePerPax}
-                onChange={(event) =>
-                  updateTier(index, { pricePerPax: event.target.value.replace(/[^\d]/g, '') })
-                }
-                inputMode="numeric"
-                placeholder="Price / guest"
-                aria-label={`Tier ${index + 1} price per guest`}
-                className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
-              />
-              <button
-                type="button"
-                onClick={() => setTiers((current) => current.filter((_, i) => i !== index))}
-                disabled={tiers.length === 1}
-                className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-red-600 disabled:opacity-30"
-                aria-label={`Remove tier ${index + 1}`}
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+            <div key={index} className="rounded-lg border border-gray-200 p-2">
+              <div className="grid grid-cols-[1fr_1fr_1.2fr_1.4fr_auto] items-center gap-2">
+                <input
+                  value={tier.minPax}
+                  onChange={(event) =>
+                    updateTier(index, { minPax: event.target.value.replace(/[^\d]/g, '') })
+                  }
+                  inputMode="numeric"
+                  placeholder="Min pax"
+                  aria-label={`Tier ${index + 1} minimum pax`}
+                  className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                />
+                <input
+                  value={tier.maxPax}
+                  onChange={(event) =>
+                    updateTier(index, { maxPax: event.target.value.replace(/[^\d]/g, '') })
+                  }
+                  inputMode="numeric"
+                  placeholder="Max pax"
+                  aria-label={`Tier ${index + 1} maximum pax`}
+                  className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                />
+                <input
+                  value={tier.pricePerPax}
+                  onChange={(event) =>
+                    updateTier(index, { pricePerPax: event.target.value.replace(/[^\d]/g, '') })
+                  }
+                  inputMode="numeric"
+                  placeholder={
+                    tier.pricingModel === 'AGE_TIERED' ? 'Adult price / guest' : 'Price / guest'
+                  }
+                  aria-label={`Tier ${index + 1} price per guest`}
+                  className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                />
+                <select
+                  value={tier.pricingModel}
+                  onChange={(event) => {
+                    const next = event.target.value as TierDraft['pricingModel'];
+                    setTiers((current) =>
+                      current.map((item, i) =>
+                        i === index ? { ...item, pricingModel: next } : item
+                      )
+                    );
+                  }}
+                  aria-label={`Tier ${index + 1} pricing model`}
+                  className="min-h-[40px] rounded-lg border border-gray-300 bg-white px-2 text-sm"
+                >
+                  <option value="FLAT_PER_GUEST">Flat / guest</option>
+                  <option value="AGE_TIERED">Age-tiered</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setTiers((current) => current.filter((_, i) => i !== index))}
+                  disabled={tiers.length === 1}
+                  className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-red-600 disabled:opacity-30"
+                  aria-label={`Remove tier ${index + 1}`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+              {tier.pricingModel === 'AGE_TIERED' && (
+                <div className="mt-2 grid grid-cols-[1fr_1fr] gap-2 border-t border-dashed border-gray-200 pt-2">
+                  <input
+                    value={tier.kidsPricePerPax}
+                    onChange={(event) =>
+                      updateTier(index, { kidsPricePerPax: event.target.value.replace(/[^\d]/g, '') })
+                    }
+                    inputMode="numeric"
+                    placeholder="Kids price (3-10) — blank = adult price"
+                    aria-label={`Tier ${index + 1} kids price`}
+                    className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                  />
+                  <input
+                    value={tier.youthPricePerPax}
+                    onChange={(event) =>
+                      updateTier(index, { youthPricePerPax: event.target.value.replace(/[^\d]/g, '') })
+                    }
+                    inputMode="numeric"
+                    placeholder="Youth price (11-16) — blank = adult price"
+                    aria-label={`Tier ${index + 1} youth price`}
+                    className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>
+        {tiers.some((tier) => tier.pricingModel === 'AGE_TIERED') && (
+          <p className="mt-2 text-xs text-gray-600">
+            Age-tiered tiers: adults pay the tier price (selected by total guests), kids (3-10)
+            and youth (11-16) pay their flat price. Leave a price blank to charge the adult
+            price. Kids/youth can never cost more than the adult price.
+          </p>
+        )}
       </div>
 
       <div className="mt-4 flex items-center gap-3">

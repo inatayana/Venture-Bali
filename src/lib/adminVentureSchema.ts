@@ -53,10 +53,35 @@ export const variantPriceTierSchema = z
     minPax: z.number().int().min(1, 'Minimum pax is 1').max(99),
     maxPax: z.number().int().min(1).max(99),
     pricePerPax: z.number().int().min(0, 'Price cannot be negative').max(50_000_000),
+    pricingModel: z.enum(['FLAT_PER_GUEST', 'AGE_TIERED']).default('FLAT_PER_GUEST'),
+    /** Kids (3-10) / youth (11-16) flat prices. Blank = the adult price applies.
+     *  Capped at the adult price — a kids/youth ticket never costs more. */
+    kidsPricePerPax: z.number().int().min(0).max(50_000_000).nullable().optional(),
+    youthPricePerPax: z.number().int().min(0).max(50_000_000).nullable().optional(),
   })
-  .refine((tier) => tier.maxPax >= tier.minPax, {
-    message: 'Max pax must be at least min pax',
-    path: ['maxPax'],
+  .superRefine((tier, ctx) => {
+    if (tier.maxPax < tier.minPax) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['maxPax'],
+        message: 'Max pax must be at least min pax',
+      });
+    }
+    if (tier.pricingModel === 'AGE_TIERED') {
+      for (const field of ['kidsPricePerPax', 'youthPricePerPax'] as const) {
+        const value = tier[field];
+        if (value != null && value > tier.pricePerPax) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [field],
+            message:
+              field === 'kidsPricePerPax'
+                ? 'Kids price cannot exceed the adult price'
+                : 'Youth price cannot exceed the adult price',
+          });
+        }
+      }
+    }
   });
 
 const assetUrlSchema = z
@@ -98,6 +123,8 @@ const variantBaseSchema = z.object({
   promoLabel: z.string().trim().min(1).max(80).nullable().optional(),
   promoStartsAt: z.coerce.date().nullable().optional(),
   promoEndsAt: z.coerce.date().nullable().optional(),
+  /** Infants (0-2) may be declared on the booking — never priced or counted. */
+  infantEnabled: z.boolean().default(false),
   /**
    * Variant-level included/excluded items. When empty the public mapper falls
    * back to the venture-level standard list; a non-empty list is the
@@ -133,6 +160,16 @@ export const adminVariantSchema = variantBaseSchema.superRefine((value, ctx) => 
     });
   }
   checkTiersDoNotOverlap(value.priceTiers, ctx);
+  // One variant prices one way: a mixed FLAT/AGE_TIERED tier list would make
+  // the booking sheet ambiguous.
+  const models = new Set(value.priceTiers.map((tier) => tier.pricingModel));
+  if (models.size > 1) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['priceTiers'],
+      message: 'All price tiers must use the same pricing model',
+    });
+  }
   if (
     value.promoStartsAt &&
     value.promoEndsAt &&
@@ -147,7 +184,17 @@ export const adminVariantSchema = variantBaseSchema.superRefine((value, ctx) => 
 });
 
 export const adminVariantUpdateSchema = variantBaseSchema.partial().superRefine((value, ctx) => {
-  if (value.priceTiers) checkTiersDoNotOverlap(value.priceTiers, ctx);
+  if (value.priceTiers) {
+    checkTiersDoNotOverlap(value.priceTiers, ctx);
+    const models = new Set(value.priceTiers.map((tier) => tier.pricingModel));
+    if (models.size > 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['priceTiers'],
+        message: 'All price tiers must use the same pricing model',
+      });
+    }
+  }
   if (
     value.promoStartsAt &&
     value.promoEndsAt &&

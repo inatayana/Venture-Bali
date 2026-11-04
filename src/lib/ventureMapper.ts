@@ -308,6 +308,7 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
       duration: variant.duration ?? undefined,
       /** Paid bookings inside the demand window — see ventureWithRelations. */
       bookedLast48h: variant._count.bookings,
+      infantEnabled: variant.infantEnabled,
       fulfillmentMode: variant.fulfillmentMode,
       /** Only exposed while the promo window is active. */
       promoPriceIdr: promo?.price,
@@ -338,6 +339,9 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
         minPax: tier.minPax,
         maxPax: tier.maxPax,
         pricePerPax: tier.pricePerPax,
+        pricingModel: tier.pricingModel,
+        kidsPricePerPax: tier.kidsPricePerPax ?? undefined,
+        youthPricePerPax: tier.youthPricePerPax ?? undefined,
       })),
       blackoutDates: asStringArray(variant.blackoutDates),
       slotTimes: variant.slotTimes.map((slot) => ({

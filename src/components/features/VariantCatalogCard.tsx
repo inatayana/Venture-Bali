@@ -42,6 +42,15 @@ export function VariantCatalogCard({
   const addonCount = variant.addons?.length ?? 0;
   const demandLabel = demandBadgeLabel(variant.bookedLast48h);
   const demandHot = demandBadgeIsHot(variant.bookedLast48h);
+  const isAgeTiered = (variant.priceTiers ?? []).some(
+    (tier) => tier.pricingModel === 'AGE_TIERED'
+  );
+  const kidsFromPrice = isAgeTiered
+    ? Math.min(...(variant.priceTiers ?? []).map((tier) => tier.kidsPricePerPax ?? tier.pricePerPax))
+    : null;
+  const youthFromPrice = isAgeTiered
+    ? Math.min(...(variant.priceTiers ?? []).map((tier) => tier.youthPricePerPax ?? tier.pricePerPax))
+    : null;
   const openDetails = onOpenDetails ?? onSelect;
   const imageUrl = variant.imageUrl ?? fallbackImageUrl;
 
@@ -155,6 +164,11 @@ export function VariantCatalogCard({
           <PriceApprox amountIdr={priceIdr} suffix=" / guest" className="mt-0.5 block" />
           {promoPriceIdr !== null && variant.promoLabel && (
             <p className="mt-0.5 text-xs font-semibold text-green-700">{variant.promoLabel}</p>
+          )}
+          {isAgeTiered && kidsFromPrice !== null && (
+            <p className="mt-0.5 text-xs text-neutral-600">
+              Kids from {formatPrice(kidsFromPrice)} · Youth from {formatPrice(youthFromPrice ?? 0)}
+            </p>
           )}
           <p className="text-xs text-neutral-500">
             {variant.minimumSpendIdr ? (

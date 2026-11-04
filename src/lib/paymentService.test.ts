@@ -41,6 +41,7 @@ const booking: Booking = {
   adultsCount: 2,
   kidsCount: 0,
   youthCount: 0,
+  infantCount: 0,
   vehicleCount: 1,
   zoneSurchargeIdr: 0,
   nightSurchargeIdr: 0,

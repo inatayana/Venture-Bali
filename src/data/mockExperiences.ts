@@ -165,6 +165,7 @@ function toPrismaShape(venture: VentureSeed): VentureWithRelations {
       promoLabel: null,
       promoStartsAt: null,
       promoEndsAt: null,
+      infantEnabled: false,
       operationNotes: variant.operationNotes ?? null,
       inclusions: variant.inclusions ?? [],
       exclusions: variant.exclusions ?? [],
@@ -187,7 +188,9 @@ function toPrismaShape(venture: VentureSeed): VentureWithRelations {
         minPax: tier.minPax,
         maxPax: tier.maxPax,
         pricePerPax: tier.pricePerPax,
-        pricingModel: 'FLAT_PER_GUEST',
+        pricingModel: tier.pricingModel ?? 'FLAT_PER_GUEST',
+        kidsPricePerPax: tier.kidsPricePerPax ?? null,
+        youthPricePerPax: tier.youthPricePerPax ?? null,
       })),
       slotTimes: (variant.slots ?? DEFAULT_SLOTS).map((slot, slotIndex) => ({
         id: `mock-${venture.slug}-${variantIndex + 1}-slot-${slotIndex + 1}`,

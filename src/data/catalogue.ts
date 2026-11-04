@@ -355,7 +355,14 @@ export const COUPONS: CouponSeed[] = [
 
 // ============ TYPE HELPERS ============
 
-export type PriceTierSeed = { minPax: number; maxPax: number; pricePerPax: number };
+export type PriceTierSeed = {
+  minPax: number;
+  maxPax: number;
+  pricePerPax: number;
+  pricingModel?: 'FLAT_PER_GUEST' | 'AGE_TIERED';
+  kidsPricePerPax?: number;
+  youthPricePerPax?: number;
+};
 
 export type AddonSeed = {
   name: string;

@@ -31,7 +31,13 @@ export interface BookingConfig {
   variantId: string;
   date: Date | null;
   slot: SlotTime | null;
+  /** Adults (17+). Always ≥ 1 — every booking needs one adult. */
   adults: number;
+  /** Kids (3-10) / youth (11-16) — priced per age when the package is age-tiered. */
+  kids: number;
+  youth: number;
+  /** Infants (0-2): declared when the package allows them; free, not counted. */
+  infants: number;
   vehicleClassType: VehicleClassType | null;
   zoneId: string | null;
   hotelAddress: string;
@@ -163,12 +169,21 @@ export function ExperienceBookingWidget({
     variant?.promoPriceIdr && variant.promoPriceIdr > 0 && variant.promoPriceIdr < Math.min(...priceTiers.map((tier) => tier.pricePerPax))
   );
 
+  /** Packages price one way: flat per guest, or per age group (kids/youth). */
+  const isAgeTiered = (variant?.priceTiers ?? []).some(
+    (tier) => tier.pricingModel === 'AGE_TIERED'
+  );
+  const totalPax = config.adults + config.kids + config.youth;
+
   const quote = useMemo(
     () =>
       computeQuote({
         priceTiers,
-        paxCount: config.adults,
+        paxCount: totalPax,
         fulfillmentMode,
+        adultsCount: config.adults,
+        kidsCount: config.kids,
+        youthCount: config.youth,
         promoPriceIdr: variant?.promoPriceIdr ?? null,
         coupon: appliedCoupon
           ? { ...appliedCoupon, isActive: true, minPax: 1, usedCount: 0 }
@@ -179,7 +194,7 @@ export function ExperienceBookingWidget({
         vehicleClass,
         selectedAddons,
       }),
-    [priceTiers, config.adults, fulfillmentMode, variant, appliedCoupon, config.slot, zone, vehicleClass, selectedAddons]
+    [priceTiers, totalPax, config.adults, config.kids, config.youth, fulfillmentMode, variant, appliedCoupon, config.slot, zone, vehicleClass, selectedAddons]
   );
 
   const dateBlocked = dateKey && variant ? !isDateAvailable(variant, dateKey) : false;
@@ -188,11 +203,11 @@ export function ExperienceBookingWidget({
     if (!variant || !dateKey || dateBlocked) return [];
     return (variant.slotTimes ?? []).map((slot) => {
       const available = slot.maxCapacity - slot.currentBookings;
-      const enoughCapacity = slot.isAvailable && available >= config.adults;
+      const enoughCapacity = slot.isAvailable && available >= totalPax;
       const withinCutoff = isSlotBookable(dateKey, slot.time, fulfillmentMode);
       return { slot, available, enabled: enoughCapacity && withinCutoff };
     });
-  }, [variant, dateKey, dateBlocked, config.adults, fulfillmentMode]);
+  }, [variant, dateKey, dateBlocked, totalPax, fulfillmentMode]);
 
   // Keep the selected slot valid when the guest count or date changes.
   useEffect(() => {
@@ -209,6 +224,10 @@ export function ExperienceBookingWidget({
   const whatsappDigits = config.customerWhatsApp.replace(/\D/g, '');
 
   const planMissing: string[] = [];
+  if (totalPax < Math.max(1, venture.minParticipants)) {
+    planMissing.push(`At least ${Math.max(1, venture.minParticipants)} guests are required for this package`);
+  }
+  if (config.adults < 1) planMissing.push('At least 1 adult (17+) is required');
   if (!config.date) planMissing.push('Pick an adventure date');
   if (!config.slot) planMissing.push('Choose a departure time');
   if (needsPickup && !config.zoneId) planMissing.push('Select a pickup area');
@@ -241,7 +260,7 @@ export function ExperienceBookingWidget({
       const response = await fetch('/api/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, paxCount: config.adults, promoActive }),
+        body: JSON.stringify({ code, paxCount: totalPax, promoActive }),
       });
       const payload = await response.json();
       if (payload.success && payload.data) {
@@ -330,17 +349,58 @@ export function ExperienceBookingWidget({
         <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
           <Users className="h-4 w-4" /> 1 · Guests
         </h3>
-        <div className="rounded-xl border border-neutral-200 p-4">
-          <Stepper
-            label="Participants"
-            value={config.adults}
-            min={Math.max(1, venture.minParticipants)}
-            max={maxGuests}
-            onChange={(value) => onChange({ adults: value })}
-          />
-          <p className="mt-2 text-xs text-neutral-500">
-            {guestCountTouched ? `${config.adults} guests` : `Price is shown per guest · up to ${maxGuests} guests`}
-          </p>
+        <div className="space-y-3 rounded-xl border border-neutral-200 p-4">
+          {isAgeTiered ? (
+            <>
+              <Stepper
+                label="Adults (17+)"
+                value={config.adults}
+                min={1}
+                max={Math.max(1, maxGuests - config.kids - config.youth)}
+                onChange={(value) => onChange({ adults: value })}
+              />
+              <Stepper
+                label="Kids (3-10)"
+                value={config.kids}
+                min={0}
+                max={Math.max(0, maxGuests - config.adults - config.youth)}
+                onChange={(value) => onChange({ kids: value })}
+              />
+              <Stepper
+                label="Youth (11-16)"
+                value={config.youth}
+                min={0}
+                max={Math.max(0, maxGuests - config.adults - config.kids)}
+                onChange={(value) => onChange({ youth: value })}
+              />
+              {variant?.infantEnabled && (
+                <Stepper
+                  label="Infants (0-2) — free, not counted"
+                  value={config.infants}
+                  min={0}
+                  max={6}
+                  onChange={(value) => onChange({ infants: value })}
+                />
+              )}
+              <p className="text-xs text-neutral-500">
+                Total guests: <strong>{totalPax}</strong> / {maxGuests} · kids and youth pay their
+                own package price
+              </p>
+            </>
+          ) : (
+            <>
+              <Stepper
+                label="Participants"
+                value={config.adults}
+                min={Math.max(1, venture.minParticipants)}
+                max={maxGuests}
+                onChange={(value) => onChange({ adults: value })}
+              />
+              <p className="mt-2 text-xs text-neutral-500">
+                {guestCountTouched ? `${config.adults} guests` : `Price is shown per guest · up to ${maxGuests} guests`}
+              </p>
+            </>
+          )}
         </div>
       </section>
 
@@ -797,15 +857,47 @@ export function ExperienceBookingWidget({
       {/* Sticky summary + step action */}
       <div className="sticky bottom-0 -mx-4 -mb-4 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
         <div className="mb-2 space-y-1 text-sm">
-          <div className="flex justify-between text-neutral-600">
-            <span>
-              {config.adults} × {formatPrice(quote.unitPricePerPaxIdr)}
-              {quote.promoActive && (
-                <span className="ml-2 text-xs line-through">{formatPrice(quote.listPricePerPaxIdr)}</span>
+          {quote.ageBreakdown ? (
+            <>
+              {quote.ageBreakdown.adults.count > 0 && (
+                <div className="flex justify-between text-neutral-600">
+                  <span>
+                    Adults ({quote.ageBreakdown.adults.count} ×{' '}
+                    {formatPrice(quote.ageBreakdown.adults.pricePerPax)})
+                  </span>
+                  <span className="tabular-nums">{formatPrice(quote.ageBreakdown.adults.subtotal)}</span>
+                </div>
               )}
-            </span>
-            <span className="tabular-nums">{formatPrice(quote.subtotalIdr)}</span>
-          </div>
+              {quote.ageBreakdown.kids.count > 0 && (
+                <div className="flex justify-between text-neutral-600">
+                  <span>
+                    Kids ({quote.ageBreakdown.kids.count} ×{' '}
+                    {formatPrice(quote.ageBreakdown.kids.pricePerPax)})
+                  </span>
+                  <span className="tabular-nums">{formatPrice(quote.ageBreakdown.kids.subtotal)}</span>
+                </div>
+              )}
+              {quote.ageBreakdown.youth.count > 0 && (
+                <div className="flex justify-between text-neutral-600">
+                  <span>
+                    Youth ({quote.ageBreakdown.youth.count} ×{' '}
+                    {formatPrice(quote.ageBreakdown.youth.pricePerPax)})
+                  </span>
+                  <span className="tabular-nums">{formatPrice(quote.ageBreakdown.youth.subtotal)}</span>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex justify-between text-neutral-600">
+              <span>
+                {config.adults} × {formatPrice(quote.unitPricePerPaxIdr)}
+                {quote.promoActive && (
+                  <span className="ml-2 text-xs line-through">{formatPrice(quote.listPricePerPaxIdr)}</span>
+                )}
+              </span>
+              <span className="tabular-nums">{formatPrice(quote.subtotalIdr)}</span>
+            </div>
+          )}
           {quote.discountIdr > 0 && (
             <div className="flex justify-between text-green-700">
               <span>Discount {appliedCoupon ? `(${appliedCoupon.code})` : '(promo price)'}</span>

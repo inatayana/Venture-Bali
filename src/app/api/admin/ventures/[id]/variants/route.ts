@@ -99,6 +99,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         promoLabel: input.promoLabel ?? null,
         promoStartsAt: input.promoStartsAt ?? null,
         promoEndsAt: input.promoEndsAt ?? null,
+        infantEnabled: input.infantEnabled ?? false,
         blackoutDates: [],
         inclusions: input.inclusions ?? [],
         exclusions: input.exclusions ?? [],
