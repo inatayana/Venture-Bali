@@ -134,6 +134,8 @@ export default async function AdminVentureDetailPage({
                   minimumSpendIdr: variant.minimumSpendIdr,
                   sortOrder: variant.sortOrder,
                   imageUrl: variant.imageUrl,
+                  inclusions: asStringArray(variant.inclusions),
+                  exclusions: asStringArray(variant.exclusions),
                   priceTiers: variant.priceTiers.map((tier) => ({
                     minPax: tier.minPax,
                     maxPax: tier.maxPax,

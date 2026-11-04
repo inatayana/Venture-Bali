@@ -69,6 +69,9 @@ const assetUrlSchema = z
     'Use a /images/... path or an https:// URL',
   );
 
+/** Free-form list fields: highlights, inclusions, exclusions, tags… */
+const textListSchema = z.array(z.string().trim().min(1).max(200)).max(20);
+
 const variantBaseSchema = z.object({
   title: z.string().trim().min(3, 'Title is too short').max(80, 'Title is too long'),
   shortDescription: z
@@ -90,6 +93,13 @@ const variantBaseSchema = z.object({
     .max(10, 'Too many price tiers'),
   /** Optional cover: reuses one of the product's photos (no variant gallery). */
   imageUrl: assetUrlSchema.nullable().optional(),
+  /**
+   * Variant-level included/excluded items. When empty the public mapper falls
+   * back to the venture-level standard list; a non-empty list is the
+   * package's own selling points (e.g. transfer variants adding hotel pickup).
+   */
+  inclusions: textListSchema.optional(),
+  exclusions: textListSchema.optional(),
 });
 
 function checkTiersDoNotOverlap(
@@ -131,8 +141,6 @@ export const adminVariantUpdateSchema = variantBaseSchema.partial().superRefine(
  * reviews, tenant is resolved by the route, and variants are managed on their
  * own endpoint.
  */
-
-const textListSchema = z.array(z.string().trim().min(1).max(200)).max(20);
 
 const itinerarySchema = z
   .array(

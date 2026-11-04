@@ -127,6 +127,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
             : {}),
           ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
           ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl || null } : {}),
+          ...(input.inclusions !== undefined ? { inclusions: input.inclusions } : {}),
+          ...(input.exclusions !== undefined ? { exclusions: input.exclusions } : {}),
           // Always keep the stored zone consistent with the saved mode.
           pickupZoneId: nextMode === 'SELF_DRIVE' ? null : nextZoneId ?? null,
         },

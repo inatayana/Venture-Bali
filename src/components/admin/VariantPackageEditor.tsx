@@ -27,6 +27,12 @@ export interface AdminVariantDraft {
   bookingCount: number;
   /** Optional variant cover; must reuse one of the product's photos. */
   imageUrl: string | null;
+  /**
+   * Package-level included/excluded items. Empty lists inherit the product's
+   * standard lists on the public site.
+   */
+  inclusions: string[];
+  exclusions: string[];
 }
 
 interface VariantPackageEditorProps {
@@ -61,6 +67,14 @@ function toTierDrafts(variant?: AdminVariantDraft): TierDraft[] {
   }));
 }
 
+/** One item per line; blank lines and surrounding spaces dropped. */
+function splitTextLines(value: string): string[] {
+  return value
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 /**
  * Create / edit / delete a package (variant) from the admin panel.
  *
@@ -91,6 +105,8 @@ export function VariantPackageEditor({
   );
   const [sortOrder, setSortOrder] = useState(String(variant?.sortOrder ?? 0));
   const [imageUrl, setImageUrl] = useState(variant?.imageUrl ?? '');
+  const [inclusions, setInclusions] = useState((variant?.inclusions ?? []).join('\n'));
+  const [exclusions, setExclusions] = useState((variant?.exclusions ?? []).join('\n'));
   const [tiers, setTiers] = useState<TierDraft[]>(() => toTierDrafts(variant));
 
   const isEditing = Boolean(variant);
@@ -118,6 +134,8 @@ export function VariantPackageEditor({
         minimumSpendIdr: minimumSpendIdr === '' ? null : Number(minimumSpendIdr),
         sortOrder: Number(sortOrder),
         imageUrl: imageUrl || null,
+        inclusions: splitTextLines(inclusions),
+        exclusions: splitTextLines(exclusions),
         priceTiers: tiers.map((tier) => ({
           minPax: Number(tier.minPax),
           maxPax: Number(tier.maxPax),
@@ -249,6 +267,38 @@ export function VariantPackageEditor({
             rows={2}
             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
           />
+          <span className="mt-1 block font-normal text-gray-600">
+            Shown on the package card and modal — what makes this package different.
+          </span>
+        </label>
+
+        <label className="text-xs font-medium text-gray-600">
+          What&apos;s included (one per line)
+          <textarea
+            value={inclusions}
+            onChange={(event) => setInclusions(event.target.value)}
+            rows={5}
+            placeholder={'ATV rental\nSafety gear\nCertified guide\nHotel pickup (this package)'}
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          />
+          <span className="mt-1 block font-normal text-gray-600">
+            Leave empty to inherit the product&apos;s standard list. To override it, write the
+            FULL list for this package (standard items plus the extras).
+          </span>
+        </label>
+
+        <label className="text-xs font-medium text-gray-600">
+          Not included (one per line)
+          <textarea
+            value={exclusions}
+            onChange={(event) => setExclusions(event.target.value)}
+            rows={5}
+            placeholder={'Personal expenses\nLunch\nSouvenirs'}
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          />
+          <span className="mt-1 block font-normal text-gray-600">
+            Empty = inherits the product&apos;s standard list.
+          </span>
         </label>
 
         <label className="text-xs font-medium text-gray-600">
