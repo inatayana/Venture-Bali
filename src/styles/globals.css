@@ -100,12 +100,44 @@ html.dark .bg-brand .text-neutral-900,
 html.dark .bg-brand .text-gray-900,
 html.dark .bg-brand .text-neutral-800,
 html.dark .bg-brand .text-gray-800,
-html.dark [class*="bg-brand/"] .text-neutral-900,
-html.dark [class*="bg-brand/"] .text-gray-900,
-html.dark [class*="bg-brand/"] .text-neutral-800,
-html.dark [class*="bg-brand/"] .text-gray-800,
-html.dark [class*="bg-brand/"].text-neutral-900,
-html.dark [class*="bg-brand/"].text-gray-900 {
+/*
+ * Yellow brand washes (bg-brand/<alpha>) keep black ink for contrast.
+ * Explicit class tokens only: a [class*="bg-brand/"] wildcard also matched
+ * hover-only utilities (e.g. the calendar's `hover:bg-brand/30`) and forced
+ * their labels to black-on-dark, hiding them until hovered.
+ */
+html.dark .bg-brand\/10 .text-neutral-900,
+html.dark .bg-brand\/10 .text-gray-900,
+html.dark .bg-brand\/10 .text-neutral-800,
+html.dark .bg-brand\/10 .text-gray-800,
+html.dark .bg-brand\/15 .text-neutral-900,
+html.dark .bg-brand\/15 .text-gray-900,
+html.dark .bg-brand\/15 .text-neutral-800,
+html.dark .bg-brand\/15 .text-gray-800,
+html.dark .bg-brand\/20 .text-neutral-900,
+html.dark .bg-brand\/20 .text-gray-900,
+html.dark .bg-brand\/20 .text-neutral-800,
+html.dark .bg-brand\/20 .text-gray-800,
+html.dark .bg-brand\/25 .text-neutral-900,
+html.dark .bg-brand\/25 .text-gray-900,
+html.dark .bg-brand\/25 .text-neutral-800,
+html.dark .bg-brand\/25 .text-gray-800,
+html.dark .bg-brand\/30 .text-neutral-900,
+html.dark .bg-brand\/30 .text-gray-900,
+html.dark .bg-brand\/40 .text-neutral-900,
+html.dark .bg-brand\/40 .text-gray-900,
+html.dark .bg-brand\/50 .text-neutral-900,
+html.dark .bg-brand\/50 .text-gray-900,
+html.dark .bg-brand\/10.text-neutral-900,
+html.dark .bg-brand\/10.text-gray-900,
+html.dark .bg-brand\/20.text-neutral-900,
+html.dark .bg-brand\/20.text-gray-900,
+html.dark .bg-brand\/25.text-neutral-900,
+html.dark .bg-brand\/25.text-gray-900,
+html.dark .bg-brand\/30.text-neutral-900,
+html.dark .bg-brand\/30.text-gray-900,
+html.dark .bg-brand\/40.text-neutral-900,
+html.dark .bg-brand\/40.text-gray-900 {
   color: #000000 !important;
 }
 
@@ -189,4 +221,96 @@ html.dark .bg-red-50 {
 html.dark .text-red-600,
 html.dark .text-red-700 {
   color: #fca5a5 !important;
+}
+
+/*
+ * Dark-mode hover & active surfaces.
+ * Tailwind emits `hover:bg-*` as its own class name, so the static remaps
+ * above never match them and every hover flashed the light-mode colour:
+ * near-white pills under white text (contrast ≈ 1:1) — especially harsh on
+ * the PDP back button, FAQ rows, Stepper buttons and review summary bar.
+ * #2a2a2a is one subtle elevation step above the #191919 card surface.
+ */
+html.dark .hover\:bg-white:hover,
+html.dark .hover\:bg-neutral-50:hover,
+html.dark .hover\:bg-neutral-100:hover,
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-gray-100:hover,
+html.dark .hover\:bg-neutral-50\/50:hover,
+html.dark .hover\:bg-gray-50\/50:hover {
+  background-color: #2a2a2a !important;
+}
+
+html.dark .active\:bg-neutral-200:active,
+html.dark .active\:bg-gray-200:active {
+  background-color: #333333 !important;
+}
+
+/*
+ * Pastel status surfaces → deep-dark equivalents so bright blocks never
+ * appear in dark mode. The paired inks below keep ≥ 7:1 contrast.
+ * Light mode is untouched (all rules are scoped to html.dark).
+ */
+html.dark .bg-green-100 {
+  background-color: #14532d !important;
+}
+
+html.dark .bg-red-100 {
+  background-color: #450a0a !important;
+}
+
+html.dark .bg-amber-50,
+html.dark .bg-amber-100 {
+  background-color: #451a03 !important;
+}
+
+html.dark .bg-orange-100 {
+  background-color: #431407 !important;
+}
+
+html.dark .bg-purple-100 {
+  background-color: #3b0764 !important;
+}
+
+html.dark .bg-neutral-300,
+html.dark .bg-gray-300 {
+  background-color: #404040 !important;
+}
+
+html.dark .bg-neutral-50\/70,
+html.dark .bg-gray-50\/70 {
+  background-color: #212121 !important;
+}
+
+html.dark .text-amber-700,
+html.dark .text-amber-800,
+html.dark .text-amber-900 {
+  color: #fcd34d !important;
+}
+
+html.dark .text-orange-800 {
+  color: #fdba74 !important;
+}
+
+html.dark .text-purple-700,
+html.dark .text-purple-800 {
+  color: #d8b4fe !important;
+}
+
+html.dark .text-red-800 {
+  color: #fca5a5 !important;
+}
+
+html.dark .border-amber-200,
+html.dark .border-amber-300 {
+  border-color: #92400e !important;
+}
+
+html.dark .border-green-200 {
+  border-color: #166534 !important;
+}
+
+/* Itinerary number badge ring follows the dark page surface. */
+html.dark .ring-white {
+  --tw-ring-color: #212121 !important;
 }

@@ -537,7 +537,7 @@ export function ExperienceDetailClient({
             >
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 -top-3 h-16 bg-gradient-to-b from-white via-white/90 to-transparent"
+                className="pointer-events-none absolute inset-x-0 -top-3 h-16 bg-gradient-to-b from-white via-white/90 to-transparent dark:from-[#212121] dark:via-[#212121]/90"
               />
               <div className="relative flex justify-center pt-1">
                 <nav

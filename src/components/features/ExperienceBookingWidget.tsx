@@ -860,7 +860,7 @@ export function ExperienceBookingWidget({
             disabled={!planReady}
             fullWidth
             size="lg"
-            className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500"
+            className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500 dark:disabled:!bg-neutral-700 dark:disabled:!text-neutral-400"
           >
             Continue
           </Button>
@@ -883,7 +883,7 @@ export function ExperienceBookingWidget({
               disabled={!planReady || !detailsReady || isBooking}
               fullWidth
               size="lg"
-              className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500"
+              className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500 dark:disabled:!bg-neutral-700 dark:disabled:!text-neutral-400"
             >
               {isBooking ? 'Processing…' : 'Continue to payment'}
             </Button>
