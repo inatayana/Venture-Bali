@@ -275,6 +275,7 @@ export function VentureForm({
     if (h > 0) return `${h} hour${h > 1 ? 's' : ''}`;
     return `${m} min`;
   };
+  const toggleSuitable = (value: string) => {
     setSuitableFor((current) => {
       if (current.includes(value)) return current.filter((item) => item !== value);
       if (current.length >= 5) return current;
