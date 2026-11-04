@@ -80,6 +80,7 @@ export default async function AdminEditVenturePage({ params }: AdminEditVentureP
     badge: venture.badge ?? '',
     locationId: venture.locationId ?? '',
     meetingPoint: venture.meetingPoint ?? '',
+    meetingPointMapsUrl: venture.meetingPointMapsUrl ?? '',
     meetingPointLat: venture.meetingPointLat,
     meetingPointLng: venture.meetingPointLng,
     minAge: venture.minAge,

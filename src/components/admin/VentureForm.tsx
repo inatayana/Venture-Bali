@@ -60,6 +60,7 @@ export interface VentureFormInitial {
   badge: string;
   locationId: string;
   meetingPoint: string;
+  meetingPointMapsUrl?: string | null;
   meetingPointLat: number | null;
   meetingPointLng: number | null;
   minAge: number | null;
@@ -169,6 +170,7 @@ export function VentureForm({
   const [badge, setBadge] = useState(initial?.badge ?? '');
   const [locationId, setLocationId] = useState(initial?.locationId ?? '');
   const [meetingPoint, setMeetingPoint] = useState(initial?.meetingPoint ?? '');
+  const [meetingPointMapsUrl, setMeetingPointMapsUrl] = useState(initial?.meetingPointMapsUrl ?? '');
   const [meetingPointLat, setMeetingPointLat] = useState(
     initial?.meetingPointLat != null ? String(initial.meetingPointLat) : ''
   );
@@ -447,6 +449,7 @@ export function VentureForm({
       badge: badge.trim() || undefined,
       locationId: locationId || undefined,
       meetingPoint: meetingPoint.trim() || undefined,
+      meetingPointMapsUrl: meetingPointMapsUrl.trim() || undefined,
       meetingPointLat: numberOrUndefined(meetingPointLat),
       meetingPointLng: numberOrUndefined(meetingPointLng),
       minAge: numberOrUndefined(minAge),
@@ -693,6 +696,17 @@ export function VentureForm({
               value={meetingPointLng}
               onChange={(event) => setMeetingPointLng(event.target.value)}
               className={inputClass}
+            />
+          </label>
+          <label className={labelClass}>
+            Meeting point maps URL
+            <input
+              type="url"
+              value={meetingPointMapsUrl}
+              onChange={(event) => setMeetingPointMapsUrl(event.target.value)}
+              maxLength={500}
+              className={inputClass}
+              placeholder="https://maps.google.com/..."
             />
           </label>
           <label className={labelClass}>
