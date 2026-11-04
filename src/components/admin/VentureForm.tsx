@@ -267,7 +267,14 @@ export function VentureForm({
     const newM = total % 60;
     return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
   };
-  const toggleSuitable = (value: string) => {
+  const formatDurationText = (minutes: number | null): string => {
+    if (!minutes || minutes <= 0) return '';
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    if (h > 0 && m > 0) return `${h}:${String(m).padStart(2, '0')} hours`;
+    if (h > 0) return `${h} hour${h > 1 ? 's' : ''}`;
+    return `${m} min`;
+  };
     setSuitableFor((current) => {
       if (current.includes(value)) return current.filter((item) => item !== value);
       if (current.length >= 5) return current;
@@ -853,13 +860,9 @@ export function VentureForm({
                 />
                 <input
                   value={row.duration}
-                  onChange={(event) => {
-                    const next = [...itinerary];
-                    next[index] = { ...next[index], duration: event.target.value };
-                    setItinerary(next);
-                  }}
-                  placeholder="45 min"
-                  className="min-h-[44px] rounded-lg border border-neutral-300 px-2 text-sm"
+                  readOnly
+                  placeholder="Auto"
+                  className="min-h-[44px] rounded-lg border border-neutral-200 bg-neutral-50 px-2 text-sm text-neutral-500"
                 />
                 <input
                   type="number"
@@ -870,6 +873,7 @@ export function VentureForm({
                     next[index] = {
                       ...next[index],
                       durationMinutes: mins,
+                      duration: formatDurationText(mins),
                     };
                     // Auto-calculate next row's start time
                     if (mins && next[index].time && index + 1 < next.length) {
