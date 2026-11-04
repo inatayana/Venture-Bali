@@ -187,6 +187,11 @@ export const adminVentureWriteSchema = z
     difficulty: z.enum(['EASY', 'MODERATE', 'CHALLENGING']).default('EASY'),
     badge: z.string().trim().max(30).optional(),
     locationId: z.string().trim().min(1).nullable().optional(),
+    /** Admin area cascade — resolved to a Location row by the API. */
+    desa: z.string().trim().min(1).max(80).optional(),
+    kecamatan: z.string().trim().min(1).max(80).optional(),
+    kabupaten: z.string().trim().min(1).max(80).optional(),
+    provinsi: z.string().trim().min(1).max(40).optional(),
     meetingPoint: z.string().trim().max(200).optional(),
     meetingPointLat: z.number().min(-90).max(90).optional(),
     meetingPointLng: z.number().min(-180).max(180).optional(),

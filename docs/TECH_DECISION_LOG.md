@@ -279,6 +279,40 @@ to that time).
 
 ---
 
+## 13. Decision — Admin Area Cascade (Desa / Kecamatan / Kabupaten / Provinsi)
+
+**Date:** 2026-11-04 · **Status:** Approved · **Owner:** Product
+
+**Decision.** The admin product form replaces the flat 10-row Area select with a
+four-level cascade: Provinsi (default **Bali**) → Kabupaten/Kota → Kecamatan →
+Desa/Kelurahan. The option source is a vendored dataset,
+`src/data/wilayah-bali.json` (9 kabupaten/kota, 57 kecamatan, 653 desa/kelurahan,
+Kemendagri data via emsifa/api-wilayah-indonesia, fetched 2026-11-04) — no npm
+dependency and no runtime network call. Because the cascade only shows the desa
+of the already-selected kecamatan, the full official list stays usable without
+overwhelming the admin.
+
+**Behaviour.** Saving with a complete cascade resolves a `Location` via
+`src/lib/locationResolve.ts`: reuse by hierarchy → adopt a legacy row with the
+same composed name and heal its empty hierarchy → else create one. The composed
+name keeps the legacy "Desa, Kecamatan, Kabupaten, Provinsi" format that
+VentureCard, the PDP fallback and the JSON-LD address parser (`seo.ts`) rely on;
+`region` stores the kabupaten. `Location.latitude/longitude` became nullable
+(migration `20261104043732`) — desa rows are created without coordinates and
+precise coordinates remain on `Venture.meetingPoint*`. Legacy payloads
+(`locationId` only) and products without an area keep working unchanged.
+
+**Alternatives rejected.** Full-Indonesia dataset (≈80k desa, needs a runtime
+external API — too heavy for an admin booking surface); hard-coded kecamatan
+centroids for new rows (fabricated data); constraining the cascade to the 10
+seeded rows (admins could not add new areas).
+
+**Consequences.** New desa rows have no coordinates until enriched; the dataset
+file must be updated manually when Bali adds/renames areas; SEO keyword
+synthesis continues to read `Location.name`, which stays stable in format.
+
+---
+
 **Approved by:** BaliWild Engineering Team
 **Date:** October 2026
 **Next Review:** January 2027

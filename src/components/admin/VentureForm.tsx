@@ -21,6 +21,15 @@ import { buildVentureSlug } from '@/lib/slug';
 import { isVentureSlugValid, validateVentureTitle } from '@/lib/titleValidator';
 import { compressToTarget, PRODUCT_MIN_SOURCE_EDGE } from '@/lib/compressImage';
 import { cn } from '@/utils/cn';
+import {
+  findDistrictName,
+  findRegencyName,
+  getDistricts,
+  getRegencies,
+  getVillages,
+  isKnownVillage,
+  PROVINSI_DEFAULT,
+} from '@/lib/wilayah';
 
 /** 1 main cover + up to 6 itinerary gallery photos per product (media memo). */
 const MAX_GALLERY = 6;
@@ -45,6 +54,40 @@ export interface VentureFormLocation {
   kecamatan?: string | null;
   kabupaten?: string | null;
   provinsi?: string | null;
+}
+
+interface AreaPrefill {
+  provinsi: string;
+  kabupaten: string | null;
+  kecamatan: string | null;
+  desa: string | null;
+}
+
+/**
+ * Best-effort prefill for the area cascade from a saved Location. Explicit
+ * hierarchy fields win; legacy rows keep the area inside the composed name
+ * ("Desa, Kecamatan, Kabupaten, Provinsi") and the region holds the kabupaten
+ * — both are validated against the official dataset, and unmatched levels
+ * stay empty so the fallback note remains visible.
+ */
+function resolveAreaPrefill(location: VentureFormLocation | null): AreaPrefill {
+  if (!location) {
+    return { provinsi: PROVINSI_DEFAULT, kabupaten: null, kecamatan: null, desa: null };
+  }
+
+  const provinsi = location.provinsi || PROVINSI_DEFAULT;
+  const kabupaten = findRegencyName(location.kabupaten || location.region);
+  if (!kabupaten) {
+    return { provinsi, kabupaten: null, kecamatan: null, desa: null };
+  }
+
+  const nameParts = location.name.split(',').map((part) => part.trim());
+  const kecamatan = findDistrictName(kabupaten, location.kecamatan || nameParts[1]);
+  const desaCandidate = location.desa || nameParts[0] || '';
+  const desa =
+    kecamatan && isKnownVillage(kabupaten, kecamatan, desaCandidate) ? desaCandidate : null;
+
+  return { provinsi, kabupaten, kecamatan, desa };
 }
 
 export interface VentureFormInitial {
@@ -168,7 +211,15 @@ export function VentureForm({
   const [duration, setDuration] = useState(initial?.duration ?? '');
   const [difficulty, setDifficulty] = useState(initial?.difficulty ?? 'EASY');
   const [badge, setBadge] = useState(initial?.badge ?? '');
-  const [locationId, setLocationId] = useState(initial?.locationId ?? '');
+  const [locationId] = useState(initial?.locationId ?? '');
+  /** Admin area cascade — Provinsi defaults to Bali, then Kabupaten → Kecamatan → Desa. */
+  const areaPrefill = resolveAreaPrefill(
+    locations.find((item) => item.id === initial?.locationId) ?? null
+  );
+  const [provinsi, setProvinsi] = useState(areaPrefill.provinsi);
+  const [kabupaten, setKabupaten] = useState(areaPrefill.kabupaten ?? '');
+  const [kecamatan, setKecamatan] = useState(areaPrefill.kecamatan ?? '');
+  const [desa, setDesa] = useState(areaPrefill.desa ?? '');
   const [meetingPoint, setMeetingPoint] = useState(initial?.meetingPoint ?? '');
   const [meetingPointMapsUrl, setMeetingPointMapsUrl] = useState(initial?.meetingPointMapsUrl ?? '');
   const [meetingPointLat, setMeetingPointLat] = useState(
@@ -444,6 +495,7 @@ export function VentureForm({
       return;
     }
 
+    const areaComplete = Boolean(desa && kecamatan && kabupaten);
     const payload = {
       title: title.trim(),
       slug: slug.trim() || undefined,
@@ -455,7 +507,13 @@ export function VentureForm({
       duration: duration.trim(),
       difficulty,
       badge: badge.trim() || undefined,
-      locationId: locationId || undefined,
+      /** A complete cascade resolves (or creates) the Location server-side;
+       *  otherwise the legacy locationId is kept as-is. */
+      locationId: areaComplete ? undefined : locationId || undefined,
+      desa: areaComplete ? desa : undefined,
+      kecamatan: areaComplete ? kecamatan : undefined,
+      kabupaten: areaComplete ? kabupaten : undefined,
+      provinsi: areaComplete ? provinsi : undefined,
       meetingPoint: meetingPoint.trim() || undefined,
       meetingPointMapsUrl: meetingPointMapsUrl.trim() || undefined,
       meetingPointLat: numberOrUndefined(meetingPointLat),
@@ -667,16 +725,76 @@ export function VentureForm({
       <Section title="Location & safety">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className={labelClass}>
-            Area
-            <select value={locationId} onChange={(event) => setLocationId(event.target.value)} className={inputClass}>
-              <option value="">Choose an area</option>
-              {locations.map((location) => (
-                <option key={location.id} value={location.id}>
-                  {location.name} · {location.region}
+            Provinsi
+            <select
+              value={provinsi}
+              onChange={(event) => setProvinsi(event.target.value)}
+              className={inputClass}
+            >
+              <option value={PROVINSI_DEFAULT}>Bali</option>
+            </select>
+          </label>
+          <label className={labelClass}>
+            Kabupaten / Kota
+            <select
+              value={kabupaten}
+              onChange={(event) => {
+                setKabupaten(event.target.value);
+                setKecamatan('');
+                setDesa('');
+              }}
+              className={inputClass}
+            >
+              <option value="">Choose kabupaten/kota…</option>
+              {getRegencies().map((name) => (
+                <option key={name} value={name}>
+                  {name}
                 </option>
               ))}
             </select>
           </label>
+          <label className={labelClass}>
+            Kecamatan
+            <select
+              value={kecamatan}
+              onChange={(event) => {
+                setKecamatan(event.target.value);
+                setDesa('');
+              }}
+              disabled={!kabupaten}
+              className={`${inputClass} disabled:opacity-60`}
+            >
+              <option value="">Choose kecamatan…</option>
+              {getDistricts(kabupaten).map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className={labelClass}>
+            Desa / Kelurahan
+            <select
+              value={desa}
+              onChange={(event) => setDesa(event.target.value)}
+              disabled={!kecamatan}
+              className={`${inputClass} disabled:opacity-60`}
+            >
+              <option value="">Choose desa…</option>
+              {getVillages(kabupaten, kecamatan).map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          {!desa && locationId && (
+            <p className="text-xs text-neutral-500 sm:col-span-2">
+              Lokasi tersimpan:{' '}
+              {locations.find((item) => item.id === locationId)?.name ?? locationId} — pilih
+              kabupaten, kecamatan dan desa untuk menggantinya.
+            </p>
+          )}
           <label className={labelClass}>
             Meeting point name
             <input
