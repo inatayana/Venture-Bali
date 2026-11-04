@@ -177,12 +177,14 @@ export interface Venture {
   updatedAt: Date;
 }
 
-// ============ VARIANT & PRICING MODELS ============
+export type PricingModel = 'FLAT_PER_GUEST' | 'AGE_TIERED';
 
 export interface PriceTier {
   minPax: number;
   maxPax: number;
-  pricePerPax: number;
+  pricePerPax: number;           // Adult price (base)
+  pricingModel?: PricingModel;   // default FLAT_PER_GUEST
+  // kids = 75% of adult, youth = 100% (auto-computed)
 }
 
 export interface SlotTime {
@@ -285,6 +287,9 @@ export interface Booking {
   hotelAddress?: string;
   isTba: boolean;
   paxCount: number;
+  adultsCount: number;
+  kidsCount: number;
+  youthCount: number;
   vehicleCount: number;
   zoneSurchargeIdr: number;
   nightSurchargeIdr: number;
@@ -296,6 +301,26 @@ export interface Booking {
   termsAcceptedAt?: Date;
   waiverAcceptedAt?: Date;
   waiverVersion?: string;
+  waiverDigitalSignature?: string;
+  waiverSignatureMethod?: 'draw' | 'type';
+  waiverHealthDeclaration?: {
+    noAlcohol: boolean;
+    noDrugs: boolean;
+    noImpairingMeds: boolean;
+    disclosedConditions?: string[];
+    mobilityOk: boolean;
+  };
+  waiverEmergencyContact?: {
+    name: string;
+    phone: string;
+    relation: string;
+  };
+  waiverIdVerified: boolean;
+  waiverPhotoId?: string;
+  waiverSignedBy?: string;
+  waiverSignedAt?: Date;
+  waiverIpAddress?: string;
+  waiverUserAgent?: string;
   billingAddress?: BillingAddress;
   lifecycleStatus: BookingLifecycle;
   expiresAt?: Date;

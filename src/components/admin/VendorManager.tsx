@@ -23,7 +23,7 @@ export function VendorManager() {
   const loadVendors = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/vendors', { cache: 'no-store' });
+      const res = await fetch('/api/admin/vendors', { cache: 'no-store', credentials: 'include' });
       const json = await res.json();
       if (json.success) setVendors(json.data);
     } catch {
@@ -44,6 +44,7 @@ export function VendorManager() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
         cache: 'no-store',
+        credentials: 'include',
       });
       const json = await res.json();
       if (json.success) {

@@ -1,9 +1,26 @@
 import Link from 'next/link';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/i18n';
 import { LIFECYCLE_LABELS } from '@/lib/bookingLifecycle';
 
 export const dynamic = 'force-dynamic';
+
+/** Relations the bookings table renders. */
+const bookingInclude = {
+  customer: { select: { name: true, email: true, whatsapp: true } },
+  variant: {
+    select: {
+      title: true,
+      venture: { select: { title: true, slug: true } },
+    },
+  },
+  slotTime: { select: { time: true } },
+  pickupZone: { select: { name: true } },
+  vehicleClass: { select: { label: true } },
+} satisfies Prisma.BookingInclude;
+
+type AdminBookingRow = Prisma.BookingGetPayload<{ include: typeof bookingInclude }>;
 
 interface AdminBookingsPageProps {
   searchParams: { date?: string };
@@ -35,23 +52,18 @@ function witaDateKey(daysAhead = 0): string {
 export default async function AdminBookingsPage({ searchParams }: AdminBookingsPageProps) {
   const dateFilter = isValidDateKey(searchParams.date) ? searchParams.date : null;
 
-  const bookings = await prisma.booking.findMany({
-    where: dateFilter ? { bookingDate: dateFilter } : undefined,
-    orderBy: [{ bookingDate: 'desc' }, { createdAt: 'desc' }],
-    take: 200,
-    include: {
-      customer: { select: { name: true, email: true, whatsapp: true } },
-      variant: {
-        select: {
-          title: true,
-          venture: { select: { title: true, slug: true } },
-        },
-      },
-      slotTime: { select: { time: true } },
-      pickupZone: { select: { name: true } },
-      vehicleClass: { select: { label: true } },
-    },
-  });
+  let bookings: AdminBookingRow[] = [];
+
+  try {
+    bookings = await prisma.booking.findMany({
+      where: dateFilter ? { bookingDate: dateFilter } : undefined,
+      orderBy: [{ bookingDate: 'desc' }, { createdAt: 'desc' }],
+      take: 200,
+      include: bookingInclude,
+    });
+  } catch (error) {
+    console.warn('Database unavailable for bookings page:', error);
+  }
 
   return (
     <div className="space-y-6">

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/i18n';
 import { LIFECYCLE_LABELS } from '@/lib/bookingLifecycle';
@@ -6,6 +7,22 @@ import { OperationActions } from '@/components/admin/OperationActions';
 import { CalendarDays, ChevronLeft, ChevronRight, MapPin, Phone, Users } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+
+/** Relations the field manifest renders. */
+const manifestInclude = {
+  customer: { select: { name: true, whatsapp: true } },
+  variant: {
+    select: {
+      title: true,
+      venture: { select: { title: true } },
+    },
+  },
+  slotTime: { select: { time: true } },
+  vehicleClass: { select: { label: true } },
+  pickupZone: { select: { name: true } },
+} satisfies Prisma.BookingInclude;
+
+type ManifestBookingRow = Prisma.BookingGetPayload<{ include: typeof manifestInclude }>;
 
 interface OperationsPageProps {
   searchParams: { date?: string };
@@ -32,22 +49,17 @@ function waLink(whatsapp: string): string {
 export default async function OperationsPage({ searchParams }: OperationsPageProps) {
   const date = isValidDateKey(searchParams.date) ? searchParams.date : witaTodayKey();
 
-  const bookings = await prisma.booking.findMany({
-    where: { bookingDate: date, paymentStatus: 'PAID' },
-    orderBy: [{ slotTime: { time: 'asc' } }, { createdAt: 'asc' }],
-    include: {
-      customer: { select: { name: true, whatsapp: true } },
-      variant: {
-        select: {
-          title: true,
-          venture: { select: { title: true } },
-        },
-      },
-      slotTime: { select: { time: true } },
-      vehicleClass: { select: { label: true } },
-      pickupZone: { select: { name: true } },
-    },
-  });
+  let bookings: ManifestBookingRow[] = [];
+
+  try {
+    bookings = await prisma.booking.findMany({
+      where: { bookingDate: date, paymentStatus: 'PAID' },
+      orderBy: [{ slotTime: { time: 'asc' } }, { createdAt: 'asc' }],
+      include: manifestInclude,
+    });
+  } catch (error) {
+    console.warn('Database unavailable for operations page:', error);
+  }
 
   const groups = new Map<string, typeof bookings>();
   for (const booking of bookings) {

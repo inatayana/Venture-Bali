@@ -1,8 +1,22 @@
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { RefundActions } from '@/components/admin/RefundActions';
 import { formatPrice } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
+
+/** Refund rows with the booking context the cards render. */
+const refundInclude = {
+  booking: {
+    include: {
+      customer: { select: { name: true, email: true } },
+      variant: { select: { title: true, venture: { select: { title: true } } } },
+      payment: { select: { midtransOrderId: true } },
+    },
+  },
+} satisfies Prisma.RefundInclude;
+
+type AdminRefundRow = Prisma.RefundGetPayload<{ include: typeof refundInclude }>;
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: 'bg-amber-50 text-amber-800',
@@ -11,19 +25,17 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default async function AdminRefundsPage() {
-  const refunds = await prisma.refund.findMany({
-    orderBy: { requestedAt: 'desc' },
-    take: 100,
-    include: {
-      booking: {
-        include: {
-          customer: { select: { name: true, email: true } },
-          variant: { select: { title: true, venture: { select: { title: true } } } },
-          payment: { select: { midtransOrderId: true } },
-        },
-      },
-    },
-  });
+  let refunds: AdminRefundRow[] = [];
+
+  try {
+    refunds = await prisma.refund.findMany({
+      orderBy: { requestedAt: 'desc' },
+      take: 100,
+      include: refundInclude,
+    });
+  } catch (error) {
+    console.warn('Database unavailable for refunds page:', error);
+  }
 
   const pending = refunds.filter((refund) => refund.status !== 'PROCESSED');
   const processed = refunds.filter((refund) => refund.status === 'PROCESSED');

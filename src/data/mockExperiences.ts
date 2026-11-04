@@ -114,6 +114,7 @@ function toPrismaShape(venture: VentureSeed): VentureWithRelations {
     duration: venture.duration,
     badge: venture.badge,
     meetingPoint: MEETING_POINTS[venture.slug]?.name ?? null,
+    meetingPointMapsUrl: null,
     meetingPointLat: MEETING_POINTS[venture.slug]?.latitude ?? null,
     meetingPointLng: MEETING_POINTS[venture.slug]?.longitude ?? null,
     minAge: SAFETY_INFO[venture.slug]?.minAge ?? null,
@@ -172,6 +173,7 @@ function toPrismaShape(venture: VentureSeed): VentureWithRelations {
         ? mockPickupZoneByAreaType.get(variant.pickupZoneAreaType) ?? null
         : null,
       sortOrder: variant.sortOrder ?? variantIndex,
+      vendorId: null,
       blackoutDates: variant.blackoutDates,
       createdAt: MOCK_NOW,
       updatedAt: MOCK_NOW,
@@ -181,6 +183,7 @@ function toPrismaShape(venture: VentureSeed): VentureWithRelations {
         minPax: tier.minPax,
         maxPax: tier.maxPax,
         pricePerPax: tier.pricePerPax,
+        pricingModel: 'FLAT_PER_GUEST',
       })),
       slotTimes: (variant.slots ?? DEFAULT_SLOTS).map((slot, slotIndex) => ({
         id: `mock-${venture.slug}-${variantIndex + 1}-slot-${slotIndex + 1}`,

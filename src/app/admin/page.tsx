@@ -16,47 +16,75 @@ interface DashboardStats {
 }
 
 async function loadStats(): Promise<DashboardStats> {
-  const [ventureCount, variantCount, bookingCount, paidCount, pendingCount, cancelledCount, articleCount] =
-    await Promise.all([
-      prisma.venture.count(),
-      prisma.variant.count(),
-      prisma.booking.count(),
-      prisma.booking.count({ where: { paymentStatus: 'PAID' } }),
-      prisma.booking.count({ where: { paymentStatus: 'PENDING' } }),
-      prisma.booking.count({ where: { paymentStatus: 'CANCELLED' } }),
-      prisma.article.count(),
-    ]);
+  try {
+    const [ventureCount, variantCount, bookingCount, paidCount, pendingCount, cancelledCount, articleCount] =
+      await Promise.all([
+        prisma.venture.count(),
+        prisma.variant.count(),
+        prisma.booking.count(),
+        prisma.booking.count({ where: { paymentStatus: 'PAID' } }),
+        prisma.booking.count({ where: { paymentStatus: 'PENDING' } }),
+        prisma.booking.count({ where: { paymentStatus: 'CANCELLED' } }),
+        prisma.article.count(),
+      ]);
 
-  const paidBookings = await prisma.booking.findMany({
-    where: { paymentStatus: 'PAID' },
-    select: { totalPrice: true },
-  });
+    const paidBookings = await prisma.booking.findMany({
+      where: { paymentStatus: 'PAID' },
+      select: { totalPrice: true },
+    });
 
-  const revenueIdr = paidBookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
+    const revenueIdr = paidBookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
 
-  return {
-    ventureCount,
-    variantCount,
-    bookingCount,
-    paidCount,
-    pendingCount,
-    cancelledCount,
-    revenueIdr,
-    articleCount,
-  };
+    return {
+      ventureCount,
+      variantCount,
+      bookingCount,
+      paidCount,
+      pendingCount,
+      cancelledCount,
+      revenueIdr,
+      articleCount,
+    };
+  } catch (error) {
+    console.warn('Database unavailable for admin dashboard, using mock stats:', error);
+    // Mock stats for local development without database
+    return {
+      ventureCount: 9,
+      variantCount: 18,
+      bookingCount: 0,
+      paidCount: 0,
+      pendingCount: 0,
+      cancelledCount: 0,
+      revenueIdr: 0,
+      articleCount: 0,
+    };
+  }
 }
 
 export default async function AdminDashboardPage() {
   const stats = await loadStats();
 
-  const recentBookings = await prisma.booking.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 8,
-    include: {
-      customer: { select: { name: true, email: true } },
-      variant: { select: { title: true, venture: { select: { title: true } } } },
-    },
-  });
+  let recentBookings: Array<{
+    id: string;
+    bookingCode: string;
+    totalPrice: number;
+    paymentStatus: string;
+    customer?: { name: string; email: string } | null;
+    variant?: { title: string; venture?: { title: string } | null } | null;
+  }> = [];
+  
+  try {
+    recentBookings = await prisma.booking.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 8,
+      include: {
+        customer: { select: { name: true, email: true } },
+        variant: { select: { title: true, venture: { select: { title: true } } } },
+      },
+    });
+  } catch (error) {
+    console.warn('Database unavailable for recent bookings:', error);
+  }
 
   const tiles = [
     { label: 'Ventures', value: stats.ventureCount, href: '/admin/ventures' },

@@ -1,17 +1,28 @@
 import Link from 'next/link';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
 import { formatPrice } from '@/lib/i18n';
+import { mockExperiences } from '@/data/mockExperiences';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminVenturesPage() {
-  const rows = await prisma.venture.findMany({
-    include: ventureWithRelations,
-    orderBy: [{ category: 'asc' }, { title: 'asc' }],
-  });
+/** Row shape with the relations toVentureItem needs. */
+type AdminVentureRow = Prisma.VentureGetPayload<{ include: typeof ventureWithRelations }>;
 
-  const ventures = rows.map(toVentureItem);
+export default async function AdminVenturesPage() {
+  let rows: AdminVentureRow[] = [];
+  
+  try {
+    rows = await prisma.venture.findMany({
+      include: ventureWithRelations,
+      orderBy: [{ category: 'asc' }, { title: 'asc' }],
+    });
+  } catch (error) {
+    console.warn('Database unavailable for admin ventures, using mock data:', error);
+  }
+
+  const ventures = rows.length > 0 ? rows.map(toVentureItem) : mockExperiences;
 
   return (
     <div className="space-y-6">

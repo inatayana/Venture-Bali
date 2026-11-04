@@ -195,6 +195,9 @@ export async function createBooking(state: AgentState): Promise<CreateBookingOut
     fulfillmentMode: 'SELF_DRIVE',
     isTba: false,
     paxCount: pax,
+    adultsCount: pax,
+    kidsCount: 0,
+    youthCount: 0,
     vehicleCount: 1,
     zoneSurchargeIdr: 0,
     nightSurchargeIdr: 0,
@@ -202,6 +205,7 @@ export async function createBooking(state: AgentState): Promise<CreateBookingOut
     totalPrice: tier ? tier.pricePerPax * pax : 0,
     paymentStatus: 'PENDING',
     lifecycleStatus: 'AWAITING_PAYMENT',
+    waiverIdVerified: false,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
