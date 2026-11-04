@@ -31,6 +31,7 @@ const NAV_ITEMS = [
   { href: '/admin/reports', label: 'Revenue', icon: BarChart3 },
   { href: '/admin/content', label: 'AI Content', icon: Sparkles },
   { href: '/admin/seo', label: 'Expert SEO', icon: Globe },
+  { href: '/admin/vendors', label: 'Vendors', icon: Map },
 ];
 
 export function AdminSidebar() {
