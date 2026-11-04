@@ -45,11 +45,12 @@ export function getPriceTierForPax(
 
 /**
  * Calculate age-tiered price breakdown for AGE_TIERED pricing model.
- * Kids (3-10): 75% of adult price
- * Youth (11-16): 100% of adult price (same as adult)
- * Adult (17+): 100% of adult price (base pricePerPax)
- * 
- * Admin only sets adult price per variant. Kids/Youth prices auto-computed.
+ *
+ * Prices are admin-set per tier: adults use `pricePerPax` (tiered by total
+ * pax), kids (3-10) and youth (11-16) use their flat per-pax prices. When the
+ * admin leaves a kids/youth price blank the ADULT price applies — never a
+ * made-up ratio (owner rule: a kids/youth price may be equal to, never more
+ * than, the adult price — enforced in the admin schema).
  */
 export function calculateAgeTieredBreakdown(
   tier: PriceTier,
@@ -62,8 +63,8 @@ export function calculateAgeTieredBreakdown(
   }
 
   const adultPrice = tier.pricePerPax;
-  const kidsPrice = Math.round(adultPrice * 0.75); // 75% of adult price
-  const youthPrice = adultPrice; // 100% of adult price (same as adult)
+  const kidsPrice = tier.kidsPricePerPax ?? adultPrice;
+  const youthPrice = tier.youthPricePerPax ?? adultPrice;
 
   const adultsSubtotal = adultPrice * adults;
   const kidsSubtotal = kidsPrice * kids;
@@ -430,16 +431,27 @@ export function computeQuote(input: QuoteInput): QuoteBreakdown {
     if (totalPaxFromAges !== paxCount) {
       throw new Error('Age breakdown total does not match paxCount');
     }
-    const ageBreakdown = calculateAgeTieredBreakdown(tier, adultsCount, kidsCount, youthCount);
-    
-    const listPricePerPaxIdr = tier.pricePerPax;
-    const promoPrice = input.promoPriceIdr ?? null;
-    const promoActive = promoPrice !== null && promoPrice > 0 && promoPrice < listPricePerPaxIdr;
-    const unitPricePerPaxIdr = promoActive ? (promoPrice as number) : listPricePerPaxIdr;
 
-    const listTotalIdr = listPricePerPaxIdr * paxCount;
-    const subtotalIdr = ageBreakdown.subtotal;
-    let discountIdr = listTotalIdr - subtotalIdr;
+    // List prices per age (admin-set; a blank kids/youth price means the
+    // adult price applies). The list total is what this exact group would
+    // pay without any promo — so the discount shown is honest.
+    const adultList = tier.pricePerPax;
+    const kidsList = tier.kidsPricePerPax ?? adultList;
+    const youthList = tier.youthPricePerPax ?? adultList;
+
+    const listPricePerPaxIdr = adultList;
+    const promoPrice = input.promoPriceIdr ?? null;
+    const promoActive = promoPrice !== null && promoPrice > 0 && promoPrice < adultList;
+    /** The promo price is the discounted adult /guest; kids and youth follow
+     *  the same discount ratio so every age gets the advertised saving. */
+    const promoRatio = promoActive && adultList > 0 ? (promoPrice as number) / adultList : 1;
+    const adultUnit = promoActive ? (promoPrice as number) : adultList;
+    const kidsUnit = Math.round(kidsList * promoRatio);
+    const youthUnit = Math.round(youthList * promoRatio);
+
+    const listTotalIdr = adultsCount * adultList + kidsCount * kidsList + youthCount * youthList;
+    const subtotalIdr = adultsCount * adultUnit + kidsCount * kidsUnit + youthCount * youthUnit;
+    let discountIdr = Math.max(0, listTotalIdr - subtotalIdr);
     let couponDiscountIdr = 0;
 
     let couponCode: string | null = null;
@@ -484,10 +496,10 @@ export function computeQuote(input: QuoteInput): QuoteBreakdown {
       paxCount,
       currency: 'IDR',
       fulfillmentMode,
-      pricePerPax: unitPricePerPaxIdr,
+      pricePerPax: adultUnit,
       totalPrice: subtotalIdr,
-      listPricePerPaxIdr,
-      unitPricePerPaxIdr,
+      listPricePerPaxIdr: adultList,
+      unitPricePerPaxIdr: adultUnit,
       promoActive,
       listTotalIdr,
       subtotalIdr,
@@ -500,9 +512,9 @@ export function computeQuote(input: QuoteInput): QuoteBreakdown {
       addonsTotalIdr,
       totalPriceIdr,
       ageBreakdown: {
-        adults: { count: adultsCount, pricePerPax: tier.pricePerPax, subtotal: tier.pricePerPax * adultsCount },
-        kids: { count: kidsCount, pricePerPax: Math.round(tier.pricePerPax * 0.75), subtotal: Math.round(tier.pricePerPax * 0.75) * kidsCount },
-        youth: { count: youthCount, pricePerPax: tier.pricePerPax, subtotal: tier.pricePerPax * youthCount },
+        adults: { count: adultsCount, pricePerPax: adultUnit, subtotal: adultsCount * adultUnit },
+        kids: { count: kidsCount, pricePerPax: kidsUnit, subtotal: kidsCount * kidsUnit },
+        youth: { count: youthCount, pricePerPax: youthUnit, subtotal: youthCount * youthUnit },
       },
     };
   } else {
@@ -579,10 +591,6 @@ export function computeQuote(input: QuoteInput): QuoteBreakdown {
 }
 
 // ============ EXPORTED UTILITIES (used by other modules) ============
-
-
-// ============ EXPORTED UTILITIES (used by other modules) ============
-
 
 /**
  * Dependent selection matrix: filter add-ons allowed for a fulfillment mode.

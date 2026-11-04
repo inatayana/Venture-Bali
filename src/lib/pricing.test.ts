@@ -74,6 +74,126 @@ describe('Pricing Utilities', () => {
     });
   });
 
+  describe('AGE_TIERED pricing', () => {
+    // Transfer-style variant: adults tiered by total pax, kids/youth flat.
+    const ageTieredTiers = [
+      { minPax: 1, maxPax: 1, pricePerPax: 650000, pricingModel: 'AGE_TIERED' as const, kidsPricePerPax: 450000, youthPricePerPax: 550000 },
+      { minPax: 2, maxPax: 2, pricePerPax: 600000, pricingModel: 'AGE_TIERED' as const, kidsPricePerPax: 450000, youthPricePerPax: 550000 },
+      { minPax: 3, maxPax: 10, pricePerPax: 550000, pricingModel: 'AGE_TIERED' as const, kidsPricePerPax: 400000, youthPricePerPax: 500000 },
+    ];
+
+    it('prices adults by tier and kids/youth at their admin-set flat prices', () => {
+      // 2 adults + 1 kid + 1 youth = 4 pax -> tier 3-4 (adult 550k)
+      const quote = computeQuote({
+        priceTiers: ageTieredTiers,
+        paxCount: 4,
+        fulfillmentMode: 'SELF_DRIVE',
+        adultsCount: 2,
+        kidsCount: 1,
+        youthCount: 1,
+      });
+      expect(quote.subtotalIdr).toBe(2 * 550000 + 400000 + 500000);
+      expect(quote.totalPriceIdr).toBe(2000000);
+      expect(quote.ageBreakdown?.adults.subtotal).toBe(1100000);
+      expect(quote.ageBreakdown?.kids.pricePerPax).toBe(400000);
+      expect(quote.ageBreakdown?.youth.pricePerPax).toBe(500000);
+      expect(quote.discountIdr).toBe(0);
+    });
+
+    it('charges the adult price when the admin leaves kids/youth blank', () => {
+      const tiers = [
+        { minPax: 1, maxPax: 10, pricePerPax: 500000, pricingModel: 'AGE_TIERED' as const },
+      ];
+      const quote = computeQuote({
+        priceTiers: tiers,
+        paxCount: 3,
+        fulfillmentMode: 'SELF_DRIVE',
+        adultsCount: 1,
+        kidsCount: 1,
+        youthCount: 1,
+      });
+      expect(quote.totalPriceIdr).toBe(1500000);
+      expect(quote.ageBreakdown?.kids.pricePerPax).toBe(500000);
+      expect(quote.ageBreakdown?.youth.pricePerPax).toBe(500000);
+    });
+
+    it('scales kids/youth by the same promo ratio as the adult price', () => {
+      const tiers = [
+        {
+          minPax: 1,
+          maxPax: 10,
+          pricePerPax: 450000,
+          pricingModel: 'AGE_TIERED' as const,
+          kidsPricePerPax: 300000,
+          youthPricePerPax: 400000,
+        },
+      ];
+      // Promo 382.500 = 15% off the 450.000 adult price -> kids 255.000.
+      const quote = computeQuote({
+        priceTiers: tiers,
+        paxCount: 2,
+        fulfillmentMode: 'SELF_DRIVE',
+        adultsCount: 1,
+        kidsCount: 1,
+        youthCount: 0,
+        promoPriceIdr: 382500,
+      });
+      expect(quote.promoActive).toBe(true);
+      expect(quote.ageBreakdown?.adults.pricePerPax).toBe(382500);
+      expect(quote.ageBreakdown?.kids.pricePerPax).toBe(255000);
+      expect(quote.subtotalIdr).toBe(637500);
+      expect(quote.listTotalIdr).toBe(750000);
+      expect(quote.discountIdr).toBe(112500);
+    });
+
+    it('applies a coupon percentage to the age-tiered subtotal', () => {
+      const coupon: CouponRule = { code: 'BALICERIA2026', discountPercent: 10, isActive: true };
+      const quote = computeQuote({
+        priceTiers: ageTieredTiers,
+        paxCount: 3,
+        fulfillmentMode: 'SELF_DRIVE',
+        adultsCount: 2,
+        kidsCount: 1,
+        youthCount: 0,
+        coupon,
+      });
+      // tier 3-4: 2×550k + 400k = 1.5jt, coupon 10% -> 1.35jt
+      expect(quote.subtotalIdr).toBe(1500000);
+      expect(quote.discountIdr).toBe(150000);
+      expect(quote.couponCode).toBe('BALICERIA2026');
+      expect(quote.totalPriceIdr).toBe(1350000);
+    });
+
+    it('rejects an age breakdown that does not add up to paxCount', () => {
+      expect(() =>
+        computeQuote({
+          priceTiers: ageTieredTiers,
+          paxCount: 4,
+          fulfillmentMode: 'SELF_DRIVE',
+          adultsCount: 2,
+          kidsCount: 1,
+          youthCount: 0,
+        })
+      ).toThrow('Age breakdown total does not match paxCount');
+    });
+
+    it('keeps transfer fees per total pax, not per age group', () => {
+      const zone = { name: 'South 1', areaType: 'ZONE_2', surchargeIdr: 224000, isCustomQuote: false, vehicleMaxPax: 4, isActive: true } as unknown as PickupZone;
+      const quote = computeQuote({
+        priceTiers: ageTieredTiers,
+        paxCount: 4,
+        fulfillmentMode: 'SHARED_TRANSFER',
+        adultsCount: 2,
+        kidsCount: 1,
+        youthCount: 1,
+        zone,
+      });
+      // shared shuttle: 224.000 × 4 pax — the same as four adults would pay
+      expect(quote.transfer.totalFeeIdr).toBe(896000);
+      expect(quote.totalPriceIdr).toBe(2000000 + 896000);
+    });
+  });
+
   describe('calculatePriceBreakdown', () => {
     it('calculates correct total for 1 pax', () => {
       const breakdown = calculatePriceBreakdown(mockPriceTiers, 1);

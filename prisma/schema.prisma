@@ -310,6 +310,10 @@ model Variant {
   promoLabel       String?
   promoStartsAt    DateTime?
   promoEndsAt      DateTime?
+  /// Infants (0-2) ride free and do not count towards pax/capacity. The
+  /// toggle keeps adrenaline products honest: parents must declare them,
+  /// but they are never priced or capacity-counted unless enabled.
+  infantEnabled    Boolean      @default(false)
   /// Operational notes shown under the price, e.g. "After 7 PM: +Rp50.000/pax".
   operationNotes   String?
   /// Package-level inclusions/exclusions; empty falls back to the venture lists.
@@ -343,6 +347,10 @@ model PriceTier {
   minPax       Int
   maxPax       Int
   pricePerPax  Int          // Adult price (base price)
+  /// AGE_TIERED tiers price kids/youth flat per pax; null = charge the adult
+  /// price for that age group (owner rule: never exceed the adult price).
+  kidsPricePerPax  Int?
+  youthPricePerPax Int?
   pricingModel PricingModel @default(FLAT_PER_GUEST)
   variantId    String
   variant      Variant      @relation("VariantToPriceTier", fields: [variantId], references: [id], onDelete: Cascade)
@@ -426,6 +434,9 @@ model Booking {
   adultsCount        Int              @default(0)
   kidsCount          Int              @default(0)
   youthCount         Int              @default(0)
+  /// Infants (0-2) declared by the parent when the variant allows them.
+  /// Never counted in paxCount/capacity and never priced.
+  infantCount        Int              @default(0)
   vehicleCount       Int              @default(1)
   zoneSurchargeIdr   Int              @default(0)
   /// Night-slot surcharge captured at booking time (IDR).

@@ -182,9 +182,14 @@ export type PricingModel = 'FLAT_PER_GUEST' | 'AGE_TIERED';
 export interface PriceTier {
   minPax: number;
   maxPax: number;
-  pricePerPax: number;           // Adult price (base)
-  pricingModel?: PricingModel;   // default FLAT_PER_GUEST
-  // kids = 75% of adult, youth = 100% (auto-computed)
+  /** Adult price (base). Tiers are selected by TOTAL pax. */
+  pricePerPax: number;
+  /** Default FLAT_PER_GUEST. AGE_TIERED prices kids/youth separately. */
+  pricingModel?: PricingModel;
+  /** Kids (3-10) flat price. Blank = the adult price applies. Never above the adult price. */
+  kidsPricePerPax?: number;
+  /** Youth (11-16) flat price. Blank = the adult price applies. Never above the adult price. */
+  youthPricePerPax?: number;
 }
 
 export interface SlotTime {
@@ -248,6 +253,8 @@ export interface Variant {
    * see ventureWithRelations). Powers the honest "N× booked" badge.
    */
   bookedLast48h?: number;
+  /** Infants (0-2) ride free and are never counted in pax/capacity. */
+  infantEnabled?: boolean;
   sortOrder: number;
   priceTiers: PriceTier[];
   blackoutDates: string[];
@@ -297,6 +304,8 @@ export interface Booking {
   adultsCount: number;
   kidsCount: number;
   youthCount: number;
+  /** Infants (0-2) when the variant enables them — never priced or capacity-counted. */
+  infantCount?: number;
   vehicleCount: number;
   zoneSurchargeIdr: number;
   nightSurchargeIdr: number;
