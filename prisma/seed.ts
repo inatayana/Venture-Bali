@@ -350,15 +350,28 @@ async function seedVentures(
             },
           });
 
-      // Price tiers
+      // Price tiers. Re-seeding MUST preserve admin-set age-tiered pricing
+      // (pricingModel + kids/youth prices) — those live only in the database
+      // and are NOT in the catalogue seed data. Match existing tiers by
+      // (minPax, maxPax) and carry the admin fields forward; if the catalogue
+      // ever does specify them, the catalogue wins.
+      const existingTiers = await prisma.priceTier.findMany({ where: { variantId: variant.id } });
       await prisma.priceTier.deleteMany({ where: { variantId: variant.id } });
       await prisma.priceTier.createMany({
-        data: variantSeed.priceTiers.map((tier) => ({
-          variantId: variant.id,
-          minPax: tier.minPax,
-          maxPax: tier.maxPax,
-          pricePerPax: tier.pricePerPax,
-        })),
+        data: variantSeed.priceTiers.map((tier) => {
+          const existing = existingTiers.find(
+            (t) => t.minPax === tier.minPax && t.maxPax === tier.maxPax
+          );
+          return {
+            variantId: variant.id,
+            minPax: tier.minPax,
+            maxPax: tier.maxPax,
+            pricePerPax: tier.pricePerPax,
+            pricingModel: tier.pricingModel ?? existing?.pricingModel ?? 'FLAT_PER_GUEST',
+            kidsPricePerPax: tier.kidsPricePerPax ?? existing?.kidsPricePerPax ?? null,
+            youthPricePerPax: tier.youthPricePerPax ?? existing?.youthPricePerPax ?? null,
+          };
+        }),
       });
 
       // Slot times
