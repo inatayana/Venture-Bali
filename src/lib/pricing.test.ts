@@ -571,4 +571,23 @@ describe('Promo, coupon & night surcharge engine', () => {
     // …but a transfer for today is already closed.
     expect(isSlotBookable('2026-10-31', '08:00 AM', 'PRIVATE_TRANSFER', now)).toBe(false);
   });
+
+  it('honours an explicit per-slot cut-off over the mode default', () => {
+    // now = 22:00 WITA on 2026-10-31 (example: Tubing 09:00 AM with 5h cut-off)
+    const now = new Date('2026-10-31T14:00:00.000Z'); // = 22:00 WITA
+
+    // 09:00 AM tomorrow minus 5h = 03:00 WITA tomorrow; at 22:00 WITA today the
+    // booking is still open (10h away) — but one hour closer and the 5h rule closes it.
+    expect(isSlotBookable('2026-11-01', '08:00 AM', 'SELF_DRIVE', now, 5)).toBe(true);
+    // 17:00 slot today (already started) is closed regardless of cut-off
+    expect(isSlotBookable('2026-10-31', '05:00 PM', 'SELF_DRIVE', now, 5)).toBe(false);
+    // 02:00 AM tomorrow is only 4h away — a 5h cut-off already closes it at 22:00 WITA today
+    expect(isSlotBookable('2026-11-01', '02:00 AM', 'SELF_DRIVE', now, 5)).toBe(false);
+    // Explicit 0-hour cut-off: always bookable until departure time
+    expect(isSlotBookable('2026-10-31', '11:00 PM', 'SELF_DRIVE', now, 0)).toBe(true);
+    // null = mode default (SELF_DRIVE 2h)…
+    expect(isSlotBookable('2026-10-31', '06:00 AM', 'SELF_DRIVE', now, null)).toBe(false);
+    // …and transfers remain H-1 22:00 when nothing is set
+    expect(isSlotBookable('2026-10-31', '08:00 AM', 'PRIVATE_TRANSFER', now, null)).toBe(false);
+  });
 });

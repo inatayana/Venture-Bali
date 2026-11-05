@@ -371,6 +371,7 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
         maxCapacity: slot.maxCapacity,
         currentBookings: slot.currentBookings,
         isAvailable: slot.isAvailable,
+        cutoffHours: slot.cutoffHours ?? null,
         createdAt: slot.createdAt,
         updatedAt: slot.updatedAt,
       })),

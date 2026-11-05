@@ -202,6 +202,8 @@ export interface SlotTime {
   maxCapacity: number;
   currentBookings: number;
   isAvailable: boolean;
+  /** Hours before departure during which booking closes; null = mode default. */
+  cutoffHours?: number | null;
   createdAt: Date;
   updatedAt: Date;
 }

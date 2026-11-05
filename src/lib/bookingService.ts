@@ -118,7 +118,7 @@ async function createBookingInTransaction(
     throw new BookingServiceError('VALIDATION_ERROR', 'Some selected add-ons require a transfer package');
   }
 
-  if (!isSlotBookable(input.bookingDate, slot.time, input.fulfillmentMode, new Date())) {
+  if (!isSlotBookable(input.bookingDate, slot.time, input.fulfillmentMode, new Date(), slot.cutoffHours)) {
     throw new BookingServiceError('CUT_OFF', 'Booking cut-off has passed for this slot');
   }
 

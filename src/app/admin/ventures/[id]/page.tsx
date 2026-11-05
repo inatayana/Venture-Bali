@@ -121,6 +121,7 @@ export default async function AdminVentureDetailPage({
                 maxCapacity: slot.maxCapacity,
                 currentBookings: slot.currentBookings,
                 isAvailable: slot.isAvailable,
+                cutoffHours: slot.cutoffHours ?? null,
               })),
             }}
             headerAction={

@@ -50,6 +50,7 @@ export async function POST(
         time: input.time,
         maxCapacity: input.maxCapacity,
         isAvailable: input.isAvailable,
+        cutoffHours: input.cutoffHours ?? null,
       },
     });
 

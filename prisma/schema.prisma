@@ -281,6 +281,10 @@ model SlotTime {
   maxCapacity     Int
   currentBookings Int       @default(0)
   isAvailable     Boolean   @default(true)
+  /// Optional per-slot cut-off: guests may book up to this many hours before
+  /// the departure. NULL falls back to the mode rule (SELF_DRIVE 2h,
+  /// transfers H-1 22:00 WITA).
+  cutoffHours     Int?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   bookings        Booking[]

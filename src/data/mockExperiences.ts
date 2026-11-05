@@ -200,6 +200,7 @@ function toPrismaShape(venture: VentureSeed): VentureWithRelations {
         maxCapacity: slot.maxCapacity,
         currentBookings: 0,
         isAvailable: true,
+        cutoffHours: null,
         createdAt: MOCK_NOW,
         updatedAt: MOCK_NOW,
       })),

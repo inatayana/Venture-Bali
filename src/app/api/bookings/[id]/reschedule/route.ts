@@ -108,7 +108,7 @@ export async function GET(
           spotsLeft: left,
           enabled:
             left >= booking.paxCount &&
-            isSlotBookable(date, slot.time, booking.variant.fulfillmentMode) &&
+            isSlotBookable(date, slot.time, booking.variant.fulfillmentMode, new Date(), slot.cutoffHours) &&
             hoursBeforeActivity(date, slot.time) >= 24,
         };
       }),
@@ -172,7 +172,7 @@ export async function POST(
       if (!slot || slot.variantId !== booking.variant.id || !slot.isAvailable) {
         return { kind: 'invalid' as const, message: 'That departure is not available' };
       }
-      if (!isSlotBookable(parsed.data.date, slot.time, booking.variant.fulfillmentMode)) {
+      if (!isSlotBookable(parsed.data.date, slot.time, booking.variant.fulfillmentMode, new Date(), slot.cutoffHours)) {
         return { kind: 'invalid' as const, message: 'That departure is inside the booking cut-off' };
       }
       if (hoursBeforeActivity(parsed.data.date, slot.time) < 24) {

@@ -20,6 +20,8 @@ export const slotInputSchema = z.object({
     .transform(normaliseSlotTime),
   maxCapacity: z.number().int().min(1, 'Capacity must be at least 1').max(100, 'Capacity is too large'),
   isAvailable: z.boolean().default(true),
+  /** Booking cut-off in hours before the departure; null = mode default. */
+  cutoffHours: z.number().int().min(0, 'Cut-off cannot be negative').max(720, 'Cut-off cannot be more than 30 days').nullable().optional(),
 });
 
 export const slotUpdateSchema = z.object({
@@ -31,6 +33,8 @@ export const slotUpdateSchema = z.object({
     .optional(),
   maxCapacity: z.number().int().min(1).max(100).optional(),
   isAvailable: z.boolean().optional(),
+  /** Booking cut-off in hours before the departure; null = mode default. */
+  cutoffHours: z.number().int().min(0).max(720).nullable().optional(),
 });
 
 export const blackoutInputSchema = z.object({

@@ -374,16 +374,23 @@ async function seedVentures(
         }),
       });
 
-      // Slot times
+      // Slot times. Re-seeding MUST preserve admin-set data that lives only
+      // in the database: the booking cut-off override and real currentBookings.
+      // Match existing slots by (variantId, time) and carry them forward.
+      const existingSlots = await prisma.slotTime.findMany({ where: { variantId: variant.id } });
       await prisma.slotTime.deleteMany({ where: { variantId: variant.id } });
       await prisma.slotTime.createMany({
-        data: (variantSeed.slots ?? DEFAULT_SLOTS).map((slot) => ({
-          variantId: variant.id,
-          time: slot.time,
-          maxCapacity: slot.maxCapacity,
-          currentBookings: 0,
-          isAvailable: true,
-        })),
+        data: (variantSeed.slots ?? DEFAULT_SLOTS).map((slot) => {
+          const existing = existingSlots.find((item) => item.time === slot.time);
+          return {
+            variantId: variant.id,
+            time: slot.time,
+            maxCapacity: slot.maxCapacity,
+            currentBookings: existing?.currentBookings ?? 0,
+            isAvailable: existing?.isAvailable ?? true,
+            cutoffHours: existing?.cutoffHours ?? null,
+          };
+        }),
       });
 
       // Add-ons

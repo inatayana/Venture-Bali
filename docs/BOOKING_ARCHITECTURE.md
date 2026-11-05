@@ -1,8 +1,9 @@
 # BaliWild — Booking Architecture
 
-> **Version:** 1.4.0
+> **Version:** 1.5.0
 > **Status:** MUST FOLLOW for booking flow, pricing, and checkout logic.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §2)
+> **Changelog v1.5.0 (2026-11-06):** Cut-off slot bisa diatur per slot (`SlotTime.cutoffHours`); NULL = aturan mode (SELF_DRIVE 2h, transfer H-1 22:00 WITA). Admin panel /admin/ventures/[id] mengeditnya.
 > **Changelog v1.4.0 (2026-11-05):** Zona punya DUA harga yang terpisah — `surchargeIdr` = charter per kendaraan (PRIVATE), `surchargePerPaxIdr` = fee per orang (SHARED). Delta kelas kendaraan = selisih carter vs standar, bukan carter penuh.
 > **Changelog v1.2.0 (2026-10-31):** Tambah mode `SHARED_TRANSFER`, promo price + coupon (no stacking), night surcharge ≥19:00, hotel address / TBA wajib untuk semua mode transfer.
 > **Changelog v1.1.0:** Tambah dimensi kelas kendaraan (VehicleClass) untuk PRIVATE_TRANSFER + aturan combo add-on dependen transfer (Klook-style configurator).
@@ -91,6 +92,18 @@ Setiap zona menyimpan dua harga yang berbeda dan dipakai oleh mode yang berbeda 
 Admin yang memasukkan **carter penuh** ke `deltaIdr` membuat tamu membayar kendaraan dasar dua kali — dilarang. Screen admin menuntinggalkan hint "selisih carter"; upgrade dijual per kendaraan (mengganti kelas), bukan per orang.
 
 ## 4. Cut-off Rules (WITA, UTC+8)
+
+Per-slot override takes precedence over the mode default (`SlotTime.cutoffHours`, NULL = mode default):
+
+| Slot `cutoffHours` | Artinya |
+|---|---|
+| NULL | Mode default (tabel di bawah) |
+| 5 | Bookable sampai 5 jam sebelum jam keberangkatan |
+| 0 | Bookable sampai saat slot dimulai |
+
+Admin Panel (`/admin/ventures/[id]` → daftar departure) mengelola ini per slot. Engine menghormatinya di client widget, server booking service, reschedule endpoint, dan VentureExplorer (listing filter).
+
+Mode default (kalau `cutoffHours` = NULL):
 
 | Mode | Cut-off | Artinya |
 |------|---------|---------|

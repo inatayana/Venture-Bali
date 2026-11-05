@@ -10,6 +10,8 @@ interface Slot {
   maxCapacity: number;
   currentBookings: number;
   isAvailable: boolean;
+  /** Hours before departure to close booking; null/undefined = mode default. */
+  cutoffHours?: number | null;
 }
 
 interface VariantOperationsEditorProps {
@@ -49,6 +51,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
   const [error, setError] = useState<string | null>(null);
   const [newTime, setNewTime] = useState('08:00 AM');
   const [newCapacity, setNewCapacity] = useState('10');
+  const [newCutoffHours, setNewCutoffHours] = useState('');
   const [blackoutDate, setBlackoutDate] = useState('');
   const [addonName, setAddonName] = useState('');
   const [addonPrice, setAddonPrice] = useState('');
@@ -80,11 +83,16 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
       setError('Capacity must be a whole number of at least 1');
       return;
     }
+    const cutoffHours = newCutoffHours.trim() === '' ? null : Number(newCutoffHours);
+    if (cutoffHours !== null && (!Number.isInteger(cutoffHours) || cutoffHours < 0 || cutoffHours > 720)) {
+      setError('Cut-off must be a whole number of hours between 0 and 720');
+      return;
+    }
     const ok = await run('add', `/api/admin/variants/${variant.id}/slots`, {
       method: 'POST',
-      body: JSON.stringify({ time: newTime, maxCapacity: capacity }),
+      body: JSON.stringify({ time: newTime, maxCapacity: capacity, cutoffHours }),
     });
-    if (ok) setNewCapacity('10');
+    if (ok) { setNewCapacity('10'); setNewCutoffHours(''); }
   };
 
   const toggleSlot = (slot: Slot) =>
@@ -103,6 +111,28 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
     run(`capacity-${slot.id}`, `/api/admin/slots/${slot.id}`, {
       method: 'PATCH',
       body: JSON.stringify({ maxCapacity: capacity }),
+    });
+  };
+
+  const saveCutoffHours = (slot: Slot, value: string) => {
+    const trimmed = value.trim();
+    if (trimmed === '') {
+      if (slot.cutoffHours === null || slot.cutoffHours === undefined) return;
+      run(`cutoff-${slot.id}`, `/api/admin/slots/${slot.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ cutoffHours: null }),
+      });
+      return;
+    }
+    const hours = Number(trimmed);
+    if (!Number.isInteger(hours) || hours < 0 || hours > 720) {
+      setError('Cut-off must be a whole number of hours between 0 and 720');
+      return;
+    }
+    if (hours === slot.cutoffHours) return;
+    run(`cutoff-${slot.id}`, `/api/admin/slots/${slot.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ cutoffHours: hours }),
     });
   };
 
@@ -183,6 +213,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
             <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wider text-gray-600">
               <th className="px-2 py-2 font-medium">Departure</th>
               <th className="px-2 py-2 font-medium">Capacity</th>
+              <th className="px-2 py-2 font-medium">Cut-off</th>
               <th className="px-2 py-2 font-medium">Booked</th>
               <th className="px-2 py-2 font-medium">Available</th>
               <th className="px-2 py-2 font-medium" />
@@ -191,7 +222,7 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
           <tbody>
             {variant.slotTimes.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-2 py-4 text-sm text-gray-500">
+                <td colSpan={6} className="px-2 py-4 text-sm text-gray-500">
                   No departures yet — add the first one below.
                 </td>
               </tr>
@@ -208,6 +239,19 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
                     onBlur={(event) => saveCapacity(slot, event.target.value)}
                     className="min-h-[44px] w-20 rounded-lg border border-gray-200 px-2 text-sm tabular-nums"
                     aria-label={`Capacity for ${slot.time}`}
+                  />
+                </td>
+                <td className="px-2 py-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={720}
+                    defaultValue={slot.cutoffHours ?? ''}
+                    placeholder="mode"
+                    onBlur={(event) => saveCutoffHours(slot, event.target.value)}
+                    className="min-h-[44px] w-16 rounded-lg border border-gray-200 px-2 text-sm tabular-nums"
+                    aria-label={`Cut-off hours before ${slot.time}`}
+                    title="Hours before departure guests may book; empty = mode default"
                   />
                 </td>
                 <td className="px-2 py-2 tabular-nums text-gray-600">{slot.currentBookings}</td>
@@ -266,6 +310,20 @@ export function VariantOperationsEditor({ variant, headerAction }: VariantOperat
             value={newCapacity}
             onChange={(event) => setNewCapacity(event.target.value)}
             className="mt-1 block min-h-[44px] w-24 rounded-lg border border-gray-200 px-2 text-sm tabular-nums text-gray-900"
+          />
+        </label>
+        <label className="text-xs font-medium text-gray-500">
+          Cut-off (hrs)
+          <input
+            type="number"
+            min={0}
+            max={720}
+            value={newCutoffHours}
+            onChange={(event) => setNewCutoffHours(event.target.value.replace(/[^\d]/g, ''))}
+            placeholder="mode"
+            className="mt-1 block min-h-[44px] w-20 rounded-lg border border-gray-200 px-2 text-sm tabular-nums text-gray-900"
+            aria-label="Cut-off in hours before departure"
+            title="Hours before departure guests may book; empty = mode default (Self Drive 2h, transfers H-1 22:00)"
           />
         </label>
         <button

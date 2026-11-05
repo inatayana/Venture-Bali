@@ -675,12 +675,17 @@ export function isBookable(
  * Unlike `isBookable` (which only sees the activity date) this accounts for
  * the departure hour, so a 08:00 slot today is correctly rejected while a
  * 17:00 slot today may still be bookable for SELF_DRIVE.
+ *
+ * If `cutoffHours` is provided (non-null), it overrides the mode default:
+ * bookable until `cutoffHours` hours before the departure. NULL/undefined
+ * falls back to SELF_DRIVE = 2h, SHARED/PRIVATE_TRANSFER = D-1 22:00 WITA.
  */
 export function isSlotBookable(
   bookingDate: string, // YYYY-MM-DD
   slotLabel: string,
   fulfillmentMode: FulfillmentMode,
-  now: Date = new Date()
+  now: Date = new Date(),
+  cutoffHours?: number | null
 ): boolean {
   const hour = parseSlotHour(slotLabel);
   if (hour === null) return true;
@@ -691,6 +696,10 @@ export function isSlotBookable(
   const dayStartWita = Date.UTC(year, month - 1, day);
   const activityWita = dayStartWita + hour * 60 * 60 * 1000;
   const nowWita = getNowWita(now).getTime();
+
+  if (cutoffHours !== undefined && cutoffHours !== null) {
+    return activityWita - nowWita >= cutoffHours * 60 * 60 * 1000;
+  }
 
   if (fulfillmentMode === 'SELF_DRIVE') {
     return activityWita - nowWita >= 2 * 60 * 60 * 1000;
