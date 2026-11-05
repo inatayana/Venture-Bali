@@ -17,6 +17,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+import { hashPassword } from '../src/lib/adminAuth.ts';
 import type { Prisma } from '@prisma/client';
 import { validateVentureTitle, isVentureSlugValid } from '../src/lib/titleValidator.ts';
 import { isAllowedCategory } from '../src/lib/taxonomy.ts';
@@ -393,6 +394,43 @@ async function seedVentures(
 
 // ============ MAIN ============
 
+/**
+ * Optionally provision the first admin account at seed time.
+ *
+ * Set ADMIN_SEED_EMAIL + ADMIN_SEED_PASSWORD (+ optional ADMIN_SEED_ROLE, default
+ * ADMIN) in the environment to bootstrap admin access in fresh databases —
+ * the alternative was the unsafe habit of hardcoding credentials in the repo,
+ * which this project no longer tolerates. Without these variables nothing is
+ * created; in production prefer `npm run admin:create` interactively instead.
+ */
+async function seedAdminFromEnv() {
+  const email = (process.env.ADMIN_SEED_EMAIL ?? '').trim().toLowerCase();
+  const password = process.env.ADMIN_SEED_PASSWORD ?? '';
+  const role = (process.env.ADMIN_SEED_ROLE ?? 'ADMIN').trim().toUpperCase();
+
+  if (!email && !password) {
+    console.log('— Admin seed skipped (set ADMIN_SEED_EMAIL + ADMIN_SEED_PASSWORD to provision one)');
+    return;
+  }
+  if (!email || !password) {
+    throw new Error('ADMIN_SEED_EMAIL and ADMIN_SEED_PASSWORD must both be set');
+  }
+  if (password.length < 12) {
+    throw new Error('ADMIN_SEED_PASSWORD must be at least 12 characters');
+  }
+  if (!['SUPER_ADMIN', 'ADMIN', 'EDITOR', 'VIEWER'].includes(role)) {
+    throw new Error(`ADMIN_SEED_ROLE must be one of SUPER_ADMIN | ADMIN | EDITOR | VIEWER, got "${role}"`);
+  }
+
+  const passwordHash = hashPassword(password);
+  await prisma.adminUser.upsert({
+    where: { email },
+    update: { passwordHash, role: role as 'SUPER_ADMIN' | 'ADMIN' | 'EDITOR' | 'VIEWER', isActive: true },
+    create: { email, name: email.split('@')[0], passwordHash, role: role as 'SUPER_ADMIN' | 'ADMIN' | 'EDITOR' | 'VIEWER', isActive: true },
+  });
+  console.log(`✓ Admin provisioned from env: ${email} (${role})`);
+}
+
 async function main() {
   console.log('🌱 Seeding BaliWild database...\n');
 
@@ -404,6 +442,7 @@ async function main() {
   await seedVehicleClasses();
   await seedVentures(tenant.id, locationIds, zoneIds);
   await seedCoupons();
+  await seedAdminFromEnv();
 
   console.log('\n✅ Seed completed successfully.');
   console.log(`   Categories covered: ${CATALOGUE_CATEGORIES.join(', ')}`);
