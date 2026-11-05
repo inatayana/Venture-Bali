@@ -7,20 +7,18 @@ import {
   createSessionToken,
   type AdminRole,
 } from '@/lib/adminSession';
-import { verifyPassword, hashPassword } from '@/lib/adminAuth';
+import { verifyPassword } from '@/lib/adminAuth';
 import { clientIp, rateLimit } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
+
+// This route deliberately has NO in-code fallback credentials. Admin accounts
+// live only in the database — create one with: npm run admin:create
 
 const loginSchema = z.object({
   email: z.string().trim().email('Enter a valid email address'),
   password: z.string().min(1, 'Enter your password'),
 });
-
-// Mock admin for local development without database
-const MOCK_ADMIN_EMAIL = 'admin@baliwild.local';
-const MOCK_ADMIN_PASSWORD = 'baliwild123';
-const MOCK_ADMIN_PASSWORD_HASH = hashPassword(MOCK_ADMIN_PASSWORD);
 
 export async function POST(request: NextRequest) {
   const limit = rateLimit(`admin-login:${clientIp(request)}`, 5, 15 * 60_000);
@@ -59,37 +57,13 @@ export async function POST(request: NextRequest) {
   const email = parsed.data.email.toLowerCase();
 
   try {
-    // Try database first
-    let admin: Awaited<ReturnType<typeof prisma.adminUser.findUnique>> | null = null;
-    let storedHash = 'scrypt$00$00';
+    // Fail-closed: the database is the only source of admin accounts.
+    // If it is unavailable, no one can sign in (outer catch returns 503-style error).
+    const admin = await prisma.adminUser.findUnique({ where: { email } });
 
-    try {
-      admin = await prisma.adminUser.findUnique({ where: { email } });
-      storedHash = admin?.passwordHash ?? 'scrypt$00$00';
-    } catch (dbError) {
-      // Database unavailable (e.g., no DATABASE_URL or connection failed)
-      // Fall through to mock admin check
-      console.warn('Database unavailable for admin login, checking mock admin:', dbError);
-    }
-
-    // Fallback to mock admin for local development
-    if (!admin && email === MOCK_ADMIN_EMAIL) {
-      admin = {
-        id: 'mock-admin-id',
-        email: MOCK_ADMIN_EMAIL,
-        name: 'Local Admin',
-        passwordHash: MOCK_ADMIN_PASSWORD_HASH,
-        role: 'SUPER_ADMIN' as AdminRole,
-        isActive: true,
-        lastLoginAt: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      storedHash = MOCK_ADMIN_PASSWORD_HASH;
-    }
-
-    // Always run a hash comparison so a missing account and a wrong
-    // password take the same amount of time.
+    // Run a hash comparison even for missing accounts so a missing
+    // account and a wrong password take the same amount of time.
+    const storedHash = admin?.passwordHash ?? 'scrypt$00$00';
     const passwordMatches = verifyPassword(parsed.data.password, storedHash);
 
     if (!admin || !admin.isActive || !passwordMatches) {
@@ -111,13 +85,10 @@ export async function POST(request: NextRequest) {
       exp: Math.floor(Date.now() / 1000) + ADMIN_SESSION_TTL_SECONDS,
     });
 
-    // Only update lastLoginAt for real database users
-    if (admin.id !== 'mock-admin-id') {
-      await prisma.adminUser.update({
-        where: { id: admin.id },
-        data: { lastLoginAt: new Date() },
-      });
-    }
+    await prisma.adminUser.update({
+      where: { id: admin.id },
+      data: { lastLoginAt: new Date() },
+    });
 
     const response = NextResponse.json({
       success: true,
