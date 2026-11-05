@@ -1027,22 +1027,26 @@ export function ExperienceDetailClient({
 
               <h3 className="mt-4 text-sm font-semibold text-neutral-900">Hotel pickup zones</h3>
               <ul className="mt-2 space-y-1.5">
-                {zones.map((zone) => (
-                  <li key={zone.id} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="text-neutral-700">{zone.name}</span>
-                    <span className="shrink-0 text-xs font-medium text-neutral-500">
-                      {zone.isCustomQuote
-                        ? 'Custom quote'
-                        : zone.surchargeIdr > 0
-                          ? `from +${formatPrice(zone.surchargeIdr)}`
-                          : 'Included'}
-                    </span>
-                  </li>
-                ))}
+                {zones.map((zone) => {
+                  const sharedFee = zone.surchargePerPaxIdr ?? 0;
+                  const privateFee = zone.surchargeIdr;
+                  return (
+                    <li key={zone.id} className="flex items-center justify-between gap-3 text-sm">
+                      <span className="text-neutral-700">{zone.name}</span>
+                      <span className="shrink-0 text-xs font-medium text-neutral-500">
+                        {zone.isCustomQuote
+                          ? 'Custom quote'
+                          : `${sharedFee > 0 ? `Shared +${formatPrice(sharedFee)}/guest` : 'Shared included'} · ${
+                              privateFee > 0 ? `Private +${formatPrice(privateFee)}/vehicle` : 'Private included'
+                            }`}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
               <p className="mt-2 text-xs text-neutral-500">
                 Pickup is available on Shared and Private transfer packages. Choose your area in the
-                booking sheet.
+                booking sheet. Private pricing is per vehicle; shared pricing is per guest.
               </p>
             </section>
 

@@ -498,9 +498,13 @@ export function ExperienceBookingWidget({
                     <p className="text-xs text-neutral-500">
                       {lockedZone.isCustomQuote
                         ? 'Custom quote — confirmed by WhatsApp'
-                        : lockedZone.surchargeIdr > 0
-                          ? `+${formatPrice(lockedZone.surchargeIdr)}/vehicle`
-                          : '+Rp 0/vehicle'}
+                        : needsVehicle
+                          ? lockedZone.surchargeIdr > 0
+                            ? `+${formatPrice(lockedZone.surchargeIdr)}/vehicle`
+                            : '+Rp 0/vehicle'
+                          : (lockedZone.surchargePerPaxIdr ?? 0) > 0
+                            ? `+${formatPrice(lockedZone.surchargePerPaxIdr)}/guest`
+                            : '+Rp 0/guest'}
                     </p>
                   </div>
                   <button
@@ -543,9 +547,13 @@ export function ExperienceBookingWidget({
                         <p className="text-xs text-neutral-500">
                           {item.isCustomQuote
                             ? 'Not Available / Read Only — Outer areas are beyond our daily transport coverage. Please contact support or arrange transport to the nearest Core Area.'
-                            : item.surchargeIdr > 0
-                              ? `+${formatPrice(item.surchargeIdr)}/vehicle`
-                              : '+Rp 0/vehicle'}
+                            : needsVehicle
+                              ? item.surchargeIdr > 0
+                                ? `+${formatPrice(item.surchargeIdr)}/vehicle`
+                                : '+Rp 0/vehicle'
+                              : (item.surchargePerPaxIdr ?? 0) > 0
+                                ? `+${formatPrice(item.surchargePerPaxIdr)}/guest`
+                                : '+Rp 0/guest'}
                         </p>
                       </div>
                     </label>
@@ -609,12 +617,19 @@ export function ExperienceBookingWidget({
                           </span>
                         </span>
                         <span className="text-sm font-semibold tabular-nums text-neutral-900">
-                          {item.deltaIdr > 0 ? `+${formatPrice(item.deltaIdr)}` : 'Included'}
+                          {item.deltaIdr > 0 ? `+${formatPrice(item.deltaIdr)}/vehicle` : 'Included'}
                         </span>
                       </button>
                     );
                   })}
                 </div>
+                {totalPax === 1 && (
+                  <p className="mt-2 rounded-lg bg-amber-50 dark:bg-amber-900/30 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
+                    Traveling solo? A private transfer reserves the whole vehicle, but a
+                    shared transfer package is charged per guest and usually much cheaper
+                    for 1 person.
+                  </p>
+                )}
               </div>
             )}
           </div>

@@ -9,6 +9,8 @@ export interface AdminPickupZone {
   id: string;
   name: string;
   surchargeIdr: number;
+  /** Seat fee per guest for shared transfer packages (optional for legacy callers). */
+  surchargePerPaxIdr?: number;
   isCustomQuote: boolean;
 }
 
@@ -374,20 +376,23 @@ export function VariantPackageEditor({
             className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 bg-white px-3 text-sm disabled:bg-gray-100 disabled:text-gray-600"
           >
             <option value="">No locked zone — guest picks the area</option>
-            {zones.map((zone) => (
-              <option key={zone.id} value={zone.id}>
-                {zone.name}
-                {zone.isCustomQuote
-                  ? ' (custom quote)'
-                  : zone.surchargeIdr > 0
-                    ? ` (+${formatPrice(zone.surchargeIdr)})`
-                    : ' (included)'}
-              </option>
-            ))}
+            {zones.map((zone) => {
+              const isShared = fulfillmentMode === 'SHARED_TRANSFER';
+              const feeIdr = isShared ? (zone.surchargePerPaxIdr ?? 0) : zone.surchargeIdr;
+              return (
+                <option key={zone.id} value={zone.id}>
+                  {zone.name}
+                  {zone.isCustomQuote
+                    ? ' (custom quote)'
+                    : ` (+${formatPrice(feeIdr)} ${isShared ? '/guest' : '/vehicle'})`}
+                </option>
+              );
+            })}
           </select>
           <span className="mt-1 block font-normal text-gray-600">
             Locked zones preselect the area in the booking sheet and keep the
-            surcharge visible on the package card.
+            pickup fee visible on the package card — per vehicle for private, per
+            guest for shared.
           </span>
         </label>
 

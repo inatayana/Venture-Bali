@@ -349,6 +349,7 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
             name: variant.pickupZone.name,
             areaType: variant.pickupZone.areaType,
             surchargeIdr: variant.pickupZone.surchargeIdr,
+            surchargePerPaxIdr: variant.pickupZone.surchargePerPaxIdr,
             isCustomQuote: variant.pickupZone.isCustomQuote,
             vehicleMaxPax: variant.pickupZone.vehicleMaxPax,
           }

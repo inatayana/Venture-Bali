@@ -78,10 +78,14 @@ export function getVariantPickupDisplay(variant: Variant): VariantPickupDisplay 
 
   if (zone) {
     const label = AREA_LABELS[zone.areaType] ?? zone.name;
+    // SHARED_TRANSFER charges the per-guest shuttle seat fee; PRIVATE_TRANSFER
+    // charges the per-vehicle charter. Never mix the two numbers.
+    const isShared = variant.fulfillmentMode === 'SHARED_TRANSFER';
+    const pickupFeeIdr = isShared ? (zone.surchargePerPaxIdr ?? 0) : zone.surchargeIdr;
     const detail = zone.isCustomQuote
       ? 'Custom quote'
-      : zone.surchargeIdr > 0
-        ? `+${formatPrice(zone.surchargeIdr)}/${variant.fulfillmentMode === 'SHARED_TRANSFER' ? 'guest' : 'vehicle'}`
+      : pickupFeeIdr > 0
+        ? `+${formatPrice(pickupFeeIdr)}/${isShared ? 'guest' : 'vehicle'}`
         : 'Pickup included';
 
     return { label, detail };

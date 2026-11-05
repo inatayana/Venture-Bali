@@ -77,7 +77,10 @@ model PickupZone {
   id            String         @id @default(cuid())
   name          String         @unique
   areaType      PickupZoneType
+  /// Charter price per VEHICLE for PRIVATE_TRANSFER (carter: driver + fuel).
   surchargeIdr  Int            @default(0)
+  /// Fee per PERSON for SHARED_TRANSFER shuttle seats (legacy per-pax model).
+  surchargePerPaxIdr Int       @default(0)
   isCustomQuote Boolean        @default(false)
   vehicleMaxPax Int            @default(4)
   isActive      Boolean        @default(true)

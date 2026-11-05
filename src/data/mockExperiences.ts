@@ -61,6 +61,7 @@ export const mockPickupZones: PickupZone[] = PICKUP_ZONES.map((zone, index) => (
   name: zone.name,
   areaType: zone.areaType,
   surchargeIdr: zone.surchargeIdr,
+  surchargePerPaxIdr: zone.surchargePerPaxIdr,
   isCustomQuote: zone.isCustomQuote,
   vehicleMaxPax: zone.vehicleMaxPax,
   isActive: true,

@@ -134,6 +134,7 @@ async function seedPickupZones(): Promise<Map<string, string>> {
       update: {
         areaType: zone.areaType,
         surchargeIdr: zone.surchargeIdr,
+        surchargePerPaxIdr: zone.surchargePerPaxIdr,
         isCustomQuote: zone.isCustomQuote,
         vehicleMaxPax: zone.vehicleMaxPax,
         isActive: true,
@@ -142,6 +143,7 @@ async function seedPickupZones(): Promise<Map<string, string>> {
         name: zone.name,
         areaType: zone.areaType,
         surchargeIdr: zone.surchargeIdr,
+        surchargePerPaxIdr: zone.surchargePerPaxIdr,
         isCustomQuote: zone.isCustomQuote,
         vehicleMaxPax: zone.vehicleMaxPax,
         isActive: true,

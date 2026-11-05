@@ -56,13 +56,18 @@ export const TENANT_DOMAIN = 'baliwild.com';
 export const TENANT_NAME = 'BaliWild';
 export const TENANT_THEME = '#000000';
 
-// Pickup zones — surcharge per vehicle for PRIVATE_TRANSFER
+// Pickup zones.
+// `surchargeIdr`      — Charter price PER VEHICLE for PRIVATE_TRANSFER
+//                       (driver + fuel; BaliWild field rate: Ubud 500K).
+// `surchargePerPaxIdr`— fee PER PERSON for SHARED_TRANSFER shuttles
+//                       (0 = included; South zones 224K / 320K per guest).
 // Core Area and South zones are bookable; Outer is disabled (custom quote only).
 export const PICKUP_ZONES = [
   {
     name: 'Core Area — Ubud & Gianyar',
     areaType: 'ZONE_1' as const,
     surchargeIdr: 500000,
+    surchargePerPaxIdr: 0,
     isCustomQuote: false,
     vehicleMaxPax: 6,
   },
@@ -70,6 +75,7 @@ export const PICKUP_ZONES = [
     name: 'South Zone 1 — Kuta, Seminyak, Canggu, Sanur',
     areaType: 'ZONE_2' as const,
     surchargeIdr: 700000,
+    surchargePerPaxIdr: 224000,
     isCustomQuote: false,
     vehicleMaxPax: 6,
   },
@@ -77,6 +83,7 @@ export const PICKUP_ZONES = [
     name: 'South Zone 2 — Nusa Dua, Jimbaran, Uluwatu',
     areaType: 'ZONE_3' as const,
     surchargeIdr: 800000,
+    surchargePerPaxIdr: 320000,
     isCustomQuote: false,
     vehicleMaxPax: 6,
   },
@@ -84,6 +91,7 @@ export const PICKUP_ZONES = [
     name: 'Outer Area — Amed, Lovina, Pemuteran, Tulamben',
     areaType: 'ZONE_4' as const,
     surchargeIdr: 0,
+    surchargePerPaxIdr: 0,
     isCustomQuote: true,
     vehicleMaxPax: 6,
   },
@@ -100,18 +108,20 @@ export const VEHICLE_CLASSES = [
   },
   {
     name: 'PREMIUM_MPV' as const,
-    label: 'Premium MPV · up to 6 pax',
-    description: 'Toyota Innova, spacious MPV with extra legroom',
+    label: 'Premium MPV (Toyota Innova) · up to 6 pax',
+    description:
+      'Toyota Innova charter — the delta is the charter DIFFERENCE vs the standard SUV (carter 1.000.000 − 500.000).',
     vehicleMaxPax: 6,
-    deltaIdr: 400000,
+    deltaIdr: 500000,
     sortOrder: 2,
   },
   {
     name: 'MINIVAN' as const,
-    label: 'Minivan · up to 14 pax',
-    description: 'HIACE, large minivan for groups',
+    label: 'Minivan HIACE · up to 14 pax',
+    description:
+      'HIACE charter for large groups — delta = charter difference vs the standard SUV (carter 1.200.000 − 500.000).',
     vehicleMaxPax: 14,
-    deltaIdr: 1000000,
+    deltaIdr: 700000,
     sortOrder: 3,
   },
 ];

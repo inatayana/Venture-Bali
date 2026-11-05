@@ -178,7 +178,15 @@ describe('Pricing Utilities', () => {
     });
 
     it('keeps transfer fees per total pax, not per age group', () => {
-      const zone = { name: 'South 1', areaType: 'ZONE_2', surchargeIdr: 224000, isCustomQuote: false, vehicleMaxPax: 4, isActive: true } as unknown as PickupZone;
+      const zone = {
+        name: 'South 1',
+        areaType: 'ZONE_2',
+        surchargeIdr: 700000,
+        surchargePerPaxIdr: 224000,
+        isCustomQuote: false,
+        vehicleMaxPax: 4,
+        isActive: true,
+      } as unknown as PickupZone;
       const quote = computeQuote({
         priceTiers: ageTieredTiers,
         paxCount: 4,
@@ -188,9 +196,32 @@ describe('Pricing Utilities', () => {
         youthCount: 1,
         zone,
       });
-      // shared shuttle: 224.000 × 4 pax — the same as four adults would pay
+      // shared shuttle seat fee: 224.000 × 4 pax — not the 700.000 per-vehicle charter
       expect(quote.transfer.totalFeeIdr).toBe(896000);
       expect(quote.totalPriceIdr).toBe(2000000 + 896000);
+    });
+
+    it('never charges shared guests the per-vehicle charter', () => {
+      const zone = {
+        name: 'Core Area — Ubud & Gianyar',
+        areaType: 'ZONE_1',
+        surchargeIdr: 500000,
+        surchargePerPaxIdr: 0,
+        isCustomQuote: false,
+        vehicleMaxPax: 6,
+        isActive: true,
+      } as unknown as PickupZone;
+      const quote = computeQuote({
+        priceTiers: ageTieredTiers,
+        paxCount: 1,
+        adultsCount: 1,
+        fulfillmentMode: 'SHARED_TRANSFER',
+        zone,
+      });
+      // Ubud shared pickup is included for one guest — the 500K Ubud charter
+      // pays for private cars only.
+      expect(quote.transfer.totalFeeIdr).toBe(0);
+      expect(quote.totalPriceIdr).toBe(quote.subtotalIdr);
     });
   });
 
@@ -285,9 +316,9 @@ describe('Pricing Utilities', () => {
 });
 describe('Transfer & Combo Engine (Klook-style)', () => {
   const zones: Record<string, PickupZone> = {
-    zone1: { id: 'zone-1', name: 'Core Area', areaType: 'ZONE_1', surchargeIdr: 0, isCustomQuote: false, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    zone2: { id: 'zone-2', name: 'South 1', areaType: 'ZONE_2', surchargeIdr: 224000, isCustomQuote: false, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    zone4: { id: 'zone-4', name: 'Outer', areaType: 'ZONE_4', surchargeIdr: 0, isCustomQuote: true, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    zone1: { id: 'zone-1', name: 'Core Area', areaType: 'ZONE_1', surchargeIdr: 500000, surchargePerPaxIdr: 0, isCustomQuote: false, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    zone2: { id: 'zone-2', name: 'South 1', areaType: 'ZONE_2', surchargeIdr: 700000, surchargePerPaxIdr: 224000, isCustomQuote: false, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    zone4: { id: 'zone-4', name: 'Outer', areaType: 'ZONE_4', surchargeIdr: 0, surchargePerPaxIdr: 0, isCustomQuote: true, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
   };
 
   const classes: Record<string, VehicleClass> = {
@@ -307,27 +338,27 @@ describe('Transfer & Combo Engine (Klook-style)', () => {
       expect(fee.vehicleCount).toBe(0);
     });
 
-    it('calculates zone surcharge × vehicle count', () => {
-      // 4 pax, SUV (4 pax/vehicle), Zone 2 (224k/vehicle) → 1 vehicle = 224k
+    it('calculates the per-vehicle charter × vehicle count', () => {
+      // 4 pax, SUV (4 pax/vehicle), Zone 2 (700.000 charter/vehicle) → 1 vehicle = 700k
       const fee = calculateTransferFee(4, zones.zone2, classes.suv);
       expect(fee.vehicleCount).toBe(1);
-      expect(fee.feePerVehicleIdr).toBe(224000);
-      expect(fee.totalFeeIdr).toBe(224000);
+      expect(fee.feePerVehicleIdr).toBe(700000);
+      expect(fee.totalFeeIdr).toBe(700000);
     });
 
-    it('adds vehicle class delta on top of zone surcharge', () => {
-      // 8 pax, Minivan (12 pax/vehicle, +250k), Zone 2 (224k) → 1 vehicle × 474k
+    it('adds the vehicle class delta (charter difference) on top of the zone charter', () => {
+      // 8 pax, Minivan (12 pax/vehicle, +250k), Zone 2 (700k) → 1 vehicle × 950k
       const fee = calculateTransferFee(8, zones.zone2, classes.van);
       expect(fee.vehicleCount).toBe(1);
-      expect(fee.feePerVehicleIdr).toBe(474000);
-      expect(fee.totalFeeIdr).toBe(474000);
+      expect(fee.feePerVehicleIdr).toBe(950000);
+      expect(fee.totalFeeIdr).toBe(950000);
     });
 
     it('splits into multiple vehicles when pax exceeds capacity', () => {
-      // 9 pax, SUV (4 pax/vehicle) → ceil(9/4) = 3 vehicles
+      // 9 pax, SUV (4 pax/vehicle) → ceil(9/4) = 3 vehicles × 700k
       const fee = calculateTransferFee(9, zones.zone2, classes.suv);
       expect(fee.vehicleCount).toBe(3);
-      expect(fee.totalFeeIdr).toBe(672000);
+      expect(fee.totalFeeIdr).toBe(2100000);
     });
   });
 
@@ -343,7 +374,7 @@ describe('Transfer & Combo Engine (Klook-style)', () => {
 
     it('adds transfer fee for PRIVATE_TRANSFER', () => {
       const total = calculateTotalPrice(tiers, 2, 'PRIVATE_TRANSFER', { zone: zones.zone2, vehicleClass: classes.suv });
-      expect(total.totalPriceIdr).toBe(1300000 + 224000);
+      expect(total.totalPriceIdr).toBe(1300000 + 700000);
     });
 
     it('multiplies combo addon price by pax', () => {
@@ -352,8 +383,8 @@ describe('Transfer & Combo Engine (Klook-style)', () => {
         vehicleClass: classes.suv,
         selectedAddons: [addons[1]],
       });
-      // base 1.3M + zone1 0 + rafting 350k × 2 pax
-      expect(total.totalPriceIdr).toBe(1300000 + 0 + 700000);
+      // base 1.3M + zone1 charter 500k (1 vehicle) + rafting 350k × 2 pax
+      expect(total.totalPriceIdr).toBe(1300000 + 500000 + 700000);
     });
   });
 
@@ -417,7 +448,7 @@ describe('Transfer & Combo Engine (Klook-style)', () => {
 
 describe('Promo, coupon & night surcharge engine', () => {
   const zone: PickupZone = {
-    id: 'zone-2', name: 'South 1', areaType: 'ZONE_2', surchargeIdr: 224000,
+    id: 'zone-2', name: 'South 1', areaType: 'ZONE_2', surchargeIdr: 700000, surchargePerPaxIdr: 224000,
     isCustomQuote: false, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date(),
   };
   const suv: VehicleClass = {
@@ -484,17 +515,18 @@ describe('Promo, coupon & night surcharge engine', () => {
     expect(day.nightSurchargeIdr).toBe(0);
   });
 
-  it('charges shared transfer per pax without a vehicle class', () => {
+  it('charges shared transfer the per-guest seat fee, not the vehicle charter', () => {
     const fee = calculateSharedTransferFee(3, zone);
     expect(fee.vehicleCount).toBe(1);
     expect(fee.vehicleClassDeltaIdr).toBe(0);
+    // seat fee 224.000 × 3 guests — never the 700.000 charter × 3
     expect(fee.totalFeeIdr).toBe(224000 * 3);
   });
 
   it('keeps private transfer priced per vehicle', () => {
     const quote = computeQuote({ priceTiers: tiers, paxCount: 5, fulfillmentMode: 'PRIVATE_TRANSFER', zone, vehicleClass: suv });
     expect(quote.transfer.vehicleCount).toBe(2);
-    expect(quote.transfer.totalFeeIdr).toBe(224000 * 2);
+    expect(quote.transfer.totalFeeIdr).toBe(700000 * 2);
   });
 
   it('tops up to the package minimum spend after discounts', () => {

@@ -39,7 +39,13 @@ export default async function AdminVentureDetailPage({
     prisma.pickupZone.findMany({
       where: { isActive: true },
       orderBy: { areaType: 'asc' },
-      select: { id: true, name: true, surchargeIdr: true, isCustomQuote: true },
+      select: {
+        id: true,
+        name: true,
+        surchargeIdr: true,
+        surchargePerPaxIdr: true,
+        isCustomQuote: true,
+      },
     }),
   ]);
 

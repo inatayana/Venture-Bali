@@ -64,7 +64,10 @@ export interface PickupZone {
   id: string;
   name: string;
   areaType: PickupZoneType;
+  /** Charter price per VEHICLE (PRIVATE_TRANSFER). */
   surchargeIdr: number;
+  /** Fee per PERSON (SHARED_TRANSFER shuttles; 0 when included). */
+  surchargePerPaxIdr: number;
   isCustomQuote: boolean;
   vehicleMaxPax: number;
   isActive: boolean;
@@ -219,7 +222,10 @@ export interface VariantPickupZone {
   id: string;
   name: string;
   areaType: PickupZoneType;
+  /** Charter price per VEHICLE (PRIVATE_TRANSFER). */
   surchargeIdr: number;
+  /** Fee per PERSON (SHARED_TRANSFER shuttles; 0 when included). */
+  surchargePerPaxIdr: number;
   isCustomQuote: boolean;
   vehicleMaxPax: number;
 }

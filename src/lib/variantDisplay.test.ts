@@ -86,7 +86,7 @@ describe('getVariantPickupDisplay', () => {
     ).toBeNull();
   });
 
-  it('summarises a free pickup zone as included', () => {
+  it('summarises a free shared pickup zone as included', () => {
     expect(
       getVariantPickupDisplay(
         buildVariant({
@@ -96,7 +96,8 @@ describe('getVariantPickupDisplay', () => {
             id: 'zone-1',
             name: 'Core Area — Ubud & Gianyar',
             areaType: 'ZONE_1',
-            surchargeIdr: 0,
+            surchargeIdr: 500000,
+            surchargePerPaxIdr: 0,
             isCustomQuote: false,
             vehicleMaxPax: 6,
           },
@@ -115,7 +116,8 @@ describe('getVariantPickupDisplay', () => {
             id: 'zone-2',
             name: 'South 1 — Kuta, Seminyak, Canggu, Sanur',
             areaType: 'ZONE_2',
-            surchargeIdr: 224000,
+            surchargeIdr: 700000,
+            surchargePerPaxIdr: 224000,
             isCustomQuote: false,
             vehicleMaxPax: 6,
           },
@@ -135,12 +137,33 @@ describe('getVariantPickupDisplay', () => {
             name: 'South 1 — Kuta, Seminyak, Canggu, Sanur',
             areaType: 'ZONE_2',
             surchargeIdr: 224000,
+            surchargePerPaxIdr: 224000,
             isCustomQuote: false,
             vehicleMaxPax: 6,
           },
         })
       )
     ).toEqual({ label: 'South Bali', detail: `+${formatPrice(224000)}/vehicle` });
+  });
+
+  it('never shows the private charter as a shared seat fee', () => {
+    const display = getVariantPickupDisplay(
+      buildVariant({
+        fulfillmentMode: 'SHARED_TRANSFER',
+        pickupZoneId: 'zone-1',
+        pickupZone: {
+          id: 'zone-1',
+          name: 'Core Area — Ubud & Gianyar',
+          areaType: 'ZONE_1',
+          surchargeIdr: 500000,
+          surchargePerPaxIdr: 0,
+          isCustomQuote: false,
+          vehicleMaxPax: 6,
+        },
+      })
+    );
+    expect(display?.detail).toBe('Pickup included');
+    expect(display?.detail).not.toContain('500');
   });
 
   it('flags custom-quote zones', () => {
@@ -154,6 +177,7 @@ describe('getVariantPickupDisplay', () => {
             name: 'Outer — Amed, Lovina, Pemuteran, Tulamben',
             areaType: 'ZONE_4',
             surchargeIdr: 0,
+            surchargePerPaxIdr: 0,
             isCustomQuote: true,
             vehicleMaxPax: 6,
           },

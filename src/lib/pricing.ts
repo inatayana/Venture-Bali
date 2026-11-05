@@ -194,7 +194,11 @@ export interface TransferFeeBreakdown {
 
 /**
  * Calculate transfer fee for PRIVATE_TRANSFER:
- * fee = (zone surcharge + vehicle class delta) × ceil(pax / vehicleClass.vehicleMaxPax)
+ * fee = (zone charter per vehicle + vehicle class delta) × ceil(pax / vehicleClass.vehicleMaxPax)
+ * The vehicle class delta is the CHARTER DIFFERENCE against the standard
+ * vehicle (e.g. Innova carter 1.000.000 − SUV carter 500.000 = 500.000) —
+ * admins must not enter the full new charter price here or the guest would
+ * pay the base vehicle twice.
  * SELF_DRIVE always costs 0.
  */
 export function calculateTransferFee(
@@ -224,9 +228,12 @@ export function calculateTransferFee(
 }
 
 /**
- * Calculate the SHARED_TRANSFER shuttle fee: a flat zone surcharge per guest.
- * No vehicle class is sold, so the fee per vehicle equals the per-pax fee and
- * `vehicleCount` stays 1 (capacity is enforced on the activity slot instead).
+ * Calculate the SHARED_TRANSFER shuttle fee: a flat per-seat fee per guest from
+ * the zone's `surchargePerPaxIdr` (0 = included). The per-vehicle charter
+ * price (`surchargeIdr`) is deliberately NOT used here — that number pays the
+ * driver for PRIVATE_TRANSFER cars and would overcharge shuttle guests.
+ * No vehicle class is sold, so `vehicleCount` stays 1 (capacity is enforced
+ * on the activity slot instead).
  */
 export function calculateSharedTransferFee(
   paxCount: number,
@@ -242,12 +249,13 @@ export function calculateSharedTransferFee(
     };
   }
 
+  const perPaxFeeIdr = zone.surchargePerPaxIdr ?? 0;
   return {
     vehicleCount: 1,
-    zoneSurchargeIdr: zone.surchargeIdr,
+    zoneSurchargeIdr: perPaxFeeIdr,
     vehicleClassDeltaIdr: 0,
-    feePerVehicleIdr: zone.surchargeIdr,
-    totalFeeIdr: zone.surchargeIdr * paxCount,
+    feePerVehicleIdr: perPaxFeeIdr,
+    totalFeeIdr: perPaxFeeIdr * paxCount,
   };
 }
 
