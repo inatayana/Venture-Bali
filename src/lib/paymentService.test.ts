@@ -70,6 +70,7 @@ const booking: Booking = {
   billingAddress: null,
   createdAt: new Date(),
   updatedAt: new Date(),
+  tenantId: 'tenant-001',
 };
 
 const payment: Payment & { booking: Booking } = {
@@ -85,6 +86,7 @@ const payment: Payment & { booking: Booking } = {
   status: 'PENDING',
   createdAt: new Date(),
   updatedAt: new Date(),
+  tenantId: 'tenant-001',
   booking,
 };
 

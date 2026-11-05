@@ -477,16 +477,17 @@ export function ExperienceDetailClient({
                   {formatPrice(selectedPrice)}
                 </span>
                 {isAgeTiered && (
-                  <p className="mt-2 text-xs text-neutral-500">
-                    Kids from {formatPrice(kidsFromPrice ?? 0)} · youth from {formatPrice(youthFromPrice ?? 0)}
-                  </p>
+                  <div className="mt-2 text-xs text-neutral-500">
+                    <p>👧 Kids (5-11 yo) — From {formatPrice(kidsFromPrice ?? 0)} / guest</p>
+                    <p>🧑 Youth (13-16 yo) — From {formatPrice(youthFromPrice ?? 0)} / guest</p>
+                  </div>
                 )}
                 <span className="text-sm text-neutral-500">/ guest</span>
               </div>
 
               {isAgeTiered && (
                 <p className="mt-2 text-sm text-neutral-600">
-                  More guests = lower price per person. Kids & youth get their own price.
+                  👥 More mates = cheaper rate
                 </p>
               )}
 
@@ -506,11 +507,6 @@ export function ExperienceDetailClient({
                   max={Math.min(10, venture.maxParticipants)}
                   onChange={(value) => patchConfig({ adults: value })}
                 />
-                {isAgeTiered && (
-                  <p className="mt-2 text-sm text-neutral-600">
-                    More guests = lower price per person. Kids & youth get their own price.
-                  </p>
-                )}
               </div>
 
               <div className="mt-3 space-y-1 text-sm text-neutral-600">
@@ -522,7 +518,7 @@ export function ExperienceDetailClient({
                 </div>
                 {estimate.discountIdr > 0 && (
                   <div className="flex justify-between text-green-700">
-                    <span>Anda hemat</span>
+                    <span>You Save</span>
                     <span className="tabular-nums">{formatPrice(estimate.discountIdr)}</span>
                   </div>
                 )}

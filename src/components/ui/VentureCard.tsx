@@ -139,14 +139,21 @@ export function VentureCard({
 
         <div className="mt-2.5 flex items-end justify-between gap-3 border-t border-gray-100 pt-2.5 sm:mt-3 sm:pt-3">
           <div className="min-w-0">
-            <span className="block text-xs text-gray-600">From</span>
-            <span className="font-heading text-lg font-bold tabular-nums text-brand-ink sm:text-xl">
-              {formatPrice(venture.priceIdr)}
-            </span>
-            <span className="ml-1 text-xs text-gray-600">/ guest</span>
-            {tierHint && tierHint.minPax > 1 && (
-              <span className="ml-1 text-xs text-gray-600">· {tierHint.minPax}+ guests</span>
-            )}
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-xs font-medium text-gray-500">From</span>
+              {venture.promoPriceIdr !== null && (
+                <span className="text-sm tabular-nums text-red-500 line-through">
+                  {formatPrice(venture.listPriceIdr)}
+                </span>
+              )}
+              <span className="font-heading text-lg font-bold tabular-nums text-brand-ink sm:text-xl">
+                {formatPrice(venture.priceIdr)}
+              </span>
+              <span className="ml-1 text-xs text-gray-500">/ guest</span>
+              {tierHint && tierHint.minPax > 1 && (
+                <span className="ml-1 text-xs text-gray-500">· {tierHint.minPax}+ guests</span>
+              )}
+            </div>
             <PriceApprox amountIdr={venture.priceIdr} suffix=" / person" className="mt-0.5 block" />
           </div>
         </div>

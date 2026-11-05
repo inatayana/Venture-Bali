@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
         customer: { select: { name: true, email: true, whatsapp: true } },
         variant: { select: { title: true } },
       },
-    })) as BookingWithCustomer | null;
+    })) as BookingWithCustomer & { tenantId: string } | null;
 
     if (!booking) {
       return NextResponse.json(
@@ -143,6 +143,7 @@ export async function POST(request: NextRequest) {
         redirectUrl: snapResponse.redirect_url,
         grossAmount: booking.totalPrice,
         status: 'PENDING',
+        tenantId: booking.tenantId,
       },
       update: {
         snapToken: snapResponse.token,

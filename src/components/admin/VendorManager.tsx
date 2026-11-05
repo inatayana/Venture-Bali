@@ -65,8 +65,8 @@ export function VendorManager() {
     <div className="space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-gray-900">Vendor / Partner Management</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="font-heading text-2xl font-bold text-gray-900 dark:text-white">Vendor / Partner Management</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Manage activity providers. Vendor info is hidden from customers and only shown on e-vouchers.
           </p>
         </div>
@@ -79,55 +79,55 @@ export function VendorManager() {
       </header>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
+        <form onSubmit={handleCreate} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Code (unique)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vendor Code (unique)</label>
               <input
                 required
                 value={form.code}
                 onChange={(e) => setForm({ ...form, code: e.target.value })}
                 placeholder="VND-ATV-001"
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vendor Name</label>
               <input
                 required
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Ubud ATV Adventure Co."
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Activity Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Activity Type</label>
               <input
                 required
                 value={form.activityType}
                 onChange={(e) => setForm({ ...form, activityType: e.target.value })}
                 placeholder="ATV"
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Meeting Point</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Meeting Point</label>
               <input
                 value={form.meetingPoint}
                 onChange={(e) => setForm({ ...form, meetingPoint: e.target.value })}
                 placeholder="Ubud ATV Base Camp"
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Maps URL</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Maps URL</label>
               <input
                 type="url"
                 value={form.mapsUrl}
                 onChange={(e) => setForm({ ...form, mapsUrl: e.target.value })}
                 placeholder="https://maps.google.com/..."
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
               />
             </div>
           </div>
@@ -143,34 +143,34 @@ export function VendorManager() {
       )}
 
       {isLoading ? (
-        <div className="flex items-center justify-center p-12 text-gray-500">
+        <div className="flex items-center justify-center p-12 text-gray-500 dark:text-gray-400">
           <Loader2 className="w-6 h-6 animate-spin" />
         </div>
       ) : vendors.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-100 p-12 text-center text-gray-500">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-12 text-center text-gray-500 dark:text-gray-400">
           No vendors yet. Add your first vendor above.
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50 border-b border-gray-100">
+            <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700">
               <tr>
-                <th className="px-6 py-3 font-semibold text-gray-900">Code</th>
-                <th className="px-6 py-3 font-semibold text-gray-900">Name</th>
-                <th className="px-6 py-3 font-semibold text-gray-900">Activity</th>
-                <th className="px-6 py-3 font-semibold text-gray-900">Meeting Point</th>
-                <th className="px-6 py-3 font-semibold text-gray-900">Status</th>
+                <th className="px-6 py-3 font-semibold text-gray-900 dark:text-white">Code</th>
+                <th className="px-6 py-3 font-semibold text-gray-900 dark:text-white">Name</th>
+                <th className="px-6 py-3 font-semibold text-gray-900 dark:text-white">Activity</th>
+                <th className="px-6 py-3 font-semibold text-gray-900 dark:text-white">Meeting Point</th>
+                <th className="px-6 py-3 font-semibold text-gray-900 dark:text-white">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
               {vendors.map((v) => (
                 <tr key={v.id}>
                   <td className="px-6 py-4 font-mono text-xs">{v.code}</td>
                   <td className="px-6 py-4 font-medium">{v.name}</td>
                   <td className="px-6 py-4">{v.activityType}</td>
-                  <td className="px-6 py-4 text-gray-600 text-xs">{v.meetingPoint || '—'}</td>
+                  <td className="px-6 py-4 text-gray-600 dark:text-gray-400 text-xs">{v.meetingPoint || '—'}</td>
                   <td className="px-6 py-4">
-                    <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${v.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                    <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${v.isActive ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'}`}>
                       {v.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>

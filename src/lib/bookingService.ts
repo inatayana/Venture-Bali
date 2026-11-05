@@ -207,6 +207,7 @@ async function createBookingInTransaction(
       termsAcceptedAt: new Date(),
       waiverAcceptedAt: new Date(),
       waiverVersion: WAIVER_VERSION,
+      tenantId: venture.tenantId,
       ...(input.billingAddress
         ? { billingAddress: input.billingAddress as unknown as Prisma.InputJsonValue }
         : {}),

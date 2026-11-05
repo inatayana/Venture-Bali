@@ -21,6 +21,8 @@ function makeVenture(fulfillmentMode: 'SELF_DRIVE' | 'SHARED_TRANSFER' = 'SELF_D
     description: 'A gentle river tubing adventure near Ubud.',
     duration: '4 hrs',
     durationHours: 4,
+    listPriceIdr: 450_000,
+    promoPriceIdr: null,
     priceIdr: 450_000,
     minParticipants: 1,
     maxParticipants: 10,

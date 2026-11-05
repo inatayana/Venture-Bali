@@ -182,19 +182,38 @@ export function parseDurationHours(duration: string): number {
 }
 
 /**
+ * The lowest LIST price per pax across every variant and tier (before promo).
+ * Used for strikethrough display when a promo is active.
+ */
+export function deriveListPrice(venture: VentureWithRelations): number {
+  const prices = venture.variants.flatMap((variant) =>
+    variant.priceTiers.map((tier) => tier.pricePerPax)
+  );
+  return prices.length > 0 ? Math.min(...prices) : 0;
+}
+
+/**
  * The lowest price per pax across every variant and tier — this is the
- * "from" price shown on cards and in structured data. An active promo price
- * replaces the tier price for the same calculation.
+ * "from" price shown to users (promo price if active, else list price).
  */
 export function deriveFromPrice(venture: VentureWithRelations): number {
-  const prices = venture.variants.flatMap((variant) => {
-    const promo =
-      variant.promoPriceIdr !== null && variant.promoPriceIdr > 0 ? variant.promoPriceIdr : null;
-    return variant.priceTiers.map((tier) =>
-      promo !== null && promo < tier.pricePerPax ? promo : tier.pricePerPax
-    );
-  });
-  return prices.length > 0 ? Math.min(...prices) : 0;
+  const listPrice = deriveListPrice(venture);
+  const promo = venture.variants
+    .flatMap((variant) => (variant.promoPriceIdr !== null && variant.promoPriceIdr > 0 ? variant.promoPriceIdr : null))
+    .filter((p): p is number => p !== null);
+  if (promo.length === 0) return listPrice;
+  return Math.min(listPrice, Math.min(...promo));
+}
+
+/**
+ * Returns the active promo price across all variants, or null if no promo.
+ */
+export function derivePromoPrice(venture: VentureWithRelations): number | null {
+  const promos = venture.variants
+    .flatMap((variant) => (variant.promoPriceIdr !== null && variant.promoPriceIdr > 0 ? variant.promoPriceIdr : null))
+    .filter((p): p is number => p !== null);
+  if (promos.length === 0) return null;
+  return Math.min(...promos);
 }
 
 /**
@@ -372,6 +391,8 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
 
     // ---- derived view-model fields ----
     description: venture.shortDescription ?? venture.hook3Sec,
+    listPriceIdr: deriveListPrice(venture),
+    promoPriceIdr: derivePromoPrice(venture),
     priceIdr: deriveFromPrice(venture),
     durationHours: parseDurationHours(venture.duration),
     minParticipants: min,

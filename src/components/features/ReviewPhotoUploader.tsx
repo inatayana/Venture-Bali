@@ -43,18 +43,25 @@ export function PhotoUploader({
 
     setUploading(true);
     onUploadingChange?.(true);
-    for (const file of selected) {
-      try {
-        if (!file.type.startsWith('image/')) throw new Error('Use a JPG, PNG or WebP photo.');
-        const compressed = await compressReviewPhoto(file);
-        const url = await uploadFile(compressed);
-        onChange([...photos, url].slice(0, PHOTO_LIMIT));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Could not upload the photo.');
+    const uploaded: string[] = [];
+    try {
+      for (const file of selected) {
+        try {
+          if (!file.type.startsWith('image/')) throw new Error('Use a JPG, PNG or WebP photo.');
+          const compressed = await compressReviewPhoto(file);
+          const url = await uploadFile(compressed);
+          uploaded.push(url);
+          // Keep every photo from this batch: `photos` is the prop captured at
+          // pick time, so the batch accumulator has to be appended as well.
+          onChange([...photos, ...uploaded].slice(0, PHOTO_LIMIT));
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Could not upload the photo.');
+        }
       }
+    } finally {
+      setUploading(false);
+      onUploadingChange?.(false);
     }
-    setUploading(false);
-    onUploadingChange?.(false);
   };
 
   return (

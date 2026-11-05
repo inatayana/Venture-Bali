@@ -5,14 +5,13 @@ import { verifyReviewAccess } from '@/lib/customerLink';
 import { canReviewBooking, reviewBlockedReason, reviewInputSchema } from '@/lib/reviewSchema';
 import { assessReviewForPublishing } from '@/lib/reviewModeration';
 import { isAllowedReviewPhotoUrl } from '@/lib/reviewPhotos';
-import { notifyReviewNeedsModeration } from '@/lib/notifications';
 import { clientIp, rateLimit } from '@/lib/rateLimit';
 
 /**
  * Submit a review for a paid, finished trip.
  *
  * Authorisation is the customer magic-link token: no account, no password.
- * Reviews are stored unapproved and appear on the product page after moderation.
+ * Reviews are published immediately; the admin panel can delete a bad row.
  */
 export async function POST(request: NextRequest) {
   const limit = rateLimit(`review:${clientIp(request)}`, 5, 60_000);
@@ -71,10 +70,11 @@ export async function POST(request: NextRequest) {
       lifecycleStatus: true,
       review: { select: { id: true } },
       customer: { select: { name: true } },
+      tenantId: true,
       variant: {
         select: {
           ventureId: true,
-          venture: { select: { id: true, slug: true, title: true } },
+          venture: { select: { id: true, slug: true, title: true, tenantId: true } },
         },
       },
     },
@@ -124,7 +124,6 @@ export async function POST(request: NextRequest) {
     verifiedBooking: true,
     photoCount: safePhotos.length,
   });
-  const guestDisplayName = guestName || booking.customer.name;
 
   try {
     await prisma.review.create({
@@ -139,6 +138,7 @@ export async function POST(request: NextRequest) {
         guestLocation: guestLocation || null,
         isApproved: decision.autoPublish,
         photos: safePhotos,
+        tenantId: booking.tenantId,
       },
     });
   } catch (error) {
@@ -160,20 +160,8 @@ export async function POST(request: NextRequest) {
   }
 
   if (!decision.autoPublish) {
-    try {
-      await notifyReviewNeedsModeration({
-        bookingId: booking.id,
-        customerId: booking.customerId,
-        reference: booking.bookingCode,
-        ventureTitle: booking.variant.venture.title,
-        rating,
-        comment,
-        guestName: guestDisplayName,
-      });
-    } catch (error) {
-      // Moderation email must never fail the guest's submission.
-      console.error('Moderation alert failed:', error);
-    }
+    // Kept as a safety net: today's policy publishes every review.
+    console.warn('Review was not auto-published:', decision.reason);
   }
 
   revalidatePath('/my/bookings');

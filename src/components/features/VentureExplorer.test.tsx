@@ -21,6 +21,8 @@ function buildVenture(overrides: Partial<VentureItem>): VentureItem {
     category: 'Rafting',
     difficulty: 'EASY',
     location: 'Ubud, Gianyar',
+    listPriceIdr: 450000,
+    promoPriceIdr: null,
     priceIdr: 450000,
     durationHours: 3,
     minParticipants: 1,

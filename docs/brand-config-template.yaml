@@ -1,0 +1,142 @@
+brand:
+  name: "BaliExperience"
+  shortName: "BaliExp"
+  tagline: "Discover Authentic Bali"
+  description: "Curated local experiences by verified hosts"
+  logoUrl: "https://cdn.example.com/logos/baliexperience.svg"
+  faviconUrl: "https://cdn.example.com/favicons/baliexperience.ico"
+
+theme:
+  primaryColor: "#2E7D32"
+  secondaryColor: "#1B5E20"
+  accentColor: "#81C784"
+  fontHeading: "Montserrat"
+  fontBody: "Inter"
+  borderRadius: "md"
+
+categories:
+  - slug: "culture"
+    name: "Culture & Heritage"
+    short: "Culture"
+    emoji: "🏛️"
+    description: "Temples, ceremonies, traditional arts"
+    isActive: true
+    sortOrder: 1
+  - slug: "nature"
+    name: "Nature & Adventure"
+    short: "Nature"
+    emoji: "🌿"
+    description: "Waterfalls, rice terraces, volcanoes"
+    isActive: true
+    sortOrder: 2
+  - slug: "wellness"
+    name: "Wellness & Healing"
+    short: "Wellness"
+    emoji: "🧘"
+    description: "Yoga, meditation, spa, sound healing"
+    isActive: true
+    sortOrder: 3
+  - slug: "culinary"
+    name: "Culinary Experiences"
+    short: "Food"
+    emoji: "🍲"
+    description: "Cooking classes, food tours, farm visits"
+    isActive: true
+    sortOrder: 4
+
+pricing:
+  currency:
+    base: "IDR"
+    display: ["IDR", "USD", "AUD"]
+    exchangeRate:
+      USD: 15500
+      AUD: 10200
+  rounding: "1000"
+  minPriceIdr: 50000
+  maxDiscountPercent: 40
+  promoStacking: false
+  couponStacking: false
+
+booking:
+  minAdvanceHours: 2
+  maxAdvanceDays: 365
+  cancellationPolicy:
+    freeCancellationHours: 24
+    refundPercentTiers:
+      - hoursBefore: 24
+        refundPercent: 80
+      - hoursBefore: 12
+        refundPercent: 50
+      - hoursBefore: 0
+        refundPercent: 0
+  holdDurationMinutes: 15
+  maxPaxPerBooking: 15
+  requireWaiver: true
+  waiverVersion: "1.0"
+
+payment:
+  midtrans:
+    clientKey: "<FROM_ENV>"
+    serverKey: "<FROM_ENV>"
+    isProduction: false
+    enabledMethods:
+      - "credit_card"
+      - "gopay"
+      - "shopeepay"
+      - "bank_transfer"
+      - "qrris"
+  manualTransfer:
+    enabled: true
+    bankAccounts:
+      - bank: "BCA"
+        accountNumber: "1234567890"
+        accountName: "PT BaliExperience"
+
+communication:
+  email:
+    fromName: "BaliExperience"
+    fromEmail: "hello@baliexperience.com"
+    supportEmail: "support@baliexperience.com"
+    helloEmail: "hello@baliexperience.com"
+    partnersEmail: "partners@baliexperience.com"
+  whatsapp:
+    businessNumber: "+6281234567890"
+  notifications:
+    bookingConfirmation: true
+    paymentReminder: true
+    pickupReminder: true
+    reviewRequest: true
+    reviewRequestDelayHours: 24
+
+seo:
+  defaultTitle: "BaliExperience - Authentic Local Experiences"
+  defaultDescription: "Discover authentic Bali through curated local experiences."
+  ogImageUrl: "https://cdn.example.com/og/baliexperience.jpg"
+  twitterHandle: "@baliexperience"
+  googleAnalyticsId: "<FROM_ENV>"
+
+features:
+  aiContentGeneration: true
+  reviewInvites: true
+  couponCodes: true
+  groupBooking: false
+  giftCards: false
+  loyaltyProgram: false
+  multiLanguage: true
+  pwa: true
+
+localization:
+  defaultLocale: "en"
+  supportedLocales: ["en", "id"]
+  dateFormat: "DD MMM YYYY"
+  timeFormat: "HH:mm"
+  numberFormat: "id-ID"
+
+operations:
+  timezone: "Asia/Makassar"
+  businessHours:
+    start: "08:00"
+    end: "22:00"
+    days: [0, 1, 2, 3, 4, 5, 6]
+  supportPhone: "+6281234567890"
+  emergencyPhone: "+6281234567890"

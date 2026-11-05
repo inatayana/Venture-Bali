@@ -22,7 +22,7 @@ interface FoundingGuestReviewFormProps {
 /**
  * Review form for a real invited guest who did the activity without an online
  * booking. The signed, single-use invite is the authorisation; every review is
- * labelled “Founding guest” and goes through moderation.
+ * labelled “Verified” and published immediately.
  */
 export function FoundingGuestReviewForm({
   inviteId,
@@ -100,8 +100,7 @@ export function FoundingGuestReviewForm({
         <CheckCircle className="mx-auto h-8 w-8 text-green-600" aria-hidden="true" />
         <h2 className="mt-2 font-heading text-lg font-bold text-green-900">Thank you!</h2>
         <p className="mt-1 text-sm text-green-800">
-          Your founding guest review is waiting for a quick check and will appear on {ventureTitle}
-          shortly.
+          Your review is now live on {ventureTitle}.
         </p>
       </div>
     );
@@ -110,7 +109,7 @@ export function FoundingGuestReviewForm({
   return (
     <form onSubmit={submit} className="rounded-2xl border border-neutral-200 bg-white p-5">
       <span className="inline-flex rounded-full bg-brand/30 px-2.5 py-1 text-xs font-semibold text-neutral-800">
-        Founding guest
+        Verified
       </span>
       <h2 className="mt-2 font-heading text-lg font-bold text-neutral-900">{ventureTitle}</h2>
       <p className="mt-1 text-sm text-neutral-600">
@@ -221,7 +220,7 @@ export function FoundingGuestReviewForm({
         Submit review
       </button>
       <p className="mt-2 text-center text-xs text-neutral-500">
-        Founding guest reviews are checked by our team before they appear.
+        Your review is published immediately and shown with a Verified badge.
       </p>
     </form>
   );

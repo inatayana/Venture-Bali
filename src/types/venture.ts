@@ -472,7 +472,12 @@ export interface ReviewSummary {
 export interface VentureItem extends Omit<Venture, 'location'> {
   variants: Variant[];
   description: string;
+  /** Final price shown to user (promo price if active, else list price). */
   priceIdr: number;
+  /** Original list price before promo (for strikethrough display). */
+  listPriceIdr: number;
+  /** Active promo price, or null when no promo. */
+  promoPriceIdr: number | null;
   durationHours: number;
   minParticipants: number;
   maxParticipants: number;

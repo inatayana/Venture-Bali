@@ -197,8 +197,12 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-5 pr-16 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {year} BaliWild. Adventure travel, locally operated.</p>
-          <p>Prices in IDR · USD shown for reference · Made in Bali</p>
+          <p>Prices in IDR · USD shown for reference</p>
+          <p className="flex flex-col sm:flex-row sm:items-center gap-1">
+            <span className="sm:hidden">© {year} BaliWild Adventures. Own the Wild.</span>
+            <span className="sm:hidden">Born & Built in Bali 🌿 • Locally Operated</span>
+            <span className="hidden sm:inline">© {year} BaliWild Adventures. Own the Wild. Born & Built in Bali 🌿 • Locally Operated</span>
+          </p>
         </div>
       </div>
     </footer>

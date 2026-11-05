@@ -25,7 +25,7 @@ export default async function VoucherVerifyPage({ params }: VerifyPageProps) {
 
   if (!booking) notFound();
 
-  const voucher = booking.vouchers[0] ?? null;
+  const voucher = booking.vouchers ?? null;
   const isPaid = booking.paymentStatus === 'PAID';
   const isRedeemed = voucher?.status === 'REDEEMED';
   const isValid = isPaid && voucher?.status === 'ACTIVE';

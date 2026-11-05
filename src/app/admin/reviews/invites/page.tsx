@@ -81,7 +81,7 @@ export default async function AdminReviewInvitesPage() {
           <h1 className="font-heading text-2xl font-bold text-gray-900">Review invites</h1>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">
             Single-use links for real founding guests who completed an activity without an online
-            booking. Each review is labelled <strong>Founding guest</strong> and waits for approval.
+            booking. Each review is labelled <strong>Verified</strong> and published immediately.
           </p>
         </div>
         <Link

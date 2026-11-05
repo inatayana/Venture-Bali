@@ -122,6 +122,7 @@ async function seedReviews(): Promise<void> {
       slug: true,
       title: true,
       duration: true,
+      tenantId: true,
       location: { select: { name: true } },
       _count: { select: { reviews: true } },
     },
@@ -170,6 +171,7 @@ async function seedReviews(): Promise<void> {
           photos: [],
           isApproved: true,
           createdAt: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
+          tenantId: venture.tenantId,
         },
       });
       created += 1;
