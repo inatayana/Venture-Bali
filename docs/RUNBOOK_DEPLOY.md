@@ -9,7 +9,7 @@
 
 | Environment | DB host (Supabase pooler) | Web | Admin | Notes |
 |---|---|---|---|---|
-| Local dev | `aws-0-ap-northeast-1.pooler.supabase.com` (in `.env`) | `http://localhost:3002` | same | **Current reality** — the project in `.env` was found EMPTY on 2026-11-05; seed + reconcile migration repaired it. Confirm this is intended, not an accident. |
+| Local dev | `aws-0-ap-northeast-1.pooler.supabase.com` (in `.env`) | `http://localhost:3002` | same | **Owner-confirmed 2026-11-06: this IS the BaliWild PRODUCTION DB.** It was found EMPTY on 2026-11-05 and repaired via reconcile migration + re-seed. Treat all hands on it as production actions — backups BEFORE any migration/seed. |
 | Vercel preview | `DATABASE_URL` / `DIRECT_URL` in Vercel Preview envs | preview URL | same | |
 | Vercel production | `DATABASE_URL` / `DIRECT_URL` in Vercel Production envs | domain | same | |
 
