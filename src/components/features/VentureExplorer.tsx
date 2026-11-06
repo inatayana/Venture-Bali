@@ -28,7 +28,7 @@ export interface VentureExplorerProps {
 }
 
 /**
- * Catalogue browser â€” search, category filter and sorting.
+ * Catalogue browser — search, category filter and sorting.
  * Receives already-loaded ventures so the page itself stays a server component.
  */
 export function VentureExplorer({ ventures }: VentureExplorerProps) {
@@ -175,7 +175,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
               Clear
             </button>
             <span className="text-gray-500">
-              Â· {filteredVentures.length}{' '}
+              · {filteredVentures.length}{' '}
               {filteredVentures.length === 1 ? 'adventure' : 'adventures'}
             </span>
           </div>

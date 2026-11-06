@@ -21,7 +21,7 @@ function buildVenture(overrides: Partial<VentureWithRelations> = {}): VentureWit
     shortDescription: 'Guided ATV adventure through the jungles of Ubud.',
     duration: '2.5 hours',
     badge: 'Best Seller',
-    meetingPoint: 'Ubud ATV Base Camp â€” Payangan',
+    meetingPoint: 'Ubud ATV Base Camp — Payangan',
     meetingPointLat: -8.435,
     meetingPointLng: 115.272,
     highlights: ['Quad bike through rice paddies', 'Certified guide'],
@@ -206,7 +206,7 @@ describe('toVentureItem', () => {
     expect(item.slug).toBe('ubud-atv-jungle-ride');
     expect(item.title).toBe('Ubud ATV Jungle Ride through Rice Terraces and Waterfalls');
     expect(item.category).toBe('ATV');
-    // The fixture has one approved 5â˜… review, which now drives the rating.
+    // The fixture has one approved 5★ review, which now drives the rating.
     expect(item.rating).toBe(5);
   });
 
@@ -289,7 +289,7 @@ describe('toVentureItem', () => {
     const item = toVentureItem(buildVenture());
     expect(item.highlights).toEqual(['Quad bike through rice paddies', 'Certified guide']);
     expect(item.meetingPoint).toEqual({
-      name: 'Ubud ATV Base Camp â€” Payangan',
+      name: 'Ubud ATV Base Camp — Payangan',
       latitude: -8.435,
       longitude: 115.272,
     });
