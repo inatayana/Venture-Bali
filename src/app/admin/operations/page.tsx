@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/i18n';
 import { LIFECYCLE_LABELS } from '@/lib/bookingLifecycle';
@@ -6,6 +7,22 @@ import { OperationActions } from '@/components/admin/OperationActions';
 import { CalendarDays, ChevronLeft, ChevronRight, MapPin, Phone, Users } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+
+/** Relations the field manifest renders. */
+const manifestInclude = {
+  customer: { select: { name: true, whatsapp: true } },
+  variant: {
+    select: {
+      title: true,
+      venture: { select: { title: true } },
+    },
+  },
+  slotTime: { select: { time: true } },
+  vehicleClass: { select: { label: true } },
+  pickupZone: { select: { name: true } },
+} satisfies Prisma.BookingInclude;
+
+type ManifestBookingRow = Prisma.BookingGetPayload<{ include: typeof manifestInclude }>;
 
 interface OperationsPageProps {
   searchParams: { date?: string };
@@ -32,22 +49,17 @@ function waLink(whatsapp: string): string {
 export default async function OperationsPage({ searchParams }: OperationsPageProps) {
   const date = isValidDateKey(searchParams.date) ? searchParams.date : witaTodayKey();
 
-  const bookings = await prisma.booking.findMany({
-    where: { bookingDate: date, paymentStatus: 'PAID' },
-    orderBy: [{ slotTime: { time: 'asc' } }, { createdAt: 'asc' }],
-    include: {
-      customer: { select: { name: true, whatsapp: true } },
-      variant: {
-        select: {
-          title: true,
-          venture: { select: { title: true } },
-        },
-      },
-      slotTime: { select: { time: true } },
-      vehicleClass: { select: { label: true } },
-      pickupZone: { select: { name: true } },
-    },
-  });
+  let bookings: ManifestBookingRow[] = [];
+
+  try {
+    bookings = await prisma.booking.findMany({
+      where: { bookingDate: date, paymentStatus: 'PAID' },
+      orderBy: [{ slotTime: { time: 'asc' } }, { createdAt: 'asc' }],
+      include: manifestInclude,
+    });
+  } catch (error) {
+    console.warn('Database unavailable for operations page:', error);
+  }
 
   const groups = new Map<string, typeof bookings>();
   for (const booking of bookings) {
@@ -63,27 +75,27 @@ export default async function OperationsPage({ searchParams }: OperationsPagePro
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-gray-900">Operations · job orders</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="font-heading text-2xl font-bold text-gray-900 dark:text-white">Operations · job orders</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Field manifest for {date} · {bookings.length} job orders · {totalGuests} guests
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Link
             href={`/admin/operations?date=${shiftDate(date, -1)}`}
-            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-gray-200 px-3 text-sm text-gray-600"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-600 dark:text-gray-400"
           >
             <ChevronLeft className="h-4 w-4" /> Prev
           </Link>
           <Link
             href="/admin/operations"
-            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-gray-200 px-3 text-sm text-gray-600"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-600 dark:text-gray-400"
           >
             <CalendarDays className="h-4 w-4" /> Today
           </Link>
           <Link
             href={`/admin/operations?date=${shiftDate(date, 1)}`}
-            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-gray-200 px-3 text-sm text-gray-600"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-600 dark:text-gray-400"
           >
             Next <ChevronRight className="h-4 w-4" />
           </Link>
@@ -91,23 +103,23 @@ export default async function OperationsPage({ searchParams }: OperationsPagePro
       </header>
 
       {bookings.length === 0 ? (
-        <div className="rounded-xl border border-gray-100 bg-white p-10 text-center">
-          <p className="text-gray-500">No paid job orders for this date.</p>
+        <div className="rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-10 text-center">
+          <p className="text-gray-500 dark:text-gray-400">No paid job orders for this date.</p>
         </div>
       ) : (
         <div className="space-y-6">
           {[...groups.entries()].map(([time, list]) => (
-            <section key={time} className="overflow-hidden rounded-xl border border-gray-100 bg-white">
-              <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-3">
-                <h2 className="font-heading text-sm font-bold uppercase tracking-wider text-gray-700">
+            <section key={time} className="overflow-hidden rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+              <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 px-4 py-3">
+                <h2 className="font-heading text-sm font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
                   {time}
                 </h2>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   {list.length} jobs · {list.reduce((sum, booking) => sum + booking.paxCount, 0)} guests
                 </span>
               </div>
 
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-gray-50 dark:divide-gray-800">
                 {list.map((booking) => {
                   const isTransfer = booking.fulfillmentMode !== 'SELF_DRIVE';
                   const pickup = !isTransfer
@@ -126,16 +138,16 @@ export default async function OperationsPage({ searchParams }: OperationsPagePro
                     <div key={booking.id} className="grid gap-3 px-4 py-4 md:grid-cols-[1.4fr_1fr_auto]">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono text-xs text-gray-500">{booking.bookingCode}</span>
-                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">
+                          <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{booking.bookingCode}</span>
+                          <span className="rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-semibold text-gray-700 dark:text-gray-300">
                             {LIFECYCLE_LABELS[booking.lifecycleStatus]}
                           </span>
                         </div>
-                        <p className="mt-1 text-sm font-semibold text-gray-900">
+                        <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
                           {booking.variant.venture.title}
                         </p>
-                        <p className="text-xs text-gray-500">{booking.variant.title}</p>
-                        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-600">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{booking.variant.title}</p>
+                        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400">
                           <span className="inline-flex items-center gap-1">
                             <Users className="h-3.5 w-3.5" /> {booking.paxCount} guests
                           </span>
@@ -144,7 +156,7 @@ export default async function OperationsPage({ searchParams }: OperationsPagePro
                         </p>
                       </div>
 
-                      <div className="text-xs text-gray-600">
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
                         <p className="flex items-start gap-1">
                           <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                           <span>
@@ -159,7 +171,7 @@ export default async function OperationsPage({ searchParams }: OperationsPagePro
                               href={waLink(booking.customer.whatsapp)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="ml-2 inline-flex items-center gap-1 font-medium text-green-700 underline"
+                              className="ml-2 inline-flex items-center gap-1 font-medium text-green-700 dark:text-green-400 underline"
                             >
                               <Phone className="h-3.5 w-3.5" /> WhatsApp
                             </a>

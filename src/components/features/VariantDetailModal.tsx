@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { CalendarDays, Check, Clock, ImageIcon, Info, MapPin, Sparkles, Tag, X } from 'lucide-react';
 import { formatPrice } from '@/lib/i18n';
 import { couponAppliesTo, getVariantPickupDisplay, getVariantPriceDisplay } from '@/lib/variantDisplay';
+import { demandBadgeIsHot, demandBadgeLabel } from '@/lib/demand';
 import type { Variant } from '@/types/venture';
 
 export interface VariantPromo {
@@ -106,6 +107,16 @@ export function VariantDetailModal({
   const inclusions = variant.inclusions ?? [];
   const exclusions = variant.exclusions ?? [];
   const addonCount = variant.addons?.length ?? 0;
+  const demandLabel = demandBadgeLabel(variant.bookedLast48h);
+  const demandHot = demandBadgeIsHot(variant.bookedLast48h);
+  const tiers = variant.priceTiers ?? [];
+  const isAgeTiered = tiers.some((tier) => tier.pricingModel === 'AGE_TIERED');
+  const kidsFromPrice = isAgeTiered
+    ? Math.min(...tiers.map((tier) => tier.kidsPricePerPax ?? tier.pricePerPax))
+    : null;
+  const youthFromPrice = isAgeTiered
+    ? Math.min(...tiers.map((tier) => tier.youthPricePerPax ?? tier.pricePerPax))
+    : null;
   const showCoupon = couponAppliesTo(variant);
   const pickup = getVariantPickupDisplay(variant);
   const imageUrl = variant.imageUrl ?? fallbackImageUrl;
@@ -209,6 +220,24 @@ export function VariantDetailModal({
                 )}
               </div>
 
+              {demandLabel && (
+                <p
+                  className={`mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    demandHot ? 'bg-brand/25 text-neutral-900' : 'bg-neutral-100 text-neutral-700'
+                  }`}
+                  title="Real paid bookings for this package"
+                >
+                  {demandLabel}
+                </p>
+              )}
+
+              {isAgeTiered && kidsFromPrice !== null && (
+                <p className="mt-1.5 text-xs text-neutral-600">
+                  Kids (3-10): {formatPrice(kidsFromPrice)} · Youth (11-16):{' '}
+                  {formatPrice(youthFromPrice ?? 0)} · adult price tiers by group size
+                </p>
+              )}
+
               <p className="mt-1 text-xs text-neutral-600">
                 {variant.minimumSpendIdr ? (
                   <>Minimum {formatPrice(variant.minimumSpendIdr)} to book</>
@@ -239,7 +268,7 @@ export function VariantDetailModal({
               ) : (
                 <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-green-800 ring-1 ring-green-200">
                   <Tag className="h-3.5 w-3.5" />
-                  Promo price applied — no code needed
+                  {variant.promoLabel ? `${variant.promoLabel} — promo price applied, no code needed` : 'Promo price applied — no code needed'}
                 </p>
               )}
             </div>

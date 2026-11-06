@@ -9,6 +9,19 @@ import { randomUUID } from 'node:crypto';
 export const REVIEW_PHOTO_LIMIT = 3;
 export const REVIEW_PHOTO_MAX_BYTES = 5 * 1024 * 1024;
 
+/**
+ * Guest photo uploads are switched off by default.
+ *
+ * Owner decision (Nov 2026): reviews are auto-published, so photos would be
+ * unmoderated user content, and storage keeps growing for every future review.
+ * The upload code, bucket and DB field stay in place so the feature can be
+ * turned back on with `REVIEW_PHOTOS_ENABLED=true` — no code change, no
+ * migration. Existing photo URLs (if any) keep rendering on the site.
+ */
+export function isReviewPhotoUploadEnabled(): boolean {
+  return (process.env.REVIEW_PHOTOS_ENABLED ?? '').trim().toLowerCase() === 'true';
+}
+
 const MIME_EXTENSIONS: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',

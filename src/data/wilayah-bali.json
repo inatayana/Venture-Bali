@@ -1,0 +1,1055 @@
+{
+    "province":  "Bali",
+    "source":  "Kemendagri via emsifa/api-wilayah-indonesia (fetched 2026-11-04)",
+    "regencies":  [
+                      {
+                          "id":  "5101",
+                          "name":  "Jembrana",
+                          "districts":  [
+                                            {
+                                                "id":  "5101010",
+                                                "name":  "Melaya",
+                                                "villages":  [
+                                                                 "Gilimanuk",
+                                                                 "Melaya",
+                                                                 "Candikusuma",
+                                                                 "Tukadaya",
+                                                                 "Manistutu",
+                                                                 "Warnasari",
+                                                                 "Nusa Sari",
+                                                                 "Ekasari",
+                                                                 "Blimbingsari"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5101020",
+                                                "name":  "Negara",
+                                                "villages":  [
+                                                                 "Tegal Badeng Barat",
+                                                                 "Tegal Badeng Timur",
+                                                                 "Pengambengan",
+                                                                 "Loloan Barat",
+                                                                 "Lelateng",
+                                                                 "Banjar Tengah",
+                                                                 "Baluk",
+                                                                 "Banyubiru",
+                                                                 "Kaliakah",
+                                                                 "Berangbang",
+                                                                 "Baler Bale Agung"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5101021",
+                                                "name":  "Jembrana",
+                                                "villages":  [
+                                                                 "Perancak",
+                                                                 "Air Kuning",
+                                                                 "Yeh Kuning",
+                                                                 "Sangkaragung",
+                                                                 "Dauhwaru",
+                                                                 "Loloan Timur",
+                                                                 "Batuagung",
+                                                                 "Dangin Tukadaya"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5101030",
+                                                "name":  "Mendoyo",
+                                                "villages":  [
+                                                                 "Mendoyo Dauh Tukad",
+                                                                 "Mendoyo Dangin Tukad",
+                                                                 "Pohsanten",
+                                                                 "Delod Berawah",
+                                                                 "Tegal Cangkring",
+                                                                 "Penyaringan",
+                                                                 "Yeh Embang Kauh",
+                                                                 "Yeh Embang",
+                                                                 "Yeh Embang Kangin"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5101040",
+                                                "name":  "Pekutatan",
+                                                "villages":  [
+                                                                 "Medewi",
+                                                                 "Pulukan",
+                                                                 "Pekutatan",
+                                                                 "Pangyangan",
+                                                                 "Gumbrih",
+                                                                 "Pengeragoan",
+                                                                 "Asahduren",
+                                                                 "Manggissari"
+                                                             ]
+                                            }
+                                        ]
+                      },
+                      {
+                          "id":  "5102",
+                          "name":  "Tabanan",
+                          "districts":  [
+                                            {
+                                                "id":  "5102010",
+                                                "name":  "Selemadeg",
+                                                "villages":  [
+                                                                 "Antap",
+                                                                 "Bajera",
+                                                                 "Serampingan",
+                                                                 "Selemadeg",
+                                                                 "Pupuan Sawah",
+                                                                 "Wanagiri",
+                                                                 "Wanagiri Kauh",
+                                                                 "Manikyang",
+                                                                 "Bajera Utara"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5102011",
+                                                "name":  "Selemadeg Timur",
+                                                "villages":  [
+                                                                 "Tegal Mengkeb",
+                                                                 "Beraban",
+                                                                 "Tangguntiti",
+                                                                 "Mambang",
+                                                                 "Bantas",
+                                                                 "Megati",
+                                                                 "Gadungan",
+                                                                 "Gunung Salak",
+                                                                 "Dalang",
+                                                                 "Gadung Sari"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5102012",
+                                                "name":  "Selemadeg Barat",
+                                                "villages":  [
+                                                                 "Lalang Linggah",
+                                                                 "Antosari",
+                                                                 "Tiying Gading",
+                                                                 "Lumbung Kauh",
+                                                                 "Mundeh Kangin",
+                                                                 "Angkah",
+                                                                 "Mundeh Kauh",
+                                                                 "Selabih",
+                                                                 "Bengkel Sari"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5102020",
+                                                "name":  "Kerambitan",
+                                                "villages":  [
+                                                                 "Tibubiyu",
+                                                                 "Kelating",
+                                                                 "Penarukan",
+                                                                 "Belumbang",
+                                                                 "Tista",
+                                                                 "Kerambitan",
+                                                                 "Pangkung Karung",
+                                                                 "Baturiti",
+                                                                 "Meliling",
+                                                                 "Samsam",
+                                                                 "Batuaji",
+                                                                 "Kesiut",
+                                                                 "Timpag"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5102030",
+                                                "name":  "Tabanan",
+                                                "villages":  [
+                                                                 "Sudimara",
+                                                                 "Bongan",
+                                                                 "Dauh Peken",
+                                                                 "Delod Peken",
+                                                                 "Dajan Peken",
+                                                                 "Subamia",
+                                                                 "Denbantas",
+                                                                 "Buahan",
+                                                                 "Wanasari",
+                                                                 "Sesandan"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5102040",
+                                                "name":  "Kediri",
+                                                "villages":  [
+                                                                 "Pangkung Tibah",
+                                                                 "Belalang",
+                                                                 "Beraban",
+                                                                 "Buwit",
+                                                                 "Cepaka",
+                                                                 "Kaba-Kaba",
+                                                                 "Pandak Gede",
+                                                                 "Pejaten",
+                                                                 "Nyitdah",
+                                                                 "Pandak Bandung",
+                                                                 "Nyambu",
+                                                                 "Kediri",
+                                                                 "Abian Tuwung",
+                                                                 "Banjar Anyar"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5102050",
+                                                "name":  "Marga",
+                                                "villages":  [
+                                                                 "Tegaljadi",
+                                                                 "Beringkit Belayu",
+                                                                 "Peken Belayu",
+                                                                 "Batannyuh",
+                                                                 "Caubelayu",
+                                                                 "Selanbawak",
+                                                                 "Marga",
+                                                                 "Petiga",
+                                                                 "Tua",
+                                                                 "Payangan",
+                                                                 "Dauh Puri",
+                                                                 "Dajan Puri",
+                                                                 "Baru"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5102060",
+                                                "name":  "Baturiti",
+                                                "villages":  [
+                                                                 "Perean",
+                                                                 "Perean Tengah",
+                                                                 "Perean Kangin",
+                                                                 "Mekarsari",
+                                                                 "Apuan",
+                                                                 "Angseri",
+                                                                 "Bangli",
+                                                                 "Baturiti",
+                                                                 "Batunya",
+                                                                 "Antapan",
+                                                                 "Candikuning"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5102070",
+                                                "name":  "Penebel",
+                                                "villages":  [
+                                                                 "Rejasa",
+                                                                 "Riang Gede",
+                                                                 "Buruan",
+                                                                 "Tajen",
+                                                                 "Pitra",
+                                                                 "Penatahan",
+                                                                 "Tengkudak",
+                                                                 "Biaung",
+                                                                 "Babahan",
+                                                                 "Senganan",
+                                                                 "Jatiluwih",
+                                                                 "Wongaya Gede",
+                                                                 "Pesagi",
+                                                                 "Tegalinggah",
+                                                                 "Sangketan"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5102080",
+                                                "name":  "Pupuan",
+                                                "villages":  [
+                                                                 "Belatungan",
+                                                                 "Kebon Padangan",
+                                                                 "Belimbing",
+                                                                 "Sanda",
+                                                                 "Batungsel",
+                                                                 "Pujungan",
+                                                                 "Pajahan",
+                                                                 "Pupuan",
+                                                                 "Bantiran",
+                                                                 "Padangan",
+                                                                 "Jelijih Punggang",
+                                                                 "Karya Sari",
+                                                                 "Sai"
+                                                             ]
+                                            }
+                                        ]
+                      },
+                      {
+                          "id":  "5103",
+                          "name":  "Badung",
+                          "districts":  [
+                                            {
+                                                "id":  "5103010",
+                                                "name":  "Kuta Selatan",
+                                                "villages":  [
+                                                                 "Pecatu",
+                                                                 "Ungasan",
+                                                                 "Benoa",
+                                                                 "Tanjung Benoa",
+                                                                 "Jimbaran"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5103020",
+                                                "name":  "Kuta",
+                                                "villages":  [
+                                                                 "Kedonganan",
+                                                                 "Tuban",
+                                                                 "Kuta",
+                                                                 "Legian",
+                                                                 "Seminyak"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5103030",
+                                                "name":  "Kuta Utara",
+                                                "villages":  [
+                                                                 "Kerobokan Kelod",
+                                                                 "Kerobokan",
+                                                                 "Kerobokan Kaja",
+                                                                 "Tibubeneng",
+                                                                 "Canggu",
+                                                                 "Dalung"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5103040",
+                                                "name":  "Mengwi",
+                                                "villages":  [
+                                                                 "Cemagi",
+                                                                 "Pererenan",
+                                                                 "Tumbak Bayuh",
+                                                                 "Abianbase",
+                                                                 "Sempidi",
+                                                                 "Sading",
+                                                                 "Kapal",
+                                                                 "Kekeran",
+                                                                 "Mengwitani",
+                                                                 "Mengwi",
+                                                                 "Gulingan",
+                                                                 "Penarungan",
+                                                                 "Baha",
+                                                                 "Werdi Bhuwana",
+                                                                 "Sobangan"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5103050",
+                                                "name":  "Abiansemal",
+                                                "villages":  [
+                                                                 "Darmasaba",
+                                                                 "Sibang Gede",
+                                                                 "Jagapati",
+                                                                 "Angantaka",
+                                                                 "Sedang",
+                                                                 "Sibang Kaja",
+                                                                 "Mekar Bhuana",
+                                                                 "Mambal",
+                                                                 "Abiansemal",
+                                                                 "Dauh Yeh Cani",
+                                                                 "Ayunan",
+                                                                 "Blahkiuh",
+                                                                 "Bongkasa",
+                                                                 "Taman",
+                                                                 "Selat",
+                                                                 "Sangeh",
+                                                                 "Bongkasa Pertiwi"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5103060",
+                                                "name":  "Petang",
+                                                "villages":  [
+                                                                 "Carangsari",
+                                                                 "Getasan",
+                                                                 "Pangsan",
+                                                                 "Petang",
+                                                                 "Sulangai",
+                                                                 "Pelaga",
+                                                                 "Belok/Sidan"
+                                                             ]
+                                            }
+                                        ]
+                      },
+                      {
+                          "id":  "5104",
+                          "name":  "Gianyar",
+                          "districts":  [
+                                            {
+                                                "id":  "5104010",
+                                                "name":  "Sukawati",
+                                                "villages":  [
+                                                                 "Batubulan",
+                                                                 "Batubulan Kangin",
+                                                                 "Guwang",
+                                                                 "Sukawati",
+                                                                 "Singapadu",
+                                                                 "Singapadu Tengah",
+                                                                 "Singapadu Kaler",
+                                                                 "Batuan",
+                                                                 "Batuan Kaler"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5104020",
+                                                "name":  "Blahbatuh",
+                                                "villages":  [
+                                                                 "Saba",
+                                                                 "Pering",
+                                                                 "Keramas",
+                                                                 "Medahan",
+                                                                 "Bona",
+                                                                 "Belega",
+                                                                 "Blahbatuh",
+                                                                 "Buruan"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5104030",
+                                                "name":  "Gianyar",
+                                                "villages":  [
+                                                                 "Lebih",
+                                                                 "Tulikup",
+                                                                 "Temesi",
+                                                                 "Sidan",
+                                                                 "Samplangan",
+                                                                 "Serongga",
+                                                                 "Abianbase",
+                                                                 "Gianyar",
+                                                                 "Bitera",
+                                                                 "Bakbakan",
+                                                                 "Siangan",
+                                                                 "Suwat",
+                                                                 "Petak",
+                                                                 "Petak Kaja",
+                                                                 "Sumita",
+                                                                 "Tegal Tugu"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5104040",
+                                                "name":  "Tampaksiring",
+                                                "villages":  [
+                                                                 "Pejeng Kawan",
+                                                                 "Pejeng Kelod",
+                                                                 "Pejeng Kangin",
+                                                                 "Pejeng Kaja",
+                                                                 "Sanding",
+                                                                 "Tampaksiring",
+                                                                 "Manukaya"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5104050",
+                                                "name":  "Ubud",
+                                                "villages":  [
+                                                                 "Singekerta",
+                                                                 "Lodtunduh",
+                                                                 "Mas",
+                                                                 "Peliatan",
+                                                                 "Sayan",
+                                                                 "Kedewatan"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5104060",
+                                                "name":  "Tegallalang",
+                                                "villages":  [
+                                                                 "Keliki",
+                                                                 "Tegallalang",
+                                                                 "Kenderan",
+                                                                 "Kedisan",
+                                                                 "Pupuan",
+                                                                 "Sebatu",
+                                                                 "Taro"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5104070",
+                                                "name":  "Payangan",
+                                                "villages":  [
+                                                                 "Melinggih Kelod",
+                                                                 "Melinggih",
+                                                                 "Kelusa",
+                                                                 "Beresela",
+                                                                 "Bukian",
+                                                                 "Buahan",
+                                                                 "Buahan Kaja",
+                                                                 "Kerta"
+                                                             ]
+                                            }
+                                        ]
+                      },
+                      {
+                          "id":  "5105",
+                          "name":  "Klungkung",
+                          "districts":  [
+                                            {
+                                                "id":  "5105010",
+                                                "name":  "Nusapenida",
+                                                "villages":  [
+                                                                 "Sakti",
+                                                                 "Bunga Mekar",
+                                                                 "Batumadeg",
+                                                                 "Batukandik",
+                                                                 "Sekartaji",
+                                                                 "Tanglad",
+                                                                 "Pejukutan",
+                                                                 "Suana",
+                                                                 "Batununggul",
+                                                                 "Kutampi",
+                                                                 "Kutampi Kaler",
+                                                                 "Kampung Toyapakeh",
+                                                                 "Lembongan",
+                                                                 "Jungutbatu"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5105020",
+                                                "name":  "Banjarangkan",
+                                                "villages":  [
+                                                                 "Negari",
+                                                                 "Takmung",
+                                                                 "Banjarangkan",
+                                                                 "Tusan",
+                                                                 "Bakas",
+                                                                 "Getakan",
+                                                                 "Tihingan",
+                                                                 "Aan",
+                                                                 "Nyalian",
+                                                                 "Bungbungan",
+                                                                 "Timuhun",
+                                                                 "Nyanglan",
+                                                                 "Tohpati"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5105030",
+                                                "name":  "Klungkung",
+                                                "villages":  [
+                                                                 "Satra",
+                                                                 "Tojan",
+                                                                 "Kampung Gelgel",
+                                                                 "Jumpai",
+                                                                 "Tangkas",
+                                                                 "Kamasan",
+                                                                 "Semarapura Kelod",
+                                                                 "Semarapura Kelod Kangin",
+                                                                 "Semarapura Kangin",
+                                                                 "Semarapura Tengah",
+                                                                 "Semarapura Kauh",
+                                                                 "Semarapura Kaja",
+                                                                 "Akah",
+                                                                 "Manduang",
+                                                                 "Selat",
+                                                                 "Tegak",
+                                                                 "Selisihan"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5105040",
+                                                "name":  "Dawan",
+                                                "villages":  [
+                                                                 "Kusamba",
+                                                                 "Kampung Kusamba",
+                                                                 "Pesinggahan",
+                                                                 "Dawan Klod",
+                                                                 "Gunaksa",
+                                                                 "Sampalan Klod",
+                                                                 "Sampalan Tengah",
+                                                                 "Sulang",
+                                                                 "Paksebali",
+                                                                 "Dawan Kaler",
+                                                                 "Pikat",
+                                                                 "Besan"
+                                                             ]
+                                            }
+                                        ]
+                      },
+                      {
+                          "id":  "5106",
+                          "name":  "Bangli",
+                          "districts":  [
+                                            {
+                                                "id":  "5106010",
+                                                "name":  "Susut",
+                                                "villages":  [
+                                                                 "Apuan",
+                                                                 "Abuan",
+                                                                 "Demulih",
+                                                                 "Sulahan",
+                                                                 "Tiga",
+                                                                 "Penglumbaran",
+                                                                 "Selat",
+                                                                 "Pengiangan"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5106020",
+                                                "name":  "Bangli",
+                                                "villages":  [
+                                                                 "Bunutin",
+                                                                 "Taman Bali",
+                                                                 "Bebalang",
+                                                                 "Kawan",
+                                                                 "Cempaga",
+                                                                 "Kayubihi",
+                                                                 "Pengotan",
+                                                                 "Landih"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5106030",
+                                                "name":  "Tembuku",
+                                                "villages":  [
+                                                                 "Yangapi",
+                                                                 "Undisan",
+                                                                 "Bangbang",
+                                                                 "Peninjoan"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5106040",
+                                                "name":  "Kintamani",
+                                                "villages":  [
+                                                                 "Mengani",
+                                                                 "Binyan",
+                                                                 "Ulian",
+                                                                 "Bunutin",
+                                                                 "Langgahan",
+                                                                 "Lembean",
+                                                                 "Bayungcerik",
+                                                                 "Mangguh",
+                                                                 "Belancan",
+                                                                 "Katung",
+                                                                 "Banua",
+                                                                 "Abuan",
+                                                                 "Bonyoh",
+                                                                 "Sekaan",
+                                                                 "Bayung Gede",
+                                                                 "Sekardadi",
+                                                                 "Kedisan",
+                                                                 "Buahan",
+                                                                 "Abang Batu Dinding",
+                                                                 "Abang Songan",
+                                                                 "Terunyan",
+                                                                 "Songan B",
+                                                                 "Songan A",
+                                                                 "Batur Selatan",
+                                                                 "Batur Tengah",
+                                                                 "Batur Utara",
+                                                                 "Kintamani",
+                                                                 "Serahi",
+                                                                 "Manikliyu",
+                                                                 "Awan",
+                                                                 "Belantih",
+                                                                 "Gunungbau",
+                                                                 "Belanga",
+                                                                 "Batukaang",
+                                                                 "Catur",
+                                                                 "Pengejaran",
+                                                                 "Satra",
+                                                                 "Dausa",
+                                                                 "Daup",
+                                                                 "Bantang",
+                                                                 "Sukawana",
+                                                                 "Subaya",
+                                                                 "Siyakin",
+                                                                 "Pinggan",
+                                                                 "Belandingan"
+                                                             ]
+                                            }
+                                        ]
+                      },
+                      {
+                          "id":  "5107",
+                          "name":  "Karang Asem",
+                          "districts":  [
+                                            {
+                                                "id":  "5107010",
+                                                "name":  "Rendang",
+                                                "villages":  [
+                                                                 "Pesaban",
+                                                                 "Nongan",
+                                                                 "Rendang",
+                                                                 "Menanga",
+                                                                 "Besakih",
+                                                                 "Pempatan"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5107020",
+                                                "name":  "Sidemen",
+                                                "villages":  [
+                                                                 "Tangkup",
+                                                                 "Talibeng",
+                                                                 "Telaga Tawang",
+                                                                 "Sidemen",
+                                                                 "Sindu Wati",
+                                                                 "Sangkan Gunung",
+                                                                 "Loka Sari",
+                                                                 "Kertha Buana",
+                                                                 "Tri Eka Buana",
+                                                                 "Wisma Kerta"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5107030",
+                                                "name":  "Manggis",
+                                                "villages":  [
+                                                                 "Antiga",
+                                                                 "Gegelang",
+                                                                 "Padangbai",
+                                                                 "Ulakan",
+                                                                 "Manggis",
+                                                                 "Ngis",
+                                                                 "Tenganan",
+                                                                 "Antiga Kelod",
+                                                                 "Sengkidu",
+                                                                 "Pesedahan"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5107040",
+                                                "name":  "Karangasem",
+                                                "villages":  [
+                                                                 "Pertima",
+                                                                 "Subagan",
+                                                                 "Padang Kerta",
+                                                                 "Karangasem",
+                                                                 "Tegallinggah",
+                                                                 "Bukit",
+                                                                 "Seraya Barat",
+                                                                 "Seraya",
+                                                                 "Seraya Timur"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5107050",
+                                                "name":  "Abang",
+                                                "villages":  [
+                                                                 "Ababi",
+                                                                 "Tiyingtali",
+                                                                 "Abang",
+                                                                 "Pidpid",
+                                                                 "Nawakerti",
+                                                                 "Kesimpar",
+                                                                 "Tista",
+                                                                 "Kerta Mandala",
+                                                                 "Culik",
+                                                                 "Datah",
+                                                                 "Laba Sari",
+                                                                 "Purwakerti",
+                                                                 "Bunutan",
+                                                                 "Tri Buana"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5107060",
+                                                "name":  "Bebandem",
+                                                "villages":  [
+                                                                 "Sibetan",
+                                                                 "Bebandem",
+                                                                 "Bungaya",
+                                                                 "Bungaya Kangin",
+                                                                 "Budakeling",
+                                                                 "Bhuana Giri",
+                                                                 "Jungutan",
+                                                                 "Macang"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5107070",
+                                                "name":  "Selat",
+                                                "villages":  [
+                                                                 "Muncan",
+                                                                 "Pering Sari",
+                                                                 "Selat",
+                                                                 "Duda",
+                                                                 "Duda Timur",
+                                                                 "Duda Utara",
+                                                                 "Sebudi",
+                                                                 "Amerta Bhuana"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5107080",
+                                                "name":  "Kubu",
+                                                "villages":  [
+                                                                 "Ban",
+                                                                 "Tulamben",
+                                                                 "Baturinggit",
+                                                                 "Sukadana",
+                                                                 "Tianyar",
+                                                                 "Tianyar Tengah",
+                                                                 "Tianyar Barat"
+                                                             ]
+                                            }
+                                        ]
+                      },
+                      {
+                          "id":  "5108",
+                          "name":  "Buleleng",
+                          "districts":  [
+                                            {
+                                                "id":  "5108010",
+                                                "name":  "Gerokgak",
+                                                "villages":  [
+                                                                 "Sumber Klampok",
+                                                                 "Pejarakan",
+                                                                 "Sumberkima",
+                                                                 "Pemuteran",
+                                                                 "Banyupoh",
+                                                                 "Penyabangan",
+                                                                 "Musi",
+                                                                 "Sanggalangit",
+                                                                 "Gerokgak",
+                                                                 "Patas",
+                                                                 "Pengulon",
+                                                                 "Tinga Tinga",
+                                                                 "Celukan Bawang",
+                                                                 "Tukad Sumaga"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5108020",
+                                                "name":  "Seririt",
+                                                "villages":  [
+                                                                 "Unggahan",
+                                                                 "Gunungsari",
+                                                                 "Munduk Bestala",
+                                                                 "Bestala",
+                                                                 "Mayong",
+                                                                 "Rangdu",
+                                                                 "Ularan",
+                                                                 "Ringdikit",
+                                                                 "Joanyar",
+                                                                 "Kalianget",
+                                                                 "Tangguwisia",
+                                                                 "Sulanyah",
+                                                                 "Bubunan",
+                                                                 "Seririt",
+                                                                 "Pengastulan",
+                                                                 "Patemon",
+                                                                 "Lokapaksa",
+                                                                 "Umeanyar",
+                                                                 "Banjar Asem",
+                                                                 "Kalisada",
+                                                                 "Pangkungparuk"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5108030",
+                                                "name":  "Busungbiu",
+                                                "villages":  [
+                                                                 "Sepang Kelod",
+                                                                 "Tista",
+                                                                 "Bongancina",
+                                                                 "Pucaksari",
+                                                                 "Sepang",
+                                                                 "Telaga",
+                                                                 "Titab",
+                                                                 "Kekeran",
+                                                                 "Busungbiu",
+                                                                 "Pelapuan",
+                                                                 "Tinggarsari",
+                                                                 "Kedis",
+                                                                 "Umejero"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5108040",
+                                                "name":  "Banjar",
+                                                "villages":  [
+                                                                 "Banyuatis",
+                                                                 "Gesing",
+                                                                 "Gobleg",
+                                                                 "Kayuputih",
+                                                                 "Tirtasari",
+                                                                 "Banyusri",
+                                                                 "Pedawa",
+                                                                 "Tigawasa",
+                                                                 "Cempaga",
+                                                                 "Sidetapa",
+                                                                 "Tampekan",
+                                                                 "Banjar Tegeha",
+                                                                 "Banjar",
+                                                                 "Dencarik",
+                                                                 "Kaliasem"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5108050",
+                                                "name":  "Sukasada",
+                                                "villages":  [
+                                                                 "Pancasari",
+                                                                 "Wanagiri",
+                                                                 "Ambengan",
+                                                                 "Gitgit",
+                                                                 "Pegayaman",
+                                                                 "Silangjana",
+                                                                 "Pegadungan",
+                                                                 "Padangbulia",
+                                                                 "Sukasada",
+                                                                 "Sambangan",
+                                                                 "Panji",
+                                                                 "Panji Anom",
+                                                                 "Tegal Linggah",
+                                                                 "Selat",
+                                                                 "Kayuputih"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5108060",
+                                                "name":  "Buleleng",
+                                                "villages":  [
+                                                                 "Kalibukbuk",
+                                                                 "Anturan",
+                                                                 "Tukadmungga",
+                                                                 "Pemaron",
+                                                                 "Baktiseraga",
+                                                                 "Banyuasri",
+                                                                 "Banjar Tegal",
+                                                                 "Paket Agung",
+                                                                 "Beratan",
+                                                                 "Liligundi",
+                                                                 "Kampung Singaraja",
+                                                                 "Kendran",
+                                                                 "Astina",
+                                                                 "Banjar Jawa",
+                                                                 "Banjar Bali",
+                                                                 "Kampung Kajanan",
+                                                                 "Kaliuntu",
+                                                                 "Kampung Anyar",
+                                                                 "Kampung Bugis",
+                                                                 "Kampung Baru",
+                                                                 "Banyuning",
+                                                                 "Penarukan",
+                                                                 "Jinengdalem",
+                                                                 "Penglatan",
+                                                                 "Petandakan",
+                                                                 "Sari Mekar",
+                                                                 "Nagasepaha",
+                                                                 "Alasangker",
+                                                                 "Poh Bergong"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5108070",
+                                                "name":  "Sawan",
+                                                "villages":  [
+                                                                 "Lemukih",
+                                                                 "Galungan",
+                                                                 "Bebetin",
+                                                                 "Sudaji",
+                                                                 "Sawan",
+                                                                 "Menyali",
+                                                                 "Jagaraga",
+                                                                 "Sinabun",
+                                                                 "Kerobokan",
+                                                                 "Sangsit",
+                                                                 "Bungkulan",
+                                                                 "Giri Emas"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5108080",
+                                                "name":  "Kubutambahan",
+                                                "villages":  [
+                                                                 "Tambakan",
+                                                                 "Pakisan",
+                                                                 "Bontihing",
+                                                                 "Tajun",
+                                                                 "Depeha",
+                                                                 "Bulian",
+                                                                 "Tamblang",
+                                                                 "Bila",
+                                                                 "Bengkala",
+                                                                 "Kubutambahan",
+                                                                 "Bukti",
+                                                                 "Mengening"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5108090",
+                                                "name":  "Tejakula",
+                                                "villages":  [
+                                                                 "Sembiran",
+                                                                 "Pacung",
+                                                                 "Julah",
+                                                                 "Bondalem",
+                                                                 "Madenan",
+                                                                 "Tejakula",
+                                                                 "Penuktukan",
+                                                                 "Sambirenteng",
+                                                                 "Tembok"
+                                                             ]
+                                            }
+                                        ]
+                      },
+                      {
+                          "id":  "5171",
+                          "name":  "Denpasar",
+                          "districts":  [
+                                            {
+                                                "id":  "5171010",
+                                                "name":  "Denpasar Selatan",
+                                                "villages":  [
+                                                                 "Pemogan",
+                                                                 "Pedungan",
+                                                                 "Sesetan",
+                                                                 "Serangan",
+                                                                 "Sidakarya",
+                                                                 "Panjer",
+                                                                 "Renon",
+                                                                 "Sanur Kauh",
+                                                                 "Sanur",
+                                                                 "Sanur Kaja"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5171020",
+                                                "name":  "Denpasar Timur",
+                                                "villages":  [
+                                                                 "Dangin Puri Klod",
+                                                                 "Sumerta Kelod",
+                                                                 "Kesiman",
+                                                                 "Kesiman Petilan",
+                                                                 "Kesiman Kertalangu",
+                                                                 "Sumerta",
+                                                                 "Sumerta Kaja",
+                                                                 "Sumerta Kauh",
+                                                                 "Dangin Puri",
+                                                                 "Penatih",
+                                                                 "Penatih Dangin Puri"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5171030",
+                                                "name":  "Denpasar Barat",
+                                                "villages":  [
+                                                                 "Padangsambian Klod",
+                                                                 "Pemecutan Klod",
+                                                                 "Dauh Puri Kauh",
+                                                                 "Dauh Puri Klod",
+                                                                 "Dauh Puri",
+                                                                 "Dauh Puri Kangin",
+                                                                 "Pemecutan",
+                                                                 "Tegal Harum",
+                                                                 "Tegal Kertha",
+                                                                 "Padangsambian",
+                                                                 "Padangsambian Kaja"
+                                                             ]
+                                            },
+                                            {
+                                                "id":  "5171031",
+                                                "name":  "Denpasar Utara",
+                                                "villages":  [
+                                                                 "Pemecutan Kaja",
+                                                                 "Dauh Puri Kaja",
+                                                                 "Dangin Puri Kauh",
+                                                                 "Dangin Puri Kaja",
+                                                                 "Dangin Puri Kangin",
+                                                                 "Tonja",
+                                                                 "Peguyangan",
+                                                                 "Ubung  Kaja",
+                                                                 "Peguyangan Kaja",
+                                                                 "Peguyangan Kangin"
+                                                             ]
+                                            }
+                                        ]
+                      }
+                  ]
+}

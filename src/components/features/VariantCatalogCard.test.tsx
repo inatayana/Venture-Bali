@@ -118,6 +118,7 @@ describe('VariantCatalogCard', () => {
           name: 'South 1 — Kuta, Seminyak, Canggu, Sanur',
           areaType: 'ZONE_2',
           surchargeIdr: 224000,
+          surchargePerPaxIdr: 224000,
           isCustomQuote: false,
           vehicleMaxPax: 6,
         },

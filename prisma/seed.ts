@@ -17,6 +17,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+import { hashPassword } from '../src/lib/adminAuth.ts';
 import type { Prisma } from '@prisma/client';
 import { validateVentureTitle, isVentureSlugValid } from '../src/lib/titleValidator.ts';
 import { isAllowedCategory } from '../src/lib/taxonomy.ts';
@@ -134,6 +135,7 @@ async function seedPickupZones(): Promise<Map<string, string>> {
       update: {
         areaType: zone.areaType,
         surchargeIdr: zone.surchargeIdr,
+        surchargePerPaxIdr: zone.surchargePerPaxIdr,
         isCustomQuote: zone.isCustomQuote,
         vehicleMaxPax: zone.vehicleMaxPax,
         isActive: true,
@@ -142,6 +144,7 @@ async function seedPickupZones(): Promise<Map<string, string>> {
         name: zone.name,
         areaType: zone.areaType,
         surchargeIdr: zone.surchargeIdr,
+        surchargePerPaxIdr: zone.surchargePerPaxIdr,
         isCustomQuote: zone.isCustomQuote,
         vehicleMaxPax: zone.vehicleMaxPax,
         isActive: true,
@@ -347,27 +350,47 @@ async function seedVentures(
             },
           });
 
-      // Price tiers
+      // Price tiers. Re-seeding MUST preserve admin-set age-tiered pricing
+      // (pricingModel + kids/youth prices) — those live only in the database
+      // and are NOT in the catalogue seed data. Match existing tiers by
+      // (minPax, maxPax) and carry the admin fields forward; if the catalogue
+      // ever does specify them, the catalogue wins.
+      const existingTiers = await prisma.priceTier.findMany({ where: { variantId: variant.id } });
       await prisma.priceTier.deleteMany({ where: { variantId: variant.id } });
       await prisma.priceTier.createMany({
-        data: variantSeed.priceTiers.map((tier) => ({
-          variantId: variant.id,
-          minPax: tier.minPax,
-          maxPax: tier.maxPax,
-          pricePerPax: tier.pricePerPax,
-        })),
+        data: variantSeed.priceTiers.map((tier) => {
+          const existing = existingTiers.find(
+            (t) => t.minPax === tier.minPax && t.maxPax === tier.maxPax
+          );
+          return {
+            variantId: variant.id,
+            minPax: tier.minPax,
+            maxPax: tier.maxPax,
+            pricePerPax: tier.pricePerPax,
+            pricingModel: tier.pricingModel ?? existing?.pricingModel ?? 'FLAT_PER_GUEST',
+            kidsPricePerPax: tier.kidsPricePerPax ?? existing?.kidsPricePerPax ?? null,
+            youthPricePerPax: tier.youthPricePerPax ?? existing?.youthPricePerPax ?? null,
+          };
+        }),
       });
 
-      // Slot times
+      // Slot times. Re-seeding MUST preserve admin-set data that lives only
+      // in the database: the booking cut-off override and real currentBookings.
+      // Match existing slots by (variantId, time) and carry them forward.
+      const existingSlots = await prisma.slotTime.findMany({ where: { variantId: variant.id } });
       await prisma.slotTime.deleteMany({ where: { variantId: variant.id } });
       await prisma.slotTime.createMany({
-        data: (variantSeed.slots ?? DEFAULT_SLOTS).map((slot) => ({
-          variantId: variant.id,
-          time: slot.time,
-          maxCapacity: slot.maxCapacity,
-          currentBookings: 0,
-          isAvailable: true,
-        })),
+        data: (variantSeed.slots ?? DEFAULT_SLOTS).map((slot) => {
+          const existing = existingSlots.find((item) => item.time === slot.time);
+          return {
+            variantId: variant.id,
+            time: slot.time,
+            maxCapacity: slot.maxCapacity,
+            currentBookings: existing?.currentBookings ?? 0,
+            isAvailable: existing?.isAvailable ?? true,
+            cutoffHours: existing?.cutoffHours ?? null,
+          };
+        }),
       });
 
       // Add-ons
@@ -391,6 +414,43 @@ async function seedVentures(
 
 // ============ MAIN ============
 
+/**
+ * Optionally provision the first admin account at seed time.
+ *
+ * Set ADMIN_SEED_EMAIL + ADMIN_SEED_PASSWORD (+ optional ADMIN_SEED_ROLE, default
+ * ADMIN) in the environment to bootstrap admin access in fresh databases —
+ * the alternative was the unsafe habit of hardcoding credentials in the repo,
+ * which this project no longer tolerates. Without these variables nothing is
+ * created; in production prefer `npm run admin:create` interactively instead.
+ */
+async function seedAdminFromEnv() {
+  const email = (process.env.ADMIN_SEED_EMAIL ?? '').trim().toLowerCase();
+  const password = process.env.ADMIN_SEED_PASSWORD ?? '';
+  const role = (process.env.ADMIN_SEED_ROLE ?? 'ADMIN').trim().toUpperCase();
+
+  if (!email && !password) {
+    console.log('— Admin seed skipped (set ADMIN_SEED_EMAIL + ADMIN_SEED_PASSWORD to provision one)');
+    return;
+  }
+  if (!email || !password) {
+    throw new Error('ADMIN_SEED_EMAIL and ADMIN_SEED_PASSWORD must both be set');
+  }
+  if (password.length < 12) {
+    throw new Error('ADMIN_SEED_PASSWORD must be at least 12 characters');
+  }
+  if (!['SUPER_ADMIN', 'ADMIN', 'EDITOR', 'VIEWER'].includes(role)) {
+    throw new Error(`ADMIN_SEED_ROLE must be one of SUPER_ADMIN | ADMIN | EDITOR | VIEWER, got "${role}"`);
+  }
+
+  const passwordHash = hashPassword(password);
+  await prisma.adminUser.upsert({
+    where: { email },
+    update: { passwordHash, role: role as 'SUPER_ADMIN' | 'ADMIN' | 'EDITOR' | 'VIEWER', isActive: true },
+    create: { email, name: email.split('@')[0], passwordHash, role: role as 'SUPER_ADMIN' | 'ADMIN' | 'EDITOR' | 'VIEWER', isActive: true },
+  });
+  console.log(`✓ Admin provisioned from env: ${email} (${role})`);
+}
+
 async function main() {
   console.log('🌱 Seeding BaliWild database...\n');
 
@@ -402,6 +462,7 @@ async function main() {
   await seedVehicleClasses();
   await seedVentures(tenant.id, locationIds, zoneIds);
   await seedCoupons();
+  await seedAdminFromEnv();
 
   console.log('\n✅ Seed completed successfully.');
   console.log(`   Categories covered: ${CATALOGUE_CATEGORIES.join(', ')}`);

@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const rows = await prisma.venture.findMany({
-      include: ventureWithRelations,
+      include: ventureWithRelations(),
       orderBy: [{ rating: 'desc' }, { title: 'asc' }],
     });
     ventures = rows.map(toVentureItem);
@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
         tenantId: tenant.id,
         locationId: data.locationId ?? null,
       },
-      include: ventureWithRelations,
+      include: ventureWithRelations(),
     });
 
     return NextResponse.json(

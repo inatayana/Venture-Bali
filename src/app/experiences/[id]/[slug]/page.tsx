@@ -30,7 +30,7 @@ async function getExperience(id: string, slug: string): Promise<VentureItem | nu
   try {
     const venture = await prisma.venture.findFirst({
       where: { OR: [{ id }, { slug }] },
-      include: ventureWithRelations,
+      include: ventureWithRelations(),
     });
     return venture ? toVentureItem(venture) : null;
   } catch (error) {
@@ -78,7 +78,7 @@ async function getRelated(venture: VentureItem, take = 3): Promise<VentureItem[]
   try {
     const sameCategory = await prisma.venture.findMany({
       where: { category: venture.category, id: { not: venture.id } },
-      include: ventureWithRelations,
+      include: ventureWithRelations(),
       orderBy: { rating: 'desc' },
       take,
     });
@@ -89,7 +89,7 @@ async function getRelated(venture: VentureItem, take = 3): Promise<VentureItem[]
     const excludeIds = [venture.id, ...sameCategory.map((item) => item.id)];
     const fillers = await prisma.venture.findMany({
       where: { id: { notIn: excludeIds } },
-      include: ventureWithRelations,
+      include: ventureWithRelations(),
       orderBy: { rating: 'desc' },
       take: take - sameCategory.length,
     });

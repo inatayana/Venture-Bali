@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { CalendarDays, Check, Clock, ImageIcon, MapPin } from 'lucide-react';
 import { formatPrice } from '@/lib/i18n';
 import { getVariantPickupDisplay, getVariantPriceDisplay } from '@/lib/variantDisplay';
+import { demandBadgeIsHot, demandBadgeLabel } from '@/lib/demand';
 import type { Variant } from '@/types/venture';
 import { cn } from '@/utils/cn';
 import { PriceApprox } from '@/components/currency/PriceApprox';
@@ -39,6 +40,17 @@ export function VariantCatalogCard({
   const pickup = getVariantPickupDisplay(variant);
   const inclusions = variant.inclusions ?? [];
   const addonCount = variant.addons?.length ?? 0;
+  const demandLabel = demandBadgeLabel(variant.bookedLast48h);
+  const demandHot = demandBadgeIsHot(variant.bookedLast48h);
+  const isAgeTiered = (variant.priceTiers ?? []).some(
+    (tier) => tier.pricingModel === 'AGE_TIERED'
+  );
+  const kidsFromPrice = isAgeTiered
+    ? Math.min(...(variant.priceTiers ?? []).map((tier) => tier.kidsPricePerPax ?? tier.pricePerPax))
+    : null;
+  const youthFromPrice = isAgeTiered
+    ? Math.min(...(variant.priceTiers ?? []).map((tier) => tier.youthPricePerPax ?? tier.pricePerPax))
+    : null;
   const openDetails = onOpenDetails ?? onSelect;
   const imageUrl = variant.imageUrl ?? fallbackImageUrl;
 
@@ -117,6 +129,17 @@ export function VariantCatalogCard({
                 {inclusions.length} included
               </span>
             )}
+            {demandLabel && (
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold',
+                  demandHot ? 'bg-brand/25 text-neutral-900' : 'bg-neutral-100 text-neutral-700'
+                )}
+                title="Real paid bookings for this package"
+              >
+                {demandLabel}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -139,6 +162,14 @@ export function VariantCatalogCard({
             )}
           </div>
           <PriceApprox amountIdr={priceIdr} suffix=" / guest" className="mt-0.5 block" />
+          {promoPriceIdr !== null && variant.promoLabel && (
+            <p className="mt-0.5 text-xs font-semibold text-green-700">{variant.promoLabel}</p>
+          )}
+          {isAgeTiered && kidsFromPrice !== null && (
+            <p className="mt-0.5 text-xs text-neutral-600">
+              Kids from {formatPrice(kidsFromPrice)} · Youth from {formatPrice(youthFromPrice ?? 0)}
+            </p>
+          )}
           <p className="text-xs text-neutral-500">
             {variant.minimumSpendIdr ? (
               <>Minimum {formatPrice(variant.minimumSpendIdr)} to book</>

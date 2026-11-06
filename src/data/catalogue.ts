@@ -1,4 +1,4 @@
-/**
+﻿/**
  * BaliWild — Master Product Catalogue
  * ---------------------------------------
  * The single source of truth for the demo catalogue: 9 ventures (one per
@@ -56,35 +56,42 @@ export const TENANT_DOMAIN = 'baliwild.com';
 export const TENANT_NAME = 'BaliWild';
 export const TENANT_THEME = '#000000';
 
-// Pickup zones — surcharge applies when the pickup zone differs from the
-// activity zone. Zone 1 (core Bali) and the Nusa Dua / Ubud corridor are
-// surcharge-free (see BOOKING_ARCHITECTURE.md §3).
+// Pickup zones.
+// `surchargeIdr`      — Charter price PER VEHICLE for PRIVATE_TRANSFER
+//                       (driver + fuel; BaliWild field rate: Ubud 500K).
+// `surchargePerPaxIdr`— fee PER PERSON for SHARED_TRANSFER shuttles
+//                       (0 = included; South zones 224K / 320K per guest).
+// Core Area and South zones are bookable; Outer is disabled (custom quote only).
 export const PICKUP_ZONES = [
   {
     name: 'Core Area — Ubud & Gianyar',
     areaType: 'ZONE_1' as const,
-    surchargeIdr: 0,
+    surchargeIdr: 500000,
+    surchargePerPaxIdr: 0,
     isCustomQuote: false,
     vehicleMaxPax: 6,
   },
   {
-    name: 'South 1 — Kuta, Seminyak, Canggu, Sanur',
+    name: 'South Zone 1 — Kuta, Seminyak, Canggu, Sanur',
     areaType: 'ZONE_2' as const,
-    surchargeIdr: 224000,
+    surchargeIdr: 700000,
+    surchargePerPaxIdr: 224000,
     isCustomQuote: false,
     vehicleMaxPax: 6,
   },
   {
-    name: 'South 2 — Nusa Dua, Jimbaran, Uluwatu',
+    name: 'South Zone 2 — Nusa Dua, Jimbaran, Uluwatu',
     areaType: 'ZONE_3' as const,
-    surchargeIdr: 320000,
+    surchargeIdr: 800000,
+    surchargePerPaxIdr: 320000,
     isCustomQuote: false,
     vehicleMaxPax: 6,
   },
   {
-    name: 'Outer — Amed, Lovina, Pemuteran, Tulamben',
+    name: 'Outer Area — Amed, Lovina, Pemuteran, Tulamben',
     areaType: 'ZONE_4' as const,
     surchargeIdr: 0,
+    surchargePerPaxIdr: 0,
     isCustomQuote: true,
     vehicleMaxPax: 6,
   },
@@ -93,26 +100,28 @@ export const PICKUP_ZONES = [
 export const VEHICLE_CLASSES = [
   {
     name: 'STANDARD_SUV' as const,
-    label: 'Standard SUV · up to 4 pax',
-    description: 'Compact SUV, comfortable for small groups',
-    vehicleMaxPax: 4,
+    label: 'Standard SUV · up to 5 pax',
+    description: 'Avanza/Xenia, comfortable for small groups',
+    vehicleMaxPax: 5,
     deltaIdr: 0,
     sortOrder: 1,
   },
   {
     name: 'PREMIUM_MPV' as const,
-    label: 'Premium MPV · up to 6 pax',
-    description: 'Spacious MPV with extra legroom',
+    label: 'Premium MPV (Toyota Innova) · up to 6 pax',
+    description:
+      'Toyota Innova charter — the delta is the charter DIFFERENCE vs the standard SUV (carter 1.000.000 − 500.000).',
     vehicleMaxPax: 6,
-    deltaIdr: 100000,
+    deltaIdr: 500000,
     sortOrder: 2,
   },
   {
     name: 'MINIVAN' as const,
-    label: 'Minivan · up to 12 pax',
-    description: 'Large minivan for groups',
-    vehicleMaxPax: 12,
-    deltaIdr: 250000,
+    label: 'Minivan HIACE · up to 14 pax',
+    description:
+      'HIACE charter for large groups — delta = charter difference vs the standard SUV (carter 1.200.000 − 500.000).',
+    vehicleMaxPax: 14,
+    deltaIdr: 700000,
     sortOrder: 3,
   },
 ];
@@ -355,7 +364,14 @@ export const COUPONS: CouponSeed[] = [
 
 // ============ TYPE HELPERS ============
 
-export type PriceTierSeed = { minPax: number; maxPax: number; pricePerPax: number };
+export type PriceTierSeed = {
+  minPax: number;
+  maxPax: number;
+  pricePerPax: number;
+  pricingModel?: 'FLAT_PER_GUEST' | 'AGE_TIERED';
+  kidsPricePerPax?: number;
+  youthPricePerPax?: number;
+};
 
 export type AddonSeed = {
   name: string;
@@ -570,10 +586,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Ride the ATV yourself and meet directly at the trail head',
         badge: null,
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 550000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 450000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 420000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 380000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 550000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 450000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 420000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 380000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: ['2026-12-25'],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH, ADDON_HOT_SPRING],
@@ -583,10 +599,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Hotel pickup and drop-off included, meet at your hotel',
         badge: 'Most Popular',
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 750000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 650000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 620000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 580000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 750000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 650000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 620000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 580000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: ['2026-12-25'],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH, ADDON_HOT_SPRING, ADDON_RAFTING_COMBO, ADDON_TUBING_COMBO, ADDON_BUFFET],
@@ -660,10 +676,10 @@ export const VENTURES: VentureSeed[] = [
         duration: '3 hours',
         fulfillmentMode: 'SELF_DRIVE',
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 450000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 400000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 375000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 350000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 450000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 400000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 375000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 350000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
@@ -680,10 +696,10 @@ export const VENTURES: VentureSeed[] = [
         pickupZoneAreaType: 'ZONE_1',
         operationNotes: 'Shared shuttle departs from Ubud & Gianyar hotels at a fixed time',
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 450000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 400000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 375000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 350000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 450000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 400000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 375000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 350000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
@@ -700,10 +716,10 @@ export const VENTURES: VentureSeed[] = [
         pickupZoneAreaType: 'ZONE_2',
         operationNotes: 'South Bali pickup adds Rp 224.000 per guest, charged once at checkout',
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 450000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 400000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 375000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 350000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 450000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 400000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 375000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 350000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
@@ -720,10 +736,10 @@ export const VENTURES: VentureSeed[] = [
         pickupZoneAreaType: 'ZONE_1',
         operationNotes: 'Private vehicle class is selected at checkout',
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 650000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 600000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 575000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 550000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 650000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 600000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 575000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 550000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH, ADDON_BUFFET],
@@ -740,10 +756,10 @@ export const VENTURES: VentureSeed[] = [
         pickupZoneAreaType: 'ZONE_2',
         operationNotes: 'South Bali pickup adds Rp 224.000 per vehicle, charged once at checkout',
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 650000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 600000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 575000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 550000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 650000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 600000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 575000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 550000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH, ADDON_BUFFET],
@@ -824,10 +840,10 @@ export const VENTURES: VentureSeed[] = [
         sortOrder: 1,
         slots: toSlots(TUBING_SLOTS.THREE_HOURS),
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 450000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 400000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 380000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 350000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 450000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 400000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 380000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 350000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY],
@@ -847,10 +863,10 @@ export const VENTURES: VentureSeed[] = [
         sortOrder: 2,
         slots: toSlots(TUBING_SLOTS.FOUR_HOURS),
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 650000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 600000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 580000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 550000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 650000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 600000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 580000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 550000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY],
@@ -871,10 +887,10 @@ export const VENTURES: VentureSeed[] = [
         sortOrder: 3,
         slots: toSlots(TUBING_SLOTS.FOUR_HOURS),
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 850000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 800000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 780000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 750000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 850000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 800000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 780000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 750000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_BUFFET],
@@ -894,10 +910,10 @@ export const VENTURES: VentureSeed[] = [
         sortOrder: 4,
         slots: toSlots(TUBING_SLOTS.SIX_HOURS),
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 950000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 900000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 880000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 850000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 950000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 900000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 880000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 850000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY],
@@ -967,10 +983,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Meet at the hill start point and cycle independently with a guide',
         badge: null,
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 500000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 450000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 420000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 390000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 500000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 450000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 420000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 390000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
@@ -980,10 +996,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Hotel pickup, bike fitting support and drop-off at the beach',
         badge: 'Most Popular',
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 700000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 650000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 620000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 590000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 700000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 650000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 620000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 590000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH, ADDON_BUFFET],
@@ -1054,10 +1070,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Drive to the trail head yourself and join the guided ascent',
         badge: null,
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 800000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 650000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 600000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 550000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 800000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 650000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 600000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 550000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: ['2026-12-31'],
         addons: [ADDON_PHOTOGRAPHY, ADDON_HOT_SPRING],
@@ -1067,10 +1083,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Early morning hotel pickup and return transfer included',
         badge: 'Most Popular',
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 950000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 800000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 750000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 700000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 950000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 800000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 750000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 700000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: ['2026-12-31'],
         addons: [ADDON_PHOTOGRAPHY, ADDON_HOT_SPRING, ADDON_BUFFET],
@@ -1140,10 +1156,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Arrive at the lagoon and meet the water sports team',
         badge: null,
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 600000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 550000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 520000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 480000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 600000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 550000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 520000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 480000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
@@ -1153,10 +1169,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Hotel pickup and drop-off included',
         badge: null,
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 800000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 750000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 720000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 680000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 800000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 750000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 720000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 680000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH, ADDON_BUFFET],
@@ -1228,10 +1244,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Meet at Sanur harbour and board the boat there',
         badge: null,
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 1050000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 850000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 780000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 720000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 1050000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 850000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 780000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 720000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
@@ -1241,10 +1257,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Hotel pickup and return transfer included',
         badge: 'Most Popular',
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 1200000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 1000000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 930000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 870000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 1200000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 1000000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 930000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 870000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH, ADDON_BUFFET],
@@ -1314,10 +1330,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Meet at the canyon entrance and gear up on site',
         badge: null,
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 750000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 680000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 640000 },
-          { minPax: 5, maxPax: 8, pricePerPax: 600000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 750000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 680000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 640000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 8, pricePerPax: 600000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
@@ -1327,10 +1343,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Hotel pickup, gear fitting and return transfer included',
         badge: null,
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 950000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 880000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 840000 },
-          { minPax: 5, maxPax: 8, pricePerPax: 800000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 950000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 880000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 840000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 8, pricePerPax: 800000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: [],
         addons: [ADDON_PHOTOGRAPHY, ADDON_LUNCH],
@@ -1401,10 +1417,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Meet at the ATV trail head, transfers between activities included',
         badge: null,
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 1250000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 1150000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 1100000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 1050000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 1250000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 1150000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 1100000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 1050000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: ['2026-12-25'],
         addons: [ADDON_PHOTOGRAPHY, ADDON_HOT_SPRING],
@@ -1414,10 +1430,10 @@ export const VENTURES: VentureSeed[] = [
         shortDescription: 'Full hotel pickup and drop-off for the entire day',
         badge: 'Best Value',
         priceTiers: [
-          { minPax: 1, maxPax: 1, pricePerPax: 1450000 },
-          { minPax: 2, maxPax: 2, pricePerPax: 1350000 },
-          { minPax: 3, maxPax: 4, pricePerPax: 1300000 },
-          { minPax: 5, maxPax: 10, pricePerPax: 1250000 },
+          { minPax: 1, maxPax: 1, pricePerPax: 1450000, pricingModel: 'AGE_TIERED' },
+          { minPax: 2, maxPax: 2, pricePerPax: 1350000, pricingModel: 'AGE_TIERED' },
+          { minPax: 3, maxPax: 4, pricePerPax: 1300000, pricingModel: 'AGE_TIERED' },
+          { minPax: 5, maxPax: 10, pricePerPax: 1250000, pricingModel: 'AGE_TIERED' },
         ],
         blackoutDates: ['2026-12-25'],
         addons: [ADDON_PHOTOGRAPHY, ADDON_HOT_SPRING, ADDON_BUFFET],

@@ -1,8 +1,10 @@
 # BaliWild — Booking Architecture
 
-> **Version:** 1.2.0
+> **Version:** 1.5.0
 > **Status:** MUST FOLLOW for booking flow, pricing, and checkout logic.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §2)
+> **Changelog v1.5.0 (2026-11-06):** Cut-off slot bisa diatur per slot (`SlotTime.cutoffHours`); NULL = aturan mode (SELF_DRIVE 2h, transfer H-1 22:00 WITA). Admin panel /admin/ventures/[id] mengeditnya.
+> **Changelog v1.4.0 (2026-11-05):** Zona punya DUA harga yang terpisah — `surchargeIdr` = charter per kendaraan (PRIVATE), `surchargePerPaxIdr` = fee per orang (SHARED). Delta kelas kendaraan = selisih carter vs standar, bukan carter penuh.
 > **Changelog v1.2.0 (2026-10-31):** Tambah mode `SHARED_TRANSFER`, promo price + coupon (no stacking), night surcharge ≥19:00, hotel address / TBA wajib untuk semua mode transfer.
 > **Changelog v1.1.0:** Tambah dimensi kelas kendaraan (VehicleClass) untuk PRIVATE_TRANSFER + aturan combo add-on dependen transfer (Klook-style configurator).
 
@@ -12,15 +14,18 @@ DILARANG membuat produk (SKU) terpisah untuk pickup dan non-pickup. Setiap produ
 
 ### Zone-locked packages (v1.3.0)
 - Varian boleh menyimpan `pickupZoneId` untuk mengunci area pickup, mis. "South Bali: Shared Pickup" → Zone 2.
-- Efeknya: sheet booking otomatis memilih zona itu (`config.zoneId`), menampilkan baris zona read-only (nama + surcharge) dan tetap memberi tombol **Change** kalau tamu menginap di area lain.
-- **Surcharge tetap dihitung sekali** oleh `computeQuote` (shared: per pax, private: per kendaraan). Harga tier **tidak** boleh sudah memasukkan surcharge — kalau dimasukkan, terjadi double charge.
-- Kartu paket menampilkan ringkasan pickup (`Ubud · Pickup included`, `South Bali · +Rp 224.000/guest`), sehingga selisih harga antar area transparan sebelum checkout.
+- Efeknya: sheet booking otomatis memilih zona itu (`config.zoneId`), menampilkan baris zona read-only (nama + fee) dan tetap memberi tombol **Change** kalau tamu menginap di area lain.
+- **Fee tetap dihitung sekali** oleh `computeQuote` dan mode menentukan angkanya:
+  - **SHARED** membaca `zone.surchargePerPaxIdr` (fee per orang).
+  - **PRIVATE** membaca `zone.surchargeIdr` (charter per kendaraan) + delta kelas.
+  - Mesin TIDAK PERNAH mencampur dua angka ini. Harga tier `pricePerPax` juga **tidak boleh** sudah memuat fee zona — kalau dimasukkan, terjadi double charge.
+- Kartu paket menampilkan ringkasan pickup dengan label yang benar (`Ubud · Pickup included`, `South Bali · +Rp 224.000/guest` untuk shared, `+Rp 500.000/vehicle` untuk private).
 - Admin dapat mengelola ini lewat CRUD paket (mode + locked zone + price tier) di `/admin/ventures/[id]`; paket dengan booking tidak bisa dihapus.
 
 | | SELF DRIVE (default) | SHARED TRANSFER | PRIVATE TRANSFER |
 |---|---|---|---|
 | Cara datang | Meet at activity location | Hotel shuttle pool (shared) | Private hotel pickup & drop-off |
-| Harga | Base price | Base price + zone surcharge **per pax** | Base price + (zone surcharge + vehicle delta) **per vehicle** |
+| Harga | Base price | Base price + zone fares `surchargePerPaxIdr` **per pax** | Base price + (zone charter `surchargeIdr` + vehicle delta) **per vehicle** |
 | Vehicle class | — | Tidak dipakai (ditolak server) | Wajib (SUV / MPV / Minivan) |
 | Cut-off | H-2 jam sebelum mulai | H-1 / 22:00 WITA | H-1 / 22:00 WITA |
 | Booking | Instant | Instant + pickup schedule | Instant + pickup schedule |
@@ -37,7 +42,7 @@ Discount     = (tier.pricePerPax − UnitPrice) × Pax        // promo
              + round(Subtotal × coupon.discountPercent/100) // coupon, HANYA jika promo tidak aktif
 NightFee     = slot.time ≥ 19:00 WITA ? 50.000 × Pax : 0
 Transfer     = SELF_DRIVE   → 0
-             | SHARED      → zone.surchargeIdr × Pax
+             | SHARED      → zone.surchargePerPaxIdr × Pax        (fee kursi shuttle per orang)
              | PRIVATE     → (zone.surchargeIdr + vehicle delta) × ceil(Pax / vehicleMaxPax)
 Addons       = Σ addon.price × Pax
 ── Final Price (IDR) = Subtotal − CouponDiscount + NightFee + Transfer + Addons
@@ -46,6 +51,7 @@ Addons       = Σ addon.price × Pax
 - Semua harga disimpan sebagai **IDR integer** (tanpa sen) — Midtrans menagih IDR.
 - **USD hanya display** melalui `src/lib/fx.ts` (estimasi konversi, bukan harga tagihan).
 - Base price berasal dari `PriceTier.pricePerPax` sesuai pax (tier lookup).
+- Harga SHARED per orang dihitung **per grup pemesan** (tier varian), bukan per kursi terisi nyata — dua grup berbeda naik shuttle yang sama tetap masing-masing membayar tarif kursinya. Keputusan bisnis ini dipegang di data, bukan mesin.
 - **Promo dan coupon TIDAK PERNAH menumpuk.** Coupon yang dikirim saat promo aktif ditolak `COUPON_NOT_APPLICABLE_ON_PROMO`.
 - Discount & surcharge disnapshot ke `Booking.discountIdr`, `Booking.appliedCouponCode`, `Booking.nightSurchargeIdr` agar bisa diaudit setelah promo berakhir.
 - Harga WAJIB dihitung ulang di server saat checkout (`computeQuote` di `src/lib/pricing.ts`) — total dari client tidak dipercaya.
@@ -57,19 +63,47 @@ Addons       = Σ addon.price × Pax
 - Add-on non-transfer (mis. Photographer) tetap tersedia di semua mode.
 - Validasi server: payload yang memuat add-on `requiresTransfer` tanpa mode transfer → ditolak (400).
 
-## 3. Zone Surcharge Matrix (per vehicle)
+## 3. Zone Pricing Matrix (dua angka per zona)
 
-| Zone | Area | USD | IDR (rate 16.000) |
-|------|------|-----|-------------------|
-| Zone 1 | Core Area — Ubud/Gianyar | $0 | Rp 0 (included) |
-| Zone 2 | South 1 — Kuta, Seminyak, Canggu, Sanur | $14 | Rp 224.000 |
-| Zone 3 | South 2 — Nusa Dua, Jimbaran, Uluwatu | $20 | Rp 320.000 |
+Setiap zona menyimpan dua harga yang berbeda dan dipakai oleh mode yang berbeda — **jangan pernah dicampur**:
+
+| Zone | Area | Charter per kendaraan `surchargeIdr` (PRIVATE) | Fee per orang `surchargePerPaxIdr` (SHARED) |
+|------|------|-----------------------------------------------|---------------------------------------------|
+| Zone 1 | Core Area — Ubud/Gianyar | Rp 500.000 (carter) | Rp 0 (pickup included di harga tier) |
+| Zone 2 | South 1 — Kuta, Seminyak, Canggu, Sanur | Rp 700.000 | Rp 224.000 |
+| Zone 3 | South 2 — Nusa Dua, Jimbaran, Uluwatu | Rp 800.000 | Rp 320.000 |
 | Zone 4 | Outer — Amed, Lovina, Pemuteran, dst. | Custom Quote | Custom Quote |
 
-- Zone tersimpan sebagai data (`PickupZone` model), bukan hardcode — admin bisa menambah area tanpa deploy.
+- Charter per kendaraan = harga nyata operator (driver + BBM + tol) — tamu solo membayar mobil penuh; UI solo menampilkan nudge ke shared.
+- Fee per orang = tarif kursi shuttle. Mesin SHARED memakai angka ini saja; angka charter tidak pernah dibagi/ratakan ke tamu shuttle.
+- Zona tersimpan sebagai data (`PickupZone`), bukan hardcode — admin bisa menambah area tanpa deploy.
 - Zone 4 (`isCustomQuote = true`) tidak bisa di-book instant: UI menampilkan "Request Quote" (via WhatsApp + log), bukan checkout.
 
+### 3.1 Vehicle class delta = SELISIH carter (anti double-charge)
+
+`VehicleClass.deltaIdr` harus diisi **selisih carter terhadap kendaraan standar (Avanza/Xenia)**:
+
+| Kelas | Carter pasar | `deltaIdr` yang benar | Contoh total (Ubud) |
+|-------|--------------|----------------------|---------------------|
+| STANDARD_SUV | Rp 500.000 | 0 | 500.000 |
+| PREMIUM_MPV (Innova) | Rp 1.000.000 | Rp 500.000 | 500K charter + 500K delta = 1.000.000 |
+| MINIVAN (HIACE 15 seat) | Rp 1.200.000 | Rp 700.000 | 500K charter + 700K delta = 1.200.000 |
+
+Admin yang memasukkan **carter penuh** ke `deltaIdr` membuat tamu membayar kendaraan dasar dua kali — dilarang. Screen admin menuntinggalkan hint "selisih carter"; upgrade dijual per kendaraan (mengganti kelas), bukan per orang.
+
 ## 4. Cut-off Rules (WITA, UTC+8)
+
+Per-slot override takes precedence over the mode default (`SlotTime.cutoffHours`, NULL = mode default):
+
+| Slot `cutoffHours` | Artinya |
+|---|---|
+| NULL | Mode default (tabel di bawah) |
+| 5 | Bookable sampai 5 jam sebelum jam keberangkatan |
+| 0 | Bookable sampai saat slot dimulai |
+
+Admin Panel (`/admin/ventures/[id]` → daftar departure) mengelola ini per slot. Engine menghormatinya di client widget, server booking service, reschedule endpoint, dan VentureExplorer (listing filter).
+
+Mode default (kalau `cutoffHours` = NULL):
 
 | Mode | Cut-off | Artinya |
 |------|---------|---------|

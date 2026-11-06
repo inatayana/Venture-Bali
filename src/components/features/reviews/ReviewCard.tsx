@@ -12,30 +12,13 @@ interface ReviewCardProps {
   className?: string;
 }
 
-function sourceBadge(review: ReviewSummary) {
-  if (review.isVerified) {
-    return (
-      <span className="inline-flex items-center gap-0.5 rounded-full bg-green-50 px-1.5 py-0.5 text-xs font-semibold text-green-700">
-        <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
-        Verified trip
-      </span>
-    );
-  }
-  if (review.source === 'FOUNDING_GUEST') {
-    return (
-      <span className="rounded-full bg-brand/30 px-1.5 py-0.5 text-xs font-semibold text-neutral-800">
-        Founding guest
-      </span>
-    );
-  }
-  if (review.source === 'IMPORTED') {
-    return (
-      <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-xs font-semibold text-neutral-700">
-        Imported review
-      </span>
-    );
-  }
-  return null;
+function sourceBadge() {
+  return (
+    <span className="inline-flex items-center gap-0.5 rounded-full bg-green-50 px-1.5 py-0.5 text-xs font-semibold text-green-700">
+      <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
+      Verified
+    </span>
+  );
 }
 
 /** Airbnb-style review row: avatar, name, country, relative date, stars and photos. */
@@ -58,7 +41,7 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
         <div className="min-w-0">
           <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm font-semibold text-neutral-900">
             <span className="truncate">{review.author}</span>
-            {sourceBadge(review)}
+            {sourceBadge()}
           </p>
           <p className="text-xs text-neutral-500">
             {[review.location ?? review.country, formatRelativeDate(review.createdAt)]

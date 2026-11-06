@@ -39,7 +39,13 @@ export default async function AdminVentureDetailPage({
     prisma.pickupZone.findMany({
       where: { isActive: true },
       orderBy: { areaType: 'asc' },
-      select: { id: true, name: true, surchargeIdr: true, isCustomQuote: true },
+      select: {
+        id: true,
+        name: true,
+        surchargeIdr: true,
+        surchargePerPaxIdr: true,
+        isCustomQuote: true,
+      },
     }),
   ]);
 
@@ -115,6 +121,7 @@ export default async function AdminVentureDetailPage({
                 maxCapacity: slot.maxCapacity,
                 currentBookings: slot.currentBookings,
                 isAvailable: slot.isAvailable,
+                cutoffHours: slot.cutoffHours ?? null,
               })),
             }}
             headerAction={
@@ -132,8 +139,15 @@ export default async function AdminVentureDetailPage({
                   badge: variant.badge,
                   transportBadge: variant.transportBadge,
                   minimumSpendIdr: variant.minimumSpendIdr,
+                  promoPriceIdr: variant.promoPriceIdr,
+                  promoLabel: variant.promoLabel,
+                  promoStartsAt: variant.promoStartsAt?.toISOString() ?? null,
+                  promoEndsAt: variant.promoEndsAt?.toISOString() ?? null,
+                  infantEnabled: variant.infantEnabled,
                   sortOrder: variant.sortOrder,
                   imageUrl: variant.imageUrl,
+                  inclusions: asStringArray(variant.inclusions),
+                  exclusions: asStringArray(variant.exclusions),
                   priceTiers: variant.priceTiers.map((tier) => ({
                     minPax: tier.minPax,
                     maxPax: tier.maxPax,

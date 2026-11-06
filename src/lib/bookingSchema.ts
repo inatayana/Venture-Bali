@@ -27,6 +27,13 @@ export const bookingSchema = z
       .regex(/^[A-Z0-9]{3,24}$/, 'Invalid coupon code')
       .optional(),
     paxCount: z.number().int().min(1, 'At least 1 participant required').max(10, 'Maximum 10 guests per booking'),
+    /** Age breakdown. Optional for legacy clients — when any count is sent the
+     *  total must add up to paxCount and at least one adult must join. */
+    adultsCount: z.number().int().min(0).max(10).optional(),
+    kidsCount: z.number().int().min(0).max(10).optional(),
+    youthCount: z.number().int().min(0).max(10).optional(),
+    /** Infants (0-2) ride free when the package allows them — never counted. */
+    infantCount: z.number().int().min(0).max(10).optional(),
     selectedAddons: z.array(z.string()).default([]),
     customerName: z.string().trim().min(2, 'Name must be at least 2 characters').max(120),
     customerEmail: z.string().trim().email('Invalid email format').max(320),
@@ -42,6 +49,28 @@ export const bookingSchema = z
   })
   .superRefine((value, ctx) => {
     const needsPickup = value.fulfillmentMode !== 'SELF_DRIVE';
+
+    // Age invariant — enforced only when a breakdown was actually sent, so
+    // legacy single-number payloads keep working.
+    const breakdownProvided =
+      value.adultsCount !== undefined || value.kidsCount !== undefined || value.youthCount !== undefined;
+    if (breakdownProvided) {
+      const sum = (value.adultsCount ?? 0) + (value.kidsCount ?? 0) + (value.youthCount ?? 0);
+      if (sum !== value.paxCount) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['paxCount'],
+          message: 'Adults + kids + youth must add up to the total guests',
+        });
+      }
+      if ((value.adultsCount ?? 0) < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['adultsCount'],
+          message: 'At least 1 adult (17+) is required',
+        });
+      }
+    }
 
     if (needsPickup && !value.pickupZoneId) {
       ctx.addIssue({

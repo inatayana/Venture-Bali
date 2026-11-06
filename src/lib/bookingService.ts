@@ -118,7 +118,7 @@ async function createBookingInTransaction(
     throw new BookingServiceError('VALIDATION_ERROR', 'Some selected add-ons require a transfer package');
   }
 
-  if (!isSlotBookable(input.bookingDate, slot.time, input.fulfillmentMode, new Date())) {
+  if (!isSlotBookable(input.bookingDate, slot.time, input.fulfillmentMode, new Date(), slot.cutoffHours)) {
     throw new BookingServiceError('CUT_OFF', 'Booking cut-off has passed for this slot');
   }
 
@@ -143,6 +143,9 @@ async function createBookingInTransaction(
     priceTiers: variant.priceTiers,
     paxCount: input.paxCount,
     fulfillmentMode: input.fulfillmentMode,
+    adultsCount: input.adultsCount,
+    kidsCount: input.kidsCount,
+    youthCount: input.youthCount,
     promoPriceIdr: variant.promoPriceIdr,
     coupon,
     minimumSpendIdr: variant.minimumSpendIdr,
@@ -187,6 +190,10 @@ async function createBookingInTransaction(
       hotelAddress: input.isTba ? null : input.hotelAddress,
       isTba: input.isTba,
       paxCount: input.paxCount,
+      adultsCount: input.adultsCount,
+      kidsCount: input.kidsCount,
+      youthCount: input.youthCount,
+      infantCount: input.infantCount ?? 0,
       vehicleCount: breakdown.transfer.vehicleCount,
       zoneSurchargeIdr: breakdown.transfer.totalFeeIdr,
       nightSurchargeIdr: breakdown.nightSurchargeIdr,
@@ -200,6 +207,7 @@ async function createBookingInTransaction(
       termsAcceptedAt: new Date(),
       waiverAcceptedAt: new Date(),
       waiverVersion: WAIVER_VERSION,
+      tenantId: venture.tenantId,
       ...(input.billingAddress
         ? { billingAddress: input.billingAddress as unknown as Prisma.InputJsonValue }
         : {}),

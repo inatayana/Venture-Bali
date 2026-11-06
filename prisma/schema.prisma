@@ -8,12 +8,602 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ============ ENUMS ============
+model Tenant {
+  id         String    @id @default(cuid())
+  domain     String    @unique
+  name       String
+  themeColor String    @default("#000000")
+  logoUrl    String?
+  isActive   Boolean   @default(true)
+  config     Json?     // Brand configuration (validated by BrandConfigSchema)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  ventures   Venture[]
+  bookings   Booking[]
+  payments   Payment[]
+  reviews    Review[]
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         AdminRole @default(EDITOR)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Location {
+  id        String    @id @default(cuid())
+  name      String
+  region    String
+  /// Nullable: desa-level locations are created from the admin area cascade
+  /// without coordinates; precise coordinates live on Venture.meetingPoint*.
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  desa      String?
+  kabupaten String?
+  kecamatan String?
+  provinsi  String    @default("Bali")
+  ventures  Venture[]
+
+  @@index([name])
+  @@index([region])
+  @@index([kabupaten])
+}
+
+model Vendor {
+  id           String    @id @default(cuid())
+  code         String    @unique
+  name         String
+  activityType String
+  meetingPoint String?
+  mapsUrl      String?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  variants     Variant[] @relation("VendorToVariant")
+
+  @@index([code])
+  @@index([activityType])
+}
+
+model PickupZone {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  areaType      PickupZoneType
+  /// Charter price per VEHICLE for PRIVATE_TRANSFER (carter: driver + fuel).
+  surchargeIdr  Int            @default(0)
+  /// Fee per PERSON for SHARED_TRANSFER shuttle seats (legacy per-pax model).
+  surchargePerPaxIdr Int       @default(0)
+  isCustomQuote Boolean        @default(false)
+  vehicleMaxPax Int            @default(4)
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bookings      Booking[]
+  variants      Variant[]      @relation("PickupZoneToVariant")
+
+  @@index([areaType])
+  @@index([isActive])
+}
+
+model VehicleClass {
+  id            String           @id @default(cuid())
+  name          VehicleClassType @unique
+  label         String
+  description   String?
+  vehicleMaxPax Int              @default(4)
+  deltaIdr      Int              @default(0)
+  sortOrder     Int              @default(0)
+  isActive      Boolean          @default(true)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  bookings      Booking[]
+
+  @@index([isActive])
+}
+
+model Customer {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  countryCode   String
+  whatsapp      String
+  totalBookings Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  bookings      Booking[]
+  reviews       Review[]
+
+  @@index([email])
+  @@index([name])
+}
+
+model Venture {
+  id                  String         @id @default(cuid())
+  slug                String         @unique
+  tenantId            String
+  locationId          String?
+  title               String
+  hook3Sec            String
+  shortDescription    String?
+  duration            String
+  badge               String?
+  highlights          Json
+  inclusions          Json
+  exclusions          Json
+  itinerary           Json
+  essentialInfo       Json
+  faqs                Json           @default("[]")
+  languages           Json
+  category            String
+  subcategory         String?
+  primaryKeyword      String?
+  secondaryKeywords   Json           @default("[]")
+  searchTags          Json           @default("[]")
+  difficulty          Difficulty     @default(EASY)
+  suitableFor         Json           @default("[]")
+  imageUrl            String
+  gallery             Json
+  videoUrl            String?
+  rating              Float          @default(5.0)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  /// Where guests meet for SELF_DRIVE packages.
+  meetingPoint        String?
+  meetingPointLat     Float?
+  meetingPointLng     Float?
+  /// Structured safety requirements shown on the product page.
+  minAge              Int?
+  maxWeightKg         Int?
+  safetyBriefing      String?
+  /// Long-form "about + what to expect + what you get + what we expect" copy.
+  /// Used by the product page's collapsible description; short copy stays for cards/meta.
+  longDescription     String?
+  meetingPointMapsUrl String?
+  articles            Article[]      @relation("VentureToArticle")
+  mediaAssets         MediaAsset[]   @relation("VentureToMediaAsset")
+  reviews             Review[]       @relation("VentureToReview")
+  reviewInvites       ReviewInvite[] @relation("VentureToReviewInvite")
+  variants            Variant[]      @relation("VentureToVariant")
+  location            Location?      @relation(fields: [locationId], references: [id])
+  tenant              Tenant         @relation(fields: [tenantId], references: [id])
+
+  @@index([slug])
+  @@index([tenantId])
+  @@index([locationId])
+  @@index([category])
+  @@index([difficulty])
+  @@index([rating])
+}
+
+model ReviewInvite {
+  id               String             @id @default(cuid())
+  ventureId        String
+  /// Optional admin label to keep track of who received which link.
+  guestName        String?
+  guestCountryCode String?
+  status           ReviewInviteStatus @default(UNUSED)
+  expiresAt        DateTime
+  submittedAt      DateTime?
+  createdBy        String?
+  createdAt        DateTime           @default(now())
+  review           Review?
+  venture          Venture            @relation("VentureToReviewInvite", fields: [ventureId], references: [id], onDelete: Cascade)
+
+  @@index([ventureId, status])
+  @@index([expiresAt])
+}
+
+model Variant {
+  id               String          @id @default(cuid())
+  ventureId        String
+  title            String
+  shortDescription String
+  badge            String?
+  blackoutDates    Json
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  /// Zone-locked pickup. When set, the package already sells pickup from this
+  /// zone: the booking sheet preselects and locks it, and the zone surcharge is
+  /// still applied once by the pricing engine (never baked into the tier price).
+  pickupZoneId     String?
+  /// Transport / tier badge shown on the catalogue card (📍 / 🚐 / 🚗 / 🏛️).
+  transportBadge   String?
+  /// Human-readable duration for this variant, e.g. "3 hrs".
+  duration         String?
+  /// Fulfillment mode this variant sells. The UI derives pickup steps from it.
+  fulfillmentMode  FulfillmentMode @default(SELF_DRIVE)
+  /// List price per pax is stored in PriceTier; this is the active promo price (IDR).
+  /// When set (and lower than the tier price) the UI renders a strikethrough price.
+  promoPriceIdr    Int?
+  /// Operational notes shown under the price, e.g. "After 7 PM: +Rp50.000/pax".
+  operationNotes   String?
+  sortOrder        Int             @default(0)
+  /// Optional image used by the gallery when this package is selected.
+  imageUrl         String?
+  /// Package-level inclusions/exclusions; empty falls back to the venture lists.
+  inclusions       Json            @default("[]")
+  exclusions       Json            @default("[]")
+  /// Optional minimum spend for this package (IDR). Enforced by computeQuote.
+  minimumSpendIdr  Int?
+  /// Hidden vendor/partner that executes this variant. Not exposed to customers.
+  vendorId         String?
+  promoEndsAt      DateTime?
+  /// Optional campaign metadata for the promo price: the caption guests see
+  /// (e.g. "Promo September Ceria") and the active window. The mapper only
+  /// exposes the promo while `now` is inside the window — a promo without
+  /// dates is always active (legacy behaviour).
+  promoLabel       String?
+  promoStartsAt    DateTime?
+  /// Infants (0-2) ride free and do not count towards pax/capacity. The
+  /// toggle keeps adrenaline products honest: parents must declare them,
+  /// but they are never priced or capacity-counted unless enabled.
+  infantEnabled    Boolean         @default(false)
+  addons           Addon[]         @relation("AddonToVariant")
+  bookings         Booking[]
+  priceTiers       PriceTier[]     @relation("VariantToPriceTier")
+  slotTimes        SlotTime[]      @relation("SlotTimeToVariant")
+  pickupZone       PickupZone?     @relation("PickupZoneToVariant", fields: [pickupZoneId], references: [id])
+  vendor           Vendor?         @relation("VendorToVariant", fields: [vendorId], references: [id])
+  venture          Venture         @relation("VentureToVariant", fields: [ventureId], references: [id], onDelete: Cascade)
+
+  @@index([ventureId])
+  @@index([pickupZoneId])
+}
+
+model PriceTier {
+  id               String       @id @default(cuid())
+  minPax           Int
+  maxPax           Int
+  pricePerPax      Int
+  variantId        String
+  pricingModel     PricingModel @default(FLAT_PER_GUEST)
+  /// AGE_TIERED tiers price kids/youth flat per pax; null = charge the adult
+  /// price for that age group (owner rule: never exceed the adult price).
+  kidsPricePerPax  Int?
+  youthPricePerPax Int?
+  variant          Variant      @relation("VariantToPriceTier", fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@index([variantId])
+}
+
+model SlotTime {
+  id              String    @id @default(cuid())
+  variantId       String
+  time            String
+  maxCapacity     Int
+  currentBookings Int       @default(0)
+  isAvailable     Boolean   @default(true)
+  /// Optional per-slot cut-off: guests may book up to this many hours before
+  /// the departure. NULL falls back to the mode rule (SELF_DRIVE 2h,
+  /// transfers H-1 22:00 WITA).
+  cutoffHours     Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  bookings        Booking[]
+  variant         Variant   @relation("SlotTimeToVariant", fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@index([variantId])
+}
+
+model Addon {
+  id               String   @id @default(cuid())
+  variantId        String
+  name             String
+  price            Int
+  description      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  isCombo          Boolean  @default(false)
+  requiresTransfer Boolean  @default(false)
+  variant          Variant  @relation("AddonToVariant", fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@index([variantId])
+}
+
+model Coupon {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  label           String
+  discountPercent Int
+  minPax          Int       @default(1)
+  validFrom       DateTime?
+  validUntil      DateTime?
+  isActive        Boolean   @default(true)
+  usageLimit      Int?
+  usedCount       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([isActive])
+}
+
+model Booking {
+  id                      String           @id @default(cuid())
+  bookingCode             String           @unique
+  variantId               String
+  customerId              String
+  bookingDate             String
+  slotTimeId              String?
+  fulfillmentMode         FulfillmentMode
+  pickupZoneId            String?
+  hotelAddress            String?
+  paxCount                Int
+  vehicleCount            Int              @default(1)
+  zoneSurchargeIdr        Int              @default(0)
+  selectedAddons          Json
+  totalPrice              Int
+  paymentStatus           PaymentStatus
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  vehicleClassId          String?
+  /// True when the guest will confirm the pickup address by H-1 (TBA flow).
+  isTba                   Boolean          @default(false)
+  /// Night-slot surcharge captured at booking time (IDR).
+  nightSurchargeIdr       Int              @default(0)
+  /// Total discount captured at booking time (promo or coupon, never both).
+  discountIdr             Int              @default(0)
+  appliedCouponCode       String?
+  /// Operational lifecycle used by the field-team job order.
+  lifecycleStatus         BookingLifecycle @default(AWAITING_PAYMENT)
+  /// End of the temporary inventory hold. Null once paid or for legacy rows.
+  expiresAt               DateTime?
+  /// Legal acceptance captured at checkout (versioned for audits).
+  termsAcceptedAt         DateTime?
+  waiverAcceptedAt        DateTime?
+  waiverVersion           String?
+  billingAddress          Json?
+  /// Customer cancellation audit. The Refund row carries the money trail.
+  cancelledAt             DateTime?
+  cancellationReason      String?
+  adultsCount             Int              @default(0)
+  kidsCount               Int              @default(0)
+  waiverDigitalSignature  String?
+  waiverEmergencyContact  Json?
+  waiverHealthDeclaration Json?
+  waiverIdVerified        Boolean          @default(false)
+  waiverIpAddress         String?
+  waiverPhotoId           String?
+  waiverSignatureMethod   String?
+  waiverSignedAt          DateTime?
+  waiverSignedBy          String?
+  waiverUserAgent         String?
+  youthCount              Int              @default(0)
+  /// Infants (0-2) declared by the parent when the variant allows them.
+  /// Never counted in paxCount/capacity and never priced.
+  infantCount             Int              @default(0)
+  tenantId                String
+  tenant                  Tenant           @relation(fields: [tenantId], references: [id])
+  customer                Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  pickupZone              PickupZone?      @relation(fields: [pickupZoneId], references: [id])
+  slotTime                SlotTime?        @relation(fields: [slotTimeId], references: [id])
+  variant                 Variant          @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  vehicleClass            VehicleClass?    @relation(fields: [vehicleClassId], references: [id])
+  changes                 BookingChange[]
+  payment                 Payment?
+  refund                  Refund?
+  review                  Review?          @relation("BookingToReview")
+  vouchers                Voucher?
+
+  @@index([bookingCode])
+  @@index([variantId])
+  @@index([customerId])
+  @@index([paymentStatus])
+  @@index([fulfillmentMode])
+  @@index([pickupZoneId])
+  @@index([vehicleClassId])
+  @@index([bookingDate, lifecycleStatus])
+  @@index([paymentStatus, expiresAt])
+  @@index([tenantId])
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  bookingId       String        @unique
+  midtransOrderId String
+  snapToken       String?
+  redirectUrl     String?
+  paymentMethod   String?
+  grossAmount     Int
+  transactionTime DateTime?
+  rawResponse     Json?
+  status          PaymentStatus
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  booking         Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  tenantId        String
+  tenant          Tenant         @relation(fields: [tenantId], references: [id])
+
+  @@index([bookingId])
+  @@index([midtransOrderId])
+  @@index([status])
+  @@index([tenantId])
+}
+
+model Voucher {
+  id         String        @id @default(cuid())
+  bookingId  String        @unique
+  qrCodeData String
+  issuedAt   DateTime      @default(now())
+  redeemedAt DateTime?
+  redeemedBy String?
+  status     VoucherStatus @default(ACTIVE)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  booking    Booking       @relation(fields: [bookingId], references: [id])
+
+  @@index([bookingId])
+  @@index([status])
+}
+
+/// Money trail for a cancellation. Created when the guest cancels; processed
+/// by an admin through Midtrans or a manual bank transfer.
+model Refund {
+  id          String       @id @default(cuid())
+  bookingId   String       @unique
+  amountIdr   Int
+  feeIdr      Int          @default(0)
+  reason      String?
+  status      RefundStatus @default(PENDING)
+  method      RefundMethod @default(MIDTRANS)
+  providerRef String?
+  notes       String?
+  requestedAt DateTime     @default(now())
+  processedAt DateTime?
+  processedBy String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  booking     Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([requestedAt])
+}
+
+/// Reschedule audit trail. One row per successful move.
+model BookingChange {
+  id        String   @id @default(cuid())
+  bookingId String
+  fromDate  String
+  fromSlot  String?
+  toDate    String
+  toSlot    String?
+  changedBy String   @default("customer")
+  reason    String?
+  createdAt DateTime @default(now())
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId, createdAt])
+}
+
+model Article {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       Json
+  content     String
+  metaDesc    Json
+  keywords    Json
+  tags        Json
+  publishedAt DateTime?
+  aiGenerated Boolean   @default(false)
+  ventureId   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  venture     Venture?  @relation("VentureToArticle", fields: [ventureId], references: [id])
+
+  @@index([slug])
+  @@index([ventureId])
+  @@index([publishedAt])
+  @@index([aiGenerated])
+}
+
+model Review {
+  id            String        @id @default(cuid())
+  ventureId     String
+  /// Null for founding-guest reviews collected through an invite.
+  customerId    String?
+  rating        Int
+  comment       String
+  isApproved    Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  /// Booking the review belongs to. Present = verified trip; unique = one review per booking.
+  bookingId     String?       @unique
+  /// Guest photos (public Supabase Storage URLs); max 3, shown only when approved.
+  photos        Json          @default("[]")
+  /// Guest-supplied display name. Falls back to the booking customer's name.
+  guestName     String?
+  /// Guest-supplied origin, e.g. "Woodbridge Township, NJ".
+  guestLocation String?
+  /// How the review was collected. Verified booking is the only "Verified trip" badge.
+  source        ReviewSource  @default(VERIFIED_BOOKING)
+  /// Founding-guest invite used for this review, if any.
+  inviteId      String?       @unique
+  booking       Booking?      @relation("BookingToReview", fields: [bookingId], references: [id])
+  customer      Customer?     @relation(fields: [customerId], references: [id])
+  invite        ReviewInvite? @relation(fields: [inviteId], references: [id])
+  venture       Venture       @relation("VentureToReview", fields: [ventureId], references: [id])
+  tenantId      String
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+
+  @@index([ventureId, isApproved])
+  @@index([customerId])
+  @@index([rating])
+  @@index([source])
+  @@index([tenantId])
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  url       String
+  altText   String
+  width     Int?
+  height    Int?
+  size      Int?
+  isPrimary Boolean  @default(false)
+  ventureId String?
+  createdAt DateTime @default(now())
+  venture   Venture? @relation("VentureToMediaAsset", fields: [ventureId], references: [id])
+
+  @@index([ventureId])
+  @@index([isPrimary])
+}
+
+model NotificationLog {
+  id           String             @id @default(cuid())
+  bookingId    String?
+  customerId   String?
+  type         NotificationType
+  recipient    String
+  subject      String?
+  content      String
+  status       NotificationStatus @default(PENDING)
+  sentAt       DateTime?
+  errorMessage String?
+  createdAt    DateTime           @default(now())
+
+  @@index([bookingId])
+  @@index([customerId])
+  @@index([type])
+  @@index([status])
+}
+
+/// A conversation with the customer service agent.
+/// One row per channel user, so the agent keeps its context between turns.
+model AgentSession {
+  id           String   @id @default(cuid())
+  /// Stable identifier, e.g. "wa_628123456789" or "tg_12345".
+  sessionKey   String   @unique
+  channel      String
+  language     String   @default("id")
+  userId       String?
+  phone        String?
+  /// The current product the conversation is about.
+  productId    String?
+  variantId    String?
+  paxCount     Int?
+  bookingDate  String?
+  /// The detected intent of the last turn.
+  intent       String?
+  /// Recent turns, oldest first, as a JSON array of { role, text }.
+  history      Json     @default("[]")
+  lastActiveAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([channel])
+  @@index([lastActiveAt])
+}
 
 enum FulfillmentMode {
   SELF_DRIVE
-  SHARED_TRANSFER
   PRIVATE_TRANSFER
+  SHARED_TRANSFER
 }
 
 enum Difficulty {
@@ -91,435 +681,9 @@ enum RefundMethod {
   MANUAL
 }
 
-// ============ CORE MODELS ============
-
-model Tenant {
-  id         String    @id @default(cuid())
-  domain     String    @unique
-  name       String
-  themeColor String    @default("#000000")
-  logoUrl    String?
-  isActive   Boolean   @default(true)
-  ventures   Venture[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-}
-
-model AdminUser {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  name         String
-  passwordHash String
-  role         AdminRole @default(EDITOR)
-  isActive     Boolean   @default(true)
-  lastLoginAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-}
-
-model Location {
-  id        String    @id @default(cuid())
-  name      String
-  region    String
-  latitude  Float
-  longitude Float
-  ventures  Venture[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@index([name])
-  @@index([region])
-}
-
-model PickupZone {
-  id            String         @id @default(cuid())
-  name          String         @unique
-  areaType      PickupZoneType
-  surchargeIdr  Int            @default(0)
-  isCustomQuote Boolean        @default(false)
-  vehicleMaxPax Int            @default(4)
-  isActive      Boolean        @default(true)
-  bookings      Booking[]
-  /// Packages that are sold with pickup locked to this zone (see
-  /// docs/BOOKING_ARCHITECTURE.md §1 "zone-locked packages").
-  variants      Variant[]      @relation("PickupZoneToVariant")
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-
-  @@index([areaType])
-  @@index([isActive])
-}
-
-// Fleet classes for PRIVATE_TRANSFER (Klook-style configurator).
-// Display labels use generic class names only — never vendor names (OPERATION_CONTRACT.md §1).
-model VehicleClass {
-  id            String           @id @default(cuid())
-  name          VehicleClassType @unique
-  label         String
-  description   String?
-  vehicleMaxPax Int              @default(4)
-  deltaIdr      Int              @default(0)
-  sortOrder     Int              @default(0)
-  isActive      Boolean          @default(true)
-  bookings      Booking[]
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-
-  @@index([isActive])
-}
-
-model Customer {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String
-  countryCode   String
-  whatsapp      String
-  totalBookings Int       @default(0)
-  bookings      Booking[]
-  reviews       Review[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  @@index([email])
-  @@index([name])
-}
-
-// ============ PRODUCT MODELS ============
-
-model Venture {
-  id                String         @id @default(cuid())
-  slug              String         @unique
-  tenantId          String
-  tenant            Tenant         @relation(fields: [tenantId], references: [id])
-  locationId        String?
-  location          Location?      @relation(fields: [locationId], references: [id])
-  title             String
-  hook3Sec          String
-  shortDescription  String?
-  /// Long-form "about + what to expect + what you get + what we expect" copy.
-  /// Used by the product page's collapsible description; short copy stays for cards/meta.
-  longDescription   String?        @db.Text
-  duration          String
-  badge             String?
-  /// Where guests meet for SELF_DRIVE packages.
-  meetingPoint      String?
-  meetingPointLat   Float?
-  meetingPointLng   Float?
-  /// Structured safety requirements shown on the product page.
-  minAge            Int?
-  maxWeightKg       Int?
-  safetyBriefing    String?
-  highlights        Json
-  inclusions        Json
-  exclusions        Json
-  itinerary         Json
-  essentialInfo     Json
-  faqs              Json           @default("[]")
-  languages         Json
-  category          String
-  subcategory       String?
-  primaryKeyword    String?
-  secondaryKeywords Json           @default("[]")
-  searchTags        Json           @default("[]")
-  difficulty        Difficulty     @default(EASY)
-  suitableFor       Json           @default("[]")
-  imageUrl          String
-  gallery           Json
-  videoUrl          String?
-  rating            Float          @default(5.0)
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  variants          Variant[]      @relation("VentureToVariant")
-  articles          Article[]      @relation("VentureToArticle")
-  reviews           Review[]       @relation("VentureToReview")
-  reviewInvites     ReviewInvite[] @relation("VentureToReviewInvite")
-  mediaAssets       MediaAsset[]   @relation("VentureToMediaAsset")
-
-  @@index([slug])
-  @@index([tenantId])
-  @@index([locationId])
-  @@index([category])
-  @@index([difficulty])
-  @@index([rating])
-}
-
-model ReviewInvite {
-  id               String             @id @default(cuid())
-  ventureId        String
-  venture          Venture            @relation("VentureToReviewInvite", fields: [ventureId], references: [id], onDelete: Cascade)
-  /// Optional admin label to keep track of who received which link.
-  guestName        String?
-  guestCountryCode String?
-  status           ReviewInviteStatus @default(UNUSED)
-  expiresAt        DateTime
-  submittedAt      DateTime?
-  createdBy        String?
-  review           Review?
-  createdAt        DateTime           @default(now())
-
-  @@index([ventureId, status])
-  @@index([expiresAt])
-}
-
-model Variant {
-  id               String          @id @default(cuid())
-  ventureId        String
-  venture          Venture         @relation("VentureToVariant", fields: [ventureId], references: [id], onDelete: Cascade)
-  title            String
-  shortDescription String
-  badge            String?
-  /// Transport / tier badge shown on the catalogue card (📍 / 🚐 / 🚗 / 🏛️).
-  transportBadge   String?
-  /// Optional image used by the gallery when this package is selected.
-  imageUrl         String?
-  /// Human-readable duration for this variant, e.g. "3 hrs".
-  duration         String?
-  /// Fulfillment mode this variant sells. The UI derives pickup steps from it.
-  fulfillmentMode  FulfillmentMode @default(SELF_DRIVE)
-  /// List price per pax is stored in PriceTier; this is the active promo price (IDR).
-  /// When set (and lower than the tier price) the UI renders a strikethrough price.
-  promoPriceIdr    Int?
-  /// Operational notes shown under the price, e.g. "After 7 PM: +Rp50.000/pax".
-  operationNotes   String?
-  /// Package-level inclusions/exclusions; empty falls back to the venture lists.
-  inclusions       Json            @default("[]")
-  exclusions       Json            @default("[]")
-  /// Optional minimum spend for this package (IDR). Enforced by computeQuote.
-  minimumSpendIdr  Int?
-  /// Zone-locked pickup. When set, the package already sells pickup from this
-  /// zone: the booking sheet preselects and locks it, and the zone surcharge is
-  /// still applied once by the pricing engine (never baked into the tier price).
-  pickupZoneId     String?
-  pickupZone       PickupZone?     @relation("PickupZoneToVariant", fields: [pickupZoneId], references: [id], onDelete: SetNull)
-  sortOrder        Int             @default(0)
-  priceTiers       PriceTier[]     @relation("VariantToPriceTier")
-  blackoutDates    Json
-  slotTimes        SlotTime[]      @relation("SlotTimeToVariant")
-  addons           Addon[]         @relation("AddonToVariant")
-  bookings         Booking[]
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-
-  @@index([ventureId])
-  @@index([pickupZoneId])
-}
-
-model PriceTier {
-  id          String  @id @default(cuid())
-  minPax      Int
-  maxPax      Int
-  pricePerPax Int
-  variantId   String
-  variant     Variant @relation("VariantToPriceTier", fields: [variantId], references: [id], onDelete: Cascade)
-
-  @@index([variantId])
-}
-
-model SlotTime {
-  id              String    @id @default(cuid())
-  variantId       String
-  variant         Variant   @relation("SlotTimeToVariant", fields: [variantId], references: [id], onDelete: Cascade)
-  time            String
-  maxCapacity     Int
-  currentBookings Int       @default(0)
-  isAvailable     Boolean   @default(true)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  bookings        Booking[]
-
-  @@index([variantId])
-}
-
-model Addon {
-  id               String   @id @default(cuid())
-  variantId        String
-  variant          Variant  @relation("AddonToVariant", fields: [variantId], references: [id], onDelete: Cascade)
-  name             String
-  price            Int
-  description      String?
-  requiresTransfer Boolean  @default(false)
-  isCombo          Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  @@index([variantId])
-}
-
-// ============ BOOKING & PAYMENT MODELS ============
-
-model Coupon {
-  id              String    @id @default(cuid())
-  code            String    @unique
-  label           String
-  discountPercent Int
-  minPax          Int       @default(1)
-  validFrom       DateTime?
-  validUntil      DateTime?
-  isActive        Boolean   @default(true)
-  usageLimit      Int?
-  usedCount       Int       @default(0)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  @@index([isActive])
-}
-
-model Booking {
-  id                 String           @id @default(cuid())
-  bookingCode        String           @unique
-  variantId          String
-  variant            Variant          @relation(fields: [variantId], references: [id], onDelete: Cascade)
-  customerId         String
-  customer           Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  bookingDate        String
-  slotTimeId         String?
-  slotTime           SlotTime?        @relation(fields: [slotTimeId], references: [id])
-  fulfillmentMode    FulfillmentMode
-  pickupZoneId       String?
-  pickupZone         PickupZone?      @relation(fields: [pickupZoneId], references: [id])
-  vehicleClassId     String?
-  vehicleClass       VehicleClass?    @relation(fields: [vehicleClassId], references: [id])
-  hotelAddress       String?
-  /// True when the guest will confirm the pickup address by H-1 (TBA flow).
-  isTba              Boolean          @default(false)
-  paxCount           Int
-  vehicleCount       Int              @default(1)
-  zoneSurchargeIdr   Int              @default(0)
-  /// Night-slot surcharge captured at booking time (IDR).
-  nightSurchargeIdr  Int              @default(0)
-  /// Total discount captured at booking time (promo or coupon, never both).
-  discountIdr        Int              @default(0)
-  appliedCouponCode  String?
-  selectedAddons     Json
-  totalPrice         Int
-  paymentStatus      PaymentStatus
-  /// Legal acceptance captured at checkout (versioned for audits).
-  termsAcceptedAt    DateTime?
-  waiverAcceptedAt   DateTime?
-  waiverVersion      String?
-  billingAddress     Json?
-  /// Operational lifecycle used by the field-team job order.
-  lifecycleStatus    BookingLifecycle @default(AWAITING_PAYMENT)
-  /// End of the temporary inventory hold. Null once paid or for legacy rows.
-  expiresAt          DateTime?
-  /// Customer cancellation audit. The Refund row carries the money trail.
-  cancelledAt        DateTime?
-  cancellationReason String?
-  payment            Payment?
-  vouchers           Voucher[]
-  review             Review?          @relation("BookingToReview")
-  refund             Refund?
-  changes            BookingChange[]
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-
-  @@index([bookingCode])
-  @@index([variantId])
-  @@index([customerId])
-  @@index([paymentStatus])
-  @@index([fulfillmentMode])
-  @@index([pickupZoneId])
-  @@index([vehicleClassId])
-  @@index([bookingDate, lifecycleStatus])
-  @@index([paymentStatus, expiresAt])
-}
-
-model Payment {
-  id              String        @id @default(cuid())
-  bookingId       String        @unique
-  booking         Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  midtransOrderId String
-  snapToken       String?
-  redirectUrl     String?
-  paymentMethod   String?
-  grossAmount     Int
-  transactionTime DateTime?
-  rawResponse     Json?
-  status          PaymentStatus
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  @@index([bookingId])
-  @@index([midtransOrderId])
-  @@index([status])
-}
-
-model Voucher {
-  id         String        @id @default(cuid())
-  bookingId  String        @unique
-  booking    Booking       @relation(fields: [bookingId], references: [id])
-  qrCodeData String
-  issuedAt   DateTime      @default(now())
-  redeemedAt DateTime?
-  redeemedBy String?
-  status     VoucherStatus @default(ACTIVE)
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-
-  @@index([bookingId])
-  @@index([status])
-}
-
-/// Money trail for a cancellation. Created when the guest cancels; processed
-/// by an admin through Midtrans or a manual bank transfer.
-model Refund {
-  id          String       @id @default(cuid())
-  bookingId   String       @unique
-  booking     Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  amountIdr   Int
-  feeIdr      Int          @default(0)
-  reason      String?
-  status      RefundStatus @default(PENDING)
-  method      RefundMethod @default(MIDTRANS)
-  providerRef String?
-  notes       String?
-  requestedAt DateTime     @default(now())
-  processedAt DateTime?
-  processedBy String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  @@index([status])
-  @@index([requestedAt])
-}
-
-/// Reschedule audit trail. One row per successful move.
-model BookingChange {
-  id        String   @id @default(cuid())
-  bookingId String
-  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  fromDate  String
-  fromSlot  String?
-  toDate    String
-  toSlot    String?
-  changedBy String   @default("customer")
-  reason    String?
-  createdAt DateTime @default(now())
-
-  @@index([bookingId, createdAt])
-}
-
-// ============ CONTENT MODELS ============
-
-model Article {
-  id          String    @id @default(cuid())
-  slug        String    @unique
-  title       Json
-  content     String    @db.Text
-  metaDesc    Json
-  keywords    Json
-  tags        Json
-  publishedAt DateTime?
-  aiGenerated Boolean   @default(false)
-  ventureId   String?
-  venture     Venture?  @relation("VentureToArticle", fields: [ventureId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@index([slug])
-  @@index([ventureId])
-  @@index([publishedAt])
-  @@index([aiGenerated])
+enum PricingModel {
+  FLAT_PER_GUEST
+  AGE_TIERED
 }
 
 enum ReviewSource {
@@ -532,100 +696,4 @@ enum ReviewInviteStatus {
   UNUSED
   SUBMITTED
   EXPIRED
-}
-
-model Review {
-  id            String        @id @default(cuid())
-  ventureId     String
-  venture       Venture       @relation("VentureToReview", fields: [ventureId], references: [id])
-  /// Null for founding-guest reviews collected through an invite.
-  customerId    String?
-  customer      Customer?     @relation(fields: [customerId], references: [id])
-  /// Booking the review belongs to. Present = verified trip; unique = one review per booking.
-  bookingId     String?       @unique
-  booking       Booking?      @relation("BookingToReview", fields: [bookingId], references: [id], onDelete: SetNull)
-  /// Founding-guest invite used for this review, if any.
-  inviteId      String?       @unique
-  invite        ReviewInvite? @relation(fields: [inviteId], references: [id], onDelete: SetNull)
-  /// How the review was collected. Verified booking is the only “Verified trip” badge.
-  source        ReviewSource  @default(VERIFIED_BOOKING)
-  rating        Int
-  comment       String        @db.Text
-  /// Guest-supplied display name. Falls back to the booking customer's name.
-  guestName     String?
-  /// Guest-supplied origin, e.g. "Woodbridge Township, NJ".
-  guestLocation String?
-  /// Guest photos (public Supabase Storage URLs); max 3, shown only when approved.
-  photos        Json          @default("[]")
-  isApproved    Boolean       @default(false)
-  createdAt     DateTime      @default(now())
-
-  @@index([ventureId, isApproved])
-  @@index([customerId])
-  @@index([rating])
-  @@index([source])
-}
-
-model MediaAsset {
-  id        String   @id @default(cuid())
-  url       String
-  altText   String
-  width     Int?
-  height    Int?
-  size      Int?
-  isPrimary Boolean  @default(false)
-  ventureId String?
-  venture   Venture? @relation("VentureToMediaAsset", fields: [ventureId], references: [id])
-  createdAt DateTime @default(now())
-
-  @@index([ventureId])
-  @@index([isPrimary])
-}
-
-model NotificationLog {
-  id           String             @id @default(cuid())
-  bookingId    String?
-  customerId   String?
-  type         NotificationType
-  recipient    String
-  subject      String?
-  content      String
-  status       NotificationStatus @default(PENDING)
-  sentAt       DateTime?
-  errorMessage String?
-  createdAt    DateTime           @default(now())
-
-  @@index([bookingId])
-  @@index([customerId])
-  @@index([type])
-  @@index([status])
-}
-
-// ============ AI AGENT MODELS ============
-
-/// A conversation with the customer service agent.
-/// One row per channel user, so the agent keeps its context between turns.
-model AgentSession {
-  id           String   @id @default(cuid())
-  /// Stable identifier, e.g. "wa_628123456789" or "tg_12345".
-  sessionKey   String   @unique
-  channel      String
-  language     String   @default("id")
-  userId       String?
-  phone        String?
-  /// The current product the conversation is about.
-  productId    String?
-  variantId    String?
-  paxCount     Int?
-  bookingDate  String?
-  /// The detected intent of the last turn.
-  intent       String?
-  /// Recent turns, oldest first, as a JSON array of { role, text }.
-  history      Json     @default("[]")
-  lastActiveAt DateTime @default(now())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@index([channel])
-  @@index([lastActiveAt])
 }

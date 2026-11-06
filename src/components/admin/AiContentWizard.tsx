@@ -101,9 +101,7 @@ export function AiContentWizard() {
       }
 
       setSuccess(
-        `Saved "${payload.data.title}" as /blog/${payload.data.slug}${
-          publish ? ' and published it' : ''
-        }.`
+        `Saved "${payload.data.title}" as /blog/${payload.data.slug}${publish ? ' and published it' : ''}.`
       );
       setTitle('');
       setPrimaryKeyword('');
@@ -118,8 +116,8 @@ export function AiContentWizard() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="font-heading text-2xl font-bold text-gray-900">AI Content</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="font-heading text-2xl font-bold text-gray-900 dark:text-white">AI Content</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Generate long-tail SEO articles. Every article is validated against the title
           constitution and the 9-category taxonomy before it is stored.
         </p>
@@ -127,11 +125,11 @@ export function AiContentWizard() {
 
       <form
         onSubmit={handleGenerate}
-        className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4"
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="lg:col-span-2">
-            <label htmlFor="content-title" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Title (45-60 characters)
             </label>
             <input
@@ -142,13 +140,13 @@ export function AiContentWizard() {
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Ubud Jungle ATV Ride through Rice Terraces and Waterfalls"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
             />
-            <p className="text-xs text-gray-600 mt-1">{title.length} / 60 characters</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{title.length} / 60 characters</p>
           </div>
 
           <div>
-            <label htmlFor="content-keyword" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-keyword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Primary keyword
             </label>
             <input
@@ -157,19 +155,19 @@ export function AiContentWizard() {
               value={primaryKeyword}
               onChange={(event) => setPrimaryKeyword(event.target.value)}
               placeholder="Ubud ATV"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
             />
           </div>
 
           <div>
-            <label htmlFor="content-category" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Category
             </label>
             <select
               id="content-category"
               value={category}
               onChange={(event) => setCategory(event.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
             >
               {CATEGORY_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -180,7 +178,7 @@ export function AiContentWizard() {
           </div>
 
           <div>
-            <label htmlFor="content-destination" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-destination" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Destination (optional)
             </label>
             <input
@@ -188,19 +186,19 @@ export function AiContentWizard() {
               value={destination}
               onChange={(event) => setDestination(event.target.value)}
               placeholder="Ubud"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
             />
           </div>
 
           <div>
-            <label htmlFor="content-venture" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-venture" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Link to product (optional)
             </label>
             <select
               id="content-venture"
               value={ventureSlug}
               onChange={(event) => setVentureSlug(event.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
             >
               <option value="">No product link</option>
               {ventures.map((venture) => (
@@ -212,14 +210,14 @@ export function AiContentWizard() {
           </div>
 
           <div>
-            <label htmlFor="content-language" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="content-language" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Language
             </label>
             <select
               id="content-language"
               value={language}
               onChange={(event) => setLanguage(event.target.value as 'en' | 'id')}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-brand-ink"
+              className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
             >
               <option value="en">English</option>
               <option value="id">Bahasa Indonesia</option>
@@ -227,12 +225,12 @@ export function AiContentWizard() {
           </div>
 
           <div className="flex items-end">
-            <label className="flex items-center gap-2 text-sm text-gray-700 pb-2.5">
+            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 pb-2.5">
               <input
                 type="checkbox"
                 checked={publish}
                 onChange={(event) => setPublish(event.target.checked)}
-                className="w-4 h-4 rounded border-gray-300"
+                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600"
               />
               Publish immediately
             </label>
@@ -240,13 +238,13 @@ export function AiContentWizard() {
         </div>
 
         {error && (
-          <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+          <p role="alert" className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-900/30 rounded-lg px-3 py-2">
             {error}
           </p>
         )}
 
         {success && (
-          <p role="status" className="text-sm text-green-700 bg-green-50 border border-green-100 rounded-lg px-3 py-2">
+          <p role="status" className="text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-900/30 rounded-lg px-3 py-2">
             {success}
           </p>
         )}
@@ -261,33 +259,33 @@ export function AiContentWizard() {
         </button>
       </form>
 
-      <section className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="font-heading text-lg font-semibold text-gray-900">Articles</h2>
+      <section className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="font-heading text-lg font-semibold text-gray-900 dark:text-white">Articles</h2>
         </div>
 
         {isLoading ? (
-          <p className="text-sm text-gray-600 p-6 text-center">Loading…</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 p-6 text-center">Loading…</p>
         ) : articles.length === 0 ? (
-          <p className="text-sm text-gray-600 p-6 text-center">No articles yet.</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 p-6 text-center">No articles yet.</p>
         ) : (
-          <ul className="divide-y divide-gray-50">
+          <ul className="divide-y divide-gray-50 dark:divide-gray-800">
             {articles.map((article) => (
               <li key={article.id} className="px-5 py-3">
-                <p className="font-medium text-gray-900 text-sm">{readTitle(article.title)}</p>
-                <p className="text-xs text-gray-600 font-mono mt-0.5">/blog/{article.slug}</p>
+                <p className="font-medium text-gray-900 dark:text-white text-sm">{readTitle(article.title)}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 font-mono mt-0.5">/blog/{article.slug}</p>
                 <div className="flex items-center gap-2 mt-1.5">
                   {article.publishedAt ? (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800">
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                       Published
                     </span>
                   ) : (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400">
                       Draft
                     </span>
                   )}
                   {article.aiGenerated && (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand/40 text-neutral-900">
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand/40 text-neutral-900 dark:text-brand-ink">
                       AI generated
                     </span>
                   )}

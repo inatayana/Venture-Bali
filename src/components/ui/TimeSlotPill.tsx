@@ -39,7 +39,7 @@ export function TimeSlotPill({
         <span
           className={cn(
             'text-xs font-normal leading-tight',
-            selected ? 'text-white/70' : 'text-neutral-500'
+            selected ? 'text-white/70 dark:text-brand-ink/70' : 'text-neutral-500'
           )}
         >
           {spotsLeft} left

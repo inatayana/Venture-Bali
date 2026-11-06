@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAdminRole } from '@/lib/adminGuard';
 import { adminVentureWriteSchema } from '@/lib/adminVentureSchema';
+import { resolveLocationId } from '@/lib/locationResolve';
 import { buildVentureSlug, ventureWriteData } from '@/lib/ventureWrite';
 import { isVentureSlugValid, validateVentureTitle } from '@/lib/titleValidator';
 
@@ -81,17 +82,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (input.locationId) {
-    const location = await prisma.location.findUnique({
-      where: { id: input.locationId },
-      select: { id: true },
-    });
-    if (!location) {
-      return NextResponse.json(
-        { success: false, error: { code: 'INVALID_LOCATION', message: 'Location not found' } },
-        { status: 400 },
-      );
-    }
+  const resolvedLocation = await resolveLocationId(input.locationId, input);
+  if ('error' in resolvedLocation) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: resolvedLocation.error, message: resolvedLocation.message },
+      },
+      { status: 400 },
+    );
   }
 
   const tenant = await prisma.tenant.findFirst({
@@ -111,7 +110,7 @@ export async function POST(request: NextRequest) {
   try {
     const venture = await prisma.venture.create({
       data: {
-        ...ventureWriteData(input),
+        ...ventureWriteData({ ...input, locationId: resolvedLocation.id }),
         slug,
         tenantId: tenant.id,
         rating: 5,

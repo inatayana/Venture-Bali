@@ -27,6 +27,8 @@ const mockVenture: VentureItem = {
   category: 'culture',
   difficulty: 'EASY',
   location: 'Ubud, Gianyar',
+  listPriceIdr: 450000,
+  promoPriceIdr: null,
   priceIdr: 450000,
   durationHours: 5,
   minParticipants: 1,

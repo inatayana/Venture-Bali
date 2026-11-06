@@ -8,7 +8,15 @@ export const dynamic = 'force-dynamic';
 export default async function AdminNewVenturePage() {
   const locations: VentureFormLocation[] = await prisma.location.findMany({
     orderBy: [{ region: 'asc' }, { name: 'asc' }],
-    select: { id: true, name: true, region: true },
+    select: {
+      id: true,
+      name: true,
+      region: true,
+      desa: true,
+      kecamatan: true,
+      kabupaten: true,
+      provinsi: true,
+    },
   });
 
   return (

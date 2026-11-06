@@ -64,7 +64,10 @@ export interface PickupZone {
   id: string;
   name: string;
   areaType: PickupZoneType;
+  /** Charter price per VEHICLE (PRIVATE_TRANSFER). */
   surchargeIdr: number;
+  /** Fee per PERSON (SHARED_TRANSFER shuttles; 0 when included). */
+  surchargePerPaxIdr: number;
   isCustomQuote: boolean;
   vehicleMaxPax: number;
   isActive: boolean;
@@ -177,12 +180,19 @@ export interface Venture {
   updatedAt: Date;
 }
 
-// ============ VARIANT & PRICING MODELS ============
+export type PricingModel = 'FLAT_PER_GUEST' | 'AGE_TIERED';
 
 export interface PriceTier {
   minPax: number;
   maxPax: number;
+  /** Adult price (base). Tiers are selected by TOTAL pax. */
   pricePerPax: number;
+  /** Default FLAT_PER_GUEST. AGE_TIERED prices kids/youth separately. */
+  pricingModel?: PricingModel;
+  /** Kids (3-10) flat price. Blank = the adult price applies. Never above the adult price. */
+  kidsPricePerPax?: number | null;
+  /** Youth (11-16) flat price. Blank = the adult price applies. Never above the adult price. */
+  youthPricePerPax?: number | null;
 }
 
 export interface SlotTime {
@@ -192,6 +202,8 @@ export interface SlotTime {
   maxCapacity: number;
   currentBookings: number;
   isAvailable: boolean;
+  /** Hours before departure during which booking closes; null = mode default. */
+  cutoffHours?: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -212,7 +224,10 @@ export interface VariantPickupZone {
   id: string;
   name: string;
   areaType: PickupZoneType;
+  /** Charter price per VEHICLE (PRIVATE_TRANSFER). */
   surchargeIdr: number;
+  /** Fee per PERSON (SHARED_TRANSFER shuttles; 0 when included). */
+  surchargePerPaxIdr: number;
   isCustomQuote: boolean;
   vehicleMaxPax: number;
 }
@@ -228,6 +243,8 @@ export interface Variant {
   duration?: string;
   fulfillmentMode: FulfillmentMode;
   promoPriceIdr?: number;
+  /** Campaign caption for the promo price (e.g. "Promo September Ceria"). */
+  promoLabel?: string;
   operationNotes?: string;
   inclusions?: string[];
   exclusions?: string[];
@@ -239,6 +256,12 @@ export interface Variant {
    */
   pickupZoneId?: string;
   pickupZone?: VariantPickupZone;
+  /** Infants (0-2) ride free and are never counted in pax/capacity. */
+  infantEnabled?: boolean;
+  /** Real paid bookings for this package in the last 48 hours (demand window,
+   * see ventureWithRelations). Powers the honest "N× booked" badge.
+   */
+  bookedLast48h?: number;
   sortOrder: number;
   priceTiers: PriceTier[];
   blackoutDates: string[];
@@ -285,6 +308,11 @@ export interface Booking {
   hotelAddress?: string;
   isTba: boolean;
   paxCount: number;
+  adultsCount: number;
+  kidsCount: number;
+  youthCount: number;
+  /** Infants (0-2) when the variant enables them — never priced or capacity-counted. */
+  infantCount?: number;
   vehicleCount: number;
   zoneSurchargeIdr: number;
   nightSurchargeIdr: number;
@@ -296,6 +324,26 @@ export interface Booking {
   termsAcceptedAt?: Date;
   waiverAcceptedAt?: Date;
   waiverVersion?: string;
+  waiverDigitalSignature?: string;
+  waiverSignatureMethod?: 'draw' | 'type';
+  waiverHealthDeclaration?: {
+    noAlcohol: boolean;
+    noDrugs: boolean;
+    noImpairingMeds: boolean;
+    disclosedConditions?: string[];
+    mobilityOk: boolean;
+  };
+  waiverEmergencyContact?: {
+    name: string;
+    phone: string;
+    relation: string;
+  };
+  waiverIdVerified: boolean;
+  waiverPhotoId?: string;
+  waiverSignedBy?: string;
+  waiverSignedAt?: Date;
+  waiverIpAddress?: string;
+  waiverUserAgent?: string;
   billingAddress?: BillingAddress;
   lifecycleStatus: BookingLifecycle;
   expiresAt?: Date;
@@ -432,7 +480,12 @@ export interface ReviewSummary {
 export interface VentureItem extends Omit<Venture, 'location'> {
   variants: Variant[];
   description: string;
+  /** Final price shown to user (promo price if active, else list price). */
   priceIdr: number;
+  /** Original list price before promo (for strikethrough display). */
+  listPriceIdr: number;
+  /** Active promo price, or null when no promo. */
+  promoPriceIdr: number | null;
   durationHours: number;
   minParticipants: number;
   maxParticipants: number;

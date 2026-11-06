@@ -77,6 +77,9 @@ function buildInitialConfig(venture: VentureItem): BookingConfig {
     date: null,
     slot: null,
     adults: Math.max(1, venture.minParticipants || 1),
+    kids: 0,
+    youth: 0,
+    infants: 0,
     vehicleClassType: null,
     zoneId: null,
     hotelAddress: '',
@@ -205,14 +208,19 @@ export function ExperienceDetailClient({
       ? selectedVariant.priceTiers
       : [{ minPax: 1, maxPax: venture.maxParticipants, pricePerPax: venture.priceIdr }];
 
+    const totalPax = config.adults + config.kids + config.youth;
+
     return computeQuote({
       priceTiers: tiers,
-      paxCount: config.adults,
+      paxCount: totalPax,
       fulfillmentMode: selectedVariant?.fulfillmentMode ?? 'SELF_DRIVE',
+      adultsCount: config.adults,
+      kidsCount: config.kids,
+      youthCount: config.youth,
       promoPriceIdr: selectedVariant?.promoPriceIdr ?? null,
       minimumSpendIdr: selectedVariant?.minimumSpendIdr ?? null,
     });
-  }, [selectedVariant, config.adults, venture.maxParticipants, venture.priceIdr]);
+  }, [selectedVariant, config.adults, config.kids, config.youth, venture.maxParticipants, venture.priceIdr]);
 
   const patchConfig = useCallback(
     (patch: Partial<BookingConfig>) => setConfig((prev) => ({ ...prev, ...patch })),
@@ -309,7 +317,11 @@ export function ExperienceDetailClient({
           hotelAddress: config.hotelAddress || undefined,
           isTba: config.isTba,
           couponCode: appliedCoupon?.code ?? undefined,
-          paxCount: config.adults,
+          paxCount: totalPax,
+          adultsCount: config.adults,
+          kidsCount: config.kids,
+          youthCount: config.youth,
+          infantCount: config.infants,
           selectedAddons: config.addonIds,
           customerName: config.customerName,
           customerEmail: config.customerEmail,
@@ -344,6 +356,8 @@ export function ExperienceDetailClient({
   const reviewCount = venture.reviewCount;
   const itineraryTotal = totalDurationMinutes(venture.itinerary);
 
+  const totalPax = config.adults + config.kids + config.youth;
+
   const mapsUrl = venture.meetingPoint
     ? `https://www.google.com/maps/search/?api=1&query=${venture.meetingPoint.latitude},${venture.meetingPoint.longitude}`
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -351,6 +365,15 @@ export function ExperienceDetailClient({
       )}`;
 
   const selectedPrice = estimate.unitPricePerPaxIdr;
+  const isAgeTiered = (selectedVariant?.priceTiers ?? []).some(
+    (tier) => tier.pricingModel === 'AGE_TIERED'
+  );
+  const kidsFromPrice = isAgeTiered
+    ? Math.min(...(selectedVariant?.priceTiers ?? []).map((tier) => tier.kidsPricePerPax ?? tier.pricePerPax))
+    : null;
+  const youthFromPrice = isAgeTiered
+    ? Math.min(...(selectedVariant?.priceTiers ?? []).map((tier) => tier.youthPricePerPax ?? tier.pricePerPax))
+    : null;
   const serviceType = selectedVariant?.fulfillmentMode === 'SELF_DRIVE' ? 'Meeting point' : 'Hotel pickup available';
 
   return (
@@ -446,15 +469,27 @@ export function ExperienceDetailClient({
               <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <span className="text-xs font-medium text-neutral-500">From</span>
                 {estimate.promoActive && (
-                  <span className="text-sm tabular-nums text-neutral-600 line-through">
+                  <span className="text-sm tabular-nums text-red-500 line-through">
                     {formatPrice(estimate.listPricePerPaxIdr)}
                   </span>
                 )}
                 <span className="font-heading text-3xl font-bold tabular-nums text-neutral-900">
                   {formatPrice(selectedPrice)}
                 </span>
+                {isAgeTiered && (
+                  <div className="mt-2 text-xs text-neutral-500">
+                    <p>👧 Kids (5-11 yo) — From {formatPrice(kidsFromPrice ?? 0)} / guest</p>
+                    <p>🧑 Youth (13-16 yo) — From {formatPrice(youthFromPrice ?? 0)} / guest</p>
+                  </div>
+                )}
                 <span className="text-sm text-neutral-500">/ guest</span>
               </div>
+
+              {isAgeTiered && (
+                <p className="mt-2 text-sm text-neutral-600">
+                  👥 More mates = cheaper rate
+                </p>
+              )}
 
               {selectedVariant?.minimumSpendIdr ? (
                 <p className="mt-1 text-xs font-medium text-neutral-600">
@@ -466,9 +501,9 @@ export function ExperienceDetailClient({
 
               <div className="mt-3 rounded-xl bg-neutral-50 px-3 py-2">
                 <Stepper
-                  label="Guests"
+                  label={isAgeTiered ? 'Adults (17+)' : 'Guests'}
                   value={config.adults}
-                  min={Math.max(1, venture.minParticipants)}
+                  min={1}
                   max={Math.min(10, venture.maxParticipants)}
                   onChange={(value) => patchConfig({ adults: value })}
                 />
@@ -483,8 +518,8 @@ export function ExperienceDetailClient({
                 </div>
                 {estimate.discountIdr > 0 && (
                   <div className="flex justify-between text-green-700">
-                    <span>Promo savings</span>
-                    <span className="tabular-nums">−{formatPrice(estimate.discountIdr)}</span>
+                    <span>You Save</span>
+                    <span className="tabular-nums">{formatPrice(estimate.discountIdr)}</span>
                   </div>
                 )}
                 {estimate.minimumTopUpIdr > 0 && (
@@ -537,7 +572,7 @@ export function ExperienceDetailClient({
             >
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 -top-3 h-16 bg-gradient-to-b from-white via-white/90 to-transparent"
+                className="pointer-events-none absolute inset-x-0 -top-3 h-16 bg-gradient-to-b from-white via-white/90 to-transparent dark:from-[#212121] dark:via-[#212121]/90"
               />
               <div className="relative flex justify-center pt-1">
                 <nav
@@ -665,13 +700,17 @@ export function ExperienceDetailClient({
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-600">
                 {reviewCount > 0 ? (
-                  <span className="inline-flex items-center gap-1">
+                  <a
+                    href="#reviews"
+                    className="inline-flex items-center gap-1 rounded-lg transition-colors hover:bg-neutral-100 hover:underline underline-offset-4"
+                    aria-label={`Rated ${venture.rating.toFixed(1)} from ${reviewCount} reviews — jump to the reviews`}
+                  >
                     <Star className="h-4 w-4 fill-brand text-brand" />
                     <strong className="text-neutral-900">{venture.rating.toFixed(1)}</strong>
                     <span>
                       · {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
                     </span>
-                  </span>
+                  </a>
                 ) : (
                   <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-700">
                     <Star className="h-3.5 w-3.5 text-neutral-600" />
@@ -951,9 +990,20 @@ export function ExperienceDetailClient({
               <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">
                 Coverage & meeting point
               </h2>
-              <div className="flex h-32 items-center justify-center rounded-xl bg-neutral-100">
-                <MapPin className="h-10 w-10 text-neutral-300" />
-              </div>
+              {venture.meetingPoint?.latitude != null && venture.meetingPoint?.longitude != null ? (
+                <iframe
+                  title={`Map of ${venture.meetingPoint.name}`}
+                  src={`https://www.google.com/maps?q=${venture.meetingPoint.latitude},${venture.meetingPoint.longitude}&z=14&output=embed`}
+                  className="h-64 w-full rounded-xl border border-neutral-200"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="flex h-32 items-center justify-center rounded-xl bg-neutral-100">
+                  <MapPin className="h-10 w-10 text-neutral-300" />
+                </div>
+              )}
 
               <div className="mt-3 rounded-xl border border-neutral-200 p-3">
                 <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
@@ -977,22 +1027,26 @@ export function ExperienceDetailClient({
 
               <h3 className="mt-4 text-sm font-semibold text-neutral-900">Hotel pickup zones</h3>
               <ul className="mt-2 space-y-1.5">
-                {zones.map((zone) => (
-                  <li key={zone.id} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="text-neutral-700">{zone.name}</span>
-                    <span className="shrink-0 text-xs font-medium text-neutral-500">
-                      {zone.isCustomQuote
-                        ? 'Custom quote'
-                        : zone.surchargeIdr > 0
-                          ? `from +${formatPrice(zone.surchargeIdr)}`
-                          : 'Included'}
-                    </span>
-                  </li>
-                ))}
+                {zones.map((zone) => {
+                  const sharedFee = zone.surchargePerPaxIdr ?? 0;
+                  const privateFee = zone.surchargeIdr;
+                  return (
+                    <li key={zone.id} className="flex items-center justify-between gap-3 text-sm">
+                      <span className="text-neutral-700">{zone.name}</span>
+                      <span className="shrink-0 text-xs font-medium text-neutral-500">
+                        {zone.isCustomQuote
+                          ? 'Custom quote'
+                          : `${sharedFee > 0 ? `Shared +${formatPrice(sharedFee)}/guest` : 'Shared included'} · ${
+                              privateFee > 0 ? `Private +${formatPrice(privateFee)}/vehicle` : 'Private included'
+                            }`}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
               <p className="mt-2 text-xs text-neutral-500">
                 Pickup is available on Shared and Private transfer packages. Choose your area in the
-                booking sheet.
+                booking sheet. Private pricing is per vehicle; shared pricing is per guest.
               </p>
             </section>
 

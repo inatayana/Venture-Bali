@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAdminRole } from '@/lib/adminGuard';
 import { adminVentureWriteSchema } from '@/lib/adminVentureSchema';
+import { resolveLocationId } from '@/lib/locationResolve';
 import { buildVentureSlug, ventureWriteData } from '@/lib/ventureWrite';
 import { isVentureSlugValid, validateVentureTitle } from '@/lib/titleValidator';
 
@@ -98,24 +99,22 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  if (input.locationId) {
-    const location = await prisma.location.findUnique({
-      where: { id: input.locationId },
-      select: { id: true },
-    });
-    if (!location) {
-      return NextResponse.json(
-        { success: false, error: { code: 'INVALID_LOCATION', message: 'Location not found' } },
-        { status: 400 },
-      );
-    }
+  const resolvedLocation = await resolveLocationId(input.locationId, input);
+  if ('error' in resolvedLocation) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: resolvedLocation.error, message: resolvedLocation.message },
+      },
+      { status: 400 },
+    );
   }
 
   try {
     const venture = await prisma.venture.update({
       where: { id },
       data: {
-        ...ventureWriteData(input),
+        ...ventureWriteData({ ...input, locationId: resolvedLocation.id }),
         slug,
       },
       select: { id: true, slug: true, title: true },

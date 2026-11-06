@@ -11,6 +11,7 @@ import {
   ImagePlus,
   Loader2,
   Plus,
+  Sparkles,
   Star,
   Trash2,
   UploadCloud,
@@ -20,6 +21,15 @@ import { buildVentureSlug } from '@/lib/slug';
 import { isVentureSlugValid, validateVentureTitle } from '@/lib/titleValidator';
 import { compressToTarget, PRODUCT_MIN_SOURCE_EDGE } from '@/lib/compressImage';
 import { cn } from '@/utils/cn';
+import {
+  findDistrictName,
+  findRegencyName,
+  getDistricts,
+  getRegencies,
+  getVillages,
+  isKnownVillage,
+  PROVINSI_DEFAULT,
+} from '@/lib/wilayah';
 
 /** 1 main cover + up to 6 itinerary gallery photos per product (media memo). */
 const MAX_GALLERY = 6;
@@ -40,6 +50,44 @@ export interface VentureFormLocation {
   id: string;
   name: string;
   region: string;
+  desa?: string | null;
+  kecamatan?: string | null;
+  kabupaten?: string | null;
+  provinsi?: string | null;
+}
+
+interface AreaPrefill {
+  provinsi: string;
+  kabupaten: string | null;
+  kecamatan: string | null;
+  desa: string | null;
+}
+
+/**
+ * Best-effort prefill for the area cascade from a saved Location. Explicit
+ * hierarchy fields win; legacy rows keep the area inside the composed name
+ * ("Desa, Kecamatan, Kabupaten, Provinsi") and the region holds the kabupaten
+ * — both are validated against the official dataset, and unmatched levels
+ * stay empty so the fallback note remains visible.
+ */
+function resolveAreaPrefill(location: VentureFormLocation | null): AreaPrefill {
+  if (!location) {
+    return { provinsi: PROVINSI_DEFAULT, kabupaten: null, kecamatan: null, desa: null };
+  }
+
+  const provinsi = location.provinsi || PROVINSI_DEFAULT;
+  const kabupaten = findRegencyName(location.kabupaten || location.region);
+  if (!kabupaten) {
+    return { provinsi, kabupaten: null, kecamatan: null, desa: null };
+  }
+
+  const nameParts = location.name.split(',').map((part) => part.trim());
+  const kecamatan = findDistrictName(kabupaten, location.kecamatan || nameParts[1]);
+  const desaCandidate = location.desa || nameParts[0] || '';
+  const desa =
+    kecamatan && isKnownVillage(kabupaten, kecamatan, desaCandidate) ? desaCandidate : null;
+
+  return { provinsi, kabupaten, kecamatan, desa };
 }
 
 export interface VentureFormInitial {
@@ -55,6 +103,7 @@ export interface VentureFormInitial {
   badge: string;
   locationId: string;
   meetingPoint: string;
+  meetingPointMapsUrl?: string | null;
   meetingPointLat: number | null;
   meetingPointLng: number | null;
   minAge: number | null;
@@ -162,8 +211,17 @@ export function VentureForm({
   const [duration, setDuration] = useState(initial?.duration ?? '');
   const [difficulty, setDifficulty] = useState(initial?.difficulty ?? 'EASY');
   const [badge, setBadge] = useState(initial?.badge ?? '');
-  const [locationId, setLocationId] = useState(initial?.locationId ?? '');
+  const [locationId] = useState(initial?.locationId ?? '');
+  /** Admin area cascade — Provinsi defaults to Bali, then Kabupaten → Kecamatan → Desa. */
+  const areaPrefill = resolveAreaPrefill(
+    locations.find((item) => item.id === initial?.locationId) ?? null
+  );
+  const [provinsi, setProvinsi] = useState(areaPrefill.provinsi);
+  const [kabupaten, setKabupaten] = useState(areaPrefill.kabupaten ?? '');
+  const [kecamatan, setKecamatan] = useState(areaPrefill.kecamatan ?? '');
+  const [desa, setDesa] = useState(areaPrefill.desa ?? '');
   const [meetingPoint, setMeetingPoint] = useState(initial?.meetingPoint ?? '');
+  const [meetingPointMapsUrl, setMeetingPointMapsUrl] = useState(initial?.meetingPointMapsUrl ?? '');
   const [meetingPointLat, setMeetingPointLat] = useState(
     initial?.meetingPointLat != null ? String(initial.meetingPointLat) : ''
   );
@@ -220,6 +278,7 @@ export function VentureForm({
   const [draggingPhoto, setDraggingPhoto] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generatingHook, setGeneratingHook] = useState(false);
 
   useEffect(() => {
     if (!slugTouched) setSlug(buildVentureSlug(title));
@@ -231,6 +290,42 @@ export function VentureForm({
   );
   const slugValid = isVentureSlugValid(slug);
 
+  const generateHook = async () => {
+    if (!title.trim()) return;
+    setGeneratingHook(true);
+    try {
+      const response = await fetch('/api/admin/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'hook', title, category }),
+      });
+      const payload = await response.json();
+      if (payload.success) setHook3Sec(payload.data);
+    } catch {
+      setError('Could not generate hook.');
+    } finally {
+      setGeneratingHook(false);
+    }
+  };
+
+  const addMinutesToTime = (time: string, minutes: number): string => {
+    const match = time.match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) return time;
+    const hours = Number(match[1]);
+    const mins = Number(match[2]);
+    const total = hours * 60 + mins + minutes;
+    const newH = Math.floor(total / 60) % 24;
+    const newM = total % 60;
+    return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+  };
+  const formatDurationText = (minutes: number | null): string => {
+    if (!minutes || minutes <= 0) return '';
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    if (h > 0 && m > 0) return `${h}:${String(m).padStart(2, '0')} hours`;
+    if (h > 0) return `${h} hour${h > 1 ? 's' : ''}`;
+    return `${m} min`;
+  };
   const toggleSuitable = (value: string) => {
     setSuitableFor((current) => {
       if (current.includes(value)) return current.filter((item) => item !== value);
@@ -400,6 +495,7 @@ export function VentureForm({
       return;
     }
 
+    const areaComplete = Boolean(desa && kecamatan && kabupaten);
     const payload = {
       title: title.trim(),
       slug: slug.trim() || undefined,
@@ -411,8 +507,15 @@ export function VentureForm({
       duration: duration.trim(),
       difficulty,
       badge: badge.trim() || undefined,
-      locationId: locationId || undefined,
+      /** A complete cascade resolves (or creates) the Location server-side;
+       *  otherwise the legacy locationId is kept as-is. */
+      locationId: areaComplete ? undefined : locationId || undefined,
+      desa: areaComplete ? desa : undefined,
+      kecamatan: areaComplete ? kecamatan : undefined,
+      kabupaten: areaComplete ? kabupaten : undefined,
+      provinsi: areaComplete ? provinsi : undefined,
       meetingPoint: meetingPoint.trim() || undefined,
+      meetingPointMapsUrl: meetingPointMapsUrl.trim() || undefined,
       meetingPointLat: numberOrUndefined(meetingPointLat),
       meetingPointLng: numberOrUndefined(meetingPointLng),
       minAge: numberOrUndefined(minAge),
@@ -576,15 +679,26 @@ export function VentureForm({
 
         <label className={labelClass}>
           Hook (3 seconds)
-          <input
-            value={hook3Sec}
-            onChange={(event) => setHook3Sec(event.target.value)}
-            required
-            minLength={10}
-            maxLength={120}
-            className={inputClass}
-            placeholder="Float a hidden canyon, then lunch by the river."
-          />
+          <div className="flex gap-2">
+            <input
+              value={hook3Sec}
+              onChange={(event) => setHook3Sec(event.target.value)}
+              required
+              minLength={10}
+              maxLength={120}
+              className={inputClass}
+              placeholder="Float a hidden canyon, then lunch by the river."
+            />
+            <button
+              type="button"
+              onClick={generateHook}
+              disabled={generatingHook || !title.trim()}
+              className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-neutral-300 px-3 text-xs font-semibold text-neutral-900 hover:bg-neutral-50 disabled:opacity-50"
+            >
+              {generatingHook ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              AI
+            </button>
+          </div>
         </label>
         <label className={labelClass}>
           Short description (card + meta, max 200)
@@ -611,16 +725,76 @@ export function VentureForm({
       <Section title="Location & safety">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className={labelClass}>
-            Area
-            <select value={locationId} onChange={(event) => setLocationId(event.target.value)} className={inputClass}>
-              <option value="">Choose an area</option>
-              {locations.map((location) => (
-                <option key={location.id} value={location.id}>
-                  {location.name} · {location.region}
+            Provinsi
+            <select
+              value={provinsi}
+              onChange={(event) => setProvinsi(event.target.value)}
+              className={inputClass}
+            >
+              <option value={PROVINSI_DEFAULT}>Bali</option>
+            </select>
+          </label>
+          <label className={labelClass}>
+            Kabupaten / Kota
+            <select
+              value={kabupaten}
+              onChange={(event) => {
+                setKabupaten(event.target.value);
+                setKecamatan('');
+                setDesa('');
+              }}
+              className={inputClass}
+            >
+              <option value="">Choose kabupaten/kota…</option>
+              {getRegencies().map((name) => (
+                <option key={name} value={name}>
+                  {name}
                 </option>
               ))}
             </select>
           </label>
+          <label className={labelClass}>
+            Kecamatan
+            <select
+              value={kecamatan}
+              onChange={(event) => {
+                setKecamatan(event.target.value);
+                setDesa('');
+              }}
+              disabled={!kabupaten}
+              className={`${inputClass} disabled:opacity-60`}
+            >
+              <option value="">Choose kecamatan…</option>
+              {getDistricts(kabupaten).map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className={labelClass}>
+            Desa / Kelurahan
+            <select
+              value={desa}
+              onChange={(event) => setDesa(event.target.value)}
+              disabled={!kecamatan}
+              className={`${inputClass} disabled:opacity-60`}
+            >
+              <option value="">Choose desa…</option>
+              {getVillages(kabupaten, kecamatan).map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          {!desa && locationId && (
+            <p className="text-xs text-neutral-500 sm:col-span-2">
+              Lokasi tersimpan:{' '}
+              {locations.find((item) => item.id === locationId)?.name ?? locationId} — pilih
+              kabupaten, kecamatan dan desa untuk menggantinya.
+            </p>
+          )}
           <label className={labelClass}>
             Meeting point name
             <input
@@ -648,6 +822,17 @@ export function VentureForm({
               value={meetingPointLng}
               onChange={(event) => setMeetingPointLng(event.target.value)}
               className={inputClass}
+            />
+          </label>
+          <label className={labelClass}>
+            Meeting point maps URL
+            <input
+              type="url"
+              value={meetingPointMapsUrl}
+              onChange={(event) => setMeetingPointMapsUrl(event.target.value)}
+              maxLength={500}
+              className={inputClass}
+              placeholder="https://maps.google.com/..."
             />
           </label>
           <label className={labelClass}>
@@ -794,23 +979,28 @@ export function VentureForm({
                 />
                 <input
                   value={row.duration}
-                  onChange={(event) => {
-                    const next = [...itinerary];
-                    next[index] = { ...next[index], duration: event.target.value };
-                    setItinerary(next);
-                  }}
-                  placeholder="45 min"
-                  className="min-h-[44px] rounded-lg border border-neutral-300 px-2 text-sm"
+                  readOnly
+                  placeholder="Auto"
+                  className="min-h-[44px] rounded-lg border border-neutral-200 bg-neutral-50 px-2 text-sm text-neutral-500"
                 />
                 <input
                   type="number"
                   value={row.durationMinutes ?? ''}
                   onChange={(event) => {
                     const next = [...itinerary];
+                    const mins = event.target.value ? Number(event.target.value) : null;
                     next[index] = {
                       ...next[index],
-                      durationMinutes: event.target.value ? Number(event.target.value) : null,
+                      durationMinutes: mins,
+                      duration: formatDurationText(mins),
                     };
+                    // Auto-calculate next row's start time
+                    if (mins && next[index].time && index + 1 < next.length) {
+                      next[index + 1] = {
+                        ...next[index + 1],
+                        time: addMinutesToTime(next[index].time, mins),
+                      };
+                    }
                     setItinerary(next);
                   }}
                   placeholder="Min"

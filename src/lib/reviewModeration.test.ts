@@ -1,63 +1,41 @@
 import { assessReviewForPublishing } from './reviewModeration';
 
-const clean = {
+const base = {
   rating: 5,
   comment: 'The guide was brilliant, the river was clean and the lunch was excellent.',
   verifiedBooking: true,
 };
 
-describe('review moderation', () => {
-  it('auto-publishes a clean verified 4-5 star review', () => {
-    expect(assessReviewForPublishing(clean)).toEqual({
+describe('review moderation policy', () => {
+  it('publishes verified reviews immediately', () => {
+    expect(assessReviewForPublishing(base)).toEqual({
       autoPublish: true,
-      reason: 'clean-verified-review',
-    });
-    expect(assessReviewForPublishing({ ...clean, rating: 4 }).autoPublish).toBe(true);
-  });
-
-  it('keeps low ratings for a human', () => {
-    expect(assessReviewForPublishing({ ...clean, rating: 3 })).toEqual({
-      autoPublish: false,
-      reason: 'low-rating',
+      reason: 'auto-published',
     });
   });
 
-  it('holds reviews with photos for a human', () => {
-    expect(assessReviewForPublishing({ ...clean, photoCount: 1 })).toEqual({
-      autoPublish: false,
-      reason: 'photos',
-    });
+  it('publishes low ratings immediately', () => {
+    expect(assessReviewForPublishing({ ...base, rating: 1 }).autoPublish).toBe(true);
   });
 
-  it('never auto-publishes an unverified review', () => {
-    expect(assessReviewForPublishing({ ...clean, verifiedBooking: false }).autoPublish).toBe(false);
+  it('publishes reviews with photos immediately', () => {
+    expect(assessReviewForPublishing({ ...base, photoCount: 3 }).autoPublish).toBe(true);
   });
 
-  it('holds reviews containing links, emails or phone numbers', () => {
+  it('publishes founding-guest reviews that are not tied to a booking', () => {
+    expect(assessReviewForPublishing({ ...base, verifiedBooking: false }).autoPublish).toBe(true);
+  });
+
+  it('publishes comments containing links or contact details', () => {
     expect(
       assessReviewForPublishing({
-        ...clean,
+        ...base,
         comment: 'Great trip, book again at https://example.com or wa.me/628123456789.',
-      }).reason
-    ).toBe('contact-details');
-    expect(
-      assessReviewForPublishing({
-        ...clean,
-        comment: 'Contact me at guide@example.com for a private tour next time.',
-      }).reason
-    ).toBe('contact-details');
+      }).autoPublish
+    ).toBe(true);
   });
 
-  it('holds profanity for a human', () => {
-    expect(
-      assessReviewForPublishing({
-        ...clean,
-        comment: 'The guide was fucking brilliant and the river was perfect.',
-      }).reason
-    ).toBe('profanity');
-  });
-
-  it('holds comments that are too short', () => {
-    expect(assessReviewForPublishing({ ...clean, comment: 'Amazing trip!' }).reason).toBe('too-short');
+  it('publishes short comments', () => {
+    expect(assessReviewForPublishing({ ...base, comment: 'Amazing trip!' }).autoPublish).toBe(true);
   });
 });

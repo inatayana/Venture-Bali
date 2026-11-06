@@ -177,9 +177,15 @@ describe('catalogue', () => {
     expect(new Set(areaTypes).size).toBe(4);
   });
 
-  it('only charges a surcharge outside the core zone', () => {
+  it('charges per-vehicle surcharge for all zones including core', () => {
     const core = PICKUP_ZONES.find((z) => z.areaType === 'ZONE_1');
-    expect(core?.surchargeIdr).toBe(0);
+    expect(core?.surchargeIdr).toBe(500000);
+    const south1 = PICKUP_ZONES.find((z) => z.areaType === 'ZONE_2');
+    expect(south1?.surchargeIdr).toBe(700000);
+    const south2 = PICKUP_ZONES.find((z) => z.areaType === 'ZONE_3');
+    expect(south2?.surchargeIdr).toBe(800000);
+    const outer = PICKUP_ZONES.find((z) => z.areaType === 'ZONE_4');
+    expect(outer?.isCustomQuote).toBe(true);
   });
 
   it('defines 3 vehicle classes with unique names', () => {

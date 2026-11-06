@@ -20,10 +20,9 @@ Guest scans QR / opens email link
 /review/[bookingId]?token=…  (no account needed)
         ↓
 POST /api/reviews
-  ├─ rating 4–5 + clean comment + verified booking → isApproved = true (live)
-  └─ otherwise → isApproved = false + email to support@
+  └─ every review → isApproved = true (live immediately)
         ↓
-PDP shows approved reviews with “Verified trip”
+PDP shows reviews with a “Verified” badge
 ```
 
 Fallback cron (`/api/cron/review-requests`, 10:00 WITA) re-sends invites that
@@ -58,14 +57,16 @@ links do not break. New emails/QRs always use `rl1`.
 
 `Review.source` (migration `20261108100000_review_source`):
 
-| Source | Badge | Meaning |
-|---|---|---|
-| `VERIFIED_BOOKING` | Verified trip | Paid booking, marked COMPLETED |
-| `FOUNDING_GUEST` | Founding guest | Real invited guest who did the activity without an online booking |
-| `IMPORTED` | Imported review | Real review collected from another platform with permission |
+| Source (stored) | Meaning |
+|---|---|
+| `VERIFIED_BOOKING` | Paid booking, marked COMPLETED |
+| `FOUNDING_GUEST` | Real invited guest who did the activity without an online booking |
+| `IMPORTED` | Real review collected from another platform with permission |
 
-Only `VERIFIED_BOOKING` may use the “Verified trip” badge. Never label a
-non-booking review as verified.
+The raw value is kept for reporting, but the UI does not expose the
+distinction anymore: every review is labelled **Verified**. The admin filter
+and the public review card no longer branch on `source` (owner decision,
+Nov 2026).
 
 ## 3b. Guest photos
 
@@ -75,7 +76,7 @@ non-booking review as verified.
 - Stored in the public Supabase bucket named by `SUPABASE_REVIEW_BUCKET`
   (default `reviews`)
 - Server re-validates MIME type and size and only accepts URLs from that bucket
-- Reviews **with photos always go through moderation**, even at 5★
+- Reviews **with photos are published immediately**, like every other review
 - Admin can remove individual photos before or after publishing
 - Photos render as a 4:3 grid (max 3) in review cards and the admin queue
 
@@ -106,7 +107,7 @@ guests, early testers, invited locals/creators).
 - Guest fills name, country, rating, review and optional photos
 - Review is stored with `source = FOUNDING_GUEST`, `bookingId = null`,
   `customerId = null`, `inviteId = <invite>`
-- **Always goes through moderation** (never auto-published)
+- **Published immediately**, like every other review
 - QR endpoint: `/api/reviews/invite/qr?inviteId=…&token=…`
 - Reusing a submitted/expired link returns `409`; the QR stops rendering
 
@@ -125,30 +126,29 @@ invites per product, so the team can see progress toward 10 published reviews.
 All sends are logged in `NotificationLog` with `SENT`/`FAILED`. Delivery
 failures never block checkout, ops, or review submission.
 
-## 5. Moderation policy
+## 5. Publication policy
 
-`src/lib/reviewModeration.ts`:
+`src/lib/reviewModeration.ts` always returns `autoPublish: true`: every review
+submitted by a guest is live immediately. There is no pending state and no
+approval step.
 
 | Case | Result |
 |---|---|
-| Verified + rating 4–5 + clean comment, no photos | **Auto-publish** |
-| Verified + rating 4–5 + photos | Queue (photos are UGC) + support email |
-| Rating 1–3 | Queue + support email |
-| Link, email, phone number, `wa.me`, `t.me` | Queue + support email |
-| Severe profanity | Queue + support email |
-| Not verified / comment < 20 chars | Queue |
+| Any rating, with or without photos | **Published immediately** |
+| Founding-guest invite | **Published immediately** |
+| Contact details / profanity / short comment | **Published immediately** |
 
-Admin queue: `/admin/reviews` → Approve / Reject. Reject deletes the row.
+Admin queue: `/admin/reviews` → Delete only (single row or bulk). Deleting a
+row is the only moderation action left.
 
-### Admin tooling (v3.7.2)
+### Admin tooling
 
-- Coverage per product: published count vs target **10/product**, pending count,
-  progress bar, click to filter that product.
-- Filters: status (pending/published/all), source, product.
-- Bulk approve or delete up to 100 selected reviews.
-- Photo moderation: open a photo or remove it from the review.
-- Source badge on every row so imported/founding-guest reviews are never
-  confused with verified bookings.
+- Coverage per product: published count vs target **10/product**, progress bar,
+  click to filter that product.
+- Filters: status (published/all) and product.
+- Bulk delete up to 100 selected reviews.
+- Photo removal: open a photo or remove it from the review.
+- Every row shows the same **Verified** badge.
 
 
 ## 6. Cron
@@ -168,7 +168,7 @@ Requires `CRON_SECRET`; without it the route returns 401.
 
 | Variable | Purpose |
 |---|---|
-| `RESEND_API_KEY` | Review email + moderation alerts |
+| `RESEND_API_KEY` | Review email + invite delivery |
 | `EMAIL_FROM` | Verified sender, e.g. `BaliWild <booking@baliwild.com>` |
 | `WHATSAPP_ACCESS_TOKEN` | WhatsApp delivery |
 | `WHATSAPP_PHONE_NUMBER_ID` | WhatsApp delivery |
@@ -182,10 +182,10 @@ Requires `CRON_SECRET`; without it the route returns 401.
 **Photo setup:** create a public bucket named `reviews` in Supabase Storage.
 Uploads use the service-role key server-side; the browser never sees it.
 
-**Current local status:** Resend, WhatsApp, `CRON_SECRET` and Supabase storage
-keys are not configured, so outbound sends are recorded as `FAILED` and photo
-upload returns `503`. QR/ops, text-only reviews and admin moderation still work.
-Configure the keys before production traffic.
+**Current local status:** Resend, WhatsApp and `CRON_SECRET` are not configured,
+so outbound sends are recorded as `FAILED`. Review photos need
+`SUPABASE_REVIEW_BUCKET` (default `reviews`) to exist as a public bucket.
+QR/ops and all review submissions work without those keys.
 
 ## 8. Testing
 
@@ -204,15 +204,15 @@ Manual (booking review, after a booking is `COMPLETED`):
 2. Scan/open the link → review form loads.
 3. Add 1–3 photos → thumbnails appear, upload returns a Supabase public URL.
 4. Submit 5★ clean comment → response `published: true`, PDP shows it with photos.
-5. Submit 2★ → response `pendingModeration: true`, `/admin/reviews` lists it.
-6. Admin filters by product/source/status, approves in bulk, and removes a photo.
+5. Submit 2★ → response `published: true`, the review appears on the PDP immediately.
+6. Admin filters by product/status, deletes a row and removes a photo.
 7. Check `NotificationLog` for SENT/FAILED reasons.
 
 Manual (founding guest):
 
 1. `/admin/reviews/invites` → choose product → create 10 links.
 2. Open a link or scan its QR → guest form loads.
-3. Submit → `/admin/reviews` shows a **Founding guest** pending review.
+3. Submit → the review is live immediately with a **Verified** badge.
 4. Reusing the same link returns `409`; the invite becomes `SUBMITTED`.
 5. Revoke an unused invite → its link/QR stops working.
 

@@ -20,6 +20,8 @@ export const slotInputSchema = z.object({
     .transform(normaliseSlotTime),
   maxCapacity: z.number().int().min(1, 'Capacity must be at least 1').max(100, 'Capacity is too large'),
   isAvailable: z.boolean().default(true),
+  /** Booking cut-off in hours before the departure; null = mode default. */
+  cutoffHours: z.number().int().min(0, 'Cut-off cannot be negative').max(720, 'Cut-off cannot be more than 30 days').nullable().optional(),
 });
 
 export const slotUpdateSchema = z.object({
@@ -31,6 +33,8 @@ export const slotUpdateSchema = z.object({
     .optional(),
   maxCapacity: z.number().int().min(1).max(100).optional(),
   isAvailable: z.boolean().optional(),
+  /** Booking cut-off in hours before the departure; null = mode default. */
+  cutoffHours: z.number().int().min(0).max(720).nullable().optional(),
 });
 
 export const blackoutInputSchema = z.object({
@@ -53,10 +57,35 @@ export const variantPriceTierSchema = z
     minPax: z.number().int().min(1, 'Minimum pax is 1').max(99),
     maxPax: z.number().int().min(1).max(99),
     pricePerPax: z.number().int().min(0, 'Price cannot be negative').max(50_000_000),
+    pricingModel: z.enum(['FLAT_PER_GUEST', 'AGE_TIERED']).default('FLAT_PER_GUEST'),
+    /** Kids (3-10) / youth (11-16) flat prices. Blank = the adult price applies.
+     *  Capped at the adult price — a kids/youth ticket never costs more. */
+    kidsPricePerPax: z.number().int().min(0).max(50_000_000).nullable().optional(),
+    youthPricePerPax: z.number().int().min(0).max(50_000_000).nullable().optional(),
   })
-  .refine((tier) => tier.maxPax >= tier.minPax, {
-    message: 'Max pax must be at least min pax',
-    path: ['maxPax'],
+  .superRefine((tier, ctx) => {
+    if (tier.maxPax < tier.minPax) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['maxPax'],
+        message: 'Max pax must be at least min pax',
+      });
+    }
+    if (tier.pricingModel === 'AGE_TIERED') {
+      for (const field of ['kidsPricePerPax', 'youthPricePerPax'] as const) {
+        const value = tier[field];
+        if (value != null && value > tier.pricePerPax) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [field],
+            message:
+              field === 'kidsPricePerPax'
+                ? 'Kids price cannot exceed the adult price'
+                : 'Youth price cannot exceed the adult price',
+          });
+        }
+      }
+    }
   });
 
 const assetUrlSchema = z
@@ -68,6 +97,9 @@ const assetUrlSchema = z
     (value) => value.startsWith('/') || /^https?:\/\//i.test(value),
     'Use a /images/... path or an https:// URL',
   );
+
+/** Free-form list fields: highlights, inclusions, exclusions, tags… */
+const textListSchema = z.array(z.string().trim().min(1).max(200)).max(20);
 
 const variantBaseSchema = z.object({
   title: z.string().trim().min(3, 'Title is too short').max(80, 'Title is too long'),
@@ -90,6 +122,20 @@ const variantBaseSchema = z.object({
     .max(10, 'Too many price tiers'),
   /** Optional cover: reuses one of the product's photos (no variant gallery). */
   imageUrl: assetUrlSchema.nullable().optional(),
+  /** Optional dated promo. A promo without dates is always active (legacy). */
+  promoPriceIdr: z.number().int().min(0).max(50_000_000).nullable().optional(),
+  promoLabel: z.string().trim().min(1).max(80).nullable().optional(),
+  promoStartsAt: z.coerce.date().nullable().optional(),
+  promoEndsAt: z.coerce.date().nullable().optional(),
+  /** Infants (0-2) may be declared on the booking — never priced or counted. */
+  infantEnabled: z.boolean().default(false),
+  /**
+   * Variant-level included/excluded items. When empty the public mapper falls
+   * back to the venture-level standard list; a non-empty list is the
+   * package's own selling points (e.g. transfer variants adding hotel pickup).
+   */
+  inclusions: textListSchema.optional(),
+  exclusions: textListSchema.optional(),
 });
 
 function checkTiersDoNotOverlap(
@@ -118,10 +164,52 @@ export const adminVariantSchema = variantBaseSchema.superRefine((value, ctx) => 
     });
   }
   checkTiersDoNotOverlap(value.priceTiers, ctx);
+  // One variant prices one way: a mixed FLAT/AGE_TIERED tier list would make
+  // the booking sheet ambiguous.
+  const models = new Set(value.priceTiers.map((tier) => tier.pricingModel));
+  if (models.size > 1) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['priceTiers'],
+      message: 'All price tiers must use the same pricing model',
+    });
+  }
+  if (
+    value.promoStartsAt &&
+    value.promoEndsAt &&
+    value.promoEndsAt.getTime() <= value.promoStartsAt.getTime()
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['promoEndsAt'],
+      message: 'Promo end must be after the start',
+    });
+  }
 });
 
 export const adminVariantUpdateSchema = variantBaseSchema.partial().superRefine((value, ctx) => {
-  if (value.priceTiers) checkTiersDoNotOverlap(value.priceTiers, ctx);
+  if (value.priceTiers) {
+    checkTiersDoNotOverlap(value.priceTiers, ctx);
+    const models = new Set(value.priceTiers.map((tier) => tier.pricingModel));
+    if (models.size > 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['priceTiers'],
+        message: 'All price tiers must use the same pricing model',
+      });
+    }
+  }
+  if (
+    value.promoStartsAt &&
+    value.promoEndsAt &&
+    value.promoEndsAt.getTime() <= value.promoStartsAt.getTime()
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['promoEndsAt'],
+      message: 'Promo end must be after the start',
+    });
+  }
 });
 
 /**
@@ -131,8 +219,6 @@ export const adminVariantUpdateSchema = variantBaseSchema.partial().superRefine(
  * reviews, tenant is resolved by the route, and variants are managed on their
  * own endpoint.
  */
-
-const textListSchema = z.array(z.string().trim().min(1).max(200)).max(20);
 
 const itinerarySchema = z
   .array(
@@ -187,6 +273,11 @@ export const adminVentureWriteSchema = z
     difficulty: z.enum(['EASY', 'MODERATE', 'CHALLENGING']).default('EASY'),
     badge: z.string().trim().max(30).optional(),
     locationId: z.string().trim().min(1).nullable().optional(),
+    /** Admin area cascade — resolved to a Location row by the API. */
+    desa: z.string().trim().min(1).max(80).optional(),
+    kecamatan: z.string().trim().min(1).max(80).optional(),
+    kabupaten: z.string().trim().min(1).max(80).optional(),
+    provinsi: z.string().trim().min(1).max(40).optional(),
     meetingPoint: z.string().trim().max(200).optional(),
     meetingPointLat: z.number().min(-90).max(90).optional(),
     meetingPointLng: z.number().min(-180).max(180).optional(),

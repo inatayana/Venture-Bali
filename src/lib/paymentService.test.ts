@@ -38,6 +38,10 @@ const booking: Booking = {
   hotelAddress: null,
   isTba: false,
   paxCount: 2,
+  adultsCount: 2,
+  kidsCount: 0,
+  youthCount: 0,
+  infantCount: 0,
   vehicleCount: 1,
   zoneSurchargeIdr: 0,
   nightSurchargeIdr: 0,
@@ -53,9 +57,20 @@ const booking: Booking = {
   termsAcceptedAt: null,
   waiverAcceptedAt: null,
   waiverVersion: null,
+  waiverDigitalSignature: null,
+  waiverSignatureMethod: null,
+  waiverHealthDeclaration: null,
+  waiverEmergencyContact: null,
+  waiverIdVerified: false,
+  waiverPhotoId: null,
+  waiverSignedBy: null,
+  waiverSignedAt: null,
+  waiverIpAddress: null,
+  waiverUserAgent: null,
   billingAddress: null,
   createdAt: new Date(),
   updatedAt: new Date(),
+  tenantId: 'tenant-001',
 };
 
 const payment: Payment & { booking: Booking } = {
@@ -71,6 +86,7 @@ const payment: Payment & { booking: Booking } = {
   status: 'PENDING',
   createdAt: new Date(),
   updatedAt: new Date(),
+  tenantId: 'tenant-001',
   booking,
 };
 

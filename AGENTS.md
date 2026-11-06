@@ -15,6 +15,7 @@
 7. `docs/DEPLOYMENT_STRATEGY.md` — how the app is actually deployed (Vercel now, VPS later)
 8. `docs/AI_AGENT.md` — agent tools, session handling, content wizard rules
 9. `docs/BRAND_GUIDELINES.md` — BaliWild name, wordmark, palette, voice and migration checklist
+10. `docs/RUNBOOK_DEPLOY.md` — deploy, seed and recovery procedure; read before any migration or "it's broken" incident
 
 Do not start work before reading the section relevant to your task.
 
@@ -36,6 +37,7 @@ Do not start work before reading the section relevant to your task.
 A task is DONE only when:
 - [ ] `lint`, `typecheck`, and `test` all pass
 - [ ] New/changed behavior has tests where applicable
+- [ ] Any change touching DB, seed, or environment is verified live: `npm run db:seed` succeeds on an empty database AND `npm run smoke` passes against the running app
 - [ ] No secrets, `.env`, or build artifacts in the commit
 - [ ] Docs updated if behavior or structure changed
 - [ ] Committed AND pushed to GitHub

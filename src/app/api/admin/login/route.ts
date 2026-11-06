@@ -12,6 +12,9 @@ import { clientIp, rateLimit } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
+// This route deliberately has NO in-code fallback credentials. Admin accounts
+// live only in the database — create one with: npm run admin:create
+
 const loginSchema = z.object({
   email: z.string().trim().email('Enter a valid email address'),
   password: z.string().min(1, 'Enter your password'),
@@ -54,10 +57,12 @@ export async function POST(request: NextRequest) {
   const email = parsed.data.email.toLowerCase();
 
   try {
+    // Fail-closed: the database is the only source of admin accounts.
+    // If it is unavailable, no one can sign in (outer catch returns 503-style error).
     const admin = await prisma.adminUser.findUnique({ where: { email } });
 
-    // Always run a hash comparison so a missing account and a wrong
-    // password take the same amount of time.
+    // Run a hash comparison even for missing accounts so a missing
+    // account and a wrong password take the same amount of time.
     const storedHash = admin?.passwordHash ?? 'scrypt$00$00';
     const passwordMatches = verifyPassword(parsed.data.password, storedHash);
 

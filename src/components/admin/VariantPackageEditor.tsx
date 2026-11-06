@@ -9,6 +9,8 @@ export interface AdminPickupZone {
   id: string;
   name: string;
   surchargeIdr: number;
+  /** Seat fee per guest for shared transfer packages (optional for legacy callers). */
+  surchargePerPaxIdr?: number;
   isCustomQuote: boolean;
 }
 
@@ -22,11 +24,31 @@ export interface AdminVariantDraft {
   badge: string | null;
   transportBadge: string | null;
   minimumSpendIdr: number | null;
+  /** Dated promo (nullable = no promo). Dates arrive as ISO strings. */
+  promoPriceIdr: number | null;
+  promoLabel: string | null;
+  promoStartsAt: string | null;
+  promoEndsAt: string | null;
+  /** Infants (0-2) may be declared — never priced or capacity-counted. */
+  infantEnabled: boolean;
   sortOrder: number;
-  priceTiers: { minPax: number; maxPax: number; pricePerPax: number }[];
+  priceTiers: {
+    minPax: number;
+    maxPax: number;
+    pricePerPax: number;
+    pricingModel?: 'FLAT_PER_GUEST' | 'AGE_TIERED';
+    kidsPricePerPax?: number | null;
+    youthPricePerPax?: number | null;
+  }[];
   bookingCount: number;
   /** Optional variant cover; must reuse one of the product's photos. */
   imageUrl: string | null;
+  /**
+   * Package-level included/excluded items. Empty lists inherit the product's
+   * standard lists on the public site.
+   */
+  inclusions: string[];
+  exclusions: string[];
 }
 
 interface VariantPackageEditorProps {
@@ -42,6 +64,9 @@ interface TierDraft {
   minPax: string;
   maxPax: string;
   pricePerPax: string;
+  pricingModel: 'FLAT_PER_GUEST' | 'AGE_TIERED';
+  kidsPricePerPax: string;
+  youthPricePerPax: string;
 }
 
 const MODE_OPTIONS = [
@@ -52,13 +77,33 @@ const MODE_OPTIONS = [
 
 function toTierDrafts(variant?: AdminVariantDraft): TierDraft[] {
   if (!variant || variant.priceTiers.length === 0) {
-    return [{ minPax: '1', maxPax: '10', pricePerPax: '500000' }];
+    return [
+      {
+        minPax: '1',
+        maxPax: '10',
+        pricePerPax: '500000',
+        pricingModel: 'FLAT_PER_GUEST',
+        kidsPricePerPax: '',
+        youthPricePerPax: '',
+      },
+    ];
   }
   return variant.priceTiers.map((tier) => ({
     minPax: String(tier.minPax),
     maxPax: String(tier.maxPax),
     pricePerPax: String(tier.pricePerPax),
+    pricingModel: tier.pricingModel ?? 'FLAT_PER_GUEST',
+    kidsPricePerPax: tier.kidsPricePerPax ? String(tier.kidsPricePerPax) : '',
+    youthPricePerPax: tier.youthPricePerPax ? String(tier.youthPricePerPax) : '',
   }));
+}
+
+/** One item per line; blank lines and surrounding spaces dropped. */
+function splitTextLines(value: string): string[] {
+  return value
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 /**
@@ -89,8 +134,18 @@ export function VariantPackageEditor({
   const [minimumSpendIdr, setMinimumSpendIdr] = useState(
     variant?.minimumSpendIdr ? String(variant.minimumSpendIdr) : ''
   );
+  const [promoPrice, setPromoPrice] = useState(
+    variant?.promoPriceIdr ? String(variant.promoPriceIdr) : ''
+  );
+  const [promoLabel, setPromoLabel] = useState(variant?.promoLabel ?? '');
+  /** datetime-local inputs need "YYYY-MM-DDTHH:mm" (strip seconds/Z). */
+  const [promoStartsAt, setPromoStartsAt] = useState(variant?.promoStartsAt?.slice(0, 16) ?? '');
+  const [promoEndsAt, setPromoEndsAt] = useState(variant?.promoEndsAt?.slice(0, 16) ?? '');
+  const [infantEnabled, setInfantEnabled] = useState(variant?.infantEnabled ?? false);
   const [sortOrder, setSortOrder] = useState(String(variant?.sortOrder ?? 0));
   const [imageUrl, setImageUrl] = useState(variant?.imageUrl ?? '');
+  const [inclusions, setInclusions] = useState((variant?.inclusions ?? []).join('\n'));
+  const [exclusions, setExclusions] = useState((variant?.exclusions ?? []).join('\n'));
   const [tiers, setTiers] = useState<TierDraft[]>(() => toTierDrafts(variant));
 
   const isEditing = Boolean(variant);
@@ -116,12 +171,22 @@ export function VariantPackageEditor({
         badge: badge.trim() || null,
         transportBadge: transportBadge.trim() || null,
         minimumSpendIdr: minimumSpendIdr === '' ? null : Number(minimumSpendIdr),
+        promoPriceIdr: promoPrice === '' ? null : Number(promoPrice),
+        promoLabel: promoLabel.trim() || null,
+        promoStartsAt: promoStartsAt ? new Date(promoStartsAt).toISOString() : null,
+        promoEndsAt: promoEndsAt ? new Date(promoEndsAt).toISOString() : null,
+        infantEnabled,
         sortOrder: Number(sortOrder),
         imageUrl: imageUrl || null,
+        inclusions: splitTextLines(inclusions),
+        exclusions: splitTextLines(exclusions),
         priceTiers: tiers.map((tier) => ({
           minPax: Number(tier.minPax),
           maxPax: Number(tier.maxPax),
           pricePerPax: Number(tier.pricePerPax),
+          pricingModel: tier.pricingModel,
+          kidsPricePerPax: tier.pricingModel === 'AGE_TIERED' && tier.kidsPricePerPax !== '' ? Number(tier.kidsPricePerPax) : null,
+          youthPricePerPax: tier.pricingModel === 'AGE_TIERED' && tier.youthPricePerPax !== '' ? Number(tier.youthPricePerPax) : null,
         })),
       };
 
@@ -249,6 +314,38 @@ export function VariantPackageEditor({
             rows={2}
             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
           />
+          <span className="mt-1 block font-normal text-gray-600">
+            Shown on the package card and modal — what makes this package different.
+          </span>
+        </label>
+
+        <label className="text-xs font-medium text-gray-600">
+          What&apos;s included (one per line)
+          <textarea
+            value={inclusions}
+            onChange={(event) => setInclusions(event.target.value)}
+            rows={5}
+            placeholder={'ATV rental\nSafety gear\nCertified guide\nHotel pickup (this package)'}
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          />
+          <span className="mt-1 block font-normal text-gray-600">
+            Leave empty to inherit the product&apos;s standard list. To override it, write the
+            FULL list for this package (standard items plus the extras).
+          </span>
+        </label>
+
+        <label className="text-xs font-medium text-gray-600">
+          Not included (one per line)
+          <textarea
+            value={exclusions}
+            onChange={(event) => setExclusions(event.target.value)}
+            rows={5}
+            placeholder={'Personal expenses\nLunch\nSouvenirs'}
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          />
+          <span className="mt-1 block font-normal text-gray-600">
+            Empty = inherits the product&apos;s standard list.
+          </span>
         </label>
 
         <label className="text-xs font-medium text-gray-600">
@@ -279,20 +376,23 @@ export function VariantPackageEditor({
             className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 bg-white px-3 text-sm disabled:bg-gray-100 disabled:text-gray-600"
           >
             <option value="">No locked zone — guest picks the area</option>
-            {zones.map((zone) => (
-              <option key={zone.id} value={zone.id}>
-                {zone.name}
-                {zone.isCustomQuote
-                  ? ' (custom quote)'
-                  : zone.surchargeIdr > 0
-                    ? ` (+${formatPrice(zone.surchargeIdr)})`
-                    : ' (included)'}
-              </option>
-            ))}
+            {zones.map((zone) => {
+              const isShared = fulfillmentMode === 'SHARED_TRANSFER';
+              const feeIdr = isShared ? (zone.surchargePerPaxIdr ?? 0) : zone.surchargeIdr;
+              return (
+                <option key={zone.id} value={zone.id}>
+                  {zone.name}
+                  {zone.isCustomQuote
+                    ? ' (custom quote)'
+                    : ` (+${formatPrice(feeIdr)} ${isShared ? '/guest' : '/vehicle'})`}
+                </option>
+              );
+            })}
           </select>
           <span className="mt-1 block font-normal text-gray-600">
             Locked zones preselect the area in the booking sheet and keep the
-            surcharge visible on the package card.
+            pickup fee visible on the package card — per vehicle for private, per
+            guest for shared.
           </span>
         </label>
 
@@ -325,6 +425,66 @@ export function VariantPackageEditor({
             placeholder="1200000"
             className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
           />
+        </label>
+
+        <label className="text-xs font-medium text-gray-600 sm:col-span-2">
+          Promo price (IDR, optional)
+          <input
+            value={promoPrice}
+            onChange={(event) => setPromoPrice(event.target.value.replace(/[^\d]/g, ''))}
+            inputMode="numeric"
+            placeholder="380000 — shows a strikethrough price while active"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+          />
+        </label>
+
+        <label className="text-xs font-medium text-gray-600">
+          Promo caption (optional)
+          <input
+            value={promoLabel}
+            onChange={(event) => setPromoLabel(event.target.value)}
+            placeholder="Promo September Ceria — no code needed"
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+          />
+        </label>
+
+        <label className="text-xs font-medium text-gray-600">
+          Promo starts (optional)
+          <input
+            type="datetime-local"
+            value={promoStartsAt}
+            onChange={(event) => setPromoStartsAt(event.target.value)}
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+          />
+        </label>
+
+        <label className="text-xs font-medium text-gray-600">
+          Promo ends (optional)
+          <input
+            type="datetime-local"
+            value={promoEndsAt}
+            onChange={(event) => setPromoEndsAt(event.target.value)}
+            className="mt-1 min-h-[40px] w-full rounded-lg border border-gray-300 px-3 text-sm"
+          />
+        </label>
+
+        <p className="text-xs text-gray-600 sm:col-span-2">
+          Promo tanpa tanggal selalu aktif. Dengan tanggal, harga promo otomatis
+          hilang dari halaman publik begitu periode berakhir — tanpa perlu edit manual.
+        </p>
+
+        <label className="flex items-start gap-2 rounded-lg border border-gray-200 p-3 text-xs font-medium text-gray-600 sm:col-span-2">
+          <input
+            type="checkbox"
+            checked={infantEnabled}
+            onChange={(event) => setInfantEnabled(event.target.checked)}
+            className="mt-0.5 h-4 w-4"
+          />
+          <span>
+            Allow infants (0-2) on this package — guests declare them at booking, they ride
+            free and are never counted in capacity or price. Turn this off for adventures
+            that are unsafe for infants.
+          </span>
         </label>
 
         <label className="text-xs font-medium text-gray-600 sm:col-span-2">
@@ -368,7 +528,17 @@ export function VariantPackageEditor({
           <button
             type="button"
             onClick={() =>
-              setTiers((current) => [...current, { minPax: '', maxPax: '', pricePerPax: '' }])
+              setTiers((current) => [
+                ...current,
+                {
+                  minPax: '',
+                  maxPax: '',
+                  pricePerPax: '',
+                  pricingModel: current[0]?.pricingModel ?? 'FLAT_PER_GUEST',
+                  kidsPricePerPax: '',
+                  youthPricePerPax: '',
+                },
+              ])
             }
             className="text-xs font-semibold text-brand-ink hover:underline"
           >
@@ -378,49 +548,100 @@ export function VariantPackageEditor({
 
         <div className="space-y-2">
           {tiers.map((tier, index) => (
-            <div key={index} className="grid grid-cols-[1fr_1fr_1.2fr_auto] items-center gap-2">
-              <input
-                value={tier.minPax}
-                onChange={(event) =>
-                  updateTier(index, { minPax: event.target.value.replace(/[^\d]/g, '') })
-                }
-                inputMode="numeric"
-                placeholder="Min pax"
-                aria-label={`Tier ${index + 1} minimum pax`}
-                className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
-              />
-              <input
-                value={tier.maxPax}
-                onChange={(event) =>
-                  updateTier(index, { maxPax: event.target.value.replace(/[^\d]/g, '') })
-                }
-                inputMode="numeric"
-                placeholder="Max pax"
-                aria-label={`Tier ${index + 1} maximum pax`}
-                className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
-              />
-              <input
-                value={tier.pricePerPax}
-                onChange={(event) =>
-                  updateTier(index, { pricePerPax: event.target.value.replace(/[^\d]/g, '') })
-                }
-                inputMode="numeric"
-                placeholder="Price / guest"
-                aria-label={`Tier ${index + 1} price per guest`}
-                className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
-              />
-              <button
-                type="button"
-                onClick={() => setTiers((current) => current.filter((_, i) => i !== index))}
-                disabled={tiers.length === 1}
-                className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-red-600 disabled:opacity-30"
-                aria-label={`Remove tier ${index + 1}`}
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+            <div key={index} className="rounded-lg border border-gray-200 p-2">
+              <div className="grid grid-cols-[1fr_1fr_1.2fr_1.4fr_auto] items-center gap-2">
+                <input
+                  value={tier.minPax}
+                  onChange={(event) =>
+                    updateTier(index, { minPax: event.target.value.replace(/[^\d]/g, '') })
+                  }
+                  inputMode="numeric"
+                  placeholder="Min pax"
+                  aria-label={`Tier ${index + 1} minimum pax`}
+                  className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                />
+                <input
+                  value={tier.maxPax}
+                  onChange={(event) =>
+                    updateTier(index, { maxPax: event.target.value.replace(/[^\d]/g, '') })
+                  }
+                  inputMode="numeric"
+                  placeholder="Max pax"
+                  aria-label={`Tier ${index + 1} maximum pax`}
+                  className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                />
+                <input
+                  value={tier.pricePerPax}
+                  onChange={(event) =>
+                    updateTier(index, { pricePerPax: event.target.value.replace(/[^\d]/g, '') })
+                  }
+                  inputMode="numeric"
+                  placeholder={
+                    tier.pricingModel === 'AGE_TIERED' ? 'Adult price / guest' : 'Price / guest'
+                  }
+                  aria-label={`Tier ${index + 1} price per guest`}
+                  className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                />
+                <select
+                  value={tier.pricingModel}
+                  onChange={(event) => {
+                    const next = event.target.value as TierDraft['pricingModel'];
+                    setTiers((current) =>
+                      current.map((item, i) =>
+                        i === index ? { ...item, pricingModel: next } : item
+                      )
+                    );
+                  }}
+                  aria-label={`Tier ${index + 1} pricing model`}
+                  className="min-h-[40px] rounded-lg border border-gray-300 bg-white px-2 text-sm"
+                >
+                  <option value="FLAT_PER_GUEST">Flat / guest</option>
+                  <option value="AGE_TIERED">Age-tiered</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setTiers((current) => current.filter((_, i) => i !== index))}
+                  disabled={tiers.length === 1}
+                  className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-red-600 disabled:opacity-30"
+                  aria-label={`Remove tier ${index + 1}`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+              {tier.pricingModel === 'AGE_TIERED' && (
+                <div className="mt-2 grid grid-cols-[1fr_1fr] gap-2 border-t border-dashed border-gray-200 pt-2">
+                  <input
+                    value={tier.kidsPricePerPax}
+                    onChange={(event) =>
+                      updateTier(index, { kidsPricePerPax: event.target.value.replace(/[^\d]/g, '') })
+                    }
+                    inputMode="numeric"
+                    placeholder="Kids price (3-10) — blank = adult price"
+                    aria-label={`Tier ${index + 1} kids price`}
+                    className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                  />
+                  <input
+                    value={tier.youthPricePerPax}
+                    onChange={(event) =>
+                      updateTier(index, { youthPricePerPax: event.target.value.replace(/[^\d]/g, '') })
+                    }
+                    inputMode="numeric"
+                    placeholder="Youth price (11-16) — blank = adult price"
+                    aria-label={`Tier ${index + 1} youth price`}
+                    className="min-h-[40px] rounded-lg border border-gray-300 px-3 text-sm"
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>
+        {tiers.some((tier) => tier.pricingModel === 'AGE_TIERED') && (
+          <p className="mt-2 text-xs text-gray-600">
+            Age-tiered tiers: adults pay the tier price (selected by total guests), kids (3-10)
+            and youth (11-16) pay their flat price. Leave a price blank to charge the adult
+            price. Kids/youth can never cost more than the adult price.
+          </p>
+        )}
       </div>
 
       <div className="mt-4 flex items-center gap-3">

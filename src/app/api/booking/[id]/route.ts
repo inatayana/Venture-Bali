@@ -27,7 +27,7 @@ export async function GET(
     }
 
     // The QR is only rendered for a settled booking that already has a voucher.
-    const voucher = booking.vouchers[0] ?? null;
+    const voucher = booking.vouchers ?? null;
     const qrCodeDataUrl =
       booking.paymentStatus === 'PAID' && voucher
         ? await generateQRCodeDataURL(voucher.qrCodeData, { width: 384 })

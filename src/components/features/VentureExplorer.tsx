@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import { VentureCard } from '@/components/ui';
@@ -28,7 +28,7 @@ export interface VentureExplorerProps {
 }
 
 /**
- * Catalogue browser — search, category filter and sorting.
+ * Catalogue browser â€” search, category filter and sorting.
  * Receives already-loaded ventures so the page itself stays a server component.
  */
 export function VentureExplorer({ ventures }: VentureExplorerProps) {
@@ -96,7 +96,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
             (slot) =>
               slot.isAvailable &&
               slot.maxCapacity - slot.currentBookings >= paxFilter &&
-              isSlotBookable(dateFilter, slot.time, variant.fulfillmentMode)
+              isSlotBookable(dateFilter, slot.time, variant.fulfillmentMode, new Date(), slot.cutoffHours)
           );
         });
       });
@@ -175,7 +175,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
               Clear
             </button>
             <span className="text-gray-500">
-              · {filteredVentures.length}{' '}
+              Â· {filteredVentures.length}{' '}
               {filteredVentures.length === 1 ? 'adventure' : 'adventures'}
             </span>
           </div>
@@ -218,7 +218,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
 
       {filteredVentures.length === 0 && (
         <div className="text-center py-16">
-          <div className="text-4xl mb-4">🔍</div>
+          <div className="text-4xl mb-4">ðŸ”</div>
           <h3 className="font-heading text-lg font-bold text-gray-900 mb-2">
             No adventures found
           </h3>

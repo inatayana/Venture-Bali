@@ -61,7 +61,7 @@ export default async function AdminEditVenturePage({ params }: AdminEditVentureP
     prisma.venture.findUnique({ where: { id: params.id } }),
     prisma.location.findMany({
       orderBy: [{ region: 'asc' }, { name: 'asc' }],
-      select: { id: true, name: true, region: true },
+      select: { id: true, name: true, region: true, desa: true, kecamatan: true, kabupaten: true, provinsi: true },
     }),
   ]);
 
@@ -80,6 +80,7 @@ export default async function AdminEditVenturePage({ params }: AdminEditVentureP
     badge: venture.badge ?? '',
     locationId: venture.locationId ?? '',
     meetingPoint: venture.meetingPoint ?? '',
+    meetingPointMapsUrl: venture.meetingPointMapsUrl ?? '',
     meetingPointLat: venture.meetingPointLat,
     meetingPointLng: venture.meetingPointLng,
     minAge: venture.minAge,

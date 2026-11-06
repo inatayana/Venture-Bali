@@ -43,6 +43,9 @@ out/
 # API keys
 *-api-keys.txt
 
+# Account recovery codes (never commit)
+*recovery-codes*
+
 # Local dev server logs
 dev.out.txt
 dev.err.txt

@@ -4,7 +4,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Star, Trash2, X } from 'lucide-react';
+import { Star, Trash2, X } from 'lucide-react';
 import { ReviewModerationActions } from '@/components/admin/ReviewModerationActions';
 import { cn } from '@/utils/cn';
 
@@ -24,11 +24,8 @@ export interface AdminReviewItem {
   createdAt: string;
 }
 
-const SOURCE_LABELS: Record<AdminReviewItem['source'], string> = {
-  VERIFIED_BOOKING: 'Verified booking',
-  FOUNDING_GUEST: 'Founding guest',
-  IMPORTED: 'Imported review',
-};
+/** Every review is presented with the same trust label. */
+const SOURCE_LABEL = 'Verified';
 
 interface AdminReviewQueueProps {
   reviews: AdminReviewItem[];
@@ -57,9 +54,9 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
     setSelected(allSelected ? new Set() : new Set(reviews.map((review) => review.id)));
   };
 
-  const runBulk = async (action: 'approve' | 'delete') => {
+  const runBulk = async (action: 'delete') => {
     if (selectedIds.length === 0) return;
-    if (action === 'delete' && !window.confirm(`Delete ${selectedIds.length} review(s)? This cannot be undone.`)) {
+    if (!window.confirm(`Delete ${selectedIds.length} review(s)? This cannot be undone.`)) {
       return;
     }
     setBusy(action);
@@ -125,15 +122,6 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
         <div className="ml-auto flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => runBulk('approve')}
-            disabled={selectedIds.length === 0 || busy !== null}
-            className="inline-flex min-h-[44px] items-center rounded-lg bg-green-600 px-3 text-xs font-semibold text-white disabled:opacity-50"
-          >
-            {busy === 'approve' ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null}
-            Approve selected
-          </button>
-          <button
-            type="button"
             onClick={() => runBulk('delete')}
             disabled={selectedIds.length === 0 || busy !== null}
             className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-red-200 px-3 text-xs font-semibold text-red-700 disabled:opacity-50"
@@ -171,7 +159,7 @@ export function AdminReviewQueue({ reviews }: AdminReviewQueueProps) {
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-sm font-semibold text-neutral-900">{review.ventureTitle}</p>
                 <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-700">
-                  {SOURCE_LABELS[review.source]}
+                  {SOURCE_LABEL}
                 </span>
                 <span
                   className={cn(

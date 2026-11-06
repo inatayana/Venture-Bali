@@ -6,14 +6,13 @@ import { verifyInviteToken } from '@/lib/reviewInvite';
 import { inviteReviewInputSchema } from '@/lib/reviewInviteSchema';
 import { assessReviewForPublishing } from '@/lib/reviewModeration';
 import { isAllowedReviewPhotoUrl } from '@/lib/reviewPhotos';
-import { notifyReviewNeedsModeration } from '@/lib/notifications';
 import { clientIp, rateLimit } from '@/lib/rateLimit';
 
 /**
  * Submit a founding-guest review through a signed, single-use invite.
  *
  * These reviews are real but not linked to an online booking, so they are
- * labelled FOUNDING_GUEST and always wait for admin approval.
+ * labelled FOUNDING_GUEST internally and published immediately.
  */
 export async function POST(request: NextRequest) {
   const limit = rateLimit(`review-invite:${clientIp(request)}`, 5, 60_000);
@@ -66,7 +65,7 @@ export async function POST(request: NextRequest) {
       id: true,
       status: true,
       expiresAt: true,
-      venture: { select: { id: true, slug: true, title: true } },
+      venture: { select: { id: true, slug: true, title: true, tenantId: true } },
     },
   });
 
@@ -127,6 +126,7 @@ export async function POST(request: NextRequest) {
           guestLocation: findCountry(guestCountryCode).name,
           isApproved: decision.autoPublish,
           photos: safePhotos,
+          tenantId: invite.venture.tenantId,
         },
         select: { id: true },
       });
@@ -147,18 +147,6 @@ export async function POST(request: NextRequest) {
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Could not save the review' } },
       { status: 500 },
     );
-  }
-
-  try {
-    await notifyReviewNeedsModeration({
-      reference: `Founding guest · ${invite.id.slice(0, 8)}`,
-      ventureTitle: invite.venture.title,
-      rating,
-      comment,
-      guestName,
-    });
-  } catch (error) {
-    console.error('Moderation alert failed:', error);
   }
 
   revalidatePath('/admin/reviews');

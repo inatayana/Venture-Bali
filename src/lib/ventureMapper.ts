@@ -35,26 +35,43 @@ import type {
 
 // ============ RELATION SHAPE ============
 
-export const ventureWithRelations = {
-  location: true,
-  variants: {
-    include: {
-      priceTiers: { orderBy: { minPax: 'asc' } },
-      slotTimes: { orderBy: { time: 'asc' } },
-      addons: true,
-      pickupZone: true,
+/** How far back the per-package demand signal looks. */
+export const DEMAND_WINDOW_MS = 48 * 60 * 60 * 1000;
+
+/**
+ * Venture include with the relations the public pages render.
+ *
+ * `paidSince` powers the per-package demand signal (VariantCatalogCard /
+ * VariantDetailModal): only REAL paid bookings inside the window are counted,
+ * so the badge never invents social proof. Defaults to the last 48 hours.
+ */
+export function ventureWithRelations(paidSince: Date = new Date(Date.now() - DEMAND_WINDOW_MS)) {
+  return {
+    location: true,
+    variants: {
+      include: {
+        priceTiers: { orderBy: { minPax: 'asc' } },
+        slotTimes: { orderBy: { time: 'asc' } },
+        addons: true,
+        pickupZone: true,
+        _count: {
+          select: {
+            bookings: { where: { paymentStatus: 'PAID', createdAt: { gte: paidSince } } },
+          },
+        },
+      },
+      orderBy: { sortOrder: 'asc' },
     },
-    orderBy: { sortOrder: 'asc' },
-  },
-  reviews: {
-    where: { isApproved: true },
-    orderBy: { createdAt: 'desc' },
-    include: { customer: { select: { name: true, countryCode: true } } },
-  },
-} satisfies Prisma.VentureInclude;
+    reviews: {
+      where: { isApproved: true },
+      orderBy: { createdAt: 'desc' },
+      include: { customer: { select: { name: true, countryCode: true } } },
+    },
+  } satisfies Prisma.VentureInclude;
+}
 
 export type VentureWithRelations = Prisma.VentureGetPayload<{
-  include: typeof ventureWithRelations;
+  include: ReturnType<typeof ventureWithRelations>;
 }>;
 
 // ============ SAFE JSON PARSERS ============
@@ -66,6 +83,36 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function asStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === 'string');
+}
+
+/** Seeded SVG covers ("/images/tubing.svg") are illustrations with a helpful
+ *  watermark, not photography — treat them as "no cover" so packages fall
+ *  back to the product's real photos. */
+function isPlaceholderCover(url: string | null): boolean {
+  return Boolean(url && url.trim().toLowerCase().endsWith('.svg'));
+}
+
+interface VariantPromoInput {
+  promoPriceIdr: number | null;
+  promoLabel?: string | null;
+  promoStartsAt?: Date | null;
+  promoEndsAt?: Date | null;
+}
+
+/**
+ * The promo price only reaches guests while `now` sits inside its window.
+ * A promo without dates is always active, so legacy rows keep working.
+ */
+export function activeVariantPromo(
+  variant: VariantPromoInput,
+  now: Date = new Date()
+): { price: number; label?: string } | null {
+  const price = variant.promoPriceIdr;
+  if (!price || price <= 0) return null;
+  if (variant.promoStartsAt && variant.promoStartsAt.getTime() > now.getTime()) return null;
+  if (variant.promoEndsAt && variant.promoEndsAt.getTime() <= now.getTime()) return null;
+  const label = variant.promoLabel?.trim() || undefined;
+  return label ? { price, label } : { price };
 }
 
 function asItinerary(value: unknown): ItineraryItem[] {
@@ -135,19 +182,38 @@ export function parseDurationHours(duration: string): number {
 }
 
 /**
+ * The lowest LIST price per pax across every variant and tier (before promo).
+ * Used for strikethrough display when a promo is active.
+ */
+export function deriveListPrice(venture: VentureWithRelations): number {
+  const prices = venture.variants.flatMap((variant) =>
+    variant.priceTiers.map((tier) => tier.pricePerPax)
+  );
+  return prices.length > 0 ? Math.min(...prices) : 0;
+}
+
+/**
  * The lowest price per pax across every variant and tier — this is the
- * "from" price shown on cards and in structured data. An active promo price
- * replaces the tier price for the same calculation.
+ * "from" price shown to users (promo price if active, else list price).
  */
 export function deriveFromPrice(venture: VentureWithRelations): number {
-  const prices = venture.variants.flatMap((variant) => {
-    const promo =
-      variant.promoPriceIdr !== null && variant.promoPriceIdr > 0 ? variant.promoPriceIdr : null;
-    return variant.priceTiers.map((tier) =>
-      promo !== null && promo < tier.pricePerPax ? promo : tier.pricePerPax
-    );
-  });
-  return prices.length > 0 ? Math.min(...prices) : 0;
+  const listPrice = deriveListPrice(venture);
+  const promo = venture.variants
+    .flatMap((variant) => (variant.promoPriceIdr !== null && variant.promoPriceIdr > 0 ? variant.promoPriceIdr : null))
+    .filter((p): p is number => p !== null);
+  if (promo.length === 0) return listPrice;
+  return Math.min(listPrice, Math.min(...promo));
+}
+
+/**
+ * Returns the active promo price across all variants, or null if no promo.
+ */
+export function derivePromoPrice(venture: VentureWithRelations): number | null {
+  const promos = venture.variants
+    .flatMap((variant) => (variant.promoPriceIdr !== null && variant.promoPriceIdr > 0 ? variant.promoPriceIdr : null))
+    .filter((p): p is number => p !== null);
+  if (promos.length === 0) return null;
+  return Math.min(...promos);
 }
 
 /**
@@ -246,17 +312,26 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
     createdAt: venture.createdAt,
     updatedAt: venture.updatedAt,
 
-    variants: venture.variants.map((variant) => ({
+    variants: venture.variants.map((variant) => {
+      const promo = activeVariantPromo(variant);
+      return {
       id: variant.id,
       ventureId: variant.ventureId,
       title: variant.title,
       shortDescription: variant.shortDescription,
       badge: variant.badge ?? undefined,
       transportBadge: variant.transportBadge ?? undefined,
-      imageUrl: variant.imageUrl ?? undefined,
+      /** Seeded SVG covers are illustrations, not photography — packages
+       *  without a real photo fall back to the product's photos. */
+      imageUrl: isPlaceholderCover(variant.imageUrl) ? undefined : variant.imageUrl ?? undefined,
       duration: variant.duration ?? undefined,
+      /** Paid bookings inside the demand window — see ventureWithRelations. */
+      bookedLast48h: variant._count.bookings,
+      infantEnabled: variant.infantEnabled,
       fulfillmentMode: variant.fulfillmentMode,
-      promoPriceIdr: variant.promoPriceIdr ?? undefined,
+      /** Only exposed while the promo window is active. */
+      promoPriceIdr: promo?.price,
+      promoLabel: promo?.label,
       operationNotes: variant.operationNotes ?? undefined,
       inclusions: (() => {
         const list = asStringArray(variant.inclusions);
@@ -274,6 +349,7 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
             name: variant.pickupZone.name,
             areaType: variant.pickupZone.areaType,
             surchargeIdr: variant.pickupZone.surchargeIdr,
+            surchargePerPaxIdr: variant.pickupZone.surchargePerPaxIdr,
             isCustomQuote: variant.pickupZone.isCustomQuote,
             vehicleMaxPax: variant.pickupZone.vehicleMaxPax,
           }
@@ -283,6 +359,9 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
         minPax: tier.minPax,
         maxPax: tier.maxPax,
         pricePerPax: tier.pricePerPax,
+        pricingModel: tier.pricingModel,
+        kidsPricePerPax: tier.kidsPricePerPax ?? undefined,
+        youthPricePerPax: tier.youthPricePerPax ?? undefined,
       })),
       blackoutDates: asStringArray(variant.blackoutDates),
       slotTimes: variant.slotTimes.map((slot) => ({
@@ -292,6 +371,7 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
         maxCapacity: slot.maxCapacity,
         currentBookings: slot.currentBookings,
         isAvailable: slot.isAvailable,
+        cutoffHours: slot.cutoffHours ?? null,
         createdAt: slot.createdAt,
         updatedAt: slot.updatedAt,
       })),
@@ -308,10 +388,13 @@ export function toVentureItem(venture: VentureWithRelations): VentureItem {
       })),
       createdAt: variant.createdAt,
       updatedAt: variant.updatedAt,
-    })),
+      };
+    }),
 
     // ---- derived view-model fields ----
     description: venture.shortDescription ?? venture.hook3Sec,
+    listPriceIdr: deriveListPrice(venture),
+    promoPriceIdr: derivePromoPrice(venture),
     priceIdr: deriveFromPrice(venture),
     durationHours: parseDurationHours(venture.duration),
     minParticipants: min,

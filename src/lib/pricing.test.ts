@@ -74,6 +74,157 @@ describe('Pricing Utilities', () => {
     });
   });
 
+  describe('AGE_TIERED pricing', () => {
+    // Transfer-style variant: adults tiered by total pax, kids/youth flat.
+    const ageTieredTiers = [
+      { minPax: 1, maxPax: 1, pricePerPax: 650000, pricingModel: 'AGE_TIERED' as const, kidsPricePerPax: 450000, youthPricePerPax: 550000 },
+      { minPax: 2, maxPax: 2, pricePerPax: 600000, pricingModel: 'AGE_TIERED' as const, kidsPricePerPax: 450000, youthPricePerPax: 550000 },
+      { minPax: 3, maxPax: 10, pricePerPax: 550000, pricingModel: 'AGE_TIERED' as const, kidsPricePerPax: 400000, youthPricePerPax: 500000 },
+    ];
+
+    it('prices adults by tier and kids/youth at their admin-set flat prices', () => {
+      // 2 adults + 1 kid + 1 youth = 4 pax -> tier 3-4 (adult 550k)
+      const quote = computeQuote({
+        priceTiers: ageTieredTiers,
+        paxCount: 4,
+        fulfillmentMode: 'SELF_DRIVE',
+        adultsCount: 2,
+        kidsCount: 1,
+        youthCount: 1,
+      });
+      expect(quote.subtotalIdr).toBe(2 * 550000 + 400000 + 500000);
+      expect(quote.totalPriceIdr).toBe(2000000);
+      expect(quote.ageBreakdown?.adults.subtotal).toBe(1100000);
+      expect(quote.ageBreakdown?.kids.pricePerPax).toBe(400000);
+      expect(quote.ageBreakdown?.youth.pricePerPax).toBe(500000);
+      expect(quote.discountIdr).toBe(0);
+    });
+
+    it('charges the adult price when the admin leaves kids/youth blank', () => {
+      const tiers = [
+        { minPax: 1, maxPax: 10, pricePerPax: 500000, pricingModel: 'AGE_TIERED' as const },
+      ];
+      const quote = computeQuote({
+        priceTiers: tiers,
+        paxCount: 3,
+        fulfillmentMode: 'SELF_DRIVE',
+        adultsCount: 1,
+        kidsCount: 1,
+        youthCount: 1,
+      });
+      expect(quote.totalPriceIdr).toBe(1500000);
+      expect(quote.ageBreakdown?.kids.pricePerPax).toBe(500000);
+      expect(quote.ageBreakdown?.youth.pricePerPax).toBe(500000);
+    });
+
+    it('scales kids/youth by the same promo ratio as the adult price', () => {
+      const tiers = [
+        {
+          minPax: 1,
+          maxPax: 10,
+          pricePerPax: 450000,
+          pricingModel: 'AGE_TIERED' as const,
+          kidsPricePerPax: 300000,
+          youthPricePerPax: 400000,
+        },
+      ];
+      // Promo 382.500 = 15% off the 450.000 adult price -> kids 255.000.
+      const quote = computeQuote({
+        priceTiers: tiers,
+        paxCount: 2,
+        fulfillmentMode: 'SELF_DRIVE',
+        adultsCount: 1,
+        kidsCount: 1,
+        youthCount: 0,
+        promoPriceIdr: 382500,
+      });
+      expect(quote.promoActive).toBe(true);
+      expect(quote.ageBreakdown?.adults.pricePerPax).toBe(382500);
+      expect(quote.ageBreakdown?.kids.pricePerPax).toBe(255000);
+      expect(quote.subtotalIdr).toBe(637500);
+      expect(quote.listTotalIdr).toBe(750000);
+      expect(quote.discountIdr).toBe(112500);
+    });
+
+    it('applies a coupon percentage to the age-tiered subtotal', () => {
+      const coupon: CouponRule = { code: 'BALICERIA2026', discountPercent: 10, isActive: true };
+      const quote = computeQuote({
+        priceTiers: ageTieredTiers,
+        paxCount: 3,
+        fulfillmentMode: 'SELF_DRIVE',
+        adultsCount: 2,
+        kidsCount: 1,
+        youthCount: 0,
+        coupon,
+      });
+      // tier 3-4: 2×550k + 400k = 1.5jt, coupon 10% -> 1.35jt
+      expect(quote.subtotalIdr).toBe(1500000);
+      expect(quote.discountIdr).toBe(150000);
+      expect(quote.couponCode).toBe('BALICERIA2026');
+      expect(quote.totalPriceIdr).toBe(1350000);
+    });
+
+    it('rejects an age breakdown that does not add up to paxCount', () => {
+      expect(() =>
+        computeQuote({
+          priceTiers: ageTieredTiers,
+          paxCount: 4,
+          fulfillmentMode: 'SELF_DRIVE',
+          adultsCount: 2,
+          kidsCount: 1,
+          youthCount: 0,
+        })
+      ).toThrow('Age breakdown total does not match paxCount');
+    });
+
+    it('keeps transfer fees per total pax, not per age group', () => {
+      const zone = {
+        name: 'South 1',
+        areaType: 'ZONE_2',
+        surchargeIdr: 700000,
+        surchargePerPaxIdr: 224000,
+        isCustomQuote: false,
+        vehicleMaxPax: 4,
+        isActive: true,
+      } as unknown as PickupZone;
+      const quote = computeQuote({
+        priceTiers: ageTieredTiers,
+        paxCount: 4,
+        fulfillmentMode: 'SHARED_TRANSFER',
+        adultsCount: 2,
+        kidsCount: 1,
+        youthCount: 1,
+        zone,
+      });
+      // shared shuttle seat fee: 224.000 × 4 pax — not the 700.000 per-vehicle charter
+      expect(quote.transfer.totalFeeIdr).toBe(896000);
+      expect(quote.totalPriceIdr).toBe(2000000 + 896000);
+    });
+
+    it('never charges shared guests the per-vehicle charter', () => {
+      const zone = {
+        name: 'Core Area — Ubud & Gianyar',
+        areaType: 'ZONE_1',
+        surchargeIdr: 500000,
+        surchargePerPaxIdr: 0,
+        isCustomQuote: false,
+        vehicleMaxPax: 6,
+        isActive: true,
+      } as unknown as PickupZone;
+      const quote = computeQuote({
+        priceTiers: ageTieredTiers,
+        paxCount: 1,
+        adultsCount: 1,
+        fulfillmentMode: 'SHARED_TRANSFER',
+        zone,
+      });
+      // Ubud shared pickup is included for one guest — the 500K Ubud charter
+      // pays for private cars only.
+      expect(quote.transfer.totalFeeIdr).toBe(0);
+      expect(quote.totalPriceIdr).toBe(quote.subtotalIdr);
+    });
+  });
+
   describe('calculatePriceBreakdown', () => {
     it('calculates correct total for 1 pax', () => {
       const breakdown = calculatePriceBreakdown(mockPriceTiers, 1);
@@ -165,9 +316,9 @@ describe('Pricing Utilities', () => {
 });
 describe('Transfer & Combo Engine (Klook-style)', () => {
   const zones: Record<string, PickupZone> = {
-    zone1: { id: 'zone-1', name: 'Core Area', areaType: 'ZONE_1', surchargeIdr: 0, isCustomQuote: false, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    zone2: { id: 'zone-2', name: 'South 1', areaType: 'ZONE_2', surchargeIdr: 224000, isCustomQuote: false, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    zone4: { id: 'zone-4', name: 'Outer', areaType: 'ZONE_4', surchargeIdr: 0, isCustomQuote: true, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    zone1: { id: 'zone-1', name: 'Core Area', areaType: 'ZONE_1', surchargeIdr: 500000, surchargePerPaxIdr: 0, isCustomQuote: false, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    zone2: { id: 'zone-2', name: 'South 1', areaType: 'ZONE_2', surchargeIdr: 700000, surchargePerPaxIdr: 224000, isCustomQuote: false, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    zone4: { id: 'zone-4', name: 'Outer', areaType: 'ZONE_4', surchargeIdr: 0, surchargePerPaxIdr: 0, isCustomQuote: true, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date() },
   };
 
   const classes: Record<string, VehicleClass> = {
@@ -187,27 +338,27 @@ describe('Transfer & Combo Engine (Klook-style)', () => {
       expect(fee.vehicleCount).toBe(0);
     });
 
-    it('calculates zone surcharge × vehicle count', () => {
-      // 4 pax, SUV (4 pax/vehicle), Zone 2 (224k/vehicle) → 1 vehicle = 224k
+    it('calculates the per-vehicle charter × vehicle count', () => {
+      // 4 pax, SUV (4 pax/vehicle), Zone 2 (700.000 charter/vehicle) → 1 vehicle = 700k
       const fee = calculateTransferFee(4, zones.zone2, classes.suv);
       expect(fee.vehicleCount).toBe(1);
-      expect(fee.feePerVehicleIdr).toBe(224000);
-      expect(fee.totalFeeIdr).toBe(224000);
+      expect(fee.feePerVehicleIdr).toBe(700000);
+      expect(fee.totalFeeIdr).toBe(700000);
     });
 
-    it('adds vehicle class delta on top of zone surcharge', () => {
-      // 8 pax, Minivan (12 pax/vehicle, +250k), Zone 2 (224k) → 1 vehicle × 474k
+    it('adds the vehicle class delta (charter difference) on top of the zone charter', () => {
+      // 8 pax, Minivan (12 pax/vehicle, +250k), Zone 2 (700k) → 1 vehicle × 950k
       const fee = calculateTransferFee(8, zones.zone2, classes.van);
       expect(fee.vehicleCount).toBe(1);
-      expect(fee.feePerVehicleIdr).toBe(474000);
-      expect(fee.totalFeeIdr).toBe(474000);
+      expect(fee.feePerVehicleIdr).toBe(950000);
+      expect(fee.totalFeeIdr).toBe(950000);
     });
 
     it('splits into multiple vehicles when pax exceeds capacity', () => {
-      // 9 pax, SUV (4 pax/vehicle) → ceil(9/4) = 3 vehicles
+      // 9 pax, SUV (4 pax/vehicle) → ceil(9/4) = 3 vehicles × 700k
       const fee = calculateTransferFee(9, zones.zone2, classes.suv);
       expect(fee.vehicleCount).toBe(3);
-      expect(fee.totalFeeIdr).toBe(672000);
+      expect(fee.totalFeeIdr).toBe(2100000);
     });
   });
 
@@ -223,7 +374,7 @@ describe('Transfer & Combo Engine (Klook-style)', () => {
 
     it('adds transfer fee for PRIVATE_TRANSFER', () => {
       const total = calculateTotalPrice(tiers, 2, 'PRIVATE_TRANSFER', { zone: zones.zone2, vehicleClass: classes.suv });
-      expect(total.totalPriceIdr).toBe(1300000 + 224000);
+      expect(total.totalPriceIdr).toBe(1300000 + 700000);
     });
 
     it('multiplies combo addon price by pax', () => {
@@ -232,8 +383,8 @@ describe('Transfer & Combo Engine (Klook-style)', () => {
         vehicleClass: classes.suv,
         selectedAddons: [addons[1]],
       });
-      // base 1.3M + zone1 0 + rafting 350k × 2 pax
-      expect(total.totalPriceIdr).toBe(1300000 + 0 + 700000);
+      // base 1.3M + zone1 charter 500k (1 vehicle) + rafting 350k × 2 pax
+      expect(total.totalPriceIdr).toBe(1300000 + 500000 + 700000);
     });
   });
 
@@ -297,7 +448,7 @@ describe('Transfer & Combo Engine (Klook-style)', () => {
 
 describe('Promo, coupon & night surcharge engine', () => {
   const zone: PickupZone = {
-    id: 'zone-2', name: 'South 1', areaType: 'ZONE_2', surchargeIdr: 224000,
+    id: 'zone-2', name: 'South 1', areaType: 'ZONE_2', surchargeIdr: 700000, surchargePerPaxIdr: 224000,
     isCustomQuote: false, vehicleMaxPax: 4, isActive: true, createdAt: new Date(), updatedAt: new Date(),
   };
   const suv: VehicleClass = {
@@ -364,17 +515,18 @@ describe('Promo, coupon & night surcharge engine', () => {
     expect(day.nightSurchargeIdr).toBe(0);
   });
 
-  it('charges shared transfer per pax without a vehicle class', () => {
+  it('charges shared transfer the per-guest seat fee, not the vehicle charter', () => {
     const fee = calculateSharedTransferFee(3, zone);
     expect(fee.vehicleCount).toBe(1);
     expect(fee.vehicleClassDeltaIdr).toBe(0);
+    // seat fee 224.000 × 3 guests — never the 700.000 charter × 3
     expect(fee.totalFeeIdr).toBe(224000 * 3);
   });
 
   it('keeps private transfer priced per vehicle', () => {
     const quote = computeQuote({ priceTiers: tiers, paxCount: 5, fulfillmentMode: 'PRIVATE_TRANSFER', zone, vehicleClass: suv });
     expect(quote.transfer.vehicleCount).toBe(2);
-    expect(quote.transfer.totalFeeIdr).toBe(224000 * 2);
+    expect(quote.transfer.totalFeeIdr).toBe(700000 * 2);
   });
 
   it('tops up to the package minimum spend after discounts', () => {
@@ -418,5 +570,24 @@ describe('Promo, coupon & night surcharge engine', () => {
     expect(isSlotBookable('2026-11-01', '08:00 AM', 'SHARED_TRANSFER', now)).toBe(true);
     // …but a transfer for today is already closed.
     expect(isSlotBookable('2026-10-31', '08:00 AM', 'PRIVATE_TRANSFER', now)).toBe(false);
+  });
+
+  it('honours an explicit per-slot cut-off over the mode default', () => {
+    // now = 22:00 WITA on 2026-10-31 (example: Tubing 09:00 AM with 5h cut-off)
+    const now = new Date('2026-10-31T14:00:00.000Z'); // = 22:00 WITA
+
+    // 09:00 AM tomorrow minus 5h = 03:00 WITA tomorrow; at 22:00 WITA today the
+    // booking is still open (10h away) — but one hour closer and the 5h rule closes it.
+    expect(isSlotBookable('2026-11-01', '08:00 AM', 'SELF_DRIVE', now, 5)).toBe(true);
+    // 17:00 slot today (already started) is closed regardless of cut-off
+    expect(isSlotBookable('2026-10-31', '05:00 PM', 'SELF_DRIVE', now, 5)).toBe(false);
+    // 02:00 AM tomorrow is only 4h away — a 5h cut-off already closes it at 22:00 WITA today
+    expect(isSlotBookable('2026-11-01', '02:00 AM', 'SELF_DRIVE', now, 5)).toBe(false);
+    // Explicit 0-hour cut-off: always bookable until departure time
+    expect(isSlotBookable('2026-10-31', '11:00 PM', 'SELF_DRIVE', now, 0)).toBe(true);
+    // null = mode default (SELF_DRIVE 2h)…
+    expect(isSlotBookable('2026-10-31', '06:00 AM', 'SELF_DRIVE', now, null)).toBe(false);
+    // …and transfers remain H-1 22:00 when nothing is set
+    expect(isSlotBookable('2026-10-31', '08:00 AM', 'PRIVATE_TRANSFER', now, null)).toBe(false);
   });
 });
