@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
@@ -478,8 +478,8 @@ export function ExperienceDetailClient({
                 </span>
                 {isAgeTiered && (
                   <div className="mt-2 text-xs text-neutral-500">
-                    <p>👧 Kids (5-11 yo) — From {formatPrice(kidsFromPrice ?? 0)} / guest</p>
-                    <p>🧑 Youth (13-16 yo) — From {formatPrice(youthFromPrice ?? 0)} / guest</p>
+                    <p>👧 Kids (5-11 yo) — From {formatPrice(kidsFromPrice ?? 0)}</p>
+                    <p>🧑 Youth (13-16 yo) — From {formatPrice(youthFromPrice ?? 0)}</p>
                   </div>
                 )}
                 <span className="text-sm text-neutral-500">/ guest</span>
