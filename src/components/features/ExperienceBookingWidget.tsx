@@ -31,7 +31,7 @@ export interface BookingConfig {
   variantId: string;
   date: Date | null;
   slot: SlotTime | null;
-  /** Adults (17+). Always â‰¥ 1 — every booking needs one adult. */
+  /** Adults (17+). Always ≥ 1 — every booking needs one adult. */
   adults: number;
   /** Kids (3-10) / youth (11-16) — priced per age when the package is age-tiered. */
   kids: number;
@@ -1038,7 +1038,7 @@ export function ExperienceBookingWidget({
 
         <p className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-neutral-500">
           <span className="inline-flex items-center gap-1">
-            <Shield className="h-3 w-3" aria-hidden="true" /> 80% refund â‰¥24h
+            <Shield className="h-3 w-3" aria-hidden="true" /> 80% refund ≥24h
           </span>
           <span className="inline-flex items-center gap-1">
             <Lock className="h-3 w-3" aria-hidden="true" /> Secure checkout
