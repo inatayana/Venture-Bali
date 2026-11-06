@@ -19,12 +19,9 @@ import {
   Building2,
   Package,
   Menu,
-  Sun,
-  Moon,
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
-import { useTheme } from '@/components/theme/ThemeProvider';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const NAV_ITEMS = [
@@ -54,8 +51,6 @@ export function AdminSidebar() {
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme();
-  const isDark = theme === 'dark';
 
   useEffect(() => {
     // Close mobile drawer on route change
@@ -91,19 +86,6 @@ export function AdminSidebar() {
             <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-ink p-5 text-white">
               <BrandWordmark className="text-xl" />
               <p className="mt-1 text-xs text-white/50">Operator Panel</p>
-            </div>
-
-            {/* Theme Toggle in Mobile */}
-            <div className="p-3 border-b border-gray-200 dark:border-gray-800">
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-                title={isDark ? 'Light mode' : 'Dark mode'}
-                className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg text-current transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </button>
             </div>
 
             <nav className="p-3 space-y-1 flex-1" aria-label="Admin navigation">
@@ -161,19 +143,6 @@ export function AdminSidebar() {
         <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-ink p-5 text-white">
           <BrandWordmark className="text-xl" />
           <p className="mt-1 text-xs text-white/50">Operator Panel</p>
-        </div>
-
-        {/* Theme toggle at top of sidebar */}
-        <div className="p-3 border-b border-gray-200 dark:border-gray-800">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={isDark ? 'Light mode' : 'Dark mode'}
-            className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg text-current transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </button>
         </div>
 
         <nav className="p-3 space-y-1 flex-1" aria-label="Admin navigation">

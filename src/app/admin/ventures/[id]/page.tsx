@@ -152,6 +152,9 @@ export default async function AdminVentureDetailPage({
                     minPax: tier.minPax,
                     maxPax: tier.maxPax,
                     pricePerPax: tier.pricePerPax,
+                    pricingModel: tier.pricingModel,
+                    kidsPricePerPax: tier.kidsPricePerPax ?? null,
+                    youthPricePerPax: tier.youthPricePerPax ?? null,
                   })),
                   bookingCount: variant._count.bookings,
                 }}
