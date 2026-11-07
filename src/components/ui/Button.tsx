@@ -10,15 +10,15 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles = {
   primary:
-    'bg-brand-ink text-brand hover:bg-neutral-900 active:bg-neutral-800 disabled:bg-neutral-400 disabled:text-neutral-700',
+    'bg-brand-ink text-brand hover:bg-neutral-900 active:bg-neutral-800 active:scale-[0.98] disabled:bg-neutral-400 disabled:text-neutral-700',
   secondary:
-    'bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800 disabled:bg-gray-300',
+    'bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800 active:scale-[0.98] disabled:bg-gray-300',
   outline:
-    'border-2 border-brand-ink text-brand-ink hover:bg-brand active:bg-brand/80 disabled:border-neutral-300 disabled:text-neutral-600',
+    'border-2 border-brand-ink text-brand-ink hover:bg-brand active:bg-brand/80 active:scale-[0.98] disabled:border-neutral-300 disabled:text-neutral-600',
   ghost:
-    'text-brand-ink hover:bg-brand/40 active:bg-brand/60 disabled:text-neutral-600',
+    'text-brand-ink hover:bg-brand/40 active:bg-brand/60 active:scale-[0.98] disabled:text-neutral-600',
   danger:
-    'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:bg-red-300',
+    'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 active:scale-[0.98] disabled:bg-red-300',
 };
 
 const sizeStyles = {
@@ -52,6 +52,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           // Base styles
           'inline-flex items-center justify-center font-heading font-semibold uppercase tracking-wider rounded-lg',
           'transition-colors duration-200',
+          'min-h-[48px]',  // Touch target minimum 48px
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ink/70 focus-visible:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-70',
           // Variant

@@ -377,7 +377,7 @@ export function ExperienceDetailClient({
   const serviceType = selectedVariant?.fulfillmentMode === 'SELF_DRIVE' ? 'Meeting point' : 'Hotel pickup available';
 
   return (
-    <main className="min-h-screen bg-white pb-28 lg:pb-10">
+    <main className="min-h-screen bg-white pb-28 lg:pb-10 overflow-x-hidden">
       {/* Sticky product bar: back link + breadcrumb stay reachable while scrolling */}
       <div className="sticky top-0 z-40 bg-white/95 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4">
@@ -1099,7 +1099,7 @@ export function ExperienceDetailClient({
 
       {/* Mobile sticky CTA — the only price/CTA source on phones. */}
       <div
-        className="fixed inset-x-0 z-40 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden"
+        className="fixed left-0 right-0 z-40 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden max-w-7xl mx-auto"
         style={{ bottom: 'var(--cookie-consent-height, 0px)' }}
       >
         <div className="flex items-center gap-3">
@@ -1107,15 +1107,23 @@ export function ExperienceDetailClient({
             <span className="block truncate text-xs text-neutral-500">
               {selectedVariant?.title ?? 'From'}
             </span>
-            <span className="font-heading text-lg font-bold tabular-nums text-neutral-900">
-              {formatPrice(selectedPrice)}
-              <span className="text-xs font-normal text-neutral-500"> /guest</span>
-            </span>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <span className="font-heading text-xl font-bold tabular-nums text-neutral-900">
+                {formatPrice(selectedPrice)}
+              </span>
+              <span className="text-xs font-normal text-neutral-500">/guest</span>
+              {estimate.promoActive && (
+                <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-800">
+                  <span className="line-through text-red-500">{formatPrice(estimate.listPricePerPaxIdr)}</span>
+                  <span className="text-green-700">You Save {formatPrice(estimate.discountIdr)}</span>
+                </span>
+              )}
+            </div>
           </div>
           <button
             type="button"
             onClick={() => selectedVariant && openBooking(selectedVariant.id)}
-            className="min-h-[44px] shrink-0 rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand"
+            className="min-h-[48px] shrink-0 rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand active:scale-[0.98]"
           >
             Show dates
           </button>

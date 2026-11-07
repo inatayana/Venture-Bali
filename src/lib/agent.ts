@@ -9,6 +9,7 @@ import { handleAgentMessage } from './agent-service';
 export type AgentToolResult =
   | CheckAvailabilityOutput
   | GetProductInfoOutput
+  | GetVariantDetailsOutput
   | CalculatePriceOutput
   | CreateBookingOutput
   | SendBookingConfirmationOutput
@@ -49,6 +50,9 @@ export interface AgentState {
     productId?: string;
     variantId?: string;
     paxCount?: number;
+    adultsCount?: number;
+    kidsCount?: number;
+    youthCount?: number;
     bookingDate?: string;
     /** Recent conversation turns, oldest first. */
     history?: { role: 'user' | 'model'; text: string }[];
@@ -61,7 +65,8 @@ export interface AgentState {
       | 'refund_inquiry'
       | 'location_inquiry'
       | 'general_question'
-      | 'escalation';
+      | 'escalation'
+      | 'variant_details_inquiry';
   };
   lastAction: 'welcome' | 'info' | 'booking' | 'refund' | 'reminder' | 'goodbye';
   activeFlow: 'greeting' | 'product_search' | 'price_check' | 'booking_flow' | 'refund_policy' | 'noise';
@@ -77,7 +82,8 @@ export type Intent =
   | 'refund_inquiry'
   | 'location_inquiry'
   | 'general_question'
-  | 'escalation';
+  | 'escalation'
+  | 'variant_details_inquiry';
 
 // Tool Call Types
 export interface ToolCall<T> {
@@ -99,6 +105,7 @@ export interface APIResponse<T> {
 export const AVAILABLE_TOOLS = [
   'checkAvailability',
   'getProductInfo',
+  'getVariantDetails',
   'calculatePrice', 
   'createBooking',
   'sendBookingConfirmation',
@@ -141,7 +148,77 @@ export interface GetRefundPolicyInput {
   // no params needed
 }
 
-// Tool Output Types
+// ============ NEW TOOL: getVariantDetails ============
+export interface GetVariantDetailsInput {
+  productSlug: string;
+  variantId?: string;
+}
+
+export interface GetVariantDetailsOutput {
+  found: boolean;
+  variant: {
+    id: string;
+    title: string;
+    fulfillmentMode: string;
+    duration?: string;
+    /** Age-tiered prices */
+    priceTiers: Array<{
+      minPax: number;
+      maxPax: number;
+      pricePerPax: number;
+      pricingModel?: string;
+      kidsPricePerPax?: number | null;
+      youthPricePerPax?: number | null;
+    }>;
+    /** Active promo */
+    promo: {
+      priceIdr: number | null;
+      label: string | null;
+      startsAt: string | null;
+      endsAt: string | null;
+      active: boolean;
+    } | null;
+    /** Pickup zones for transfer modes */
+    pickupZones: Array<{
+      id: string;
+      name: string;
+      areaType: string;
+      surchargeIdr: number;        // per vehicle (private transfer)
+      surchargePerPaxIdr: number;  // per guest (shared transfer)
+      isCustomQuote: boolean;
+      vehicleMaxPax: number;
+    }> | null;
+    /** Vehicle classes for private transfer */
+    vehicleClasses: Array<{
+      id: string;
+      name: string;
+      label: string;
+      vehicleMaxPax: number;
+      deltaIdr: number;
+    }> | null;
+    /** Add-ons */
+    addons: Array<{
+      id: string;
+      name: string;
+      price: number;
+      description?: string;
+      requiresTransfer: boolean;
+    }> | null;
+    /** Demand signal */
+    bookedLast48h?: number;
+    infantEnabled?: boolean;
+  } | null;
+}
+
+// ============ UPDATED: calculatePrice with age breakdown ============
+export interface CalculatePriceInput {
+  variantId: string;
+  paxCount: number;
+  adultsCount?: number;
+  kidsCount?: number;
+  youthCount?: number;
+  infantCount?: number;
+}
 export interface CheckAvailabilityOutput {
   available: boolean;
   slots: Array<{ time: string; capacity: number; booked: number }>;
@@ -164,6 +241,68 @@ export interface CalculatePriceOutput {
   paxCount: number;
   tier: string;
   currency: string;
+  /** Age-tiered breakdown (only when variant uses AGE_TIERED) */
+  ageBreakdown?: {
+    adults: { count: number; pricePerPax: number; subtotal: number };
+    kids: { count: number; pricePerPax: number; subtotal: number };
+    youth: { count: number; pricePerPax: number; subtotal: number };
+  };
+}
+
+export interface GetVariantDetailsOutput {
+  found: boolean;
+  variant: {
+    id: string;
+    title: string;
+    fulfillmentMode: string;
+    duration?: string;
+    /** Age-tiered prices */
+    priceTiers: Array<{
+      minPax: number;
+      maxPax: number;
+      pricePerPax: number;
+      pricingModel?: string;
+      kidsPricePerPax?: number | null;
+      youthPricePerPax?: number | null;
+    }>;
+    /** Active promo */
+    promo: {
+      priceIdr: number | null;
+      label: string | null;
+      startsAt: string | null;
+      endsAt: string | null;
+      active: boolean;
+    } | null;
+    /** Pickup zones for transfer modes */
+    pickupZones: Array<{
+      id: string;
+      name: string;
+      areaType: string;
+      surchargeIdr: number;        // per vehicle (private transfer)
+      surchargePerPaxIdr: number;  // per guest (shared transfer)
+      isCustomQuote: boolean;
+      vehicleMaxPax: number;
+    }> | null;
+    /** Vehicle classes for private transfer */
+    vehicleClasses: Array<{
+      id: string;
+      name: string;
+      label: string;
+      vehicleMaxPax: number;
+      deltaIdr: number;
+    }> | null;
+    /** Add-ons */
+    addons: Array<{
+      id: string;
+      name: string;
+      price: number;
+      description?: string;
+      requiresTransfer: boolean;
+    }> | null;
+    /** Demand signal */
+    bookedLast48h?: number;
+    infantEnabled?: boolean;
+  } | null;
 }
 
 export interface CreateBookingOutput {

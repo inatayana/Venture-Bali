@@ -16,6 +16,7 @@ import {
   AgentState,
   CheckAvailabilityOutput,
   GetProductInfoOutput,
+  GetVariantDetailsOutput,
   CalculatePriceOutput,
   CreateBookingOutput,
   SendBookingConfirmationOutput,
@@ -138,13 +139,89 @@ export async function getProductInfo(state: AgentState): Promise<GetProductInfoO
 }
 
 /**
- * Calculate price based on variant and pax count
+ * Get complete variant details including age-tiered prices, active promo,
+ * pickup zones, vehicle classes, add-ons, and demand signal.
+ */
+export async function getVariantDetails(state: AgentState): Promise<GetVariantDetailsOutput> {
+  const venture = await resolveVenture(state.context.productId);
+  const variant = venture ? pickVariant(venture, state.context.variantId) : null;
+
+  if (!venture || !variant) {
+    return { found: false, variant: null };
+  }
+
+  // Active promo check
+  const now = new Date();
+  const promo = variant.promoPriceIdr && variant.promoPriceIdr > 0
+    ? {
+        priceIdr: variant.promoPriceIdr,
+        label: variant.promoLabel ?? null,
+        startsAt: variant.promoStartsAt ? variant.promoStartsAt.toISOString() : null,
+        endsAt: variant.promoEndsAt ? variant.promoEndsAt.toISOString() : null,
+        active: (!variant.promoStartsAt || variant.promoStartsAt <= now) &&
+                (!variant.promoEndsAt || variant.promoEndsAt > now),
+      }
+    : null;
+
+  // Pickup zones (only for transfer modes)
+  const pickupZones = variant.pickupZone ? [{
+    id: variant.pickupZone.id,
+    name: variant.pickupZone.name,
+    areaType: variant.pickupZone.areaType,
+    surchargeIdr: variant.pickupZone.surchargeIdr,
+    surchargePerPaxIdr: variant.pickupZone.surchargePerPaxIdr,
+    isCustomQuote: variant.pickupZone.isCustomQuote,
+    vehicleMaxPax: variant.pickupZone.vehicleMaxPax,
+  }] : null;
+
+  return {
+    found: true,
+    variant: {
+      id: variant.id,
+      title: variant.title,
+      fulfillmentMode: variant.fulfillmentMode,
+      duration: variant.duration ?? undefined,
+      priceTiers: variant.priceTiers.map((tier) => ({
+        minPax: tier.minPax,
+        maxPax: tier.maxPax,
+        pricePerPax: tier.pricePerPax,
+        pricingModel: tier.pricingModel,
+        kidsPricePerPax: tier.kidsPricePerPax ?? undefined,
+        youthPricePerPax: tier.youthPricePerPax ?? undefined,
+      })),
+      promo,
+      pickupZones,
+      vehicleClasses: variant.vehicleClasses?.map((vc) => ({
+        id: vc.id,
+        name: vc.name,
+        label: vc.label,
+        vehicleMaxPax: vc.vehicleMaxPax,
+        deltaIdr: vc.deltaIdr,
+      })) ?? null,
+      addons: variant.addons?.map((a) => ({
+        id: a.id,
+        name: a.name,
+        price: a.price,
+        description: a.description ?? undefined,
+        requiresTransfer: a.requiresTransfer,
+      })) ?? null,
+      bookedLast48h: variant.bookedLast48h,
+      infantEnabled: variant.infantEnabled,
+    },
+  };
+}
+
+/**
+ * Calculate price based on variant and pax count (supports age-tiered)
  */
 export async function calculatePrice(state: AgentState): Promise<CalculatePriceOutput> {
   const venture = await resolveVenture(state.context.productId);
   const variant = venture ? pickVariant(venture, state.context.variantId) : null;
 
   const pax = state.context.paxCount && state.context.paxCount > 0 ? state.context.paxCount : 1;
+  const adults = state.context.adultsCount ?? pax;
+  const kids = state.context.kidsCount ?? 0;
+  const youth = state.context.youthCount ?? 0;
   const priceTiers = variant?.priceTiers ?? [];
 
   if (priceTiers.length === 0) {
@@ -158,14 +235,34 @@ export async function calculatePrice(state: AgentState): Promise<CalculatePriceO
   }
 
   const tier = getPriceTierForPax(priceTiers, pax);
+  const isAgeTiered = tier.pricingModel === 'AGE_TIERED';
 
-  return {
-    totalPrice: tier.pricePerPax * pax,
-    pricePerPax: tier.pricePerPax,
+  const adultPrice = tier.pricePerPax;
+  const kidsPrice = isAgeTiered ? (tier.kidsPricePerPax ?? adultPrice) : adultPrice;
+  const youthPrice = isAgeTiered ? (tier.youthPricePerPax ?? adultPrice) : adultPrice;
+
+  const adultsSubtotal = adultPrice * adults;
+  const kidsSubtotal = kidsPrice * kids;
+  const youthSubtotal = youthPrice * youth;
+  const totalPrice = adultsSubtotal + kidsSubtotal + youthSubtotal;
+
+  const output: CalculatePriceOutput = {
+    totalPrice,
+    pricePerPax: adultPrice,
     paxCount: pax,
     tier: `${tier.minPax}-${tier.maxPax} pax`,
     currency: 'IDR',
   };
+
+  if (isAgeTiered && (kids > 0 || youth > 0)) {
+    output.ageBreakdown = {
+      adults: { count: adults, pricePerPax: adultPrice, subtotal: adultsSubtotal },
+      kids: { count: kids, pricePerPax: kidsPrice, subtotal: kidsSubtotal },
+      youth: { count: youth, pricePerPax: youthPrice, subtotal: youthSubtotal },
+    };
+  }
+
+  return output;
 }
 
 /**
@@ -259,6 +356,7 @@ export async function getRefundPolicy(): Promise<GetRefundPolicyOutput> {
 export const AGENT_TOOLS = {
   checkAvailability,
   getProductInfo,
+  getVariantDetails,
   calculatePrice,
   createBooking,
   sendBookingConfirmation,

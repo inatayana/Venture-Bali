@@ -23,6 +23,7 @@ const INTENTS: Intent[] = [
   'location_inquiry',
   'general_question',
   'escalation',
+  'variant_details_inquiry',
 ];
 
 /**
@@ -87,6 +88,20 @@ export function detectIntent(message: string): Intent {
     )
   ) {
     return 'location_inquiry';
+  }
+
+  // Variant details: pickup zones, vehicle classes, age-tiered prices, promos, add-ons, transfer modes
+  if (
+    [
+      'pickup', 'hotel pickup', 'antar', 'jemput', 'zona', 'zone', 'area', 'wilayah',
+      'vehicle', 'kendaraan', 'suv', 'mpv', 'minivan', 'mobil', 'car', 'upgrade',
+      'kids', 'anak', 'anak-anak', 'youth', 'remaja', 'child', 'infant', 'bayi', 'age', 'usia',
+      'promo', 'diskon', 'promosi', 'special offer', 'harga promo',
+      'addon', 'add-on', 'tambahan', 'termasuk', 'include', 'lunch', 'makan', 'foto', 'photo',
+      'shared transfer', 'private transfer', 'self drive', 'transfer', 'shuttle', 'per orang', 'per vehicle', 'per kendaraan'
+    ].some((keyword) => lower.includes(keyword))
+  ) {
+    return 'variant_details_inquiry';
   }
 
   if (

@@ -29,25 +29,25 @@ export function Stepper({
   };
 
   return (
-    <div className={cn('flex items-center justify-between', className)}>
-      <span className="text-sm font-medium text-gray-700">{label}</span>
+    <div className={cn('flex items-center justify-between gap-4', className)}>
+      <span className="text-sm font-medium text-gray-700 min-w-[80px]">{label}</span>
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={handleDecrement}
           disabled={value <= min}
           className={cn(
-            'w-11 h-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center',
-            'border-2 transition-colors',
+            'w-12 h-12 min-h-[48px] min-w-[48px] rounded-full flex items-center justify-center',
+            'border-2 transition-colors transition-transform',
             value <= min
               ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-              : 'border-neutral-900 text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200'
+              : 'border-neutral-900 text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200 active:scale-[0.95]'
           )}
           aria-label={`Decrease ${label}`}
         >
-          <Minus className="w-4 h-4" />
+          <Minus className="w-5 h-5" />
         </button>
-        <span className="w-8 text-center text-lg font-bold text-gray-900">
+        <span className="w-12 text-center text-xl font-bold text-gray-900">
           {value}
         </span>
         <button
@@ -55,15 +55,15 @@ export function Stepper({
           onClick={handleIncrement}
           disabled={value >= max}
           className={cn(
-            'w-11 h-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center',
-            'border-2 transition-colors',
+            'w-12 h-12 min-h-[48px] min-w-[48px] rounded-full flex items-center justify-center',
+            'border-2 transition-colors transition-transform',
             value >= max
               ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-              : 'border-neutral-900 text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200'
+              : 'border-neutral-900 text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200 active:scale-[0.95]'
           )}
           aria-label={`Increase ${label}`}
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-5 h-5" />
         </button>
       </div>
     </div>

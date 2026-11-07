@@ -191,7 +191,7 @@ export function VariantCatalogCard({
           )}
         </div>
 
-        <div className="flex flex-col sm:flex-row w-full items-center gap-2 sm:w-auto">
+        <div className="flex flex-col sm:flex-row w-full gap-2">
           <button
             type="button"
             onClick={(event) => {
@@ -199,10 +199,10 @@ export function VariantCatalogCard({
               onSelect();
             }}
             className={cn(
-              'inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold transition-colors',
+              'inline-flex min-h-[48px] w-full sm:flex-1 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold transition-colors transition-transform',
               selected
-                ? 'border-2 border-brand-ink bg-brand text-brand-ink'
-                : 'border-2 border-neutral-200 text-neutral-800 hover:border-neutral-400 hover:bg-white'
+                ? 'border-2 border-brand-ink bg-brand text-brand-ink active:scale-[0.98]'
+                : 'border-2 border-neutral-200 text-neutral-800 hover:border-neutral-400 hover:bg-white active:bg-neutral-100'
             )}
           >
             {selected && <Check className="h-4 w-4 mr-1" />}
@@ -214,7 +214,7 @@ export function VariantCatalogCard({
               event.stopPropagation();
               onShowDates();
             }}
-            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl bg-brand-ink px-4 text-sm font-semibold text-brand transition-colors hover:bg-neutral-900"
+            className="inline-flex min-h-[48px] w-full sm:flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-ink px-4 text-sm font-semibold text-brand transition-colors transition-transform hover:bg-neutral-900 active:bg-neutral-800 active:scale-[0.98]"
           >
             <CalendarDays className="h-4 w-4 mr-1" />
             Show dates
