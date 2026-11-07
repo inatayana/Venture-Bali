@@ -59,11 +59,11 @@ const PROMO_CODE = 'TRYBALI2026';
 
 /** Anchor targets in the sticky PDP sub-nav. */
 const PDP_SECTIONS = [
-  { id: 'packages', label: 'Packages' },
-  { id: 'details', label: 'What to expect' },
-  { id: 'reviews', label: 'Reviews' },
-  { id: 'coverage', label: 'Location' },
-  { id: 'related', label: 'More' },
+  { id: 'packages', label: 'Packages', icon: '📦' },
+  { id: 'details', label: 'What to expect', icon: '📋' },
+  { id: 'reviews', label: 'Reviews', icon: '⭐' },
+  { id: 'coverage', label: 'Location', icon: '📍' },
+  { id: 'related', label: 'More', icon: '➕' },
 ] as const;
 // Mirrors the launch coupon in src/data/catalogue.ts (display label only).
 const PROMO_DISCOUNT_PERCENT = 40;
@@ -119,6 +119,7 @@ export function ExperienceDetailClient({
   const [promoVisible, setPromoVisible] = useState(true);
   const [wishlisted, setWishlisted] = useState(false);
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
+  const [bookingStep, setBookingStep] = useState<'plan' | 'details'>('plan');
 
   const selectedVariant = useMemo(
     () => venture.variants?.find((item) => item.id === config.variantId) ?? venture.variants?.[0] ?? null,
@@ -586,14 +587,19 @@ export function ExperienceDetailClient({
                         key={section.id}
                         href={`#${section.id}`}
                         aria-current={isActive ? 'true' : undefined}
+                        aria-label={section.label}
                         className={cn(
                           'inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+                          'gap-1.5',
                           isActive
                             ? 'bg-brand-ink text-brand'
                             : 'text-neutral-600 hover:bg-brand/25 hover:text-neutral-900'
                         )}
                       >
-                        {section.label}
+                        <span className="text-base">{section.icon}</span>
+                        <span className="sticky-nav-label font-semibold truncate max-w-[80px]">
+                          {section.label}
+                        </span>
                       </a>
                     );
                   })}
@@ -635,14 +641,14 @@ export function ExperienceDetailClient({
                 role="group"
                 aria-roledescription="carousel"
                 aria-label={`${venture.title} photos`}
-                className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl bg-neutral-100 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl bg-neutral-100 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden touch-pan-x"
               >
                 {orderedGallery.map((image, index) => (
                   <button
                     key={`mobile-${image}-${index}`}
                     type="button"
                     onClick={() => setLightboxIndex(index)}
-                    className="relative aspect-[4/3] w-full shrink-0 snap-center overflow-hidden"
+                    className="relative aspect-[4/3] w-full shrink-0 snap-center overflow-hidden snap-always"
                     aria-label={`Open photo ${index + 1} of ${orderedGallery.length}`}
                   >
                     <Image
@@ -1148,6 +1154,7 @@ export function ExperienceDetailClient({
         onClose={closeSheet}
         title={selectedVariant?.title ?? 'Book your adventure'}
         className="sm:max-w-lg h-[92vh] sm:h-auto"
+        step={bookingStep === 'plan' ? { current: 1, total: 2 } : { current: 2, total: 2 }}
       >
         <ExperienceBookingWidget
           venture={venture}
@@ -1159,6 +1166,7 @@ export function ExperienceDetailClient({
           onChange={patchConfig}
           onBook={handleBook}
           isBooking={isBooking}
+          onStepChange={setBookingStep}
         />
       </BottomSheet>
 

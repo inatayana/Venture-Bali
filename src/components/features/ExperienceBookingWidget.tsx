@@ -68,6 +68,7 @@ interface ExperienceBookingWidgetProps {
   onChange: (patch: Partial<BookingConfig>) => void;
   onBook: () => void;
   isBooking: boolean;
+  onStepChange?: (step: CheckoutStep) => void;
 }
 
 const MAX_GUESTS = 10;
@@ -107,6 +108,7 @@ export function ExperienceBookingWidget({
   onChange,
   onBook,
   isBooking,
+  onStepChange,
 }: ExperienceBookingWidgetProps) {
   const [couponInput, setCouponInput] = useState('');
   const [couponError, setCouponError] = useState<string | null>(null);
@@ -138,7 +140,8 @@ export function ExperienceBookingWidget({
 
   useEffect(() => {
     track('checkout_step_view', { step, ventureId: venture.id });
-  }, [step, venture.id]);
+    onStepChange?.(step);
+  }, [step, venture.id, onStepChange]);
 
   const zoneLocked = Boolean(lockedZone) && !zoneOverride;
 
@@ -800,6 +803,7 @@ export function ExperienceBookingWidget({
         <div className="space-y-2.5 rounded-xl border border-neutral-200 p-4">
           <input
             aria-label="Full name"
+            autoComplete="name"
             className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
             onChange={(event) => onChange({ customerName: event.target.value })}
             placeholder="Full name"
@@ -808,6 +812,7 @@ export function ExperienceBookingWidget({
           />
           <input
             aria-label="Email address"
+            autoComplete="email"
             className="min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
             onChange={(event) => onChange({ customerEmail: event.target.value })}
             placeholder="Email for the e-voucher"
@@ -820,6 +825,7 @@ export function ExperienceBookingWidget({
             </label>
             <select
               id="guest-country"
+              autoComplete="country"
               value={config.countryCode}
               onChange={(event) => onChange({ countryCode: event.target.value })}
               className="min-h-[44px] w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900 outline-none focus:border-neutral-900"
@@ -843,6 +849,7 @@ export function ExperienceBookingWidget({
               <input
                 id="guest-whatsapp"
                 aria-label="WhatsApp number"
+                autoComplete="tel"
                 className="min-h-[44px] w-full rounded-r-lg border border-neutral-300 px-3 text-sm outline-none focus:border-neutral-900"
                 inputMode="tel"
                 onChange={(event) => onChange({ customerWhatsApp: event.target.value })}
