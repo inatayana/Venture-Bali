@@ -321,3 +321,61 @@ html.dark .ring-white {
     display: none;
   }
 }
+
+/* Global header: always dark theme (both light & dark modes) */
+.header-dark {
+  background-color: #191919;
+  color: #f8f9fa;
+  border-bottom: 1px solid #333333;
+}
+
+.header-dark .text-brand-ink {
+  color: #FFEE00;
+}
+
+.header-dark .text-neutral-600,
+.header-dark .text-neutral-500,
+.header-dark .text-neutral-400,
+.header-dark .text-gray-600,
+.header-dark .text-gray-500,
+.header-dark .text-gray-400 {
+  color: #9ca3af;
+}
+
+.header-dark .text-neutral-900,
+.header-dark .text-neutral-800,
+.header-dark .text-gray-900,
+.header-dark .text-gray-800 {
+  color: #f8f9fa;
+}
+
+.header-dark .hover\:bg-neutral-100:hover,
+.header-dark .hover\:bg-neutral-50:hover,
+.header-dark .hover\:bg-gray-100:hover {
+  background-color: #2a2a2a;
+}
+
+.header-dark .border-neutral-200,
+.header-dark .border-gray-200,
+.header-dark .border-neutral-300,
+.header-dark .border-gray-300 {
+  border-color: #333333;
+}
+
+.header-dark .bg-white,
+.header-dark .bg-white\/90,
+.header-dark .bg-white\/95 {
+  background-color: #191919;
+}
+
+.header-dark .bg-neutral-100,
+.header-dark .bg-gray-100,
+.header-dark .bg-neutral-50,
+.header-dark .bg-gray-50 {
+  background-color: #212121;
+}
+
+.header-dark .bg-neutral-200,
+.header-dark .bg-gray-200 {
+  background-color: #333333;
+}

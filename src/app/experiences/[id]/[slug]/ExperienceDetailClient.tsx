@@ -407,11 +407,11 @@ export function ExperienceDetailClient({
   return (
     <main className="min-h-screen bg-white pb-28 lg:pb-10 overflow-x-hidden">
       {/* Sticky product bar: back link + breadcrumb stay reachable while scrolling */}
-      <div className="sticky top-0 z-40 bg-white/95 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
+      <div className="sticky top-0 z-40 header-dark shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4">
           <a
             href="/"
-            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-100"
+            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-brand transition-colors hover:bg-neutral-800"
             aria-label="Back to all adventures"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -420,26 +420,26 @@ export function ExperienceDetailClient({
 
           <nav
             aria-label="Breadcrumb"
-            className="min-w-0 flex-1 border-l border-neutral-200 pl-3"
+            className="min-w-0 flex-1 border-l border-neutral-600 pl-3"
           >
             <ol className="flex min-w-0 items-center gap-1.5 text-xs">
               <li className="hidden shrink-0 sm:block">
-                <a href="/" className="text-neutral-500 transition-colors hover:text-neutral-900">
+                <a href="/" className="text-neutral-400 transition-colors hover:text-brand">
                   Home
                 </a>
               </li>
-              <li aria-hidden="true" className="hidden shrink-0 text-neutral-300 sm:block">
+              <li aria-hidden="true" className="hidden shrink-0 text-neutral-500 sm:block">
                 <ChevronRight className="h-3.5 w-3.5" />
               </li>
               <li className="shrink-0">
                 <CategoryQuickMenu currentCategory={venture.category} />
               </li>
-              <li aria-hidden="true" className="shrink-0 text-neutral-300">
+              <li aria-hidden="true" className="shrink-0 text-neutral-500">
                 <ChevronRight className="h-3.5 w-3.5" />
               </li>
               <li className="min-w-0">
                 <span
-                  className="block truncate font-medium text-neutral-800"
+                  className="block truncate font-medium text-neutral-200"
                   aria-current="page"
                 >
                   {venture.title}
@@ -452,24 +452,24 @@ export function ExperienceDetailClient({
             <button
               type="button"
               onClick={() => setWishlisted((prev) => !prev)}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-600 transition-colors hover:bg-neutral-800"
               aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
               aria-pressed={wishlisted}
             >
               <Heart
-                className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-600')}
+                className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-400')}
               />
             </button>
             <button
               type="button"
               onClick={share}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-600 transition-colors hover:bg-neutral-800"
               aria-label="Share this adventure"
             >
-              <Share2 className="h-5 w-5 text-neutral-600" />
+              <Share2 className="h-5 w-5 text-neutral-400" />
             </button>
             {shareState === 'copied' && (
-              <span className="hidden text-xs font-medium text-green-700 sm:inline">Copied</span>
+              <span className="hidden text-xs font-medium text-green-500 sm:inline">Copied</span>
             )}
           </div>
         </div>
