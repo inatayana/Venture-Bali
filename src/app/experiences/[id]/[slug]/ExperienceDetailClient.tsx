@@ -466,38 +466,49 @@ export function ExperienceDetailClient({
                 {selectedVariant?.title ?? venture.title}
               </p>
 
-              <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <span className="text-xs font-medium text-neutral-500">From</span>
-                {estimate.promoActive && (
-                  <span className="text-sm tabular-nums text-red-500 line-through">
-                    {formatPrice(estimate.listPricePerPaxIdr)}
+              <div className="mt-3 flex flex-col gap-y-1.5">
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span className="text-xs font-medium text-neutral-500">From</span>
+                  {estimate.promoActive && (
+                    <span className="text-sm tabular-nums text-red-500 line-through">
+                      {formatPrice(estimate.listPricePerPaxIdr)}
+                    </span>
+                  )}
+                  <span className="font-heading text-3xl font-bold tabular-nums text-neutral-900">
+                    {formatPrice(selectedPrice)}
                   </span>
+                  <span className="text-sm text-neutral-500">/ guest</span>
+                </div>
+
+                {selectedVariant?.minimumSpendIdr ? (
+                  <p className="mt-0.5 text-xs font-medium text-neutral-600">
+                    Minimum {formatPrice(selectedVariant.minimumSpendIdr)} to book
+                  </p>
+                ) : (
+                  <p className="mt-0.5 text-xs text-neutral-500">No minimum spend</p>
                 )}
-                <span className="font-heading text-3xl font-bold tabular-nums text-neutral-900">
-                  {formatPrice(selectedPrice)}
-                </span>
+
                 {isAgeTiered && (
-                  <div className="mt-2 text-xs text-neutral-500">
-                    <p>👧 Kids (5-11 yo) — From {formatPrice(kidsFromPrice ?? 0)}</p>
-                    <p>🧑 Youth (13-16 yo) — From {formatPrice(youthFromPrice ?? 0)}</p>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500">
+                    <span className="inline-flex items-center gap-1">
+                      <span className="text-yellow-400">👧</span>
+                      <span>Kids (5-11 yo) — From {formatPrice(kidsFromPrice ?? 0)} /guest</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <span className="text-yellow-400">🧑</span>
+                      <span>Youth (13-16 yo) — From {formatPrice(youthFromPrice ?? 0)} /guest</span>
+                    </span>
                   </div>
                 )}
-                <span className="text-sm text-neutral-500">/ guest</span>
+
+                {isAgeTiered && (
+                  <p className="mt-1 text-center text-sm text-neutral-600">
+                    <span className="inline-flex items-center gap-1 text-yellow-400">👥</span>
+                    More mates = cheaper rate
+                  </p>
+                )}
+
               </div>
-
-              {isAgeTiered && (
-                <p className="mt-2 text-sm text-neutral-600">
-                  👥 More mates = cheaper rate
-                </p>
-              )}
-
-              {selectedVariant?.minimumSpendIdr ? (
-                <p className="mt-1 text-xs font-medium text-neutral-600">
-                  Minimum {formatPrice(selectedVariant.minimumSpendIdr)} to book
-                </p>
-              ) : (
-                <p className="mt-1 text-xs text-neutral-500">No minimum spend</p>
-              )}
 
               <div className="mt-3 rounded-xl bg-neutral-50 px-3 py-2">
                 <Stepper
