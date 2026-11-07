@@ -41,7 +41,7 @@ export function HomeHero({ hubs, suggestions }: HomeHeroProps) {
       {/* Editorial scrim: deep on the copy side, clear on the image side. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/5"
+        className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/50 to-black/90"
       />
       <div
         aria-hidden="true"
@@ -57,27 +57,29 @@ export function HomeHero({ hubs, suggestions }: HomeHeroProps) {
       />
 
       <div className="container relative mx-auto px-4 pb-8 pt-10 sm:pt-14 lg:pb-12 lg:pt-20">
-        <div className="max-w-3xl">
-          <p className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand">
-            {t('heroBadge')}
-          </p>
+        <div className="max-w-3xl flex min-h-[600px] min-h-[80vh] max-h-[600px] flex-col items-center justify-center pt-20 pb-20 lg:pt-32 lg:pb-32">
+          <div className="flex flex-col items-center text-center w-full">
+            <p className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand">
+              {t('heroBadge')}
+            </p>
 
-          <h1 className="mt-4 max-w-3xl font-heading text-[clamp(1.75rem,7.5vw,2.25rem)] font-bold uppercase leading-[1.06] tracking-tight text-white lg:text-[3.25rem]">
-            <span className="block">
-              {t('heroBook')} <RotatingKeyword />
-            </span>
-            <span className="mt-1.5 block">{t('heroOwn')}</span>
-          </h1>
+            <h1 className="mt-4 max-w-3xl font-heading text-[clamp(1.75rem,7.5vw,2.25rem)] font-bold uppercase leading-[1.06] tracking-tight text-white lg:text-[3.25rem]">
+              <span className="block">
+                {t('heroBook')} <RotatingKeyword />
+              </span>
+              <span className="mt-1.5 block">{t('heroOwn')}</span>
+            </h1>
 
-          <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/75 sm:text-base">
-            {t('heroSub')}
-          </p>
+            <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/75 sm:text-base">
+              {t('heroSub')}
+            </p>
+          </div>
 
-          <div className="mt-5">
+          <div className="mt-5 w-full max-w-xl mx-auto">
             <HeroSearch hubs={hubs} suggestions={suggestions} />
           </div>
 
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible [&::-webkit-scrollbar]:hidden">
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible [&::-webkit-scrollbar]:hidden">
             {INTENT_PILLS.map((pill) => (
               <Link
                 key={pill.href}
@@ -89,7 +91,7 @@ export function HomeHero({ hubs, suggestions }: HomeHeroProps) {
             ))}
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-white/80">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-white/80">
             {TRUST_POINTS.map(({ icon: Icon, key }) => (
               <span key={key} className="inline-flex items-center gap-1.5">
                 <Icon className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
