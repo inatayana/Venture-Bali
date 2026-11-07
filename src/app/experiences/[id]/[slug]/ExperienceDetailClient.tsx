@@ -38,7 +38,7 @@ import { emphasiseLead } from '@/lib/emphasiseLead';
 import { ProductLightbox } from '@/components/features/ProductLightbox';
 import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
-import { track } from '@/lib/analytics';
+import { track, ecommerce } from '@/lib/analytics';
 import { REFUND_WINDOWS } from '@/lib/refundUtils';
 import { computeQuote } from '@/lib/pricing';
 import { findCountry } from '@/lib/countries';
@@ -282,6 +282,15 @@ export function ExperienceDetailClient({
     }));
     setAppliedCoupon(null);
     setIsSheetOpen(true);
+
+    // Track add_to_cart when user starts booking flow
+    ecommerce.addToCart({
+      item_id: selectedVariant?.id ?? '',
+      item_name: selectedVariant?.title ?? venture.title,
+      item_category: venture.category,
+      price_idr: estimate.unitPricePerPaxIdr,
+      quantity: totalPax,
+    });
   };
 
   const share = async () => {
@@ -334,6 +343,7 @@ export function ExperienceDetailClient({
       });
       const data = await response.json();
       if (data.success && data.data?.redirectUrl) {
+        // Track begin_checkout (legacy, will be replaced by ecommerce events)
         track('begin_checkout', {
           item_id: venture.id,
           item_name: venture.title,
@@ -342,6 +352,23 @@ export function ExperienceDetailClient({
           currency: 'IDR',
           pax: config.adults,
         });
+
+        // Track purchase (ecommerce)
+        ecommerce.purchase({
+          transaction_id: data.data.bookingId ?? `booking_${Date.now()}`,
+          value: estimate.totalPriceIdr,
+          currency: 'IDR',
+          items: [
+            {
+              item_id: selectedVariant.id,
+              item_name: selectedVariant.title,
+              item_category: venture.category,
+              price: estimate.unitPricePerPaxIdr,
+              quantity: totalPax,
+            },
+          ],
+        });
+
         window.location.href = data.data.redirectUrl;
         return;
       }

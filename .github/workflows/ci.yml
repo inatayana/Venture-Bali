@@ -34,3 +34,6 @@ jobs:
 
       - name: Test
         run: npm test -- --ci
+
+      - name: Accessibility check (axe-core)
+        run: npx playwright install --with-deps chromium && npm run test:a11y -- --ci
