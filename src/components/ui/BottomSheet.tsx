@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/utils/cn';
 
 interface BottomSheetProps {
@@ -124,7 +125,9 @@ export function BottomSheet({
 
   if (!isOpen) return null;
 
-  return (
+  const portalRoot = document.getElementById('bottom-sheet-portal') ?? document.body;
+
+  const sheetContent = (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div
         className="absolute inset-0 bg-black/50"
@@ -190,4 +193,6 @@ export function BottomSheet({
       </div>
     </div>
   );
+
+  return createPortal(sheetContent, portalRoot);
 }

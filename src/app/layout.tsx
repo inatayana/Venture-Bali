@@ -72,6 +72,7 @@ export default function RootLayout({
               <InstallPrompt />
               <CookieConsent />
               <ChatWidget />
+              <div id="bottom-sheet-portal" />
             </LocaleProvider>
           </CurrencyProvider>
         </ThemeProvider>
