@@ -156,6 +156,12 @@ export function VariantCatalogCard({
             <span className="font-heading text-lg font-bold tabular-nums text-neutral-900">
               {formatPrice(priceIdr)}
             </span>
+            {promoPriceIdr !== null && (
+              <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-800">
+                <span className="line-through text-red-500">{formatPrice(listPriceIdr)}</span>
+                <span className="text-green-700">Hemat {formatPrice(listPriceIdr - priceIdr)}</span>
+              </span>
+            )}
             <span className="text-xs text-neutral-500">/ guest</span>
             {lowestTierMinPax > 1 && (
               <span className="text-xs text-neutral-600">· {lowestTierMinPax}+</span>

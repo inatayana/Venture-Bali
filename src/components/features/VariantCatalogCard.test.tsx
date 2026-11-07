@@ -55,8 +55,11 @@ describe('VariantCatalogCard', () => {
 
     expect(screen.getByText('Promo')).toBeInTheDocument();
     expect(screen.getByText(/Rp\s?600\.000/)).toBeInTheDocument();
-    expect(screen.getByText(/Rp\s?850\.000/)).toBeInTheDocument();
+    // List price appears twice: once struck through, once in savings badge
+    expect(screen.getAllByText(/Rp\s?850\.000/)).toHaveLength(2);
     expect(screen.getByText('/ guest')).toBeInTheDocument();
+    // Savings badge should show the discount
+    expect(screen.getByText(/Hemat Rp\s?250\.000/)).toBeInTheDocument();
   });
 
   it('opens the detail modal when the card is clicked', async () => {

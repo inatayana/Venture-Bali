@@ -51,10 +51,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           // Base styles
           'inline-flex items-center justify-center font-heading font-semibold uppercase tracking-wider rounded-lg',
-          'transition-colors duration-200',
+          'transition-all duration-75',
           'min-h-[48px]',  // Touch target minimum 48px
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ink/70 focus-visible:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-70',
+          'touch-action-manipulation select-none', // Prevent zoom on double-tap, enable instant touch
           // Variant
           variantStyles[variant],
           // Size
