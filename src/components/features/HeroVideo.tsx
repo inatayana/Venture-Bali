@@ -47,7 +47,7 @@ export function HeroVideo() {
   }, []);
 
   return (
-    <div aria-hidden="true" className="relative aspect-[16/9] w-full overflow-hidden">
+    <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
       {/* Poster image - always rendered, explicit dimensions for CLS prevention */}
       <Image
         src="/images/hero-bali.jpg"
