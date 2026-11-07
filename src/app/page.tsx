@@ -10,15 +10,8 @@ import { generateWebsiteStructuredData, getBaseUrl } from '@/lib/seo';
 
 export const revalidate = 60;
 
-/** Popular pickup hubs offered by the hero destination picker. */
-const HUBS = ['Ubud', 'Seminyak', 'Canggu', 'Nusa Dua', 'Sanur', 'Denpasar', 'Kuta', 'Uluwatu'];
-
 export default async function Home() {
   const { ventures, source } = await loadVentures();
-  const suggestions = ventures.slice(0, 5).map((venture) => ({
-    title: venture.title,
-    href: `/experiences/${venture.id}/${venture.slug}`,
-  }));
 
   return (
     <main className="min-h-screen bg-neutral-50">
@@ -26,7 +19,7 @@ export default async function Home() {
       <HomeHeader />
 
       <SearchProvider>
-        <HomeHero hubs={HUBS} suggestions={suggestions} />
+        <HomeHero />
         <VentureExplorer ventures={ventures} />
       </SearchProvider>
 
