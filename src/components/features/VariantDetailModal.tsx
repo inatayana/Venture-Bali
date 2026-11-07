@@ -320,8 +320,8 @@ export function VariantDetailModal({
 
         {/* Pinned action bar */}
         <div className="shrink-0 border-t border-neutral-200 bg-white px-5 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3.5">
-          <div className="flex items-center gap-3">
-            <div className="min-w-0 flex-1">
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+            <div className="min-w-0 flex-1 w-full sm:w-auto">
               <p className="truncate text-xs text-neutral-500">
                 {isSelected ? 'Selected package' : 'From'}
               </p>
@@ -333,9 +333,9 @@ export function VariantDetailModal({
             <button
               type="button"
               onClick={onShowDates}
-              className="inline-flex min-h-[48px] shrink-0 items-center gap-2 rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand transition-colors hover:bg-neutral-900"
+              className="inline-flex min-h-[52px] shrink-0 items-center gap-2 rounded-xl bg-brand-ink px-6 text-sm font-semibold text-brand transition-colors hover:bg-neutral-900 w-full sm:w-auto shadow-lg"
             >
-              <CalendarDays className="h-4 w-4" />
+              <CalendarDays className="h-4 w-4 mr-2" />
               Show dates
             </button>
           </div>

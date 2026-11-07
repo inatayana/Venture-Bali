@@ -897,7 +897,7 @@ export function ExperienceBookingWidget({
       )}
 
       {/* Sticky summary + step action */}
-      <div className="sticky bottom-0 -mx-4 -mb-4 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
+      <div className="sticky bottom-0 left-0 right-0 mx-auto max-w-[600px] border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 shadow-lg backdrop-blur-sm safe-area-inset-bottom">
         <div className="mb-2 space-y-1 text-sm">
           {quote.ageBreakdown ? (
             <>
@@ -1002,22 +1002,22 @@ export function ExperienceBookingWidget({
             disabled={!planReady}
             fullWidth
             size="lg"
-            className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500 dark:disabled:!bg-neutral-700 dark:disabled:!text-neutral-400"
+            className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500 dark:disabled:!bg-neutral-700 dark:disabled:!text-neutral-400 min-h-[52px] shadow-lg"
           >
             Continue
           </Button>
         )}
 
         {step === 'details' && (
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-3 w-full">
             <Button
               onClick={() => setStep('plan')}
               variant="outline"
               size="lg"
-              className="!rounded-xl !px-4"
+              className="!rounded-xl !px-6 w-full sm:w-auto min-h-[52px] shadow-sm"
               aria-label="Back to plan your trip"
             >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
               Back
             </Button>
             <Button
@@ -1025,7 +1025,7 @@ export function ExperienceBookingWidget({
               disabled={!planReady || !detailsReady || isBooking}
               fullWidth
               size="lg"
-              className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500 dark:disabled:!bg-neutral-700 dark:disabled:!text-neutral-400"
+              className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500 dark:disabled:!bg-neutral-700 dark:disabled:!text-neutral-400 min-h-[52px] shadow-lg"
             >
               {isBooking ? 'Processingâ€¦' : 'Continue to payment'}
             </Button>
