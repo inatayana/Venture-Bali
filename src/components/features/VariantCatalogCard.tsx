@@ -156,6 +156,12 @@ export function VariantCatalogCard({
             <span className="font-heading text-lg font-bold tabular-nums text-neutral-900">
               {formatPrice(priceIdr)}
             </span>
+            {promoPriceIdr !== null && (
+              <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-800">
+                <span className="line-through text-red-500">{formatPrice(listPriceIdr)}</span>
+                <span className="text-green-700">Hemat {formatPrice(listPriceIdr - priceIdr)}</span>
+              </span>
+            )}
             <span className="text-xs text-neutral-500">/ guest</span>
             {lowestTierMinPax > 1 && (
               <span className="text-xs text-neutral-600">· {lowestTierMinPax}+</span>
@@ -191,7 +197,7 @@ export function VariantCatalogCard({
           )}
         </div>
 
-        <div className="flex w-full items-center gap-2 sm:w-auto">
+        <div className="flex flex-col sm:flex-row w-full gap-2">
           <button
             type="button"
             onClick={(event) => {
@@ -199,13 +205,13 @@ export function VariantCatalogCard({
               onSelect();
             }}
             className={cn(
-              'inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold transition-colors sm:flex-none',
+              'inline-flex min-h-[48px] w-full sm:flex-1 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold transition-colors transition-transform',
               selected
-                ? 'border-2 border-brand-ink bg-brand text-brand-ink'
-                : 'border-2 border-neutral-200 text-neutral-800 hover:border-neutral-400 hover:bg-white'
+                ? 'border-2 border-brand-ink bg-brand text-brand-ink active:scale-[0.98]'
+                : 'border-2 border-neutral-200 text-neutral-800 hover:border-neutral-400 hover:bg-white active:bg-neutral-100'
             )}
           >
-            {selected && <Check className="h-4 w-4" />}
+            {selected && <Check className="h-4 w-4 mr-1" />}
             {selected ? 'Selected' : 'Select'}
           </button>
           <button
@@ -214,9 +220,9 @@ export function VariantCatalogCard({
               event.stopPropagation();
               onShowDates();
             }}
-            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-ink px-4 text-sm font-semibold text-brand transition-colors hover:bg-neutral-900 sm:flex-none"
+            className="inline-flex min-h-[48px] w-full sm:flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-ink px-4 text-sm font-semibold text-brand transition-colors transition-transform hover:bg-neutral-900 active:bg-neutral-800 active:scale-[0.98]"
           >
-            <CalendarDays className="h-4 w-4" />
+            <CalendarDays className="h-4 w-4 mr-1" />
             Show dates
           </button>
         </div>

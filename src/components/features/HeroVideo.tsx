@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react';
  * video is only requested on desktop, after idle, when the guest allows motion
  * and is not on a save-data connection. Drop `public/videos/hero.mp4` in place;
  * until then the poster is the whole background.
+ *
+ * Aspect ratio: 16:9 (1920x1080) - fixed to prevent CLS.
  */
 export function HeroVideo() {
   const [enabled, setEnabled] = useState(false);
@@ -46,6 +48,7 @@ export function HeroVideo() {
 
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
+      {/* Poster image - always rendered, explicit dimensions for CLS prevention */}
       <Image
         src="/images/hero-bali.jpg"
         alt=""
@@ -68,6 +71,8 @@ export function HeroVideo() {
           disablePictureInPicture
           onCanPlay={() => setReady(true)}
           onError={() => setFailed(true)}
+          width="1920"
+          height="1080"
           className={`absolute inset-0 h-full w-full object-cover object-center opacity-0 transition-opacity duration-700 ${
             ready ? 'opacity-70' : ''
           }`}

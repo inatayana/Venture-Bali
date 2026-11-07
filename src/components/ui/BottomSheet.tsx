@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/utils/cn';
 
 interface BottomSheetProps {
@@ -12,6 +13,8 @@ interface BottomSheetProps {
   /** Pinned below the scroll area — used for the checkout summary + Next button. */
   footer?: React.ReactNode;
   className?: string;
+  /** Step indicator for multi-step flows (e.g., "Step 1 of 2") */
+  step?: { current: number; total: number };
 }
 
 const DISMISS_THRESHOLD_PX = 120;
@@ -31,6 +34,7 @@ export function BottomSheet({
   children,
   footer,
   className,
+  step,
 }: BottomSheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
@@ -121,7 +125,9 @@ export function BottomSheet({
 
   if (!isOpen) return null;
 
-  return (
+  const portalRoot = document.getElementById('bottom-sheet-portal') ?? document.body;
+
+  const sheetContent = (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div
         className="absolute inset-0 bg-black/50"
@@ -157,7 +163,14 @@ export function BottomSheet({
             <span className="h-1.5 w-10 rounded-full bg-neutral-300" />
           </div>
           <div className="flex items-center justify-between px-4 pb-3 border-b border-neutral-100">
-            <h2 className="text-lg font-bold text-neutral-900">{title}</h2>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold text-neutral-900">{title}</h2>
+              {step && (
+                <p className="mt-0.5 text-xs text-neutral-500">
+                  Step {step.current} of {step.total}
+                </p>
+              )}
+            </div>
             <button
               type="button"
               onPointerDown={(event) => event.stopPropagation()}
@@ -180,4 +193,6 @@ export function BottomSheet({
       </div>
     </div>
   );
+
+  return createPortal(sheetContent, portalRoot);
 }

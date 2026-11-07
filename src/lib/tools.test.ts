@@ -252,6 +252,7 @@ describe('Agent tools', () => {
         'createBooking',
         'getProductInfo',
         'getRefundPolicy',
+        'getVariantDetails',
         'sendBookingConfirmation',
       ]);
     });
