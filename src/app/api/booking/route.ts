@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { bookingSchema } from '@/lib/bookingSchema';
 import { BookingServiceError, createPersistedBooking } from '@/lib/bookingService';
+import { createBookingViewToken } from '@/lib/customerLink';
 import { clientIp, rateLimit } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
@@ -16,12 +17,20 @@ export async function POST(request: NextRequest) {
   try {
     const booking = await createPersistedBooking(bookingSchema.parse(await request.json()));
 
+    // Scoped read token: the following pages fetch booking details (PII) so the
+    // details/voucher/checkout chain must present it, and nothing else can.
+    const accessToken = createBookingViewToken(booking.id);
+    const redirectUrl = accessToken
+      ? `/checkout/${booking.id}?access=${encodeURIComponent(accessToken)}`
+      : `/checkout/${booking.id}`;
+
     return NextResponse.json(
       {
         success: true,
         data: {
           booking,
-          redirectUrl: `/checkout/${booking.id}`,
+          redirectUrl,
+          ...(accessToken ? { accessToken } : {}),
         },
       },
       { status: 201 },

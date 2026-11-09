@@ -9,6 +9,40 @@ import { generateQRCodeData } from '@/lib/voucher';
 import { notifyBookingPaid } from '@/lib/notifications';
 import { lifecycleForPaymentStatus } from '@/lib/bookingLifecycle';
 
+/**
+ * Server-side analytics event for proper purchase tracking.
+ * Fired only when Midtrans webhook confirms settlement (PAID).
+ * Consumed by log-based analytics pipeline (e.g. Vercel Logs → BigQuery → GA4 MP).
+ */
+function emitPurchaseEvent(booking: {
+  id: string;
+  bookingCode: string;
+  totalPrice: number;
+  paxCount: number;
+  variantTitle: string | null;
+  ventureTitle: string | null;
+}) {
+  console.log(JSON.stringify({
+    event: 'purchase',
+    timestamp: new Date().toISOString(),
+    ecommerce: {
+      currency: 'IDR',
+      value: booking.totalPrice,
+      items: [{
+        item_id: booking.id,
+        item_name: booking.variantTitle ?? 'BaliWild Booking',
+        item_variant: booking.ventureTitle ?? undefined,
+        price: booking.totalPrice,
+        quantity: 1,
+        affiliation: 'BaliWild',
+      }],
+    },
+    user_data: {
+      // PII not logged here; can be enriched downstream if consented.
+    },
+  }));
+}
+
 export class PaymentServiceError extends Error {
   constructor(
     public readonly code: 'INVALID_SIGNATURE' | 'NOT_FOUND' | 'AMOUNT_MISMATCH' | 'PROCESSING_ERROR',
@@ -37,7 +71,15 @@ export async function processMidtransWebhook(
 
   const payment = await prisma.payment.findFirst({
     where: { midtransOrderId: payload.order_id },
-    include: { booking: true },
+    include: {
+      booking: {
+        include: {
+          variant: {
+            include: { venture: { select: { title: true } } },
+          },
+        },
+      },
+    },
   });
   if (!payment) {
     throw new PaymentServiceError('NOT_FOUND', 'No payment record found for this order');
@@ -119,6 +161,20 @@ export async function processMidtransWebhook(
         await notifyBookingPaid(payment.bookingId);
       } catch (error) {
         console.error('Booking confirmation notification failed:', error);
+      }
+
+      // Fire server-side purchase event for accurate conversion tracking.
+      try {
+        emitPurchaseEvent({
+          id: payment.booking.id,
+          bookingCode: payment.booking.bookingCode,
+          totalPrice: payment.booking.totalPrice,
+          paxCount: payment.booking.paxCount,
+          variantTitle: payment.booking.variant?.title ?? null,
+          ventureTitle: payment.booking.variant?.venture?.title ?? null,
+        });
+      } catch (error) {
+        console.error('Purchase analytics event failed:', error);
       }
     }
 

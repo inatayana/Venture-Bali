@@ -35,7 +35,10 @@ export default function VoucherPage({ params }: VoucherPageProps) {
     const fetchBooking = async () => {
       try {
         const { bookingId } = await params;
-        const response = await fetch(`/api/booking/${bookingId}`);
+        const accessKey = new URLSearchParams(window.location.search).get('access');
+        const response = await fetch(`/api/booking/${bookingId}`, {
+          headers: accessKey ? { 'X-Booking-Access': accessKey } : undefined,
+        });
         if (!response.ok) throw new Error('Booking not found');
         const data = await response.json();
         if (data.success) {

@@ -291,6 +291,7 @@ model SlotTime {
   variant         Variant   @relation("SlotTimeToVariant", fields: [variantId], references: [id], onDelete: Cascade)
 
   @@index([variantId])
+  @@unique([variantId, time])
 }
 
 model Addon {
@@ -407,7 +408,7 @@ model Booking {
 model Payment {
   id              String        @id @default(cuid())
   bookingId       String        @unique
-  midtransOrderId String
+  midtransOrderId String        @unique
   snapToken       String?
   redirectUrl     String?
   paymentMethod   String?

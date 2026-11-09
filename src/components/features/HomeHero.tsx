@@ -37,15 +37,15 @@ export function HomeHero({ hubs, suggestions }: HomeHeroProps) {
   return (
     <section className="relative isolate overflow-hidden bg-brand-ink text-white">
       <HeroVideo />
-      <div aria-hidden="true" className="absolute inset-0 bg-black/35 lg:bg-transparent" />
-      {/* Editorial scrim: deep on the copy side, clear on the image side. */}
+      <div aria-hidden="true" className="absolute inset-0 bg-black/20 lg:bg-transparent" />
+      {/* Editorial scrim: lighter so background video/image is clearer while keeping text readable. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/5"
+        className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/5"
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-t from-brand-ink via-transparent to-black/25 lg:hidden"
+        className="absolute inset-0 bg-gradient-to-t from-brand-ink via-transparent to-black/15 lg:hidden"
       />
       <div
         aria-hidden="true"
