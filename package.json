@@ -46,6 +46,7 @@
     "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.39.0",
     "autoprefixer": "10.4.19",
+    "cross-fetch": "^4.1.0",
     "date-fns": "3.6.0",
     "js-yaml": "^4.3.2",
     "lucide-react": "0.408.0",

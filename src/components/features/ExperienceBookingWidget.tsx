@@ -13,7 +13,6 @@ import { COUNTRIES, countryLabel, findCountry } from '@/lib/countries';
 import {
   computeQuote,
   isDateAvailable,
-  isSlotBookable,
   parseSlotHour,
   NIGHT_SURCHARGE_FROM_HOUR,
 } from '@/lib/pricing';
@@ -127,6 +126,20 @@ export function ExperienceBookingWidget({
   const lockedZone = variant?.pickupZone ?? null;
   const [zoneOverride, setZoneOverride] = useState(false);
 
+  // Server-authoritative availability (replaces stale slot.currentBookings)
+  const [availability, setAvailability] = useState<{
+    slots: Array<{
+      id: string;
+      time: string;
+      maxCapacity: number;
+      spotsLeft: number;
+      enabled: boolean;
+      cutoffHours: number | null;
+    }>;
+    summary: { totalAvailable: number; isFullyBooked: boolean };
+  } | null>(null);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
+
   useEffect(() => {
     setZoneOverride(false);
   }, [variant?.id]);
@@ -199,15 +212,47 @@ export function ExperienceBookingWidget({
 
   const dateBlocked = dateKey && variant ? !isDateAvailable(variant, dateKey) : false;
 
+  // Fetch real-time availability from centralized API
+  useEffect(() => {
+    if (!variant || !dateKey || dateBlocked) {
+      setAvailability(null);
+      return;
+    }
+    let cancelled = false;
+    setAvailabilityLoading(true);
+    fetch(`/api/availability?variantId=${variant.id}&date=${dateKey}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && data.success) {
+          setAvailability(data.data);
+        }
+      })
+      .catch((err) => console.error('Availability fetch failed:', err))
+      .finally(() => {
+        if (!cancelled) setAvailabilityLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [variant, dateKey, dateBlocked]);
+
+  // Server-authoritative slot options (replaces stale client-side calculation)
   const slotOptions = useMemo(() => {
-    if (!variant || !dateKey || dateBlocked) return [];
-    return (variant.slotTimes ?? []).map((slot) => {
-      const available = slot.maxCapacity - slot.currentBookings;
-      const enoughCapacity = slot.isAvailable && available >= totalPax;
-      const withinCutoff = isSlotBookable(dateKey, slot.time, fulfillmentMode, new Date(), slot.cutoffHours);
-      return { slot, available, enabled: enoughCapacity && withinCutoff };
-    });
-  }, [variant, dateKey, dateBlocked, totalPax, fulfillmentMode]);
+    if (!variant || !dateKey || dateBlocked || !availability) return [];
+    return availability.slots.map((slot) => ({
+      slot: {
+        id: slot.id,
+        time: slot.time,
+        maxCapacity: slot.maxCapacity,
+        isAvailable: true,
+        cutoffHours: slot.cutoffHours,
+        variantId: variant.id,
+        currentBookings: slot.maxCapacity - slot.spotsLeft,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as SlotTime,
+      available: slot.spotsLeft,
+      enabled: slot.enabled,
+    }));
+  }, [availability, dateKey, dateBlocked, variant]);
 
   // Keep the selected slot valid when the guest count or date changes.
   useEffect(() => {
@@ -452,10 +497,17 @@ export function ExperienceBookingWidget({
         {!config.date && (
           <p className="text-sm text-neutral-600">Pick a date to see available times</p>
         )}
-        {config.date && slotOptions.length === 0 && (
+        {config.date && availabilityLoading && (
+          <div className="flex gap-2" aria-busy="true">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="min-w-[72px] h-[44px] rounded-full border-2 border-neutral-200 bg-neutral-50 animate-pulse" />
+            ))}
+          </div>
+        )}
+        {config.date && !availabilityLoading && slotOptions.length === 0 && (
           <p className="text-sm text-neutral-500">No departures left for this date. Try another day.</p>
         )}
-        {slotOptions.length > 0 && (
+        {config.date && !availabilityLoading && slotOptions.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {slotOptions.map(({ slot, available, enabled }) => (
               <TimeSlotPill

@@ -565,7 +565,186 @@ export async function sendReviewReminder(bookingId: string): Promise<Notificatio
 
 const MODERATION_ALERT_SUBJECT = 'Review needs moderation';
 
-/** Email the support inbox when a review is held back for a human. */
+const CANCELLATION_SUBJECT = 'Booking cancelled';
+const RESCHEDULE_SUBJECT = 'Booking rescheduled';
+const REFUND_PROCESSED_SUBJECT = 'Refund processed';
+const HOLD_EXPIRED_SUBJECT = 'Reservation hold expired';
+const VOUCHER_DELIVERY_SUBJECT = 'Your voucher';
+
+/**
+ * Cancellation confirmation (customer-initiated via /my/bookings).
+ */
+export async function sendCancellationConfirmation(
+  bookingId: string,
+  refundAmount: number,
+  feeAmount: number,
+  method: 'MIDTRANS' | 'MANUAL'
+): Promise<NotificationResult[]> {
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: bookingInclude(),
+  });
+  if (!booking) return [];
+
+  const entity = booking as unknown as BookingForNotification;
+  const text = [
+    `Your booking ${entity.bookingCode} (${entity.variant.title}) has been cancelled.`,
+    `Date: ${formatLongDate(entity.bookingDate)}${entity.slotTime ? ` at ${entity.slotTime.time}` : ''}`,
+    `Refund: ${formatIdr(refundAmount)} (fee ${formatIdr(feeAmount)})`,
+    `Method: ${method === 'MIDTRANS' ? 'Original payment method (Midtrans)' : 'Bank transfer — we will contact you'}`,
+    '',
+    `Track status: ${buildCustomerBookingsUrl(entity.customer.id) ?? 'N/A'}`,
+  ].join('\n');
+
+  const html = emailHtml(entity, {
+    title: 'Booking cancelled',
+    intro: `your cancellation is confirmed. Refund ${formatIdr(refundAmount)} will be processed via ${method === 'MIDTRANS' ? 'Midtrans' : 'bank transfer'}.`,
+  });
+
+  return Promise.all([
+    deliver(entity, 'WHATSAPP', entity.customer.whatsapp, CANCELLATION_SUBJECT, text),
+    deliver(entity, 'EMAIL', entity.customer.email, CANCELLATION_SUBJECT, text, html),
+  ]);
+}
+
+/**
+ * Reschedule confirmation.
+ */
+export async function sendRescheduleConfirmation(
+  bookingId: string,
+  oldDate: string,
+  oldTime: string | null,
+  newDate: string,
+  newTime: string | null
+): Promise<NotificationResult[]> {
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: bookingInclude(),
+  });
+  if (!booking) return [];
+
+  const entity = booking as unknown as BookingForNotification;
+  const text = [
+    `Your booking ${entity.bookingCode} (${entity.variant.title}) has been rescheduled.`,
+    `Old: ${formatLongDate(oldDate)}${oldTime ? ` at ${oldTime}` : ''}`,
+    `New: ${formatLongDate(newDate)}${newTime ? ` at ${newTime}` : ''}`,
+    `Guests: ${entity.paxCount}`,
+    pickupLine(entity),
+    '',
+    `Voucher & QR: ${voucherUrl(entity.bookingCode)}`,
+    `Manage: ${buildCustomerBookingsUrl(entity.customer.id) ?? 'N/A'}`,
+  ].join('\n');
+
+  const html = emailHtml(entity, {
+    title: 'Booking rescheduled',
+    intro: `your adventure has been moved to the new date/time above.`,
+  });
+
+  return Promise.all([
+    deliver(entity, 'WHATSAPP', entity.customer.whatsapp, RESCHEDULE_SUBJECT, text),
+    deliver(entity, 'EMAIL', entity.customer.email, RESCHEDULE_SUBJECT, text, html),
+  ]);
+}
+
+/**
+ * Refund processed notification (admin completes refund).
+ */
+export async function sendRefundProcessed(
+  bookingId: string,
+  amountIdr: number,
+  method: 'MIDTRANS' | 'MANUAL',
+  providerRef?: string
+): Promise<NotificationResult[]> {
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: bookingInclude(),
+  });
+  if (!booking) return [];
+
+  const entity = booking as unknown as BookingForNotification;
+  const text = [
+    `Your refund for booking ${entity.bookingCode} (${entity.variant.title}) has been processed.`,
+    `Amount: ${formatIdr(amountIdr)}`,
+    `Method: ${method === 'MIDTRANS' ? 'Midtrans (original payment method)' : 'Bank transfer'}`,
+    providerRef ? `Provider ref: ${providerRef}` : '',
+    '',
+    'Funds typically appear in 1–5 business days depending on your bank.',
+  ].filter(Boolean).join('\n');
+
+  const html = emailHtml(entity, {
+    title: 'Refund processed',
+    intro: `your refund of ${formatIdr(amountIdr)} is complete.`,
+  });
+
+  return Promise.all([
+    deliver(entity, 'WHATSAPP', entity.customer.whatsapp, REFUND_PROCESSED_SUBJECT, text),
+    deliver(entity, 'EMAIL', entity.customer.email, REFUND_PROCESSED_SUBJECT, text, html),
+  ]);
+}
+
+/**
+ * Hold expired notification (cron reaped a PENDING booking).
+ */
+export async function sendHoldExpired(
+  bookingId: string
+): Promise<NotificationResult[]> {
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: bookingInclude(),
+  });
+  if (!booking || booking.paymentStatus !== 'CANCELLED') return [];
+
+  const entity = booking as unknown as BookingForNotification;
+  const text = [
+    `Your reservation ${entity.bookingCode} (${entity.variant.title}) for ${formatLongDate(entity.bookingDate)} has expired.`,
+    'The hold was released because payment was not completed within the 10-minute window.',
+    '',
+    'You can book again anytime — slots may still be available.',
+    `Browse adventures: ${getBaseUrl()}`,
+  ].join('\n');
+
+  const html = emailHtml(entity, {
+    title: 'Reservation hold expired',
+    intro: 'your reservation could not be completed in time. The slot has been released.',
+  });
+
+  return Promise.all([
+    deliver(entity, 'WHATSAPP', entity.customer.whatsapp, HOLD_EXPIRED_SUBJECT, text),
+    deliver(entity, 'EMAIL', entity.customer.email, HOLD_EXPIRED_SUBJECT, text, html),
+  ]);
+}
+
+/**
+ * Voucher delivery (standalone, e.g. when guest requests it directly).
+ */
+export async function sendVoucherDelivery(
+  bookingId: string
+): Promise<NotificationResult[]> {
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: bookingInclude(),
+  });
+  if (!booking || booking.paymentStatus !== 'PAID') return [];
+
+  const entity = booking as unknown as BookingForNotification;
+  const text = [
+    `Here is your voucher for ${entity.variant.title}.`,
+    `Booking: ${entity.bookingCode}`,
+    `Date: ${formatLongDate(entity.bookingDate)}${entity.slotTime ? ` at ${entity.slotTime.time}` : ''}`,
+    `Guests: ${entity.paxCount}`,
+    pickupLine(entity),
+    '',
+    `Voucher & QR: ${voucherUrl(entity.bookingCode)}`,
+    `Manage: ${buildCustomerBookingsUrl(entity.customer.id) ?? 'N/A'}`,
+  ].join('\n');
+
+  const html = confirmationEmailHtml(entity);
+
+  return Promise.all([
+    deliver(entity, 'WHATSAPP', entity.customer.whatsapp, VOUCHER_DELIVERY_SUBJECT, text),
+    deliver(entity, 'EMAIL', entity.customer.email, VOUCHER_DELIVERY_SUBJECT, text, html),
+  ]);
+}
 export async function notifyReviewNeedsModeration(input: {
   bookingId?: string | null;
   customerId?: string | null;

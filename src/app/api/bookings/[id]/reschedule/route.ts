@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyCustomerLinkToken } from '@/lib/customerLink';
 import { isDateAvailable, isSlotBookable } from '@/lib/pricing';
 import { hoursBeforeActivity } from '@/lib/refundUtils';
+import { sendRescheduleConfirmation } from '@/lib/notifications';
 import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date');
@@ -213,6 +214,15 @@ export async function POST(
     if (result.kind === 'invalid') {
       return NextResponse.json({ success: false, error: { code: 'UNAVAILABLE', message: result.message } }, { status: 409 });
     }
+
+    // Send reschedule confirmation (non-blocking)
+    sendRescheduleConfirmation(
+      booking.id,
+      booking.bookingDate,
+      booking.slotTime?.time ?? null,
+      parsed.data.date,
+      result.slotTime
+    ).catch((err) => console.error('Reschedule notification failed:', err));
 
     revalidatePath('/my/bookings');
     revalidatePath('/admin/bookings');

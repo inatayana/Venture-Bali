@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { verifyCustomerLinkToken } from '@/lib/customerLink';
 import { quoteCancellation } from '@/lib/refundUtils';
+import { sendCancellationConfirmation } from '@/lib/notifications';
 import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 
 const cancelSchema = z.object({
@@ -128,6 +129,14 @@ export async function POST(
 
     return created;
   });
+
+  // Send cancellation confirmation (non-blocking)
+  sendCancellationConfirmation(
+    booking.id,
+    refund.amountIdr,
+    refund.feeIdr,
+    refund.method as 'MIDTRANS' | 'MANUAL'
+  ).catch((err) => console.error('Cancellation notification failed:', err));
 
   revalidatePath('/my/bookings');
   revalidatePath('/admin/refunds');

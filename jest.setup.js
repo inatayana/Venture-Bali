@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { TextDecoder, TextEncoder } from 'node:util';
+import { fetch, Request, Response, Headers } from 'cross-fetch';
 
 // jsdom does not expose the text encoding globals that the Edge runtime and
 // Node both provide. Modules that use Web Crypto (for example
@@ -21,4 +22,12 @@ if (typeof globalThis.crypto === 'undefined' || !globalThis.crypto.subtle) {
     configurable: true,
     writable: true,
   });
+}
+
+// Polyfill fetch for jsdom (used by ExperienceBookingWidget availability API)
+if (typeof globalThis.fetch === 'undefined') {
+  globalThis.fetch = fetch;
+  globalThis.Request = Request;
+  globalThis.Response = Response;
+  globalThis.Headers = Headers;
 }
