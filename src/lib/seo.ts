@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { VentureItem } from '@/types/venture';
+import type { CategoryDef } from './taxonomy';
 import {
   BRAND_ADDRESS,
   BRAND_DESCRIPTION,
@@ -356,4 +357,122 @@ export function generateSitemapEntry(venture: VentureItem, domain?: SupportedDom
       <priority>0.8</priority>
     </url>
   `.trim();
+}
+
+/**
+ * Metadata for the /experiences listing page.
+ */
+export function generateExperiencesMetadata(): Metadata {
+  const baseUrl = getBaseUrl();
+  return {
+    metadataBase: new URL(baseUrl),
+    title: 'All Adventures in Bali | BaliWild',
+    description: 'Discover 100+ curated Bali adventures — ATV, rafting, tubing, jungle swings, cruises. Instant booking, free cancellation, mobile-first.',
+    alternates: {
+      canonical: `${baseUrl}/experiences`,
+    },
+    openGraph: {
+      title: 'All Adventures in Bali | BaliWild',
+      description: 'Discover 100+ curated Bali adventures — ATV, rafting, tubing, jungle swings, cruises. Instant booking, free cancellation.',
+      url: `${baseUrl}/experiences`,
+      siteName: BRAND_NAME,
+      type: 'website',
+      locale: 'id_ID',
+      images: [
+        {
+          url: `${baseUrl}/og/experiences.jpg`,
+          width: 1200,
+          height: 630,
+          alt: 'Bali adventures catalog',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'All Adventures in Bali | BaliWild',
+      description: 'Discover 100+ curated Bali adventures — ATV, rafting, tubing, jungle swings, cruises.',
+      images: [`${baseUrl}/og/experiences.jpg`],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
+
+/**
+ * Metadata for a category landing page (/activities/[category]).
+ */
+export function generateCategoryMetadata(categorySlug: string): Metadata {
+  const baseUrl = getBaseUrl();
+  const category = resolveCategory(categorySlug);
+
+  if (!category) {
+    return {
+      title: 'Category Not Found | BaliWild',
+      description: 'The requested adventure category does not exist.',
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const title = `${category.canonical} Adventures in Bali | BaliWild`;
+  const description = category.description || `Discover ${category.canonical.toLowerCase()} adventures in Bali. Curated experiences with instant booking and free cancellation.`;
+
+  return {
+    metadataBase: new URL(baseUrl),
+    title,
+    description,
+    alternates: {
+      canonical: `${baseUrl}/activities/${category.slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/activities/${category.slug}`,
+      siteName: BRAND_NAME,
+      type: 'website',
+      locale: 'id_ID',
+      images: [
+        {
+          url: `${baseUrl}/og/${category.slug}.jpg`,
+          width: 1200,
+          height: 630,
+          alt: `${category.canonical} adventures in Bali`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`${baseUrl}/og/${category.slug}.jpg`],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
+
+/**
+ * JSON-LD ItemList for category landing pages.
+ * Helps Google understand the paginated collection of adventures.
+ */
+export function generateCategoryStructuredData(
+  category: CategoryDef | null,
+  baseUrl: string = getBaseUrl()
+): Record<string, unknown> {
+  if (!category) {
+    return { '@context': 'https://schema.org', '@type': 'ItemList', itemListElement: [] };
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${category.canonical} Adventures in Bali`,
+    description: category.description || `Curated ${category.canonical.toLowerCase()} experiences in Bali.`,
+    url: `${baseUrl}/activities/${category.slug}`,
+    numberOfItems: 0, // Will be overridden by the page with actual count
+    itemListElement: [],
+  };
 }

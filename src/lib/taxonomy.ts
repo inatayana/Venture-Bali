@@ -70,7 +70,12 @@ interface CategoryDescriptor {
   readonly slug: MegaCategorySlug;
   /** Extra search terms that map to this category */
   readonly aliases: readonly string[];
+  /** SEO-friendly description for category landing pages */
+  readonly description?: string;
 }
+
+/** Alias for external consumers (e.g., SEO helpers). */
+export type CategoryDef = CategoryDescriptor;
 
 export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
   {
@@ -79,6 +84,7 @@ export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
     emoji: '🏍️',
     slug: 'atv',
     aliases: ['atv', 'quad bike', 'buggy', 'off-road', 'offroad', 'utv'],
+    description: 'Race through Bali\'s jungles and rice terraces on powerful ATVs. Guided tours for all skill levels, from beginner tracks to extreme off-road challenges.',
   },
   {
     canonical: 'Rafting',
@@ -86,6 +92,7 @@ export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
     emoji: '🛶',
     slug: 'rafting',
     aliases: ['rafting', 'white water', 'whitewater', 'river rafting'],
+    description: 'Conquer Bali\'s wild rivers — Ayung, Telaga Waja, and Melangit. Professional guides, safety gear included, rapids from Class II to IV.',
   },
   {
     canonical: 'River Tubing',
@@ -93,6 +100,7 @@ export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
     emoji: '🛝',
     slug: 'tubing',
     aliases: ['tubing', 'water tubing', 'river tubing', 'cave tubing'],
+    description: 'Drift down scenic rivers on inflatable tubes. Relaxed flows through jungle canyons and caves — perfect for families and couples.',
   },
   {
     canonical: 'Cycling',
@@ -100,6 +108,7 @@ export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
     emoji: '🚴',
     slug: 'cycling',
     aliases: ['cycling', 'bike', 'biking', 'downhill cycling', 'mountain bike'],
+    description: 'Explore Bali on two wheels — downhill volcanic trails, coastal roads, and village paths. E-bike and mountain bike tours with local guides.',
   },
   {
     canonical: 'Trekking & Hiking',
@@ -107,6 +116,7 @@ export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
     emoji: '🥾',
     slug: 'trekking',
     aliases: ['trekking', 'hiking', 'trek', 'sunrise trek', 'volcano hike'],
+    description: 'Hike Bali\'s iconic peaks — Mount Batur sunrise trek, Mount Agung, and jungle waterfalls. Experienced guides, breakfast included.',
   },
   {
     canonical: 'Water Sports',
@@ -114,6 +124,7 @@ export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
     emoji: '🏄',
     slug: 'water-sports',
     aliases: ['water sports', 'watersports', 'jet ski', 'jetski', 'banana boat', 'parasailing'],
+    description: 'Adrenaline on the ocean — jet ski, parasailing, banana boat, flyboard, and sea walker. Tanjung Benoa and Nusa Dua locations.',
   },
   {
     canonical: 'Snorkeling & Diving',
@@ -121,6 +132,7 @@ export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
     emoji: '🤿',
     slug: 'snorkeling',
     aliases: ['snorkeling', 'snorkel', 'diving', 'scuba', 'freediving', 'manta'],
+    description: 'Discover Bali\'s underwater world — coral reefs at Nusa Penida, manta rays, shipwrecks at Tulamben, and vibrant marine life at Amed.',
   },
   {
     canonical: 'Extreme Adventures',
@@ -128,6 +140,7 @@ export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
     emoji: '⚡',
     slug: 'extreme',
     aliases: ['extreme', 'canyoning', 'zipline', 'paragliding', 'cliff jumping'],
+    description: 'Push your limits — canyoning through waterfalls, ziplining over valleys, paragliding above cliffs, and cliff jumping at hidden spots.',
   },
   {
     canonical: 'Adventure Combo Packages',
@@ -135,6 +148,7 @@ export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
     emoji: '🎯',
     slug: 'combo',
     aliases: ['combo', 'package', 'combo package', 'multi activity', 'full day'],
+    description: 'Maximize your day with multi-activity packages — ATV + rafting, tubing + zipline, trekking + waterfall. Best value for adventure seekers.',
   },
 ] as const;
 
