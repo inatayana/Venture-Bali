@@ -245,6 +245,10 @@ export interface Variant {
   promoPriceIdr?: number;
   /** Campaign caption for the promo price (e.g. "Promo September Ceria"). */
   promoLabel?: string;
+  /** Promo start date (inclusive) */
+  promoStartsAt?: Date | null;
+  /** Promo end date (exclusive) */
+  promoEndsAt?: Date | null;
   operationNotes?: string;
   inclusions?: string[];
   exclusions?: string[];
@@ -262,6 +266,8 @@ export interface Variant {
    * see ventureWithRelations). Powers the honest "N× booked" badge.
    */
   bookedLast48h?: number;
+  /** Vehicle classes available for this variant (Private Transfer only) */
+  vehicleClasses?: VehicleClass[];
   sortOrder: number;
   priceTiers: PriceTier[];
   blackoutDates: string[];

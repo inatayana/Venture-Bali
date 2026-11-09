@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
@@ -38,7 +38,7 @@ import { emphasiseLead } from '@/lib/emphasiseLead';
 import { ProductLightbox } from '@/components/features/ProductLightbox';
 import { PromoBanner } from '@/components/features/PromoBanner';
 import { formatPrice } from '@/lib/i18n';
-import { track } from '@/lib/analytics';
+import { track, ecommerce } from '@/lib/analytics';
 import { REFUND_WINDOWS } from '@/lib/refundUtils';
 import { computeQuote } from '@/lib/pricing';
 import { findCountry } from '@/lib/countries';
@@ -59,11 +59,11 @@ const PROMO_CODE = 'TRYBALI2026';
 
 /** Anchor targets in the sticky PDP sub-nav. */
 const PDP_SECTIONS = [
-  { id: 'packages', label: 'Packages' },
-  { id: 'details', label: 'What to expect' },
-  { id: 'reviews', label: 'Reviews' },
-  { id: 'coverage', label: 'Location' },
-  { id: 'related', label: 'More' },
+  { id: 'packages', label: 'Packages', icon: '📦' },
+  { id: 'details', label: 'What to expect', icon: '📋' },
+  { id: 'reviews', label: 'Reviews', icon: '⭐' },
+  { id: 'coverage', label: 'Location', icon: '📍' },
+  { id: 'related', label: 'More', icon: '➕' },
 ] as const;
 // Mirrors the launch coupon in src/data/catalogue.ts (display label only).
 const PROMO_DISCOUNT_PERCENT = 40;
@@ -119,6 +119,7 @@ export function ExperienceDetailClient({
   const [promoVisible, setPromoVisible] = useState(true);
   const [wishlisted, setWishlisted] = useState(false);
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
+  const [bookingStep, setBookingStep] = useState<'plan' | 'details'>('plan');
 
   const selectedVariant = useMemo(
     () => venture.variants?.find((item) => item.id === config.variantId) ?? venture.variants?.[0] ?? null,
@@ -281,6 +282,15 @@ export function ExperienceDetailClient({
     }));
     setAppliedCoupon(null);
     setIsSheetOpen(true);
+
+    // Track add_to_cart when user starts booking flow
+    ecommerce.addToCart({
+      item_id: selectedVariant?.id ?? '',
+      item_name: selectedVariant?.title ?? venture.title,
+      item_category: venture.category,
+      price_idr: estimate.unitPricePerPaxIdr,
+      quantity: totalPax,
+    });
   };
 
   const share = async () => {
@@ -333,6 +343,7 @@ export function ExperienceDetailClient({
       });
       const data = await response.json();
       if (data.success && data.data?.redirectUrl) {
+        // Track begin_checkout (legacy, will be replaced by ecommerce events)
         track('begin_checkout', {
           item_id: venture.id,
           item_name: venture.title,
@@ -341,6 +352,23 @@ export function ExperienceDetailClient({
           currency: 'IDR',
           pax: config.adults,
         });
+
+        // Track purchase (ecommerce)
+        ecommerce.purchase({
+          transaction_id: data.data.bookingId ?? `booking_${Date.now()}`,
+          value: estimate.totalPriceIdr,
+          currency: 'IDR',
+          items: [
+            {
+              item_id: selectedVariant.id,
+              item_name: selectedVariant.title,
+              item_category: venture.category,
+              price: estimate.unitPricePerPaxIdr,
+              quantity: totalPax,
+            },
+          ],
+        });
+
         window.location.href = data.data.redirectUrl;
         return;
       }
@@ -377,13 +405,13 @@ export function ExperienceDetailClient({
   const serviceType = selectedVariant?.fulfillmentMode === 'SELF_DRIVE' ? 'Meeting point' : 'Hotel pickup available';
 
   return (
-    <main className="min-h-screen bg-white pb-28 lg:pb-10">
+    <main className="min-h-screen bg-white pb-28 lg:pb-10 overflow-x-hidden">
       {/* Sticky product bar: back link + breadcrumb stay reachable while scrolling */}
-      <div className="sticky top-0 z-40 bg-white/95 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
+      <div className="sticky top-0 z-40 header-dark shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4">
           <a
             href="/"
-            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-100"
+            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-brand transition-colors hover:bg-neutral-800"
             aria-label="Back to all adventures"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -392,26 +420,26 @@ export function ExperienceDetailClient({
 
           <nav
             aria-label="Breadcrumb"
-            className="min-w-0 flex-1 border-l border-neutral-200 pl-3"
+            className="min-w-0 flex-1 border-l border-neutral-600 pl-3"
           >
             <ol className="flex min-w-0 items-center gap-1.5 text-xs">
               <li className="hidden shrink-0 sm:block">
-                <a href="/" className="text-neutral-500 transition-colors hover:text-neutral-900">
+                <a href="/" className="text-neutral-400 transition-colors hover:text-brand">
                   Home
                 </a>
               </li>
-              <li aria-hidden="true" className="hidden shrink-0 text-neutral-300 sm:block">
+              <li aria-hidden="true" className="hidden shrink-0 text-neutral-500 sm:block">
                 <ChevronRight className="h-3.5 w-3.5" />
               </li>
               <li className="shrink-0">
                 <CategoryQuickMenu currentCategory={venture.category} />
               </li>
-              <li aria-hidden="true" className="shrink-0 text-neutral-300">
+              <li aria-hidden="true" className="shrink-0 text-neutral-500">
                 <ChevronRight className="h-3.5 w-3.5" />
               </li>
               <li className="min-w-0">
                 <span
-                  className="block truncate font-medium text-neutral-800"
+                  className="block truncate font-medium text-neutral-200"
                   aria-current="page"
                 >
                   {venture.title}
@@ -424,24 +452,24 @@ export function ExperienceDetailClient({
             <button
               type="button"
               onClick={() => setWishlisted((prev) => !prev)}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-600 transition-colors hover:bg-neutral-800"
               aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
               aria-pressed={wishlisted}
             >
               <Heart
-                className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-600')}
+                className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-400')}
               />
             </button>
             <button
               type="button"
               onClick={share}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-600 transition-colors hover:bg-neutral-800"
               aria-label="Share this adventure"
             >
-              <Share2 className="h-5 w-5 text-neutral-600" />
+              <Share2 className="h-5 w-5 text-neutral-400" />
             </button>
             {shareState === 'copied' && (
-              <span className="hidden text-xs font-medium text-green-700 sm:inline">Copied</span>
+              <span className="hidden text-xs font-medium text-green-500 sm:inline">Copied</span>
             )}
           </div>
         </div>
@@ -586,14 +614,19 @@ export function ExperienceDetailClient({
                         key={section.id}
                         href={`#${section.id}`}
                         aria-current={isActive ? 'true' : undefined}
+                        aria-label={section.label}
                         className={cn(
                           'inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+                          'gap-1.5',
                           isActive
                             ? 'bg-brand-ink text-brand'
                             : 'text-neutral-600 hover:bg-brand/25 hover:text-neutral-900'
                         )}
                       >
-                        {section.label}
+                        <span className="text-base">{section.icon}</span>
+                        <span className="sticky-nav-label font-semibold truncate max-w-[80px]">
+                          {section.label}
+                        </span>
                       </a>
                     );
                   })}
@@ -635,14 +668,14 @@ export function ExperienceDetailClient({
                 role="group"
                 aria-roledescription="carousel"
                 aria-label={`${venture.title} photos`}
-                className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl bg-neutral-100 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl bg-neutral-100 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden touch-pan-x"
               >
                 {orderedGallery.map((image, index) => (
                   <button
                     key={`mobile-${image}-${index}`}
                     type="button"
                     onClick={() => setLightboxIndex(index)}
-                    className="relative aspect-[4/3] w-full shrink-0 snap-center overflow-hidden"
+                    className="relative aspect-[4/3] w-full shrink-0 snap-center overflow-hidden snap-always"
                     aria-label={`Open photo ${index + 1} of ${orderedGallery.length}`}
                   >
                     <Image
@@ -1099,7 +1132,7 @@ export function ExperienceDetailClient({
 
       {/* Mobile sticky CTA — the only price/CTA source on phones. */}
       <div
-        className="fixed inset-x-0 z-40 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden"
+        className="fixed left-0 right-0 z-40 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden max-w-7xl mx-auto"
         style={{ bottom: 'var(--cookie-consent-height, 0px)' }}
       >
         <div className="flex items-center gap-3">
@@ -1107,15 +1140,23 @@ export function ExperienceDetailClient({
             <span className="block truncate text-xs text-neutral-500">
               {selectedVariant?.title ?? 'From'}
             </span>
-            <span className="font-heading text-lg font-bold tabular-nums text-neutral-900">
-              {formatPrice(selectedPrice)}
-              <span className="text-xs font-normal text-neutral-500"> /guest</span>
-            </span>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <span className="font-heading text-xl font-bold tabular-nums text-neutral-900">
+                {formatPrice(selectedPrice)}
+              </span>
+              <span className="text-xs font-normal text-neutral-500">/guest</span>
+              {estimate.promoActive && (
+                <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-800">
+                  <span className="line-through text-red-500">{formatPrice(estimate.listPricePerPaxIdr)}</span>
+                  <span className="text-green-700">You Save {formatPrice(estimate.discountIdr)}</span>
+                </span>
+              )}
+            </div>
           </div>
           <button
             type="button"
             onClick={() => selectedVariant && openBooking(selectedVariant.id)}
-            className="min-h-[44px] shrink-0 rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand"
+            className="min-h-[48px] shrink-0 rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand active:scale-[0.98]"
           >
             Show dates
           </button>
@@ -1140,6 +1181,7 @@ export function ExperienceDetailClient({
         onClose={closeSheet}
         title={selectedVariant?.title ?? 'Book your adventure'}
         className="sm:max-w-lg h-[92vh] sm:h-auto"
+        step={bookingStep === 'plan' ? { current: 1, total: 2 } : { current: 2, total: 2 }}
       >
         <ExperienceBookingWidget
           venture={venture}
@@ -1151,6 +1193,7 @@ export function ExperienceDetailClient({
           onChange={patchConfig}
           onBook={handleBook}
           isBooking={isBooking}
+          onStepChange={setBookingStep}
         />
       </BottomSheet>
 

@@ -8,6 +8,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { CurrencyProvider } from '@/components/currency/CurrencyProvider';
 import { LocaleProvider } from '@/components/locale/LocaleProvider';
 import { ThemeProvider, themeInitScript } from '@/components/theme/ThemeProvider';
+import { BehaviorTracking } from '@/components/BehaviorTracking';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
 import {
   BRAND_NAME,
@@ -66,10 +67,12 @@ export default function RootLayout({
             <LocaleProvider>
               {children}
               <AnalyticsPageView />
+              <BehaviorTracking />
               <PwaRegistration />
               <InstallPrompt />
               <CookieConsent />
               <ChatWidget />
+              <div id="bottom-sheet-portal" />
             </LocaleProvider>
           </CurrencyProvider>
         </ThemeProvider>

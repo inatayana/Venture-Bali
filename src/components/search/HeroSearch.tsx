@@ -248,12 +248,12 @@ export function HeroSearch({ hubs, suggestions }: HeroSearchProps) {
       </div>
 
       {/* Tablet / small desktop: one horizontal glass pill instead of the tall card */}
-      <div className="hidden md:block">
+      <div className="hidden md:block flex justify-center">
         <button
           type="button"
           onClick={() => setIsSheetOpen(true)}
           aria-label="Open search"
-          className="flex min-h-[64px] w-full items-center gap-3 rounded-full border border-white/15 bg-[#111111]/15 px-4 text-left backdrop-blur-[6px] transition-colors hover:border-brand/50 hover:bg-[#111111]/25"
+          className="flex min-h-[64px] max-w-[760px] w-full items-center gap-3 rounded-full border border-white/15 bg-[#111111]/15 px-4 text-left backdrop-blur-[6px] transition-colors hover:border-brand/50 hover:bg-[#111111]/25"
         >
           <span className="min-w-0 flex-1">
             <span className="block text-xs font-bold uppercase tracking-[0.14em] text-white/50">

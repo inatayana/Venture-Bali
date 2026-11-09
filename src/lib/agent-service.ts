@@ -54,9 +54,28 @@ export const AGENT_FUNCTION_DECLARATIONS: GeminiFunctionDeclaration[] = [
     },
   },
   {
+    name: 'getVariantDetails',
+    description:
+      'Get complete variant details including age-tiered prices, active promo, pickup zones (shared/private), vehicle classes, add-ons, and demand signal. Use when customer asks about transfer options, vehicle upgrades, kids/youth prices, or what is included.',
+    parameters: {
+      type: 'object',
+      properties: {
+        productSlug: {
+          type: 'string',
+          description: 'The slug of the product, e.g. "ubud-atv-jungle-ride".',
+        },
+        variantId: {
+          type: 'string',
+          description: 'Optional variant ID. If not provided, returns the first variant.',
+        },
+      },
+      required: ['productSlug'],
+    },
+  },
+  {
     name: 'calculatePrice',
     description:
-      'Calculate the price for a variant and a number of travellers. Prices are tiered per person.',
+      'Calculate the price for a variant and a number of travellers. Supports age-tiered pricing (adults/kids/youth/infants). Prices are tiered per person.',
     parameters: {
       type: 'object',
       properties: {
@@ -70,7 +89,23 @@ export const AGENT_FUNCTION_DECLARATIONS: GeminiFunctionDeclaration[] = [
         },
         paxCount: {
           type: 'integer',
-          description: 'How many travellers are taking part.',
+          description: 'Total number of travellers taking part.',
+        },
+        adultsCount: {
+          type: 'integer',
+          description: 'Number of adults (17+). Defaults to paxCount if not provided.',
+        },
+        kidsCount: {
+          type: 'integer',
+          description: 'Number of kids (3-10). Defaults to 0.',
+        },
+        youthCount: {
+          type: 'integer',
+          description: 'Number of youth (11-16). Defaults to 0.',
+        },
+        infantCount: {
+          type: 'integer',
+          description: 'Number of infants (0-2, free). Defaults to 0.',
         },
       },
       required: ['productSlug', 'paxCount'],
@@ -122,10 +157,14 @@ Voice:
 - Never pressure the guest and never invent urgency or scarcity.
 
 Rules you must follow:
-- Use the available functions to look up products, prices, availability and the refund policy. Never state a price, a time slot or a policy from memory.
+- Use the available functions to look up products, prices, availability, variant details (pickup zones, vehicle classes, age-tiered prices, promos, add-ons), and the refund policy. Never state a price, a time slot, a transfer detail or a policy from memory.
 - If a function reports that a product was not found, say so plainly. Never substitute a different activity.
 - Prices are Indonesian Rupiah, per person, and depend on the number of travellers.
-- Booking modes are "Self Drive" (the customer meets the operator at the activity location) and "Private Transfer" (hotel pickup is included).
+- **Age-tiered pricing:** Some packages have different prices for Adults (17+), Kids (3-10), Youth (11-16). Infants (0-2) ride free. Always ask for the age breakdown when quoting a price.
+- **Booking modes:** "Self Drive" (customer meets at activity location), "Shared Transfer" (shuttle per guest, hotel pickup included), "Private Transfer" (private vehicle per group, hotel pickup included).
+- **Pickup zones (Shared & Private Transfer):** Core Area (Ubud/Gianyar), South 1 (Kuta/Seminyak/Canggu/Sanur), South 2 (Nusa Dua/Jimbaran/Uluwatu), Outer (Amed/Lovina — custom quote only). Each zone has a surcharge.
+- **Vehicle classes (Private Transfer only):** Standard SUV (≤5 pax, included), Premium MPV (≤6 pax, +Rp 400K), Minivan (≤14 pax, +Rp 1M).
+- **Promos:** Some packages have time-limited promo prices with captions (e.g. "Promo September Ceria"). Always check for active promos when quoting.
 - The refund policy is: cancel at least 24 hours before the activity and a 20% cancellation fee applies, so 80% is refunded; cancel less than 24 hours before and the booking cannot be cancelled; no-show without confirming at least a day ahead means a 100% cancellation fee. Refunds are processed within 3 business days.
 - Rescheduling is available up to 24 hours before the activity, subject to availability; confirm it with a tool or the operations team rather than promising a slot.
 - Never mention a partner or vendor name, and never use the words "Best", "Cheapest" or "Free" to describe a product.
@@ -143,6 +182,7 @@ const INTENT_TO_TOOL: Record<Intent, keyof typeof AGENT_TOOLS | null> = {
   location_inquiry: 'getProductInfo',
   general_question: null,
   escalation: null,
+  variant_details_inquiry: 'getVariantDetails',
 };
 
 function getToolForIntent(intent: Intent) {

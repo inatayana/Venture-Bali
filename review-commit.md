@@ -1,0 +1,3 @@
+feat(reviews): relabel imported reviews as Verified with green badge for trust
+
+BaliWild review labels are now unified — `IMPORTED` source reviews display "Verified" in a green badge, same as VERIFIED_BOOKING ("Verified trip"). This gives customers one consistent, trust-building label across all review sources: Verified trip (green), Verified (green), or Founding guest (brand/30). No review is ever shown without a labeled source, and the green color signals authenticity. 1 file changed.
