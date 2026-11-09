@@ -13,26 +13,12 @@ export const revalidate = 60;
 /** Popular pickup hubs offered by the hero destination picker. */
 const HUBS = ['Ubud', 'Seminyak', 'Canggu', 'Nusa Dua', 'Sanur', 'Denpasar', 'Kuta', 'Uluwatu'];
 
-/** Collect unique gallery images from all ventures for the hero carousel. */
-function collectGalleryImages(ventures: Awaited<ReturnType<typeof loadVentures>>['ventures']): string[] {
-  const images = new Set<string>();
-  for (const venture of ventures) {
-    if (venture.imageUrl) images.add(venture.imageUrl);
-    for (const galleryImage of venture.gallery) {
-      images.add(galleryImage);
-    }
-  }
-  // Return a diverse selection: main images first, then gallery images
-  return Array.from(images).slice(0, 8);
-}
-
 export default async function Home() {
   const { ventures, source } = await loadVentures();
   const suggestions = ventures.slice(0, 5).map((venture) => ({
     title: venture.title,
     href: `/experiences/${venture.id}/${venture.slug}`,
   }));
-  const galleryImages = collectGalleryImages(ventures);
 
   return (
     <main className="min-h-screen bg-neutral-50">
@@ -40,7 +26,7 @@ export default async function Home() {
       <HomeHeader />
 
       <SearchProvider>
-        <HomeHero hubs={HUBS} suggestions={suggestions} galleryImages={galleryImages} />
+        <HomeHero hubs={HUBS} suggestions={suggestions} />
         <VentureExplorer ventures={ventures} />
       </SearchProvider>
 
