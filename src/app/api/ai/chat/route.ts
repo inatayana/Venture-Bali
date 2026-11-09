@@ -7,7 +7,7 @@ import {
   loadAgentSession,
   saveAgentSession,
 } from '@/lib/agentSessionStore';
-import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +19,7 @@ const chatSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const limit = rateLimit(`chat:${clientIp(request)}`, 20, 60_000);
+  const limit = await rateLimit(`chat:${clientIp(request)}`, 20, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       { success: false, error: { code: 'RATE_LIMITED', message: 'Too many messages. Please wait a moment.' } },

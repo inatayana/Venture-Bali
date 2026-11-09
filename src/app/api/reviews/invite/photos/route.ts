@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyInviteToken } from '@/lib/reviewInvite';
-import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 import {
   ReviewPhotoError,
   REVIEW_PHOTO_MAX_BYTES,
@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 /** Upload one photo for a founding-guest review invite. */
 export async function POST(request: NextRequest) {
-  const limit = rateLimit(`review-invite-photo:${clientIp(request)}`, 20, 60_000);
+  const limit = await rateLimit(`review-invite-photo:${clientIp(request)}`, 20, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       {

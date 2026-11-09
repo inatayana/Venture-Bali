@@ -6,7 +6,7 @@ import { verifyInviteToken } from '@/lib/reviewInvite';
 import { inviteReviewInputSchema } from '@/lib/reviewInviteSchema';
 import { assessReviewForPublishing } from '@/lib/reviewModeration';
 import { isAllowedReviewPhotoUrl } from '@/lib/reviewPhotos';
-import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 
 /**
  * Submit a founding-guest review through a signed, single-use invite.
@@ -15,7 +15,7 @@ import { clientIp, rateLimit } from '@/lib/rateLimit';
  * labelled FOUNDING_GUEST internally and published immediately.
  */
 export async function POST(request: NextRequest) {
-  const limit = rateLimit(`review-invite:${clientIp(request)}`, 5, 60_000);
+  const limit = await rateLimit(`review-invite:${clientIp(request)}`, 5, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       {

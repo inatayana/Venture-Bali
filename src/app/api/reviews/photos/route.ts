@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyReviewAccess } from '@/lib/customerLink';
 import { canReviewBooking } from '@/lib/reviewSchema';
-import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 import {
   ReviewPhotoError,
   REVIEW_PHOTO_MAX_BYTES,
@@ -20,7 +20,7 @@ export const dynamic = 'force-dynamic';
  * browser, checked again here, then written to the public Supabase bucket.
  */
 export async function POST(request: NextRequest) {
-  const limit = rateLimit(`review-photo:${clientIp(request)}`, 20, 60_000);
+  const limit = await rateLimit(`review-photo:${clientIp(request)}`, 20, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       {

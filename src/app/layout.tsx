@@ -9,6 +9,7 @@ import { CurrencyProvider } from '@/components/currency/CurrencyProvider';
 import { LocaleProvider } from '@/components/locale/LocaleProvider';
 import { ThemeProvider, themeInitScript } from '@/components/theme/ThemeProvider';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
+import { SentryClientProvider } from '@/components/SentryClientProvider';
 import {
   BRAND_NAME,
   BRAND_SHORT_DESCRIPTION,
@@ -64,6 +65,7 @@ export default function RootLayout({
         <ThemeProvider>
           <CurrencyProvider>
             <LocaleProvider>
+              <SentryClientProvider />
               {children}
               <AnalyticsPageView />
               <PwaRegistration />

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdminRole } from '@/lib/adminGuard';
-import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 import {
   ProductMediaError,
   PRODUCT_PHOTO_MAX_BYTES,
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const limit = rateLimit(`product-media:${clientIp(request)}`, 40, 60_000);
+  const limit = await rateLimit(`product-media:${clientIp(request)}`, 40, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       {

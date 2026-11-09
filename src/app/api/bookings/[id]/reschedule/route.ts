@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyCustomerLinkToken } from '@/lib/customerLink';
 import { isDateAvailable, isSlotBookable } from '@/lib/pricing';
 import { hoursBeforeActivity } from '@/lib/refundUtils';
-import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date');
 const rescheduleSchema = z.object({
@@ -38,7 +38,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const limit = rateLimit(`reschedule-get:${clientIp(request)}`, 30, 60_000);
+  const limit = await rateLimit(`reschedule-get:${clientIp(request)}`, 30, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       { success: false, error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again shortly.' } },
@@ -121,7 +121,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const limit = rateLimit(`reschedule:${clientIp(request)}`, 10, 60_000);
+  const limit = await rateLimit(`reschedule:${clientIp(request)}`, 10, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       { success: false, error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again shortly.' } },

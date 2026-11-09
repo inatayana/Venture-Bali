@@ -260,3 +260,54 @@ export function mapTransactionStatus(status: string, fraudStatus?: string): 'PEN
       return 'FAILED';
   }
 }
+
+export interface TransactionStatusResponse {
+  transaction_id: string;
+  order_id: string;
+  status_code: string;
+  transaction_status: string;
+  fraud_status?: string;
+  gross_amount: string;
+  payment_type: string;
+  transaction_time: string;
+  merchant_id: string;
+  masked_card?: string;
+  bank?: string;
+  eci?: string;
+  currency?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Query Midtrans for the current status of a transaction.
+ * Used by the reconciliation cron to catch missed/failed webhooks.
+ */
+export async function getTransactionStatus(
+  orderId: string
+): Promise<TransactionStatusResponse | null> {
+  const { serverKey, isProduction } = getMidtransConfig();
+  const baseUrl = isProduction
+    ? 'https://api.midtrans.com'
+    : 'https://api.sandbox.midtrans.com';
+  const auth = Buffer.from(`${serverKey}:`).toString('base64');
+
+  const response = await fetch(
+    `${baseUrl}/v2/${encodeURIComponent(orderId)}/status`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Basic ${auth}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    console.error(
+      `Midtrans status check failed for ${orderId}: ${response.status}`
+    );
+    return null;
+  }
+
+  return (await response.json()) as TransactionStatusResponse;
+}

@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { verifyCustomerLinkToken } from '@/lib/customerLink';
 import { quoteCancellation } from '@/lib/refundUtils';
-import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 
 const cancelSchema = z.object({
   token: z.string().min(10, 'Missing access token'),
@@ -22,7 +22,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const limit = rateLimit(`cancel:${clientIp(request)}`, 10, 60_000);
+  const limit = await rateLimit(`cancel:${clientIp(request)}`, 10, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       { success: false, error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again shortly.' } },

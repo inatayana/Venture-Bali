@@ -14,7 +14,7 @@ import { lifecycleForPaymentStatus } from '@/lib/bookingLifecycle';
  * Fired only when Midtrans webhook confirms settlement (PAID).
  * Consumed by log-based analytics pipeline (e.g. Vercel Logs → BigQuery → GA4 MP).
  */
-function emitPurchaseEvent(booking: {
+export function emitPurchaseEvent(booking: {
   id: string;
   bookingCode: string;
   totalPrice: number;
