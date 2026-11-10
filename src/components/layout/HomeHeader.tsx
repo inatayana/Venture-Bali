@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Mail } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
+import { MobileActionMenu } from '@/components/layout/MobileActionMenu';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
@@ -80,18 +81,9 @@ export function HomeHeader() {
             <ThemeSwitcher />
           </div>
 
-          {/* Mobile: 4 icon actions - each works directly */}
-          <div className="flex items-center gap-0.5 md:hidden" role="navigation" aria-label="Quick actions">
-            <LanguageSwitcher className="min-h-[44px] min-w-[44px] justify-center px-1" />
-            <CurrencySelector className="min-h-[44px] min-w-[44px] justify-center px-1" />
-            <ThemeSwitcher className="min-h-[44px] min-w-[44px]" />
-            <a
-              href={`mailto:${BRAND_EMAIL_HELLO}`}
-              className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-600 transition-colors hover:text-brand-ink dark:text-neutral-400 dark:hover:text-brand"
-              aria-label={`Email ${BRAND_EMAIL_HELLO}`}
-            >
-              <Mail className="h-5 w-5" aria-hidden="true" />
-            </a>
+          {/* Mobile: Single settings trigger opening popover with Language, Currency, Theme, Email */}
+          <div className="md:hidden">
+            <MobileActionMenu />
           </div>
 
           {/* Desktop: Email with label (xl only) */}
