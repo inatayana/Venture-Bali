@@ -1097,6 +1097,9 @@ export function ExperienceDetailClient({
 
       <SiteFooter />
 
+      {/* Spacer to prevent footer from being covered by mobile sticky CTA */}
+      <div className="h-20 lg:hidden" aria-hidden="true" />
+
       {/* Mobile sticky CTA — the only price/CTA source on phones. */}
       <div
         className="fixed inset-x-0 z-40 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden"

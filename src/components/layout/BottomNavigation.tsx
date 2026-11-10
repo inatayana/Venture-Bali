@@ -21,6 +21,9 @@ export function BottomNavigation() {
 
   if (!isVisible) return null;
 
+  // During SSR, pathname might be null. Use a fallback for initial render.
+  const safePathname = pathname ?? '/';
+
   return (
     <nav
       role="navigation"
@@ -44,7 +47,7 @@ export function BottomNavigation() {
           key={config.key}
           config={config}
           isActive={config.key === activeKey}
-          pathname={pathname}
+          pathname={safePathname}
         />
       ))}
     </nav>
