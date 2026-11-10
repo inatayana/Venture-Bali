@@ -30,9 +30,9 @@ export interface BookingConfig {
   variantId: string;
   date: Date | null;
   slot: SlotTime | null;
-  /** Adults (17+). Always â‰¥ 1 â€” every booking needs one adult. */
+  /** Adults (17+). Always ≥ 1 — every booking needs one adult. */
   adults: number;
-  /** Kids (3-10) / youth (11-16) â€” priced per age when the package is age-tiered. */
+  /** Kids (3-10) / youth (11-16) — priced per age when the package is age-tiered. */
   kids: number;
   youth: number;
   /** Infants (0-2): declared when the package allows them; free, not counted. */
@@ -78,7 +78,7 @@ const QUICK_DATES = [
   { label: 'Tomorrow', offset: 1 },
 ];
 
-/** "Sat, 8 Nov 2026" â€” checkout recap only, never used for API payloads. */
+/** "Sat, 8 Nov 2026" — checkout recap only, never used for API payloads. */
 export function formatTripDate(date: Date): string {
   return date.toLocaleDateString('en-GB', {
     weekday: 'short',
@@ -88,7 +88,7 @@ export function formatTripDate(date: Date): string {
   });
 }
 
-/** Local-date key (never toISOString â€” that shifts the day across timezones). */
+/** Local-date key (never toISOString — that shifts the day across timezones). */
 export function toDateKey(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -277,7 +277,7 @@ export function ExperienceBookingWidget({
   if (!config.slot) planMissing.push('Choose a departure time');
   if (needsPickup && !config.zoneId) planMissing.push('Select a pickup area');
   if (needsPickup && zone?.isCustomQuote) {
-    planMissing.push('Outer areas need a custom quote â€” choose another pickup area');
+    planMissing.push('Outer areas need a custom quote — choose another pickup area');
   }
   if (needsPickup && !config.isTba && !config.hotelAddress.trim()) {
     planMissing.push('Add your hotel/villa address or mark it TBA');
@@ -389,10 +389,10 @@ export function ExperienceBookingWidget({
       {step === 'plan' ? (
         <>
 
-      {/* 1 Â· Guest counter */}
+      {/* 1 · Guest counter */}
       <section>
         <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
-          <Users className="h-4 w-4" /> 1 Â· Guests
+          <Users className="h-4 w-4" /> 1 · Guests
         </h3>
         <div className="space-y-3 rounded-xl border border-neutral-200 p-4">
           {isAgeTiered ? (
@@ -420,7 +420,7 @@ export function ExperienceBookingWidget({
               />
               {variant?.infantEnabled && (
                 <Stepper
-                  label="Infants (0-2) â€” free, not counted"
+                  label="Infants (0-2) — free, not counted"
                   value={config.infants}
                   min={0}
                   max={6}
@@ -428,7 +428,7 @@ export function ExperienceBookingWidget({
                 />
               )}
               <p className="text-xs text-neutral-500">
-                Total guests: <strong>{totalPax}</strong> / {maxGuests} Â· kids and youth pay their
+                Total guests: <strong>{totalPax}</strong> / {maxGuests} · kids and youth pay their
                 own package price
               </p>
             </>
@@ -442,17 +442,17 @@ export function ExperienceBookingWidget({
                 onChange={(value) => onChange({ adults: value })}
               />
               <p className="mt-2 text-xs text-neutral-500">
-                {guestCountTouched ? `${config.adults} guests` : `Price is shown per guest Â· up to ${maxGuests} guests`}
+                {guestCountTouched ? `${config.adults} guests` : `Price is shown per guest · up to ${maxGuests} guests`}
               </p>
             </>
           )}
         </div>
       </section>
 
-      {/* 2 Â· Mini calendar */}
+      {/* 2 · Mini calendar */}
       <section>
         <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
-          <CalendarDays className="h-4 w-4" /> 2 Â· Date
+          <CalendarDays className="h-4 w-4" /> 2 · Date
         </h3>
         <div className="mb-3 flex gap-2">
           {QUICK_DATES.map((quick) => {
@@ -489,10 +489,10 @@ export function ExperienceBookingWidget({
         )}
       </section>
 
-      {/* 3 Â· Departure slots */}
+      {/* 3 · Departure slots */}
       <section>
         <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
-          <Clock className="h-4 w-4" /> 3 Â· Departure time
+          <Clock className="h-4 w-4" /> 3 · Departure time
         </h3>
         {!config.date && (
           <p className="text-sm text-neutral-600">Pick a date to see available times</p>
@@ -524,16 +524,16 @@ export function ExperienceBookingWidget({
         {parseSlotHour(config.slot?.time) !== null &&
           (parseSlotHour(config.slot?.time) as number) >= NIGHT_SURCHARGE_FROM_HOUR && (
             <p className="mt-2 text-xs text-neutral-500">
-              Evening departure Â· +{formatPrice(50_000)} per guest applies
+              Evening departure · +{formatPrice(50_000)} per guest applies
             </p>
           )}
       </section>
 
-      {/* 4 Â· Pickup details (conditional) */}
+      {/* 4 · Pickup details (conditional) */}
       {needsPickup && (
         <section id="pickup-step" className="scroll-mt-24">
           <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
-            <MapPin className="h-4 w-4" /> 4 Â· Pickup
+            <MapPin className="h-4 w-4" /> 4 · Pickup
           </h3>
           <div className="space-y-3 rounded-xl border border-neutral-200 p-4">
             <div>
@@ -549,7 +549,7 @@ export function ExperienceBookingWidget({
                     </p>
                     <p className="text-xs text-neutral-500">
                       {lockedZone.isCustomQuote
-                        ? 'Custom quote â€” confirmed by WhatsApp'
+                        ? 'Custom quote — confirmed by WhatsApp'
                         : needsVehicle
                           ? lockedZone.surchargeIdr > 0
                             ? `+${formatPrice(lockedZone.surchargeIdr)}/vehicle`
@@ -598,7 +598,7 @@ export function ExperienceBookingWidget({
                         <p className="truncate text-sm font-semibold text-neutral-900">{item.name}</p>
                         <p className="text-xs text-neutral-500">
                           {item.isCustomQuote
-                            ? 'Not Available / Read Only â€” Outer areas are beyond our daily transport coverage. Please contact support or arrange transport to the nearest Core Area.'
+                            ? 'Not Available / Read Only — Outer areas are beyond our daily transport coverage. Please contact support or arrange transport to the nearest Core Area.'
                             : needsVehicle
                               ? item.surchargeIdr > 0
                                 ? `+${formatPrice(item.surchargeIdr)}/vehicle`
@@ -639,7 +639,7 @@ export function ExperienceBookingWidget({
                   disabled={!config.zoneId}
                   className="h-5 w-5 rounded border-neutral-300 disabled:opacity-50"
                 />
-                Address TBA â€” I&apos;ll confirm by H-1
+                Address TBA — I&apos;ll confirm by H-1
               </label>
               {!config.zoneId && (
                 <p className="mt-1 text-xs text-amber-700">Please select a pickup area to enable the address field.</p>
@@ -689,8 +689,8 @@ export function ExperienceBookingWidget({
           {(config.zoneId || config.hotelAddress.trim() || config.isTba) && (
             <div className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-neutral-50 px-3 py-2">
               <span className="min-w-0 truncate text-sm text-neutral-700">
-                <strong className="font-semibold">Pickup</strong> Â·{' '}
-                {zone?.name ?? 'area not selected'} Â·{' '}
+                <strong className="font-semibold">Pickup</strong> ·{' '}
+                {zone?.name ?? 'area not selected'} ·{' '}
                 {config.isTba ? 'address TBA by H-1' : config.hotelAddress || 'add an address'}
               </span>
               <button
@@ -723,14 +723,14 @@ export function ExperienceBookingWidget({
       {!needsPickup && (
         <section>
           <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
-            <MapPin className="h-4 w-4" /> 4 Â· Meeting point
+            <MapPin className="h-4 w-4" /> 4 · Meeting point
           </h3>
           <div className="rounded-xl border border-neutral-200 p-4">
             <p className="text-sm font-semibold text-neutral-900">
               {venture.meetingPoint?.name ?? venture.location}
             </p>
             <p className="mt-0.5 text-xs text-neutral-500">
-              Make your own way here Â· arrive 15 minutes before departure
+              Make your own way here · arrive 15 minutes before departure
             </p>
             {venture.meetingPoint && (
               <a
@@ -746,7 +746,7 @@ export function ExperienceBookingWidget({
         </section>
       )}
 
-      {/* 5 Â· Coupon */}
+      {/* 5 · Coupon */}
       <section>
         <h3 className="mb-3 flex items-center gap-1.5 font-heading text-xs font-bold uppercase tracking-wider text-neutral-500">
           <Tag className="h-4 w-4" /> Promo code
@@ -754,7 +754,7 @@ export function ExperienceBookingWidget({
         {appliedCoupon ? (
           <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50 px-3 py-2.5">
             <span className="text-sm text-green-800">
-              <strong>{appliedCoupon.code}</strong> applied Â· âˆ’{appliedCoupon.discountPercent}%
+              <strong>{appliedCoupon.code}</strong> applied · −{appliedCoupon.discountPercent}%
             </span>
             <button
               type="button"
@@ -779,14 +779,14 @@ export function ExperienceBookingWidget({
               disabled={couponLoading || couponInput.trim().length < 3}
               className="min-h-[44px] rounded-lg border-2 border-neutral-900 px-4 text-sm font-semibold text-neutral-900 disabled:border-neutral-200 disabled:text-neutral-600"
             >
-              {couponLoading ? 'â€¦' : 'Apply'}
+              {couponLoading ? '…' : 'Apply'}
             </button>
           </div>
         )}
         {couponError && <p className="mt-2 text-sm text-red-600">{couponError}</p>}
       </section>
 
-      {/* 6 Â· Add-ons */}
+      {/* 6 · Add-ons */}
       <PickupAddonsStep
         addons={variant?.addons}
         variantId={variant?.id ?? ''}
@@ -797,7 +797,7 @@ export function ExperienceBookingWidget({
         </>
       ) : (
         <>
-          {/* Step 2 Â· recap of the plan, editable without losing guest details */}
+          {/* Step 2 · recap of the plan, editable without losing guest details */}
           <section
             aria-label="Your trip"
             className="rounded-xl border border-neutral-200 bg-neutral-50 p-4"
@@ -809,28 +809,28 @@ export function ExperienceBookingWidget({
                 </p>
                 <p className="text-sm font-semibold text-neutral-900">
                   {config.date ? formatTripDate(config.date) : 'Date not set'}
-                  {config.slot ? ` Â· ${config.slot.time}` : ''}
+                  {config.slot ? ` · ${config.slot.time}` : ''}
                 </p>
                 <p className="text-sm text-neutral-700">
                   {config.adults} {config.adults === 1 ? 'guest' : 'guests'}
                   {selectedAddons.length > 0
-                    ? ` Â· ${selectedAddons.map((addon) => addon.name).join(', ')}`
+                    ? ` · ${selectedAddons.map((addon) => addon.name).join(', ')}`
                     : ''}
                 </p>
                 <p className="text-sm text-neutral-700">
                   {needsPickup
-                    ? `Pickup Â· ${zone?.name ?? 'area not selected'}${
+                    ? `Pickup · ${zone?.name ?? 'area not selected'}${
                         config.isTba
-                          ? ' Â· address TBA by H-1'
+                          ? ' · address TBA by H-1'
                           : config.hotelAddress
-                            ? ` Â· ${config.hotelAddress}`
+                            ? ` · ${config.hotelAddress}`
                             : ''
                       }`
-                    : `Meeting point Â· ${venture.meetingPoint?.name ?? venture.location}`}
+                    : `Meeting point · ${venture.meetingPoint?.name ?? venture.location}`}
                 </p>
                 {appliedCoupon && (
                   <p className="text-xs font-medium text-green-700">
-                    Coupon {appliedCoupon.code} Â· âˆ’{appliedCoupon.discountPercent}%
+                    Coupon {appliedCoupon.code} · −{appliedCoupon.discountPercent}%
                   </p>
                 )}
               </div>
@@ -956,7 +956,7 @@ export function ExperienceBookingWidget({
               {quote.ageBreakdown.adults.count > 0 && (
                 <div className="flex justify-between text-neutral-600">
                   <span>
-                    Adults ({quote.ageBreakdown.adults.count} Ã—{' '}
+                    Adults ({quote.ageBreakdown.adults.count} ×{' '}
                     {formatPrice(quote.ageBreakdown.adults.pricePerPax)})
                   </span>
                   <span className="tabular-nums">{formatPrice(quote.ageBreakdown.adults.subtotal)}</span>
@@ -965,7 +965,7 @@ export function ExperienceBookingWidget({
               {quote.ageBreakdown.kids.count > 0 && (
                 <div className="flex justify-between text-neutral-600">
                   <span>
-                    Kids ({quote.ageBreakdown.kids.count} Ã—{' '}
+                    Kids ({quote.ageBreakdown.kids.count} ×{' '}
                     {formatPrice(quote.ageBreakdown.kids.pricePerPax)})
                   </span>
                   <span className="tabular-nums">{formatPrice(quote.ageBreakdown.kids.subtotal)}</span>
@@ -974,7 +974,7 @@ export function ExperienceBookingWidget({
               {quote.ageBreakdown.youth.count > 0 && (
                 <div className="flex justify-between text-neutral-600">
                   <span>
-                    Youth ({quote.ageBreakdown.youth.count} Ã—{' '}
+                    Youth ({quote.ageBreakdown.youth.count} ×{' '}
                     {formatPrice(quote.ageBreakdown.youth.pricePerPax)})
                   </span>
                   <span className="tabular-nums">{formatPrice(quote.ageBreakdown.youth.subtotal)}</span>
@@ -984,7 +984,7 @@ export function ExperienceBookingWidget({
           ) : (
             <div className="flex justify-between text-neutral-600">
               <span>
-                {config.adults} Ã— {formatPrice(quote.unitPricePerPaxIdr)}
+                {config.adults} × {formatPrice(quote.unitPricePerPaxIdr)}
                 {quote.promoActive && (
                   <span className="ml-2 text-xs line-through">{formatPrice(quote.listPricePerPaxIdr)}</span>
                 )}
@@ -1015,7 +1015,7 @@ export function ExperienceBookingWidget({
               <div className="flex justify-between text-neutral-600">
                 <span>
                   {fulfillmentMode === 'SHARED_TRANSFER'
-                    ? 'Shared shuttle Â· per guest'
+                    ? 'Shared shuttle · per guest'
                     : `Private Transfer (${zone?.name ?? 'area not selected'})`}
                 </span>
                 <span className="tabular-nums">{formatPrice(quote.transfer.zoneSurchargeIdr * quote.transfer.vehicleCount)}</span>
@@ -1079,7 +1079,7 @@ export function ExperienceBookingWidget({
               size="lg"
               className="!rounded-xl !bg-brand-ink !text-brand hover:!bg-neutral-900 disabled:!bg-neutral-300 disabled:!text-neutral-500 dark:disabled:!bg-neutral-700 dark:disabled:!text-neutral-400"
             >
-              {isBooking ? 'Processingâ€¦' : 'Continue to payment'}
+              {isBooking ? 'Processing…' : 'Continue to payment'}
             </Button>
           </div>
         )}

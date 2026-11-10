@@ -46,6 +46,7 @@ const translations = {
     contact: { en: 'Contact', id: 'Kontak' },
     language: { en: 'Language', id: 'Bahasa' },
     currency: { en: 'Currency', id: 'Mata Uang' },
+    theme: { en: 'Theme', id: 'Tema' },
     myBookings: { en: 'My Bookings', id: 'Pemesanan Saya' },
     signIn: { en: 'Sign In', id: 'Masuk' },
     categories: { en: 'Categories', id: 'Kategori' },
