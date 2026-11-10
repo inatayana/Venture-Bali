@@ -1109,7 +1109,6 @@ export function ExperienceDetailClient({
             </span>
             <span className="font-heading text-lg font-bold tabular-nums text-neutral-900">
               {formatPrice(selectedPrice)}
-              <span className="text-xs font-normal text-neutral-500"> /guest</span>
             </span>
           </div>
           <button

@@ -261,7 +261,7 @@ export function VariantDetailModal({
 
               {showCoupon ? (
                 <p className="mt-2.5 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-neutral-800 ring-1 ring-neutral-200">
-                  <Sparkles className="h-3.5 w-3.5 text-[#cdff00]" />
+                  <Sparkles className="h-3.5 w-3.5 text-green-700" />
                   Get {promo.percent}% OFF with code
                   <span className="font-mono font-bold tracking-wide">{promo.code}</span>
                 </p>
@@ -283,7 +283,7 @@ export function VariantDetailModal({
                     <ul className="space-y-1.5 text-sm text-neutral-700">
                       {inclusions.map((item) => (
                         <li key={item} className="flex items-start gap-1.5">
-                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#cdff00]" />
+                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-700" />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -327,7 +327,6 @@ export function VariantDetailModal({
               </p>
               <p className="font-heading text-lg font-bold tabular-nums text-neutral-900">
                 {formatPrice(priceIdr)}
-                <span className="text-xs font-normal text-neutral-500"> /guest</span>
               </p>
             </div>
             <button
