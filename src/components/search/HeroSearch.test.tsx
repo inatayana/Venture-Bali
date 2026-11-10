@@ -2,12 +2,22 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HeroSearch } from './HeroSearch';
 import { SearchProvider } from './SearchProvider';
+import { LocaleProvider } from '@/components/locale/LocaleProvider';
 
 const hubs = ['Ubud', 'Seminyak', 'Canggu'];
 const suggestions = [{ title: 'Ayung Rafting', href: '/experiences/1/rafting' }];
 
+/** HeroSearch reads both search state and translations via context. */
+function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <LocaleProvider>
+      <SearchProvider>{children}</SearchProvider>
+    </LocaleProvider>
+  );
+}
+
 function renderSearch() {
-  render(<HeroSearch hubs={hubs} suggestions={suggestions} />, { wrapper: SearchProvider });
+  render(<HeroSearch hubs={hubs} suggestions={suggestions} />, { wrapper: Providers });
 }
 
 describe('HeroSearch', () => {

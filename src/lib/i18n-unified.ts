@@ -287,11 +287,90 @@ export function formatLongDate(date: Date, locale: Locale = 'en'): string {
 }
 
 /**
+ * Mapping from old flat keys (e.g., "heroBadge") to new namespace/key format ("hero", "badge").
+ * This maintains backward compatibility with components using the old flat key format.
+ */
+const LEGACY_KEY_MAP: Record<string, [string, string]> = {
+  // Header
+  headerTagline: ['hero', 'tagline'],
+  // Hero section
+  heroTagline: ['hero', 'tagline'],
+  heroCategories: ['hero', 'categories'],
+  heroBadge: ['hero', 'badge'],
+  heroBook: ['hero', 'book'],
+  heroOwn: ['hero', 'own'],
+  heroSub: ['hero', 'sub'],
+  heroIdrNote: ['hero', 'idrNote'],
+  heroBest: ['hero', 'best'],
+  heroCombos: ['hero', 'combos'],
+  heroBatur: ['hero', 'batur'],
+  heroTubing: ['hero', 'tubing'],
+  heroWater: ['hero', 'water'],
+  heroTrekking: ['hero', 'trekking'],
+  heroLicensed: ['hero', 'licensed'],
+  heroVerifiedReviews: ['hero', 'verifiedReviews'],
+  heroCategoriesLabel: ['hero', 'categoriesLabel'],
+  heroSearchWhere: ['hero', 'searchWhere'],
+  heroSearchAnywhere: ['hero', 'searchAnywhere'],
+  heroSearchWhen: ['hero', 'searchWhen'],
+  heroSearchAnyDate: ['hero', 'searchAnyDate'],
+  heroSearchGuests: ['hero', 'searchGuests'],
+  heroSearchGuestOne: ['hero', 'searchGuestOne'],
+  heroSearchGuestMany: ['hero', 'searchGuestMany'],
+  heroSearchButton: ['hero', 'searchButton'],
+  heroSearchPlaceholder: ['hero', 'searchPlaceholder'],
+  heroSearchNearby: ['hero', 'searchNearby'],
+  heroSearchSuggested: ['hero', 'searchSuggested'],
+  heroSearchFlexible: ['hero', 'searchFlexible'],
+  heroSearchDone: ['hero', 'searchDone'],
+  heroSearchMobileWhere: ['hero', 'searchMobileWhere'],
+  heroSearchAdventures: ['hero', 'searchAdventures'],
+  heroBookingAlert: ['hero', 'bookingAlert'],
+  heroBookingIn: ['hero', 'bookingIn'],
+  
+  // Trust section
+  trustInstant: ['trust', 'instant'],
+  trustReschedule: ['trust', 'reschedule'],
+  trustRefund: ['trust', 'refund'],
+  trustSecure: ['trust', 'secure'],
+  trustReviews: ['trust', 'reviews'],
+  trustCategories: ['trust', 'categories'],
+  
+  // Search section (legacy flat keys)
+  searchWhere: ['hero', 'searchWhere'],
+  searchAnywhere: ['hero', 'searchAnywhere'],
+  searchWhen: ['hero', 'searchWhen'],
+  searchAnyDate: ['hero', 'searchAnyDate'],
+  searchGuests: ['hero', 'searchGuests'],
+  searchGuestOne: ['hero', 'searchGuestOne'],
+  searchGuestMany: ['hero', 'searchGuestMany'],
+  searchButton: ['hero', 'searchButton'],
+  searchPlaceholder: ['hero', 'searchPlaceholder'],
+  searchNearby: ['hero', 'searchNearby'],
+  searchSuggested: ['hero', 'searchSuggested'],
+  searchFlexible: ['hero', 'searchFlexible'],
+  searchDone: ['hero', 'searchDone'],
+  searchMobileWhere: ['hero', 'searchMobileWhere'],
+  searchAdventures: ['hero', 'searchAdventures'],
+}
+
+/**
  * Compatibility function matching the old translate API.
- * Takes a locale and a dot-notation key (e.g., "hero.tagline") and returns the translation.
- * Falls back to English if locale or key not found.
+ * Takes a locale and a dot-notation key (e.g., "hero.tagline") OR old flat key (e.g., "heroBadge")
+ * and returns the translation. Falls back to English if locale or key not found.
  */
 export function translate(locale: Locale, key: string): string {
+  // First check if it's a legacy flat key
+  if (LEGACY_KEY_MAP[key]) {
+    const [namespace, translationKey] = LEGACY_KEY_MAP[key];
+    const ns = translations[namespace as keyof typeof translations];
+    if (ns && Object.prototype.hasOwnProperty.call(ns, translationKey)) {
+      const translation = ns[translationKey as keyof typeof ns] as Record<Locale, string>;
+      return translation[locale] ?? translation.en;
+    }
+  }
+  
+  // Then check for dot-notation format (namespace.key)
   const [namespace, ...keyParts] = key.split('.');
   const translationKey = keyParts.join('.');
   
