@@ -38,7 +38,7 @@ export function CurrencySwitcher({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex min-h-[44px] items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-current transition-colors hover:bg-brand/30"
+        className="flex min-h-[44px] items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-current transition-colors hover:bg-brand/30 dark:hover:bg-brand/20"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
@@ -64,7 +64,7 @@ export function CurrencySwitcher({
                 'flex min-h-[44px] w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
                 currency.code === selectedCurrency
                   ? 'bg-brand/40 text-brand-ink font-medium'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  : 'text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-white/10'
               )}
               role="option"
               aria-selected={currency.code === selectedCurrency}

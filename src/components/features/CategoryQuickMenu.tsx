@@ -53,7 +53,7 @@ export function CategoryQuickMenu({ currentCategory }: CategoryQuickMenuProps) {
         aria-expanded={isOpen}
         aria-haspopup="menu"
         aria-label={`Change category (now ${currentCategory})`}
-        className="inline-flex min-h-[44px] items-center gap-1 rounded-lg px-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+        className="inline-flex min-h-[44px] items-center gap-1 rounded-lg px-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
       >
         <span className="max-w-[104px] truncate">{currentCategory}</span>
         <ChevronDown
@@ -85,8 +85,8 @@ export function CategoryQuickMenu({ currentCategory }: CategoryQuickMenuProps) {
                 onClick={() => setIsOpen(false)}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'flex min-h-[44px] items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-brand/25',
-                  isActive ? 'bg-brand/30 font-semibold text-neutral-900' : 'text-neutral-700'
+                  'flex min-h-[44px] items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-brand/25 dark:hover:bg-brand/15',
+                  isActive ? 'bg-brand/30 font-semibold text-neutral-900 dark:text-brand-ink' : 'text-neutral-700 dark:text-gray-200'
                 )}
               >
                 <span className="text-lg leading-none" aria-hidden="true">
