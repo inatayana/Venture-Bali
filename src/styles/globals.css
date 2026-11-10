@@ -18,6 +18,14 @@
     --brand-ink: 0 0 0;
   }
 
+  /* Override bg-brand/30 and hover:bg-brand/30 to use #D9CB30 solid in both modes.
+   * This replaces the computed #5e5811 (brand @30% on dark surface) with a consistent
+   * brand accent that works on light and dark backgrounds. */
+  .bg-brand\/30,
+  .hover\:bg-brand\/30:hover {
+    background-color: #D9CB30 !important;
+  }
+
   /* Keep anchor targets (e.g. #packages, #reviews) clear of the sticky bar. */
   html {
     scroll-padding-top: 6.5rem;
