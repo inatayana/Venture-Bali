@@ -80,7 +80,7 @@ export function HomeHeader() {
             <ThemeSwitcher />
           </div>
 
-          {/* Mobile: Language, Currency, Theme, Email as icon-only buttons */}
+          {/* Mobile: 4 icon actions - each works directly */}
           <div className="flex items-center gap-0.5 md:hidden" role="navigation" aria-label="Quick actions">
             <LanguageSwitcher className="min-h-[44px] min-w-[44px] justify-center px-1" />
             <CurrencySelector className="min-h-[44px] min-w-[44px] justify-center px-1" />
