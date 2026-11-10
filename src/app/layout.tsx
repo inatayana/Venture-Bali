@@ -10,6 +10,7 @@ import { LocaleProvider } from '@/components/locale/LocaleProvider';
 import { ThemeProvider, themeInitScript } from '@/components/theme/ThemeProvider';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
 import { SentryClientProvider } from '@/components/SentryClientProvider';
+import { BottomNavigation } from '@/components/layout/BottomNavigation';
 import {
   BRAND_NAME,
   BRAND_SHORT_DESCRIPTION,
@@ -70,6 +71,7 @@ export default function RootLayout({
               <AnalyticsPageView />
               <PwaRegistration />
               <InstallPrompt />
+              <BottomNavigation />
               <CookieConsent />
               <ChatWidget />
             </LocaleProvider>

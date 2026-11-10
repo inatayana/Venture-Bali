@@ -10,6 +10,7 @@ import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import { useLocale } from '@/components/locale/LocaleProvider';
 import { BRAND_EMAIL_HELLO } from '@/lib/brand';
 import { cn } from '@/utils/cn';
+import { Z_INDEX } from '@/lib/zIndex';
 
 /**
  * Home header with:
@@ -53,7 +54,7 @@ export function HomeHeader() {
 
   // During SSR / first paint, render header visible to avoid flash
   const headerClass = cn(
-    'sticky top-0 z-40 bg-white/95 backdrop-blur shadow-[0_2px_10px_rgba(0,0,0,0.08)] transition-transform duration-300 ease-out',
+    `sticky top-0 z-[${Z_INDEX.header}] bg-white/95 backdrop-blur shadow-[0_2px_10px_rgba(0,0,0,0.08)] transition-transform duration-300 ease-out`,
     'dark:bg-neutral-950/95 dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)]',
     isVisible ? 'translate-y-0' : '-translate-y-full',
     mounted ? '' : 'translate-y-0' // SSR: always visible first paint

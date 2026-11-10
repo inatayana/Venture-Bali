@@ -16,6 +16,17 @@
      */
     --brand: 255 238 0;
     --brand-ink: 0 0 0;
+
+    /* Z-Index CSS Variables — matches src/lib/zIndex.ts */
+    --z-toast: 80;
+    --z-modal: 70;
+    --z-bottom-sheet: 65;
+    --z-popover: 60;
+    --z-cookie: 55;
+    --z-sticky-cta: 50;
+    --z-bottom-nav: 45;
+    --z-header: 40;
+    --z-content: 10;
   }
 
   /* Override bg-brand/30 and hover:bg-brand/30 to use #D9CB30 solid in both modes.
