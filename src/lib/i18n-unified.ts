@@ -48,6 +48,7 @@ const translations = {
     currency: { en: 'Currency', id: 'Mata Uang' },
     myBookings: { en: 'My Bookings', id: 'Pemesanan Saya' },
     signIn: { en: 'Sign In', id: 'Masuk' },
+    categories: { en: 'Categories', id: 'Kategori' },
   },
   hero: {
     tagline: { en: 'Own the wild. Adventure, booked in minutes.', id: 'Taklukkan alam liar. Petualangan, dipesan dalam hitungan menit.' },

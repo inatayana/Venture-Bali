@@ -3,6 +3,7 @@
 import { Mail } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { HeaderSettings } from '@/components/layout/HeaderSettings';
+import { MobileNavMenu } from '@/components/layout/MobileNavMenu';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
@@ -23,8 +24,9 @@ export function HomeHeader() {
           <p className="hidden truncate text-xs text-gray-500 lg:block">{t('headerTagline')}</p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <div className="flex md:hidden">
+          <div className="flex items-center gap-1 md:hidden">
             <HeaderSettings />
+            <MobileNavMenu />
           </div>
           <div className="hidden items-center gap-1 md:flex">
             <LanguageSwitcher />
