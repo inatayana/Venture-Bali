@@ -204,7 +204,7 @@ export function NotificationBell() {
           </div>
 
           {/* Connection status */}
-          <div className={`flex items-center gap-2 px-4 py-2 text-xs ${isConnected ? 'text-green-600' : 'text-amber-600'}`}>
+          <div className={`flex items-center gap-2 px-4 py-2 text-xs ${isConnected ? 'text-[#cdff00]' : 'text-amber-600'}`}>
             <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-amber-500'}`} />
             <span>{isConnected ? 'Live' : 'Reconnecting...'}</span>
           </div>

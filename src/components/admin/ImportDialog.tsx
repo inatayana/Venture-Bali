@@ -267,7 +267,7 @@ export function ImportDialog<T>({
             <Alert className={cn(result.success ? 'border-green-500' : 'border-red-500')}>
               <div className="flex items-start gap-3">
                 {result.success ? (
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <CheckCircle className="w-5 h-5 text-[#cdff00]" />
                 ) : (
                   <AlertTriangle className="w-5 h-5 text-red-600" />
                 )}

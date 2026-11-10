@@ -803,7 +803,7 @@ export function ExperienceDetailClient({
                       key={`${item}-${index}`}
                       className="flex items-start gap-2 rounded-xl bg-neutral-50 px-3 py-2 text-sm text-neutral-700"
                     >
-                      <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+                      <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#cdff00]" />
                       <span>{clampText(item, HIGHLIGHT_MAX)}</span>
                     </li>
                   ))}
@@ -968,7 +968,7 @@ export function ExperienceDetailClient({
               <div className="min-w-0 flex-1">
                 <p className="flex items-center gap-1.5 text-sm font-bold text-neutral-900">
                   Licensed local adventure team
-                  <BadgeCheck className="h-4 w-4 text-green-600" />
+                  <BadgeCheck className="h-4 w-4 text-[#cdff00]" />
                 </p>
                 <p className="text-xs text-neutral-500">
                   Verified operator · English-speaking guides · Bali, Indonesia
