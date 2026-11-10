@@ -222,6 +222,25 @@ html.dark .text-green-800 {
   color: #cdff00 !important;
 }
 
+/* Light mode: replace #cdff00 (poor contrast on white) with #00693E for readability.
+ * Targets arbitrary value utilities compiled by Tailwind. */
+.text-\[#cdff00\],
+.bg-\[#cdff00\],
+.border-\[#cdff00\],
+.hover\:bg-\[#cdff00\]:hover,
+.hover\:text-\[#cdff00\]:hover,
+.hover\:border-\[#cdff00\]:hover {
+  color: #00693E !important;
+}
+.bg-\[#cdff00\],
+.hover\:bg-\[#cdff00\]:hover {
+  background-color: #00693E !important;
+}
+.border-\[#cdff00\],
+.hover\:border-\[#cdff00\]:hover {
+  border-color: #00693E !important;
+}
+
 html.dark .bg-red-50 {
   background-color: #450a0a !important;
 }
