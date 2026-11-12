@@ -83,7 +83,7 @@ export function getActiveBottomNavKey(pathname: string): string | null {
   if (pathname === '/' || pathname === '/explore') return 'explore';
   if (pathname.startsWith('/experiences')) return 'explore';
   if (pathname.startsWith('/wishlists')) return 'wishlists';
-  if (pathname.startsWith('/profile') || pathname.startsWith('/my')) return 'profile';
+  if (pathname.startsWith('/profile') || pathname.startsWith('/my') || pathname.startsWith('/trips')) return 'profile';
 
   return null;
 }
