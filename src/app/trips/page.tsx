@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Mail, CalendarDays, Compass, ArrowRight } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
@@ -19,18 +18,7 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-interface TripsPageProps {
-  searchParams: Promise<{ token?: string }>;
-}
-
-export default async function TripsPage({ searchParams }: TripsPageProps) {
-  const { token } = await searchParams;
-
-  // A magic link opened on /trips still reaches the customer area.
-  if (token) {
-    redirect(`/my/bookings?token=${encodeURIComponent(token)}`);
-  }
-
+export default function TripsPage() {
   return (
     <main className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
       <header className="bg-brand-ink text-white px-4 py-10">
