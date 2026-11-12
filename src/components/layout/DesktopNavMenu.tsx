@@ -11,13 +11,13 @@ import { cn } from '@/utils/cn';
 
 /**
  * Desktop menu entries behind the header burger. Trips is desktop-only —
- * the mobile bottom navigation keeps its three tabs (Explore, Wishlists,
- * Profile) and stays the single source of truth in navigationConfig.
+ * the mobile bottom navigation keeps its four tabs (Explore, Wishlists,
+ * Trips, Profile) and stays the single source of truth in navigationConfig.
  */
 const MENU_ITEMS = [
-  { href: '/wishlists', labelKey: 'wishlist', ariaLabelKey: 'wishlistAria', icon: Heart },
-  { href: '/trips', labelKey: 'trips', ariaLabelKey: 'tripsAria', icon: CalendarDays },
-  { href: '/profile', labelKey: 'profile', ariaLabelKey: 'profileAria', icon: User },
+  { href: '/wishlists', labelKey: 'wishlist', icon: Heart },
+  { href: '/trips', labelKey: 'trips', icon: CalendarDays },
+  { href: '/profile', labelKey: 'profile', icon: User },
 ] as const;
 
 interface DesktopNavMenuProps {
@@ -105,7 +105,6 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
         >
           {MENU_ITEMS.map((item) => {
             const label = labels[item.labelKey as keyof typeof labels] ?? item.labelKey;
-            const ariaLabel = labels[item.ariaLabelKey as keyof typeof labels] ?? label;
             const isActive = item.href === activeHref;
 
             return (
@@ -114,7 +113,7 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                 href={item.href}
                 role="menuitem"
                 aria-current={isActive ? 'page' : undefined}
-                aria-label={ariaLabel}
+                aria-label={label}
                 onClick={() => setOpen(false)}
                 className={cn(
                   'flex min-h-[44px] items-center gap-3 px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand',
