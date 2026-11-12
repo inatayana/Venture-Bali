@@ -15,50 +15,60 @@ import { Z_INDEX } from '@/lib/zIndex';
 
 /**
  * Home header with:
- * - Desktop: logo, tagline, Language, Currency, Theme, Email (with labels)
- * - Mobile: logo, Language, Currency, Theme, Email (icons only)
- * - Auto-hides on scroll down, shows on scroll up (both mobile & desktop)
+ * - Desktop: logo, tagline, Email, Language, Currency, Theme, burger menu
+ * - Mobile: logo, settings popover (Language, Currency, Theme, Email)
+ * - Hides while the page is scrolling (any direction), reveals again once
+ *   scrolling pauses — both animated via transform + opacity transitions
  */
 export function HomeHeader() {
   const { t } = useLocale();
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    let ticking = false;
 
+    let raf = 0;
+    let revealTimer: ReturnType<typeof setTimeout> | undefined;
+
+    /**
+     * Hide while the page is actively scrolling (any direction) past the
+     * hero threshold, then reveal again once scrolling settles. The reveal
+     * timer restarts on every scroll event, so the header only comes back
+     * after the guest pauses; CSS transitions keep both motions smooth.
+     */
     const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          const direction = currentScrollY > lastScrollY ? 'down' : 'up';
-
-          // Hide after scrolling past threshold when scrolling down
-          if (currentScrollY > 80 && direction === 'down') {
-            setIsVisible(false);
-          } else if (direction === 'up' || currentScrollY <= 80) {
-            setIsVisible(true);
-          }
-
-          setLastScrollY(currentScrollY);
-          ticking = false;
-        });
-        ticking = true;
-      }
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        if (window.scrollY > 80) {
+          setIsVisible(false);
+          window.clearTimeout(revealTimer);
+          revealTimer = setTimeout(() => setIsVisible(true), 150);
+        } else {
+          window.clearTimeout(revealTimer);
+          setIsVisible(true);
+        }
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.cancelAnimationFrame(raf);
+      window.clearTimeout(revealTimer);
+    };
+  }, []);
 
   // During SSR / first paint, render header visible to avoid flash
   const headerClass = cn(
-    `sticky top-0 z-[${Z_INDEX.header}] bg-white/95 backdrop-blur shadow-[0_2px_10px_rgba(0,0,0,0.08)] transition-transform duration-300 ease-out`,
+    `sticky top-0 z-[${Z_INDEX.header}] bg-white/95 backdrop-blur shadow-[0_2px_10px_rgba(0,0,0,0.08)]`,
     'dark:bg-neutral-950/95 dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)]',
-    isVisible ? 'translate-y-0' : '-translate-y-full',
-    mounted ? '' : 'translate-y-0' // SSR: always visible first paint
+    'transition-[transform,opacity] duration-300 ease-out will-change-transform',
+    isVisible
+      ? 'translate-y-0 opacity-100'
+      : 'pointer-events-none -translate-y-full opacity-0',
+    mounted ? '' : 'translate-y-0 opacity-100' // SSR: always visible first paint
   );
 
   return (
