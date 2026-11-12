@@ -11,7 +11,7 @@ import { ThemeProvider, themeInitScript } from '@/components/theme/ThemeProvider
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
 import { SentryClientProvider } from '@/components/SentryClientProvider';
 import { BottomNavigation } from '@/components/layout/BottomNavigation';
-import { DesktopTopNav } from '@/components/layout/DesktopTopNav';
+import { SearchProvider } from '@/components/search/SearchProvider';
 import {
   BRAND_NAME,
   BRAND_SHORT_DESCRIPTION,
@@ -67,15 +67,16 @@ export default function RootLayout({
         <ThemeProvider>
           <CurrencyProvider>
             <LocaleProvider>
-              <SentryClientProvider />
-              <DesktopTopNav />
-              {children}
-              <AnalyticsPageView />
-              <PwaRegistration />
-              <InstallPrompt />
-              <BottomNavigation />
-              <CookieConsent />
-              <ChatWidget />
+              <SearchProvider>
+                <SentryClientProvider />
+                {children}
+                <AnalyticsPageView />
+                <PwaRegistration />
+                <InstallPrompt />
+                <BottomNavigation />
+                <CookieConsent />
+                <ChatWidget />
+              </SearchProvider>
             </LocaleProvider>
           </CurrencyProvider>
         </ThemeProvider>

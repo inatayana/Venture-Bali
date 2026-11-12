@@ -6,6 +6,7 @@ import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
 import { CatalogueSortMenu } from '@/components/features/CatalogueSortMenu';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
+import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { generateExperiencesMetadata } from '@/lib/seo';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
@@ -94,9 +95,12 @@ export default async function ExperiencesPage({ searchParams }: ExperiencesPageP
       {/* Hero */}
       <section className="relative bg-brand-ink text-white py-12 lg:py-20">
         <div className="container mx-auto px-4">
-          <Link href="/" className="inline-block mb-6" aria-label="BaliWild home">
-            <BrandWordmark className="text-2xl" />
-          </Link>
+          <div className="mb-6 flex items-start justify-between gap-4">
+            <Link href="/" className="inline-block" aria-label="BaliWild home">
+              <BrandWordmark className="text-2xl" />
+            </Link>
+            <DesktopNavMenu variant="dark" />
+          </div>
           <h1 className="font-heading text-3xl lg:text-4xl font-bold mb-3">
             All Adventures in Bali
           </h1>

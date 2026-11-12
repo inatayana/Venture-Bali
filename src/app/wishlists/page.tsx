@@ -7,6 +7,8 @@ import { Heart, Trash2 } from 'lucide-react';
 import { useWishlist } from '@/store/wishlistStore';
 import { formatPrice } from '@/lib/i18n';
 import { Star } from 'lucide-react';
+import { BrandWordmark } from '@/components/layout/BrandWordmark';
+import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 
 /**
  * Wishlist page — the guest's saved adventures (persisted in localStorage,
@@ -29,6 +31,12 @@ export default function WishlistsPage() {
     <main className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
       <header className="bg-brand-ink text-white px-4 py-10">
         <div className="container mx-auto">
+          <div className="mb-6 flex items-start justify-between gap-4">
+            <Link href="/" aria-label="BaliWild home" className="inline-block">
+              <BrandWordmark className="text-2xl" />
+            </Link>
+            <DesktopNavMenu variant="dark" />
+          </div>
           <h1 className="font-heading text-3xl font-bold">Wishlists</h1>
           <p className="mt-2 text-brand/80 text-sm">
             Adventures you saved for later. Tap the heart on any experience to add it.

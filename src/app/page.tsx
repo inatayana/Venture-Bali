@@ -4,7 +4,6 @@ import { TrustStrip } from '@/components/features/TrustStrip';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { HomeHeader } from '@/components/layout/HomeHeader';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { SearchProvider } from '@/components/search/SearchProvider';
 import { loadVentures } from '@/lib/ventureService';
 import { generateWebsiteStructuredData, getBaseUrl } from '@/lib/seo';
 
@@ -25,10 +24,8 @@ export default async function Home() {
       <JsonLd data={generateWebsiteStructuredData(getBaseUrl())} />
       <HomeHeader />
 
-      <SearchProvider>
-        <HomeHero hubs={HUBS} suggestions={suggestions} />
-        <VentureExplorer ventures={ventures} />
-      </SearchProvider>
+      <HomeHero hubs={HUBS} suggestions={suggestions} />
+      <VentureExplorer ventures={ventures} />
 
       <TrustStrip />
 

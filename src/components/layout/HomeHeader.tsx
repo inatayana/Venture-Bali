@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Mail } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
+import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { MobileActionMenu } from '@/components/layout/MobileActionMenu';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
@@ -75,27 +76,28 @@ export function HomeHeader() {
 
         {/* Right: Actions */}
         <div className="flex shrink-0 items-center gap-1">
-          {/* Desktop: Language, Currency, Theme with labels */}
+          {/* Desktop: Email with label (xl only), before the control cluster */}
+          <a
+            href={`mailto:${BRAND_EMAIL_HELLO}`}
+            className="mr-1 hidden items-center gap-1.5 text-xs font-semibold text-neutral-600 transition-colors hover:text-brand-ink dark:text-neutral-400 dark:hover:text-brand xl:inline-flex"
+            aria-label={`Email ${BRAND_EMAIL_HELLO}`}
+          >
+            <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="hidden xl:inline">{BRAND_EMAIL_HELLO}</span>
+          </a>
+
+          {/* Desktop: Language, Currency, Theme with labels + burger menu */}
           <div className="hidden items-center gap-1 md:flex">
             <LanguageSwitcher />
             <CurrencySelector />
             <ThemeSwitcher />
+            <DesktopNavMenu />
           </div>
 
           {/* Mobile: Single settings trigger opening popover with Language, Currency, Theme, Email */}
           <div className="md:hidden">
             <MobileActionMenu />
           </div>
-
-          {/* Desktop: Email with label (xl only) */}
-          <a
-            href={`mailto:${BRAND_EMAIL_HELLO}`}
-            className="hidden items-center gap-1.5 pl-1 text-xs font-semibold text-neutral-600 transition-colors hover:text-brand-ink dark:text-neutral-400 dark:hover:text-brand xl:inline-flex"
-            aria-label={`Email ${BRAND_EMAIL_HELLO}`}
-          >
-            <Mail className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="hidden xl:inline">{BRAND_EMAIL_HELLO}</span>
-          </a>
         </div>
       </div>
     </header>
