@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Search, Heart, User } from 'lucide-react';
+import { Search, Heart, User, CalendarDays } from 'lucide-react';
 import { useLocale } from '@/components/locale/LocaleProvider';
 
 interface BottomNavigationItemProps {
@@ -23,6 +23,7 @@ interface BottomNavigationItemProps {
 const ICON_MAP: Record<string, { icon: React.ComponentType<{ className?: string }>; active: React.ComponentType<{ className?: string }> }> = {
   explore: { icon: Search, active: Search },
   wishlists: { icon: Heart, active: Heart },
+  trips: { icon: CalendarDays, active: CalendarDays },
   profile: { icon: User, active: User },
 };
 

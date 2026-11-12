@@ -42,6 +42,16 @@ export const BOTTOM_NAV_ITEMS = [
     hideOnMatch: (pathname: string) => pathname.startsWith('/checkout') || pathname.startsWith('/booking') || pathname.startsWith('/experiences/'),
   },
   {
+    key: 'trips',
+    href: '/trips',
+    labelKey: 'nav.trips',
+    ariaLabelKey: 'nav.tripsAria',
+    icon: null,
+    activeIcon: null,
+    badge: null,
+    hideOnMatch: (pathname: string) => pathname.startsWith('/checkout') || pathname.startsWith('/booking') || pathname.startsWith('/experiences/'),
+  },
+  {
     key: 'profile',
     href: '/profile',
     labelKey: 'nav.profile',
