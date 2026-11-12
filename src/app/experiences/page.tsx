@@ -4,7 +4,7 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
-import { SortMenu } from '@/components/features/SortMenu';
+import { CatalogueSortMenu } from '@/components/features/CatalogueSortMenu';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { generateExperiencesMetadata } from '@/lib/seo';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
@@ -129,10 +129,13 @@ export default async function ExperiencesPage({ searchParams }: ExperiencesPageP
             </div>
           </form>
           <div className="flex items-center gap-3">
-            <SortMenu
+            <CatalogueSortMenu
               value={sort}
-              onChange={(value) => {
-                window.location.href = buildSortUrl(value);
+              urls={{
+                popular: buildSortUrl('popular'),
+                'price-asc': buildSortUrl('price-asc'),
+                'price-desc': buildSortUrl('price-desc'),
+                newest: buildSortUrl('newest'),
               }}
               options={[
                 { value: 'popular', label: 'Most popular' },

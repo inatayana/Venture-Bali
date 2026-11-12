@@ -4,7 +4,7 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
-import { SortMenu } from '@/components/features/SortMenu';
+import { CatalogueSortMenu } from '@/components/features/CatalogueSortMenu';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { generateCategoryMetadata, generateCategoryStructuredData } from '@/lib/seo';
 import { resolveCategory } from '@/lib/taxonomy';
@@ -119,10 +119,13 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         <section className="container mx-auto px-4 pb-4">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex items-center gap-3">
-              <SortMenu
+              <CatalogueSortMenu
                 value={sortValue}
-                onChange={(value) => {
-                  window.location.href = buildSortUrl(value);
+                urls={{
+                  popular: buildSortUrl('popular'),
+                  'price-asc': buildSortUrl('price-asc'),
+                  'price-desc': buildSortUrl('price-desc'),
+                  newest: buildSortUrl('newest'),
                 }}
                 options={[
                   { value: 'popular', label: 'Most popular' },
