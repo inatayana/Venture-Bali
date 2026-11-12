@@ -1,24 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Mail } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { MobileActionMenu } from '@/components/layout/MobileActionMenu';
-import { CurrencySelector } from '@/components/currency/CurrencySelector';
-import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
-import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import { useLocale } from '@/components/locale/LocaleProvider';
-import { BRAND_EMAIL_HELLO } from '@/lib/brand';
 import { cn } from '@/utils/cn';
 import { Z_INDEX } from '@/lib/zIndex';
 
 /**
- * Home header with:
- * - Desktop: logo, tagline, Email, Language, Currency, Theme, burger menu
- * - Mobile: logo, settings popover (Language, Currency, Theme, Email)
- * - Hides while the page is scrolling (any direction), reveals again once
- *   scrolling pauses — both animated via transform + opacity transitions
+ * Home header - minimal design with only logo and burger menu.
+ * All settings (language, currency, theme, email) are in the dropdown.
+ * Hides while the page is scrolling (any direction), reveals again once
+ * scrolling pauses — both animated via transform + opacity transitions.
  */
 export function HomeHeader() {
   const { t } = useLocale();
@@ -84,27 +78,14 @@ export function HomeHeader() {
           </p>
         </div>
 
-        {/* Right: Actions */}
+        {/* Right: Burger menu only */}
         <div className="flex shrink-0 items-center gap-1">
-          {/* Desktop: Email with label (xl only), before the control cluster */}
-          <a
-            href={`mailto:${BRAND_EMAIL_HELLO}`}
-            className="mr-1 hidden items-center gap-1.5 text-xs font-semibold text-neutral-600 transition-colors hover:text-brand-ink dark:text-neutral-400 dark:hover:text-brand xl:inline-flex"
-            aria-label={`Email ${BRAND_EMAIL_HELLO}`}
-          >
-            <Mail className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="hidden xl:inline">{BRAND_EMAIL_HELLO}</span>
-          </a>
-
-          {/* Desktop: Language, Currency, Theme with labels + burger menu */}
-          <div className="hidden items-center gap-1 md:flex">
-            <LanguageSwitcher />
-            <CurrencySelector />
-            <ThemeSwitcher />
+          {/* Desktop: Burger menu */}
+          <div className="hidden md:block">
             <DesktopNavMenu />
           </div>
 
-          {/* Mobile: Single settings trigger opening popover with Language, Currency, Theme, Email */}
+          {/* Mobile: Burger menu */}
           <div className="md:hidden">
             <MobileActionMenu />
           </div>

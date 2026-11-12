@@ -3,8 +3,6 @@ import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
-import { BrandWordmark } from '@/components/layout/BrandWordmark';
-import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
 import type { VentureItem } from '@/types/venture';
@@ -42,21 +40,9 @@ export default async function ExplorePage() {
 
   return (
     <main className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
-      <header className="relative bg-brand-ink text-white px-4 py-10">
-        <div className="container mx-auto">
-          <div className="mb-6 flex items-start justify-between gap-4">
-            <Link href="/" className="inline-block" aria-label="BaliWild home">
-              <BrandWordmark className="text-2xl" />
-            </Link>
-            <DesktopNavMenu variant="dark" />
-          </div>
-          <h1 className="font-heading text-3xl font-bold">Explore</h1>
-          <p className="mt-2 max-w-2xl text-brand/80 text-sm">
-            Every BaliWild adventure in one place — pick a category or scroll the
-            catalogue. Book instantly with free cancellation.
-          </p>
-        </div>
-      </header>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="font-heading text-3xl font-bold text-neutral-900 dark:text-white">Explore</h1>
+      </div>
 
       <section className="container mx-auto px-4 py-6 -mt-6">
         <CategoryQuickMenu currentCategory="All" />
