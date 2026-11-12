@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
@@ -30,8 +31,10 @@ export default async function ExperiencesPage({ searchParams }: ExperiencesPageP
   const page = Math.max(1, parseInt(params.page ?? '1', 10));
   const pageSize = 12;
 
-  // Build where clause
-  const where: Record<string, unknown> = { isActive: true };
+  // Build where clause. NOTE: the Venture model has no isActive column and
+  // the price lives on Variant/PriceTier, so price sorting happens in memory
+  // below — the catalogue is small enough for that today.
+  const where: Prisma.VentureWhereInput = {};
   if (category) {
     where.category = category;
   }
@@ -42,31 +45,30 @@ export default async function ExperiencesPage({ searchParams }: ExperiencesPageP
     ];
   }
 
-  const orderBy =
-    sort === 'price-asc'
-      ? { priceIdr: 'asc' as const }
-      : sort === 'price-desc'
-      ? { priceIdr: 'desc' as const }
-      : sort === 'newest'
-      ? { createdAt: 'desc' as const }
-      : { bookingCount: 'desc' as const };
+  const rows = await prisma.venture.findMany({
+    where,
+    include: ventureWithRelations(),
+  });
 
-  const [ventures, total] = await Promise.all([
-    prisma.venture.findMany({
-      where,
-      orderBy,
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      include: ventureWithRelations(),
-    }),
-    prisma.venture.count({ where }),
-  ]);
-
-  const totalPages = Math.ceil(total / pageSize);
   const categories = CATEGORY_REGISTRY;
 
-  // Map Prisma ventures to VentureItem view models
-  const ventureItems = ventures.map(toVentureItem);
+  // Map Prisma ventures to VentureItem view models, then sort and paginate in
+  // memory: "popular" ranks by rating, price sorts use the computed price.
+  const allItems = rows.map(toVentureItem);
+  const sorted =
+    sort === 'price-asc'
+      ? [...allItems].sort((a, b) => a.priceIdr - b.priceIdr)
+      : sort === 'price-desc'
+      ? [...allItems].sort((a, b) => b.priceIdr - a.priceIdr)
+      : sort === 'newest'
+      ? [...allItems].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      : [...allItems].sort((a, b) => b.rating - a.rating);
+
+  const total = allItems.length;
+  const totalPages = Math.ceil(total / pageSize);
+  const ventureItems = sorted.slice((page - 1) * pageSize, page * pageSize);
 
   // Build URL for sort links
   const buildSortUrl = (value: string) => {
