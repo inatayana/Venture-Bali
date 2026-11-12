@@ -139,26 +139,34 @@ Vercel **Hobby** only allows cron jobs that run **at most once per day**
 is rejected **before the build starts**, so every deployment fails with
 `Hobby accounts are limited to daily cron jobs`.
 
-`vercel.json` therefore keeps all three jobs on daily schedules:
+`vercel.json` currently defines **four** jobs:
 
-| Path | Schedule | Purpose |
+| Path | Schedule (in repo) | Purpose |
 |------|----------|---------|
 | `/api/cron/reminders` | `0 1 * * *` | Morning trip reminders |
 | `/api/cron/review-requests` | `0 2 * * *` | Review invitations |
-| `/api/cron/reap-holds` | `0 3 * * *` | Expired booking holds (safety net) |
+| `/api/cron/reap-holds` | `*/10 * * * *` | Expired booking holds (safety net) |
+| `/api/cron/reconcile-payments` | `*/15 * * * *` | Payment reconciliation with Midtrans |
 
-**Expired holds must be reaped every ~10 minutes** (`BOOKING_HOLD_MINUTES`),
-so the daily run is only a safety net. Trigger the endpoint externally, for
-example with cron-job.org (free, 1-minute granularity):
+> ⚠️ **Warning (Hobby plan):** the two minute-level schedules
+> (`*/10`, `*/15`) are **rejected before the build starts** on Vercel
+> Hobby (`Hobby accounts are limited to daily cron jobs`), so every
+> deployment fails. If you deploy on Hobby, change both schedules to
+> daily (e.g. `0 3 * * *` and `0 4 * * *`) and trigger the endpoints
+> externally instead. On Vercel Pro, keep the minute-level schedules.
+
+**Expired holds must be reaped every ~10 minutes** (`BOOKING_HOLD_MINUTES`)
+and payments reconciled quickly after webhook events, so daily runs are only
+a safety net. Trigger the endpoints externally, for example with cron-job.org
+(free, 1-minute granularity):
 
 ```
 POST https://baliwild.com/api/cron/reap-holds
+POST https://baliwild.com/api/cron/reconcile-payments
 Authorization: Bearer <CRON_SECRET>
 ```
 
-Keep `CRON_SECRET` in Vercel and in the external scheduler. On Vercel Pro,
-restore `"schedule": "*/10 * * * *"` in `vercel.json` and remove the external
-job.
+Keep `CRON_SECRET` in Vercel and in the external scheduler.
 
 ### 2.6 Domain Configuration
 
