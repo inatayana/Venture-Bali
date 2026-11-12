@@ -20,7 +20,7 @@ interface BottomNavigationItemProps {
   pathname: string;
 }
 
-const ICON_MAP: Record<string, { icon: React.ComponentType<any>; active: React.ComponentType<any> }> = {
+const ICON_MAP: Record<string, { icon: React.ComponentType<{ className?: string }>; active: React.ComponentType<{ className?: string }> }> = {
   explore: { icon: Home, active: Home },
   search: { icon: Search, active: Search },
   trips: { icon: Calendar, active: Calendar },
