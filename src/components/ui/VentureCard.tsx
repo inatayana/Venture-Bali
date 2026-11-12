@@ -1,10 +1,13 @@
-import { Star, MapPin, Clock, Users, CheckCircle, RefreshCw } from 'lucide-react';
+'use client';
+
+import { Star, MapPin, Clock, Users, CheckCircle, RefreshCw, Heart } from 'lucide-react';
 import Image from 'next/image';
 import type { VentureItem } from '@/types/venture';
 import { CATEGORY_ICONS } from '@/lib/taxonomy';
 import { cn } from '@/utils/cn';
 import { formatPrice } from '@/lib/i18n';
 import { PriceApprox } from '@/components/currency/PriceApprox';
+import { useWishlist, toWishlistDraft } from '@/store/wishlistStore';
 
 export interface VentureCardProps {
   venture: VentureItem;
@@ -48,6 +51,14 @@ export function VentureCard({
   className,
 }: VentureCardProps) {
   const tierHint = cheapestTier(venture);
+  const wishlisted = useWishlist((state) => state.items.some((item) => item.id === venture.id));
+  const toggleWishlist = useWishlist((state) => state.toggle);
+
+  const handleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    toggleWishlist(toWishlistDraft(venture));
+  };
 
   const handleClick = () => {
     if (onSelect) {
@@ -95,6 +106,18 @@ export function VentureCard({
             Sold Out
           </span>
         )}
+        <button
+          type="button"
+          onClick={handleWishlist}
+          aria-label={wishlisted ? `Remove ${venture.title} from wishlists` : `Save ${venture.title} to wishlists`}
+          aria-pressed={wishlisted}
+          className="absolute right-2.5 bottom-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:right-3 sm:bottom-3"
+        >
+          <Heart
+            className={cn('h-4.5 w-4.5', wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-700')}
+            aria-hidden="true"
+          />
+        </button>
       </div>
 
       <div className="p-4 sm:p-5">

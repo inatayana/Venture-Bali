@@ -44,6 +44,7 @@ import { computeQuote } from '@/lib/pricing';
 import { findCountry } from '@/lib/countries';
 import { toInternationalPhone } from '@/lib/phone';
 import type { PickupZone, Variant, VehicleClass, VentureItem } from '@/types/venture';
+import { useWishlist, toWishlistDraft } from '@/store/wishlistStore';
 import { cn } from '@/utils/cn';
 
 interface ExperienceDetailClientProps {
@@ -117,7 +118,8 @@ export function ExperienceDetailClient({
   const [navVisible, setNavVisible] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [promoVisible, setPromoVisible] = useState(true);
-  const [wishlisted, setWishlisted] = useState(false);
+  const wishlisted = useWishlist((state) => state.items.some((item) => item.id === venture.id));
+  const toggleWishlist = useWishlist((state) => state.toggle);
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
 
   const selectedVariant = useMemo(
@@ -423,7 +425,7 @@ export function ExperienceDetailClient({
           <div className="flex shrink-0 items-center gap-1 pl-2">
             <button
               type="button"
-              onClick={() => setWishlisted((prev) => !prev)}
+              onClick={() => toggleWishlist(toWishlistDraft(venture))}
               className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50"
               aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
               aria-pressed={wishlisted}
