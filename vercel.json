@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/reap-holds",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 3 * * *"
     },
     {
       "path": "/api/cron/review-requests",
@@ -14,7 +14,7 @@
     },
     {
       "path": "/api/cron/reconcile-payments",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 4 * * *"
     }
   ]
 }

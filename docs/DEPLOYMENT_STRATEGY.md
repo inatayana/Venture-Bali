@@ -139,21 +139,18 @@ Vercel **Hobby** only allows cron jobs that run **at most once per day**
 is rejected **before the build starts**, so every deployment fails with
 `Hobby accounts are limited to daily cron jobs`.
 
-`vercel.json` currently defines **four** jobs:
+`vercel.json` defines **four** jobs, all on daily schedules (required by the
+Vercel **Hobby** plan — minute-level expressions fail deployment):
 
-| Path | Schedule (in repo) | Purpose |
+| Path | Schedule | Purpose |
 |------|----------|---------|
 | `/api/cron/reminders` | `0 1 * * *` | Morning trip reminders |
 | `/api/cron/review-requests` | `0 2 * * *` | Review invitations |
-| `/api/cron/reap-holds` | `*/10 * * * *` | Expired booking holds (safety net) |
-| `/api/cron/reconcile-payments` | `*/15 * * * *` | Payment reconciliation with Midtrans |
+| `/api/cron/reap-holds` | `0 3 * * *` | Expired booking holds (safety net) |
+| `/api/cron/reconcile-payments` | `0 4 * * *` | Payment reconciliation with Midtrans (safety net) |
 
-> ⚠️ **Warning (Hobby plan):** the two minute-level schedules
-> (`*/10`, `*/15`) are **rejected before the build starts** on Vercel
-> Hobby (`Hobby accounts are limited to daily cron jobs`), so every
-> deployment fails. If you deploy on Hobby, change both schedules to
-> daily (e.g. `0 3 * * *` and `0 4 * * *`) and trigger the endpoints
-> externally instead. On Vercel Pro, keep the minute-level schedules.
+Note: Vercel Hobby invokes daily crons any time within the scheduled hour
+(±59 min) and only in UTC.
 
 **Expired holds must be reaped every ~10 minutes** (`BOOKING_HOLD_MINUTES`)
 and payments reconciled quickly after webhook events, so daily runs are only
@@ -166,7 +163,9 @@ POST https://baliwild.com/api/cron/reconcile-payments
 Authorization: Bearer <CRON_SECRET>
 ```
 
-Keep `CRON_SECRET` in Vercel and in the external scheduler.
+Keep `CRON_SECRET` in Vercel and in the external scheduler. On Vercel Pro,
+switch both back to `"*/10 * * * *"` and `"*/15 * * * *"` in `vercel.json`
+and remove the external jobs.
 
 ### 2.6 Domain Configuration
 
