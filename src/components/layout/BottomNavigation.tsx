@@ -29,7 +29,7 @@ export function BottomNavigation() {
       role="navigation"
       aria-label="Primary navigation"
       className={cn(
-        'fixed inset-x-0 bottom-0 z-[45]',
+        'fixed inset-x-0 bottom-0 z-[45] md:hidden',
         'flex h-16 items-center justify-around',
         'bg-white/95 backdrop-blur-sm border-t border-neutral-200',
         'dark:bg-neutral-950/95 dark:border-white/10',

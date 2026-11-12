@@ -52,6 +52,8 @@ const translations = {
     categories: { en: 'Categories', id: 'Kategori' },
     explore: { en: 'Explore', id: 'Jelajahi' },
     exploreAria: { en: 'Explore activities', id: 'Jelajahi aktivitas' },
+    wishlist: { en: 'Wishlists', id: 'Wishlist' },
+    wishlistAria: { en: 'Your saved adventures', id: 'Petualangan tersimpan Anda' },
     search: { en: 'Search', id: 'Cari' },
     searchAria: { en: 'Search activities', id: 'Cari aktivitas' },
     trips: { en: 'Trips', id: 'Perjalanan' },

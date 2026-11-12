@@ -80,12 +80,10 @@ export function shouldHideBottomNav(pathname: string): boolean {
  */
 export function getActiveBottomNavKey(pathname: string): string | null {
   // Exact matches first
-  if (pathname === '/explore' || pathname === '/') return 'explore';
-  if (pathname === '/search') return 'search';
-
-  // Prefix matches
-  if (pathname.startsWith('/trips')) return 'trips';
-  if (pathname.startsWith('/profile')) return 'profile';
+  if (pathname === '/' || pathname === '/explore') return 'explore';
+  if (pathname.startsWith('/experiences')) return 'explore';
+  if (pathname.startsWith('/wishlists')) return 'wishlists';
+  if (pathname.startsWith('/profile') || pathname.startsWith('/my')) return 'profile';
 
   return null;
 }

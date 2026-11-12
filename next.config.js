@@ -82,22 +82,6 @@ const nextConfig = phase => ({
     contentDispositionType: 'inline',
     remotePatterns: supabaseImagePatterns(),
   },
-  async redirects() {
-    return [
-      // /my/bookings* → /trips* (308 Permanent Redirect)
-      {
-        source: '/my/bookings/:path*',
-        destination: '/trips/:path*',
-        permanent: true, // 308
-      },
-      // Explicit root redirect
-      {
-        source: '/my/bookings',
-        destination: '/trips/upcoming',
-        permanent: true,
-      },
-    ];
-  },
   async headers() {
     const securityHeaders = [
       { key: 'X-Content-Type-Options', value: 'nosniff' },
