@@ -34,7 +34,11 @@ export const bookingSchema = z
     youthCount: z.number().int().min(0).max(10).optional(),
     /** Infants (0-2) ride free when the package allows them — never counted. */
     infantCount: z.number().int().min(0).max(10).optional(),
-    selectedAddons: z.array(z.string()).default([]),
+    /**
+     * Public input: bound the collection so an oversized payload cannot
+     * exhaust memory in zod before the booking service sees it.
+     */
+    selectedAddons: z.array(z.string().min(1).max(64)).max(20, 'Too many add-ons selected').default([]),
     customerName: z.string().trim().min(2, 'Name must be at least 2 characters').max(120),
     customerEmail: z.string().trim().email('Invalid email format').max(320),
     customerWhatsApp: z.string().trim().min(10, 'WhatsApp number required').max(32),
