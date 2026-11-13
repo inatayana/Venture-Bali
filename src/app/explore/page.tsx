@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
+import { ExploreSearchModalWrapper } from '@/components/features/ExploreSearchModalWrapper';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
 import type { VentureItem } from '@/types/venture';
@@ -73,6 +74,9 @@ export default async function ExplorePage() {
           </>
         )}
       </section>
+
+      {/* Search Modal - Client component wrapper */}
+      <ExploreSearchModalWrapper />
     </main>
   );
 }
