@@ -28,13 +28,12 @@ import { getNamespace } from '@/lib/i18n-unified';
 import { useWishlist } from '@/store/wishlistStore';
 import { ACTIVE_CURRENCY_INFO, type ActiveCurrency } from '@/lib/currency';
 import { cn } from '@/utils/cn';
-import { LanguageCurrencyModal } from '@/components/ui/LanguageCurrencyModal';
+
 import { Z_INDEX } from '@/lib/zIndex';
 
 type MenuItem =
-  | { href: string; labelKey: string; icon: React.ComponentType<{ className?: string }>; isAction?: false; isModalTrigger?: false; isSettings?: false }
+  | { href: string; labelKey: string; icon: React.ComponentType<{ className?: string }>; isAction?: false; isSettings?: false }
   | { labelKey: string; icon: React.ComponentType<{ className?: string }>; isAction: true }
-  | { labelKey: string; icon: React.ComponentType<{ className?: string }>; isModalTrigger: true }
   | { labelKey: string; icon: React.ComponentType<{ className?: string }>; isSettings: true };
 
 type MenuGroup = { items: readonly MenuItem[] };
@@ -52,7 +51,6 @@ const MENU_GROUPS: readonly MenuGroup[] = [
   {
     items: [
       { labelKey: 'accountSettings', icon: Settings, isSettings: true },
-      { labelKey: 'languagesCurrency', icon: Globe, isModalTrigger: true },
     ],
   },
   {
@@ -76,7 +74,6 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
   const labels = getNamespace(locale, 'nav');
   const clearWishlist = useWishlist((state) => state.clear);
   const [open, setOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -114,11 +111,6 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
   const handleSignOut = () => {
     clearWishlist();
     setOpen(false);
-  };
-
-  const handleModalTrigger = () => {
-    setOpen(false);
-    setModalOpen(true);
   };
 
   const handleLocaleToggle = () => {
@@ -179,21 +171,6 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                       type="button"
                       role="menuitem"
                       onClick={handleSignOut}
-                      className="flex min-h-[44px] w-full items-center gap-3 px-4 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand dark:text-neutral-300 dark:hover:bg-white/5"
-                    >
-                      <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                      {label}
-                    </button>
-                  );
-                }
-
-                if ('isModalTrigger' in item && item.isModalTrigger) {
-                  return (
-                    <button
-                      key={item.labelKey}
-                      type="button"
-                      role="menuitem"
-                      onClick={handleModalTrigger}
                       className="flex min-h-[44px] w-full items-center gap-3 px-4 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand dark:text-neutral-300 dark:hover:bg-white/5"
                     >
                       <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -335,21 +312,6 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                   );
                 }
 
-                if ('isModalTrigger' in item && item.isModalTrigger) {
-                  return (
-                    <button
-                      key={item.labelKey}
-                      type="button"
-                      role="menuitem"
-                      onClick={handleModalTrigger}
-                      className="flex min-h-[44px] w-full items-center gap-3 px-4 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand dark:text-neutral-300 dark:hover:bg-white/5"
-                    >
-                      <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                      {label}
-                    </button>
-                  );
-                }
-
                 if ('isSettings' in item && item.isSettings) {
                   return (
                     <div key={item.labelKey} className="px-4 py-2 space-y-1">
@@ -452,13 +414,6 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
           ))}
         </div>
       , document.body)}
-
-      <LanguageCurrencyModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        defaultLanguage="id-ID"
-        defaultCurrency="IDR"
-      />
     </div>
   );
 }
