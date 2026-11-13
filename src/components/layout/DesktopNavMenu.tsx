@@ -78,11 +78,15 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
   const [open, setOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const isOutsideMenu = menuRef.current && !menuRef.current.contains(target);
+      const isOutsideDropdown = dropdownRef.current && !dropdownRef.current.contains(target);
+      if (isOutsideMenu && isOutsideDropdown) {
         setOpen(false);
       }
     };
@@ -152,7 +156,7 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
               : 'bg-neutral-100 dark:bg-white/10')
         )}
       >
-        <Menu className="h-5 w-5" aria-hidden="true" />
+        <Menu className="h-5 w-5 text-brand" aria-hidden="true" />
       </button>
 
       {open ? (
@@ -225,6 +229,7 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                         selectedCurrency={currency}
                         onCurrencyChange={handleCurrencySelect}
                         locale={locale}
+                        closeMenu={() => setOpen(false)}
                       />
 
                       {/* Theme Row */}
@@ -305,6 +310,7 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
           id="desktop-nav-menu"
           role="menu"
           aria-label="Primary navigation"
+          ref={dropdownRef}
           className={cn('fixed right-4 top-16 w-64 overflow-hidden rounded-2xl border border-neutral-200 bg-white py-2 shadow-lg dark:border-white/10 dark:bg-neutral-900', `z-[${Z_INDEX.popover}]`)}
           style={{ right: '1.5rem' }}
         >
@@ -371,6 +377,7 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                         selectedCurrency={currency}
                         onCurrencyChange={handleCurrencySelect}
                         locale={locale}
+                        closeMenu={() => setOpen(false)}
                       />
 
                       {/* Theme Row */}
@@ -460,10 +467,12 @@ function CurrencyRow({
   selectedCurrency,
   onCurrencyChange,
   locale,
+  closeMenu,
 }: {
   selectedCurrency: ActiveCurrency;
   onCurrencyChange: (currency: ActiveCurrency) => void;
   locale: 'en' | 'id';
+  closeMenu: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -518,6 +527,8 @@ function CurrencyRow({
               type="button"
               onClick={() => {
                 onCurrencyChange(currency.code as ActiveCurrency);
+                setIsOpen(false);
+                closeMenu();
               }}
               className={cn(
                 'flex min-h-[44px] w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors',

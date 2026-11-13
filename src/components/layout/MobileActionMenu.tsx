@@ -7,11 +7,11 @@ import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import { BRAND_EMAIL_HELLO } from '@/lib/brand';
 import { ACTIVE_CURRENCY_INFO, type ActiveCurrency } from '@/lib/currency';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui';
+import { BottomSheet } from '@/components/ui/BottomSheet';
 import { cn } from '@/utils/cn';
 
 /**
- * Mobile action menu with unified settings row pattern.
+ * Mobile action menu - full-width bottom sheet for better proportionality on mobile.
  * Each row: full width, icon + label left, control right.
  * Consistent height (48px), background, hover, alignment.
  */
@@ -42,18 +42,22 @@ export function MobileActionMenu() {
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          aria-label="Settings"
-          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-neutral-200 text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-white/15 dark:text-white dark:hover:bg-white/10"
-        >
-          <SlidersHorizontal className="h-5 w-5" aria-hidden="true" />
-        </button>
-      </PopoverTrigger>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Settings"
+        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-neutral-200 text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-white/15 dark:text-white dark:hover:bg-white/10"
+      >
+        <SlidersHorizontal className="h-5 w-5 text-brand" aria-hidden="true" />
+      </button>
 
-      <PopoverContent className="w-full max-w-sm p-2 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-white/10 shadow-xl backdrop-blur-sm" side="bottom" align="end">
+      <BottomSheet
+        isOpen={open}
+        onClose={closeMenu}
+        title="Settings"
+        className="sm:max-w-sm"
+      >
         <div className="space-y-1">
           {/* Language Row */}
           <button
@@ -101,7 +105,7 @@ export function MobileActionMenu() {
               ) : (
                 <Moon className="h-5 w-5 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
               )}
-              <span className="text-sm font-medium">{isDark ? 'Mode Gelap' : 'Mode Terang'}</span>
+              <span className="text-sm font-medium">{isDark ? 'Dark Mode' : 'Light Mode'}</span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <span className="text-sm font-semibold capitalize">{theme}</span>
@@ -130,8 +134,8 @@ export function MobileActionMenu() {
             </div>
           </a>
         </div>
-      </PopoverContent>
-    </Popover>
+      </BottomSheet>
+    </>
   );
 }
 
