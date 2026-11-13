@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
-import { MobileActionMenu } from '@/components/layout/MobileActionMenu';
+import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { useLocale } from '@/components/locale/LocaleProvider';
 import { cn } from '@/utils/cn';
 import { Z_INDEX } from '@/lib/zIndex';
@@ -87,7 +87,7 @@ export function HomeHeader() {
 
           {/* Mobile: Burger menu */}
           <div className="md:hidden">
-            <MobileActionMenu />
+            <MobileNavDropdown />
           </div>
         </div>
       </div>
