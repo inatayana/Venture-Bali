@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Mail, SlidersHorizontal, Globe, DollarSign, Sun, Moon, ChevronDown, ChevronRight, X } from 'lucide-react';
+import Link from 'next/link';
+import { Mail, SlidersHorizontal, Globe, DollarSign, Sun, Moon, ChevronDown, ChevronRight, X, Compass } from 'lucide-react';
 import { useLocale } from '@/components/locale/LocaleProvider';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import { useWishlist } from '@/store/wishlistStore';
+import { getNamespace } from '@/lib/i18n-unified';
 import { BRAND_EMAIL_HELLO } from '@/lib/brand';
 import { ACTIVE_CURRENCY_INFO, type ActiveCurrency } from '@/lib/currency';
 import { cn } from '@/utils/cn';
@@ -56,6 +58,8 @@ export function MobileNavDropdown() {
     clearWishlist();
     closeMenu();
   };
+
+  const labels = getNamespace(locale, 'nav');
 
   // Close on outside click and Escape
   useEffect(() => {
@@ -118,6 +122,26 @@ export function MobileNavDropdown() {
       }}
     >
       <div className="p-4 space-y-3">
+        {/* Explore Row - Navigate to Explore page with search */}
+        <Link
+          href="/explore"
+          onClick={closeMenu}
+          className={cn(
+            'w-full flex min-h-[48px] items-center justify-between px-4 py-3 rounded-xl',
+            'text-neutral-900 dark:text-white',
+            'hover:bg-neutral-100 dark:hover:bg-white/10',
+            'transition-colors'
+          )}
+        >
+          <div className="flex items-center gap-3">
+            <Compass className="h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
+            <span className="text-base font-medium">{labels.explore}</span>
+          </div>
+          <ChevronRight className="h-4 w-4 text-neutral-400 shrink-0" aria-hidden="true" />
+        </Link>
+
+        <div className="pt-2 border-t border-neutral-200 dark:border-white/10" />
+
         {/* Language Row */}
         <button
           type="button"

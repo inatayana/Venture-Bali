@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
-import { ExploreSearchModalWrapper } from '@/components/features/ExploreSearchModalWrapper';
+import { ExploreSearchCard } from '@/components/features/ExploreSearchCard';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
 import type { VentureItem } from '@/types/venture';
@@ -41,14 +41,18 @@ export default async function ExplorePage() {
 
   return (
     <main className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="font-heading text-3xl font-bold text-neutral-900 dark:text-white">Explore</h1>
+      {/* Search Card - Replaces standard header */}
+      <ExploreSearchCard />
+
+      {/* Page Title & Category Filter */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <h1 className="font-heading text-3xl font-bold text-neutral-900 dark:text-white">Explore</h1>
+        </div>
+        <CategoryQuickMenu currentCategory="All" />
       </div>
 
-      <section className="container mx-auto px-4 py-6 -mt-6">
-        <CategoryQuickMenu currentCategory="All" />
-      </section>
-
+      {/* Adventure Cards */}
       <section className="container mx-auto px-4 pb-12">
         <h2 className="sr-only">All adventures</h2>
         {source === 'fallback' ? (
@@ -74,9 +78,6 @@ export default async function ExplorePage() {
           </>
         )}
       </section>
-
-      {/* Search Modal - Client component wrapper */}
-      <ExploreSearchModalWrapper />
     </main>
   );
 }

@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
+import { useSearch } from '@/components/search/SearchProvider';
+// import { formatDateLabel } from '@/components/search/HeroSearch'; // Not exported
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -26,6 +28,10 @@ interface SearchModalProps {
   initialQuery?: string;
   /** Callback when search is submitted */
   onSearch?: (params: SearchParams) => void;
+  /** Popular hubs for nearby suggestions */
+  hubs?: readonly string[];
+  /** Suggested experiences */
+  suggestions?: readonly { title: string; href: string }[];
 }
 
 interface SearchParams {
@@ -66,7 +72,6 @@ function saveRecentSearch(search: Omit<RecentSearch, 'id' | 'timestamp'>) {
       id: crypto.randomUUID(),
       timestamp: Date.now(),
     };
-    // Remove duplicates
     const filtered = recent.filter(
       (s) => s.query !== search.query || s.location !== search.location
     );
@@ -87,27 +92,42 @@ function addDays(date: Date, days: number): Date {
   return result;
 }
 
+function formatDateLabel(value: string, anyDate = 'Any date'): string {
+  if (!value) return anyDate;
+  return new Date(`${value}T00:00:00`).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+  });
+}
+
 export function SearchModal({
   isOpen,
   onClose,
   initialQuery = '',
   onSearch,
+  hubs = [],
+  // suggestions is reserved for future use
 }: SearchModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
   const [activeTab, setActiveTab] = useState<'search' | 'filters'>('search');
-  
-  // Search form state
+
+  const searchContext = useSearch();
+  const useLocalState = !searchContext;
+
   const [query, setQuery] = useState(initialQuery);
   const [location, setLocation] = useState('');
-  const [checkIn, setCheckIn] = useState(() => formatDate(addDays(new Date(), 1)));
-  const [checkOut, setCheckOut] = useState(() => formatDate(addDays(new Date(), 2)));
+  const [checkIn] = useState(() => formatDate(addDays(new Date(), 1)));
+  const [checkOut] = useState(() => formatDate(addDays(new Date(), 2)));
   const [guests, setGuests] = useState(2);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
-  const [showDatePicker, setShowDatePicker] = useState<'checkin' | 'checkout' | null>(null);
+  const [, setShowDatePicker] = useState<'checkin' | 'checkout' | null>(null);
 
-  // Focus management
+  useEffect(() => {
+    setRecentSearches(getRecentSearches());
+  }, []);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -154,47 +174,45 @@ export function SearchModal({
     };
   }, [isOpen, onClose]);
 
-  // Load recent searches
-  useEffect(() => {
-    setRecentSearches(getRecentSearches());
-  }, []);
-
   if (!isOpen) return null;
+
+  const queryValue = useLocalState ? query : searchContext.query;
+  const checkInValue = useLocalState ? checkIn : searchContext.date;
+  const checkOutValue = useLocalState ? checkOut : searchContext.date;
+  const guestsValue = useLocalState ? guests : searchContext.pax;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const params: SearchParams = {
-      query,
-      location,
-      checkIn,
-      checkOut,
-      guests,
-      categories: selectedCategories,
-    };
-    
-    // Save to recent searches if there's a query or location
-    if (query || location) {
-      const newSearch = { query, location };
-      saveRecentSearch(newSearch);
-      setRecentSearches(getRecentSearches());
-    }
-    
-    onSearch?.(params);
-    onClose();
-  };
+    if (!useLocalState) {
+      searchContext.submit();
+    } else {
+      const params: SearchParams = {
+        query: queryValue,
+        location,
+        checkIn: checkInValue,
+        checkOut: checkOutValue,
+        guests: guestsValue,
+        categories: selectedCategories,
+      };
 
-  const handleCategoryToggle = (categorySlug: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categorySlug)
-        ? prev.filter((c) => c !== categorySlug)
-        : [...prev, categorySlug]
-    );
+      if (queryValue || location) {
+        const newSearch = { query: queryValue, location };
+        saveRecentSearch(newSearch);
+        setRecentSearches(getRecentSearches());
+      }
+
+      onSearch?.(params);
+      onClose();
+    }
   };
 
   const handleRecentSearchClick = (search: RecentSearch) => {
-    setQuery(search.query);
-    setLocation(search.location);
-    // Auto-submit after a brief delay for UX
+    if (useLocalState) {
+      setQuery(search.query);
+      setLocation(search.location);
+    } else {
+      searchContext.setQuery(search.query);
+    }
     setTimeout(() => {
       const form = document.querySelector('form');
       form?.dispatchEvent(new Event('submit', { bubbles: true }));
@@ -216,14 +234,12 @@ export function SearchModal({
 
   return createPortal(
     <div className="fixed inset-0 z-[70] flex items-start justify-center p-4 sm:items-center">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 animate-in fade-in-0"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Modal Panel */}
       <div
         ref={panelRef}
         className="relative w-full max-w-lg max-h-[95vh] overflow-hidden bg-white rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300 sm:max-w-2xl"
@@ -231,7 +247,6 @@ export function SearchModal({
         aria-modal="true"
         aria-labelledby="search-modal-title"
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100 sticky top-0 bg-white z-10">
           <h2 id="search-modal-title" className="text-lg font-bold text-neutral-900">
             Search adventures
@@ -246,7 +261,6 @@ export function SearchModal({
           </button>
         </div>
 
-        {/* Tab Navigation */}
         <div className="flex border-b border-neutral-100 px-4 sticky top-[56px] bg-white z-10" role="tablist">
           <button
             role="tab"
@@ -287,11 +301,9 @@ export function SearchModal({
           </button>
         </div>
 
-        {/* Content */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto overscroll-contain p-4">
-          {activeTab === 'search' && (
+          {activeTab === 'search' ? (
             <div id="search-panel" role="tabpanel" aria-labelledby="search-tab">
-              {/* Main Search Input */}
               <div className="mb-6">
                 <label htmlFor="search-query" className="sr-only">
                   What are you looking for?
@@ -302,7 +314,7 @@ export function SearchModal({
                     id="search-query"
                     type="search"
                     name="query"
-                    value={query}
+                    value={queryValue}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Start your search…"
                     className="w-full px-4 py-4 pl-12 text-base border border-neutral-200 rounded-xl focus:border-brand-ink focus:ring-2 focus:ring-brand/20 focus:outline-none bg-white"
@@ -311,7 +323,6 @@ export function SearchModal({
                 </div>
               </div>
 
-              {/* Location */}
               <div className="mb-6">
                 <label htmlFor="search-location" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                   <MapPin className="w-4 h-4 inline mr-1" aria-hidden="true" />
@@ -332,9 +343,83 @@ export function SearchModal({
                 </div>
               </div>
 
-              {/* Dates & Guests Row */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-500">
+                    Where
+                  </h3>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
+                    Nearby
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {hubs.slice(0, 6).map((hub) => (
+                      <button
+                        key={hub}
+                        type="button"
+                        onClick={() => setQuery(hub)}
+                        className={cn(
+                          'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
+                          queryValue === hub
+                            ? 'border-brand-ink bg-brand-ink text-brand'
+                            : 'border-neutral-200 text-neutral-700 hover:border-neutral-400 dark:border-white/10 dark:text-neutral-300 dark:hover:border-neutral-400'
+                        )}
+                      >
+                        {hub}
+                      </button>
+                    ))}
+                    {hubs.length === 0 && (
+                      <p className="text-xs text-neutral-500">No nearby destinations</p>
+                    )}
+                  </div>
+                </div>
+
+                {recentSearches.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                        Recent searches
+                      </h3>
+                      {recentSearches.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={clearRecentSearches}
+                          className="text-xs text-brand-ink hover:underline"
+                        >
+                          Clear all
+                        </button>
+                      )}
+                    </div>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {recentSearches.map((search) => (
+                        <button
+                          key={search.id}
+                          type="button"
+                          onClick={() => handleRecentSearchClick(search)}
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/10 transition-colors text-left"
+                        >
+                          <Search className="w-5 h-5 text-neutral-400 shrink-0" aria-hidden="true" />
+                          <div className="flex-1 min-w-0 text-left">
+                            <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
+                              {search.query || 'All adventures'}
+                            </p>
+                            {search.location && (
+                              <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+                                {search.location}
+                              </p>
+                            )}
+                          </div>
+                          <Clock className="w-4 h-4 text-neutral-400 shrink-0" aria-hidden="true" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 gap-4 mb-6">
-                {/* Check-in */}
                 <div>
                   <label htmlFor="check-in" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                     <Calendar className="w-4 h-4 inline mr-1" aria-hidden="true" />
@@ -345,11 +430,10 @@ export function SearchModal({
                     onClick={() => setShowDatePicker('checkin')}
                     className="w-full px-4 py-3 text-left text-base border border-neutral-200 rounded-xl focus:border-brand-ink focus:ring-2 focus:ring-brand/20 focus:outline-none hover:border-brand-ink/50 transition-colors"
                   >
-                    {checkIn}
+                    {formatDateLabel(checkInValue, 'Any date')}
                   </button>
                 </div>
 
-                {/* Check-out */}
                 <div>
                   <label htmlFor="check-out" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                     <Clock className="w-4 h-4 inline mr-1" aria-hidden="true" />
@@ -360,12 +444,11 @@ export function SearchModal({
                     onClick={() => setShowDatePicker('checkout')}
                     className="w-full px-4 py-3 text-left text-base border border-neutral-200 rounded-xl focus:border-brand-ink focus:ring-2 focus:ring-brand/20 focus:outline-none hover:border-brand-ink/50 transition-colors"
                   >
-                    {checkOut}
+                    {formatDateLabel(checkOutValue, 'Any date')}
                   </button>
                 </div>
               </div>
 
-              {/* Guests */}
               <div className="mb-6">
                 <label htmlFor="guests" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                   <Users className="w-4 h-4 inline mr-1" aria-hidden="true" />
@@ -374,7 +457,7 @@ export function SearchModal({
                 <select
                   id="guests"
                   name="guests"
-                  value={guests}
+                  value={guestsValue}
                   onChange={(e) => setGuests(Number(e.target.value))}
                   className="w-full px-4 py-3 text-base border border-neutral-200 rounded-xl focus:border-brand-ink focus:ring-2 focus:ring-brand/20 focus:outline-none appearance-none bg-white cursor-pointer"
                 >
@@ -386,7 +469,6 @@ export function SearchModal({
                 </select>
               </div>
 
-              {/* Recent Searches */}
               {recentSearches.length > 0 && (
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-3">
@@ -429,7 +511,6 @@ export function SearchModal({
                 </div>
               )}
 
-              {/* Search Button */}
               <button
                 type="submit"
                 className="w-full min-h-[52px] bg-brand-ink text-white font-semibold text-base rounded-xl hover:bg-neutral-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
@@ -438,12 +519,9 @@ export function SearchModal({
                 Search
               </button>
             </div>
-          )}
-
-          {activeTab === 'filters' && (
+          ) : (
             <div id="filters-panel" role="tabpanel" aria-labelledby="filters-tab">
               <div className="space-y-6">
-                {/* Categories */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-500">
@@ -475,7 +553,12 @@ export function SearchModal({
                           <input
                             type="checkbox"
                             checked={isSelected}
-                            onChange={() => handleCategoryToggle(category.slug)}
+                            onChange={() => {
+                              const newSelection = selectedCategories.includes(category.slug)
+                                ? selectedCategories.filter((c) => c !== category.slug)
+                                : [...selectedCategories, category.slug];
+                              setSelectedCategories(newSelection);
+                            }}
                             className="w-5 h-5 text-brand-ink border-brand-ink rounded focus:ring-2 focus:ring-brand/20"
                           />
                           <span className="text-lg leading-none" aria-hidden="true">
@@ -493,7 +576,6 @@ export function SearchModal({
                   </div>
                 </div>
 
-                {/* Selected Categories Summary */}
                 {selectedCategories.length > 0 && (
                   <div className="p-4 bg-brand/5 rounded-xl border border-brand/20">
                     <p className="text-sm font-medium text-brand-ink mb-2">
@@ -512,7 +594,6 @@ export function SearchModal({
                   </div>
                 )}
 
-                {/* Apply Filters Button */}
                 <button
                   type="button"
                   onClick={() => {
@@ -528,54 +609,13 @@ export function SearchModal({
               </div>
             </div>
           )}
-
-          {/* Date Picker Overlay */}
-          {showDatePicker && (
-            <div
-              className="fixed inset-0 z-50 bg-black/50 animate-in fade-in-0"
-              onClick={() => setShowDatePicker(null)}
-              aria-hidden="true"
-            />
-          )}
-          {showDatePicker === 'checkin' && (
-            <DatePickerModal
-              selectedDate={checkIn}
-              minDate={formatDate(new Date())}
-              maxDate={checkOut}
-              onSelect={(date) => {
-                setCheckIn(date);
-                if (date >= checkOut) {
-                  setCheckOut(formatDate(addDays(new Date(date), 1)));
-                }
-                setShowDatePicker(null);
-              }}
-              onClose={() => setShowDatePicker(null)}
-              title="Check-in"
-            />
-          )}
-          {showDatePicker === 'checkout' && (
-            <DatePickerModal
-              selectedDate={checkOut}
-              minDate={checkIn}
-              maxDate={formatDate(addDays(new Date(), 365))}
-              onSelect={(date) => {
-                setCheckOut(date);
-                setShowDatePicker(null);
-              }}
-              onClose={() => setShowDatePicker(null)}
-              title="Check-out"
-            />
-          )}
         </form>
       </div>
     </div>
   , document.body);
 }
 
-/**
- * Simple date picker modal component
- */
-function DatePickerModal({
+export function DatePickerModal({
   selectedDate,
   minDate,
   maxDate,
@@ -625,11 +665,18 @@ function DatePickerModal({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 animate-in fade-in-0" onClick={onClose} aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-black/50 animate-in fade-in-0"
+        onClick={onClose}
+        aria-hidden="true"
+      />
       <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
         <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
           <h3 className="text-lg font-bold text-neutral-900">{title}</h3>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-neutral-100 min-w-[44px] min-h-[44px] flex items-center justify-center">
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-neutral-100 min-w-[44px] min-h-[44px] flex items-center justify-center"
+          >
             <X className="w-5 h-5 text-neutral-500" />
           </button>
         </div>
