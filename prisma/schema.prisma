@@ -69,8 +69,169 @@ model Vendor {
   updatedAt    DateTime  @updatedAt
   variants     Variant[] @relation("VendorToVariant")
 
+  // Contract & Commercial
+  contractType       ContractType?      @default(FIXED_FEE)
+  fixedFeePerPax     Int?
+  revenueSharePct    Float?
+  paymentTerms       PaymentTerms?      @default(NET_14)
+  contractStartDate  DateTime?
+  contractEndDate    DateTime?
+  contractDocument   String?            // URL to signed contract PDF
+  commissionType     CommissionType?    @default(PERCENTAGE)
+  commissionValue    Float?             // Percentage or fixed amount
+
+  // Performance Tracking
+  totalBookings      Int       @default(0)
+  completedBookings  Int       @default(0)
+  cancelledBookings  Int       @default(0)
+  noShowBookings     Int       @default(0)
+  avgRating          Float?
+  totalRatingCount   Int       @default(0)
+  onTimeRate         Float?    // Percentage of on-time departures
+  cancellationRate   Float?    // Percentage of cancellations
+
+  // Quality & Incidents
+  totalIncidents     Int       @default(0)
+  safetyIncidents    Int       @default(0)
+  lastIncidentDate   DateTime?
+
+  // Financial
+  totalRevenue       Int       @default(0)  // Total revenue generated
+  totalCommission    Int       @default(0)  // Total commission paid
+  pendingPayout      Int       @default(0)  // Unpaid commission
+  lastPayoutDate     DateTime?
+  lastPayoutAmount   Int?
+
+  // SLA & Compliance
+  slaResponseTimeHours Int?      // Target response time in hours
+  slaUptimePct       Float?      // Target uptime percentage
+  insuranceExpiry    DateTime?   // Liability insurance expiry
+  licenseExpiry      DateTime?   // Business license expiry
+  certifications     String[]    // Safety certifications
+
+  // Contact & Operations
+  contactName        String?
+  contactPhone       String?
+  contactEmail       String?
+  operationsContact  String?
+  operationsPhone    String?
+  operationsEmail    String?
+  bankAccountName    String?
+  bankAccountNumber  String?
+  bankName           String?
+
+  // Status & Notes
+  status             VendorStatus @default(ACTIVE)
+  notes              String?
+  tags               String[]
+
+  // Relations
+  contracts          VendorContract[]
+  payouts            VendorPayout[]
+  incidents          VendorIncident[]
+  performanceLogs    VendorPerformanceLog[]
+
   @@index([code])
   @@index([activityType])
+  @@index([status])
+}
+
+model VendorContract {
+  id            String           @id @default(cuid())
+  vendorId      String
+  vendor        Vendor           @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  type          ContractType
+  title         String
+  description  String?
+  documentUrl   String?          // URL to contract PDF
+  startDate     DateTime
+  endDate       DateTime?
+  autoRenew     Boolean          @default(false)
+  noticePeriod  Int?             // Days notice for termination
+  status        ContractStatus   @default(ACTIVE)
+  signedAt      DateTime?
+  signedBy      String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([vendorId])
+  @@index([status])
+}
+
+model VendorPayout {
+  id              String        @id @default(cuid())
+  vendorId        String
+  vendor          Vendor        @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  periodStart     DateTime
+  periodEnd       DateTime
+  grossRevenue    Int
+  commissionRate  Float
+  commissionAmount Int
+  adjustments     Int           @default(0)  // Penalties, bonuses
+  netAmount       Int
+  status          PayoutStatus  @default(PENDING)
+  paidAt          DateTime?
+  paidBy          String?
+  reference       String?       // Bank transfer reference
+  notes           String?
+  createdAt       DateTime      @default(now())
+
+  @@index([vendorId])
+  @@index([status])
+  @@index([periodStart, periodEnd])
+}
+
+model VendorIncident {
+  id              String          @id @default(cuid())
+  vendorId        String
+  vendor          Vendor          @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  bookingId       String?
+  booking         Booking?        @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  type            IncidentType
+  severity        IncidentSeverity
+  title           String
+  description     String
+  reportedAt      DateTime        @default(now())
+  reportedBy      String?
+  occurredAt      DateTime?
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  resolution      String?
+  rootCause       String?
+  correctiveAction String?
+  status          IncidentStatus  @default(OPEN)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([vendorId])
+  @@index([bookingId])
+  @@index([status])
+  @@index([type])
+  @@index([severity])
+}
+
+model VendorPerformanceLog {
+  id              String      @id @default(cuid())
+  vendorId        String
+  vendor          Vendor      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  periodStart     DateTime
+  periodEnd       DateTime
+  bookingsCount   Int
+  completedCount  Int
+  cancelledCount  Int
+  noShowCount     Int
+  avgRating       Float?
+  onTimeRate      Float?
+  cancellationRate Float?
+  incidentCount   Int
+  revenue         Int
+  commission      Int
+  notes           String?
+  createdAt       DateTime    @default(now())
+
+  @@index([vendorId])
+  @@index([periodStart, periodEnd])
+  @@unique([vendorId, periodStart, periodEnd])
 }
 
 model PickupZone {
@@ -392,6 +553,7 @@ model Booking {
   refund                  Refund?
   review                  Review?          @relation("BookingToReview")
   vouchers                Voucher?
+  vendorIncidents       VendorIncident[]
 
   @@index([bookingCode])
   @@index([variantId])
@@ -697,4 +859,73 @@ enum ReviewInviteStatus {
   UNUSED
   SUBMITTED
   EXPIRED
+}
+
+enum ContractType {
+  FIXED_FEE
+  REVENUE_SHARE
+  HYBRID
+}
+
+enum PaymentTerms {
+  NET_7
+  NET_14
+  NET_30
+  NET_60
+  COD
+}
+
+enum CommissionType {
+  PERCENTAGE
+  FIXED
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  CANCELLED
+}
+
+enum IncidentType {
+  SAFETY
+  SERVICE_QUALITY
+  CANCELLATION
+  NO_SHOW
+  EQUIPMENT_FAILURE
+  WEATHER
+  CUSTOMER_COMPLAINT
+  REGULATORY
+  OTHER
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+  ESCALATED
+}
+
+enum VendorStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_ONBOARDING
+  TERMINATED
 }
