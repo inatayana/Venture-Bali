@@ -2,7 +2,6 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
-import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
 import { ExploreSearchCard } from '@/components/features/ExploreSearchCard';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
@@ -46,10 +45,9 @@ export default async function ExplorePage() {
 
       {/* Page Title & Category Filter */}
       <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between gap-4 mb-4">
+        <div className="flex items-center justify-between gap-4 mb-1">
           <h1 className="font-heading text-3xl font-bold text-neutral-900 dark:text-white">Explore</h1>
         </div>
-        <CategoryQuickMenu currentCategory="All" />
       </div>
 
       {/* Adventure Cards */}
@@ -74,7 +72,7 @@ export default async function ExplorePage() {
             <p className="mb-4 text-sm text-neutral-600">
               {ventures.length} curated adventures across {categories.length} categories.
             </p>
-            <VentureExplorer ventures={ventures} />
+            <VentureExplorer ventures={ventures} mode="explore" />
           </>
         )}
       </section>

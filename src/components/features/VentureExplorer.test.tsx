@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { VentureExplorer } from './VentureExplorer';
 import { SearchProvider } from '@/components/search/SearchProvider';
 import type { VentureItem, Variant } from '@/types/venture';
@@ -82,6 +83,13 @@ const withAvailability = buildVenture({
   variants: [buildVariant()],
 });
 
+const transferOnly = buildVenture({
+  id: 'vtr-transfer',
+  title: 'Hotel Pickup Combo',
+  category: 'Combo',
+  variants: [buildVariant({ id: 'var-transfer', fulfillmentMode: 'PRIVATE_TRANSFER' })],
+});
+
 const blackedOut = buildVenture({
   id: 'vtr-closed',
   title: 'Closed Adventure',
@@ -153,6 +161,69 @@ describe('VentureExplorer date and pax filter', () => {
     expect(screen.getByText('15 Jun')).toBeInTheDocument();
     expect(screen.getByText('Date:')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
+  });
+});
+
+describe('VentureExplorer explore-mode filter pills', () => {
+  afterEach(() => {
+    window.history.pushState({}, '', '/');
+  });
+
+  it('shows the pill strip and keeps the full panel collapsed until Filters is opened', async () => {
+    const user = userEvent.setup();
+    render(<VentureExplorer ventures={[rafting]} mode="explore" />, { wrapper: SearchProvider });
+
+    expect(screen.getByRole('button', { name: /transfer included/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /self-drive/i })).toBeInTheDocument();
+    expect(screen.queryByText('Recommended')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /filters/i }));
+    expect(screen.getByText('Recommended')).toBeInTheDocument();
+  });
+
+  it('Self-Drive pill hides transfer-only ventures and vice versa', async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(
+      <VentureExplorer ventures={[withAvailability, transferOnly]} mode="explore" />,
+      { wrapper: SearchProvider }
+    );
+
+    await user.click(screen.getByRole('button', { name: /self-drive/i }));
+    expect(screen.getByText(withAvailability.title)).toBeInTheDocument();
+    expect(screen.queryByText(transferOnly.title)).not.toBeInTheDocument();
+
+    unmount();
+
+    render(<VentureExplorer ventures={[withAvailability, transferOnly]} mode="explore" />, {
+      wrapper: SearchProvider,
+    });
+    await user.click(screen.getByRole('button', { name: /transfer included/i }));
+    expect(screen.getByText(transferOnly.title)).toBeInTheDocument();
+    expect(screen.queryByText(withAvailability.title)).not.toBeInTheDocument();
+  });
+
+  it('category pill filters the catalogue', async () => {
+    const user = userEvent.setup();
+    render(<VentureExplorer ventures={[rafting, tubing]} mode="explore" />, {
+      wrapper: SearchProvider,
+    });
+
+    await user.click(screen.getByRole('radio', { name: /^rafting/i }));
+    expect(screen.getByText(rafting.title)).toBeInTheDocument();
+    expect(screen.queryByText(tubing.title)).not.toBeInTheDocument();
+  });
+
+  it('Reset Filters restores ventures hidden by the pill filters', async () => {
+    const user = userEvent.setup();
+    render(<VentureExplorer ventures={[transferOnly]} mode="explore" />, {
+      wrapper: SearchProvider,
+    });
+
+    await user.click(screen.getByRole('button', { name: /self-drive/i }));
+    expect(screen.queryByText(transferOnly.title)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /reset filters/i }));
+    expect(screen.getByText(transferOnly.title)).toBeInTheDocument();
   });
 });
 

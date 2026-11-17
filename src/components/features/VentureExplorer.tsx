@@ -5,6 +5,7 @@ import { VentureCard } from '@/components/ui';
 import { CATEGORY_FILTERS, resolveCategory } from '@/lib/taxonomy';
 import { isDateAvailable, isSlotBookable } from '@/lib/pricing';
 import { CategoryTiles } from '@/components/features/CategoryTiles';
+import { ExploreFilterPills } from '@/components/features/ExploreFilterPills';
 import { useSearch } from '@/components/search/SearchProvider';
 import { cn } from '@/utils/cn';
 import type { VentureItem } from '@/types/venture';
@@ -25,13 +26,19 @@ const SORT_OPTIONS = [
 
 export interface VentureExplorerProps {
   ventures: VentureItem[];
+  /**
+   * 'default' keeps the classic CategoryTiles block (homepage).
+   * 'explore' renders the Airbnb-style pill strip instead; the full
+   * category/sort panel is behind the "Filters" pill.
+   */
+  mode?: 'default' | 'explore';
 }
 
 /**
  * Catalogue browser â€” search, category filter and sorting.
  * Receives already-loaded ventures so the page itself stays a server component.
  */
-export function VentureExplorer({ ventures }: VentureExplorerProps) {
+export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerProps) {
   // Search filters are shared with the hero search via context.
   const {
     query: search,
@@ -44,6 +51,9 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('recommended');
   const [expanded, setExpanded] = useState(false);
+  const [transferIncluded, setTransferIncluded] = useState(false);
+  const [selfDriveOnly, setSelfDriveOnly] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Deep link support: the PDP breadcrumb links to /?category=<slug>. Reading it
   // after hydration keeps the homepage statically rendered. Date, guests and the
@@ -79,6 +89,18 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
         (v) =>
           v.category.toLowerCase() === selectedCategory.toLowerCase() ||
           v.title.toLowerCase().includes(selectedCategory.toLowerCase())
+      );
+    }
+
+    if (transferIncluded) {
+      result = result.filter((venture) =>
+        (venture.variants ?? []).some((variant) => variant.fulfillmentMode !== 'SELF_DRIVE')
+      );
+    }
+
+    if (selfDriveOnly) {
+      result = result.filter((venture) =>
+        (venture.variants ?? []).some((variant) => variant.fulfillmentMode === 'SELF_DRIVE')
       );
     }
 
@@ -124,7 +146,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
     }
 
     return result;
-  }, [ventures, search, selectedCategory, sortBy, dateFilter, paxFilter]);
+  }, [ventures, search, selectedCategory, sortBy, dateFilter, paxFilter, transferIncluded, selfDriveOnly]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -138,7 +160,7 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
   // A new filter or sort starts a fresh, compact mobile list.
   useEffect(() => {
     setExpanded(false);
-  }, [search, selectedCategory, sortBy, dateFilter, paxFilter]);
+  }, [search, selectedCategory, sortBy, dateFilter, paxFilter, transferIncluded, selfDriveOnly]);
 
   const hasMoreOnMobile = filteredVentures.length > MOBILE_INITIAL_CARDS;
 
@@ -181,15 +203,30 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
           </div>
         )}
 
-        <CategoryTiles
-          categories={CATEGORIES}
-          selectedCategory={selectedCategory}
-          onSelect={setSelectedCategory}
-          counts={categoryCounts}
-          sortOptions={SORT_OPTIONS}
-          sortValue={sortBy}
-          onSortChange={setSortBy}
-        />
+        {mode === 'explore' && (
+          <ExploreFilterPills
+            selectedCategory={selectedCategory}
+            onCategorySelect={setSelectedCategory}
+            transferIncluded={transferIncluded}
+            onTransferIncludedChange={setTransferIncluded}
+            selfDriveOnly={selfDriveOnly}
+            onSelfDriveChange={setSelfDriveOnly}
+            filtersOpen={filtersOpen}
+            onFiltersToggle={() => setFiltersOpen((open) => !open)}
+          />
+        )}
+
+        {(mode === 'default' || filtersOpen) && (
+          <CategoryTiles
+            categories={CATEGORIES}
+            selectedCategory={selectedCategory}
+            onSelect={setSelectedCategory}
+            counts={categoryCounts}
+            sortOptions={SORT_OPTIONS}
+            sortValue={sortBy}
+            onSortChange={setSortBy}
+          />
+        )}
       </div>
 
       {/* Results */}
@@ -229,6 +266,8 @@ export function VentureExplorer({ ventures }: VentureExplorerProps) {
               setSearch('');
               setSelectedCategory(null);
               setSortBy('recommended');
+              setTransferIncluded(false);
+              setSelfDriveOnly(false);
             }}
             className="min-h-[44px] px-4 py-2 text-sm font-medium text-brand-ink hover:underline"
           >
