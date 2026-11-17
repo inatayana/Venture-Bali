@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { VentureCard } from '@/components/ui';
-import { CATEGORY_FILTERS, resolveCategory } from '@/lib/taxonomy';
+import { resolveCategory } from '@/lib/taxonomy';
 import { isDateAvailable, isSlotBookable } from '@/lib/pricing';
-import { CategoryTiles } from '@/components/features/CategoryTiles';
+import { SortMenu } from '@/components/features/SortMenu';
 import { ExploreFilterPills } from '@/components/features/ExploreFilterPills';
 import { CuratedRows } from '@/components/features/CuratedRows';
 import { ExploreTopBar } from '@/components/features/ExploreTopBar';
@@ -15,8 +15,6 @@ import { VentureListCard } from '@/components/features/VentureListCard';
 import { useSearch } from '@/components/search/SearchProvider';
 import { cn } from '@/utils/cn';
 import type { VentureItem } from '@/types/venture';
-
-const CATEGORIES = CATEGORY_FILTERS;
 
 /** First screenful on phones; desktop always shows the full catalogue. */
 const MOBILE_INITIAL_CARDS = 6;
@@ -33,10 +31,10 @@ const SORT_OPTIONS = [
 export interface VentureExplorerProps {
   ventures: VentureItem[];
   /**
-   * 'default' keeps the classic CategoryTiles block (homepage).
-   * 'explore' renders the Airbnb-style top bar + pill strip; the full-screen
-   * search overlay (State 2) and filter modal (State 3) sit behind them, and
-   * filtered results render as a mobile split-card list (State 4).
+   * 'default' renders the same capsule pill strip as Explore plus an inline
+   * sort control (homepage). 'explore' renders the unified sticky control bar:
+   * top search row + pill strip with hide-on-scroll, and swaps the filtered
+   * results to a mobile split-card list (State 4).
    */
   mode?: 'default' | 'explore';
 }
@@ -160,15 +158,6 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
 
     return result;
   }, [ventures, search, selectedCategory, sortBy, dateFilter, paxFilter, transferIncluded, selfDriveOnly, bestSellerOnly]);
-
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const venture of ventures) {
-      const key = resolveCategory(venture.category)?.short ?? venture.category;
-      counts[key] = (counts[key] ?? 0) + 1;
-    }
-    return counts;
-  }, [ventures]);
 
   // A new filter or sort starts a fresh, compact mobile list.
   useEffect(() => {
@@ -314,15 +303,21 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
         )}
 
         {mode === 'default' && (
-          <CategoryTiles
-            categories={CATEGORIES}
-            selectedCategory={selectedCategory}
-            onSelect={setSelectedCategory}
-            counts={categoryCounts}
-            sortOptions={SORT_OPTIONS}
-            sortValue={sortBy}
-            onSortChange={setSortBy}
-          />
+          <div className="flex items-center gap-2">
+            <ExploreFilterPills
+              className="min-w-0 flex-1"
+              selectedCategory={selectedCategory}
+              onCategorySelect={setSelectedCategory}
+              transferIncluded={transferIncluded}
+              onTransferIncludedChange={setTransferIncluded}
+              selfDriveOnly={selfDriveOnly}
+              onSelfDriveChange={setSelfDriveOnly}
+              filtersOpen={filterModalOpen}
+              onFiltersToggle={() => setFilterModalOpen(true)}
+              bestSeller={bestSellerOnly}
+            />
+            <SortMenu value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
+          </div>
         )}
       </div>
 
@@ -382,7 +377,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
               Reset
             </button>
           </div>
-          <ul className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+          <ul className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-4 lg:grid-cols-5 xl:grid-cols-6">
             {filteredVentures.map((venture, index) => (
               <li
                 key={venture.id}
@@ -412,7 +407,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
         </>
       ) : (
       <>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
         {filteredVentures.map((venture, index) => (
           <VentureCard
             key={venture.id}
@@ -454,31 +449,29 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
         </div>
       )}
 
-      {/* State 2 — search overlay & State 3 — filter modal */}
+      {/* State 2 — search overlay (explore only) & State 3 — filter modal */}
       {mode === 'explore' && (
-        <>
-          <ExploreSearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
-          <ExploreFilterModal
-            open={filterModalOpen}
-            onClose={() => setFilterModalOpen(false)}
-            transferIncluded={transferIncluded}
-            onTransferIncludedChange={setTransferIncluded}
-            selfDriveOnly={selfDriveOnly}
-            onSelfDriveChange={setSelfDriveOnly}
-            bestSeller={bestSellerOnly}
-            onBestSellerChange={setBestSellerOnly}
-            selectedCategory={selectedCategory}
-            onCategorySelect={setSelectedCategory}
-            resultCount={filteredVentures.length}
-            onClearAll={() => {
-              setTransferIncluded(false);
-              setSelfDriveOnly(false);
-              setBestSellerOnly(false);
-              setSelectedCategory(null);
-            }}
-          />
-        </>
+        <ExploreSearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       )}
+      <ExploreFilterModal
+        open={filterModalOpen}
+        onClose={() => setFilterModalOpen(false)}
+        transferIncluded={transferIncluded}
+        onTransferIncludedChange={setTransferIncluded}
+        selfDriveOnly={selfDriveOnly}
+        onSelfDriveChange={setSelfDriveOnly}
+        bestSeller={bestSellerOnly}
+        onBestSellerChange={setBestSellerOnly}
+        selectedCategory={selectedCategory}
+        onCategorySelect={setSelectedCategory}
+        resultCount={filteredVentures.length}
+        onClearAll={() => {
+          setTransferIncluded(false);
+          setSelfDriveOnly(false);
+          setBestSellerOnly(false);
+          setSelectedCategory(null);
+        }}
+      />
     </section>
   );
 }

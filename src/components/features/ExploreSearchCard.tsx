@@ -1,26 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, Calendar, Users, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { Search, Calendar, Users, ChevronRight } from 'lucide-react';
 import { useSearch } from '@/components/search/SearchProvider';
-import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { cn } from '@/utils/cn';
 
 interface ExploreSearchCardProps {
   hubs?: readonly string[];
-  onSearch?: (params: {
-    query: string;
-    location: string;
-    categories: string[];
-  }) => void;
+  onSearch?: (params: { query: string }) => void;
 }
 
 const HUBS = ['Ubud', 'Seminyak', 'Canggu', 'Nusa Dua', 'Sanur', 'Denpasar', 'Kuta', 'Uluwatu'];
 
 export function ExploreSearchCard({ hubs = HUBS, onSearch }: ExploreSearchCardProps) {
   const { query, date, pax, setQuery, setDate, setPax, submit } = useSearch();
-  const [openField, setOpenField] = useState<'where' | 'date' | 'categories' | 'guests' | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [openField, setOpenField] = useState<'where' | 'date' | 'guests' | null>(null);
   const [checkOut, setCheckOut] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
 
@@ -51,22 +45,9 @@ export function ExploreSearchCard({ hubs = HUBS, onSearch }: ExploreSearchCardPr
     };
   }, [openField]);
 
-  const handleCategoryToggle = (categorySlug: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categorySlug)
-        ? prev.filter((c) => c !== categorySlug)
-        : [...prev, categorySlug]
-    );
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = {
-      query: query.trim(),
-      location: '',
-      categories: selectedCategories,
-    };
-    onSearch?.(params);
+    onSearch?.({ query: query.trim() });
     submit();
     setOpenField(null);
   };
@@ -147,87 +128,6 @@ export function ExploreSearchCard({ hubs = HUBS, onSearch }: ExploreSearchCardPr
                       </button>
                     ))}
                   </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Categories Filter */}
-          <div className={cn('w-full', isMobile ? '' : 'md:w-auto md:flex-initial')}>
-            <button
-              type="button"
-              onClick={() => setOpenField(openField === 'categories' ? null : 'categories')}
-              className={cn(
-                'flex min-h-[48px] items-center gap-2 px-4 py-2 rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand w-full md:w-auto',
-                'border-neutral-200 bg-white hover:border-brand-ink/50 hover:bg-brand/5 dark:border-white/10 dark:bg-neutral-900 dark:hover:border-brand-ink/50 dark:hover:bg-brand/5',
-                selectedCategories.length > 0 && 'border-brand-ink bg-brand/10',
-                openField === 'categories' && 'border-brand-ink ring-2 ring-brand/20'
-              )}
-              aria-label="Filter by category"
-              aria-expanded={openField === 'categories'}
-            >
-              <SlidersHorizontal className={cn('w-5 h-5 shrink-0', selectedCategories.length > 0 ? 'text-brand-ink' : 'text-neutral-400')} aria-hidden="true" />
-              <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hidden sm:inline">
-                {selectedCategories.length > 0
-                  ? `${selectedCategories.length} category${selectedCategories.length > 1 ? 's' : ''} selected`
-                  : 'Categories'}
-              </span>
-              {selectedCategories.length > 0 && (
-                <span className="text-xs font-medium bg-brand text-brand-ink px-2 py-0.5 rounded-full">
-                  {selectedCategories.length}
-                </span>
-              )}
-              <ChevronRight className={cn('w-5 h-5 text-neutral-400 shrink-0 hidden sm:inline transition-transform', openField === 'categories' && 'rotate-90')} aria-hidden="true" />
-            </button>
-
-            {/* Expanded Categories */}
-            {openField === 'categories' && (
-              <div className="space-y-3 pt-2 border-t border-neutral-200 dark:border-white/10 animate-in slide-in-from-top-2 duration-200 md:absolute md:left-0 md:right-0 md:z-50 md:bg-white md:dark:bg-neutral-950 md:shadow-lg md:rounded-b-xl md:p-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-500">Activity Types</h3>
-                  {selectedCategories.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCategories([])}
-                      className="text-xs text-brand-ink hover:underline"
-                    >
-                      Clear all
-                    </button>
-                  )}
-                </div>
-                <div className="space-y-2 max-h-[50vh] overflow-y-auto">
-                  {CATEGORY_REGISTRY.map((category) => {
-                    const isSelected = selectedCategories.includes(category.slug);
-                    return (
-                      <label
-                        key={category.slug}
-                        className={cn(
-                          'flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors cursor-pointer',
-                          isSelected
-                            ? 'bg-brand/10 border-brand-ink'
-                            : 'border-neutral-200 hover:bg-neutral-50 dark:border-white/10 dark:hover:bg-white/5'
-                        )}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleCategoryToggle(category.slug)}
-                          className="w-5 h-5 text-brand-ink border-brand-ink rounded focus:ring-2 focus:ring-brand/20"
-                        />
-                        <span className="text-lg leading-none" aria-hidden="true">
-                          {category.emoji}
-                        </span>
-                        <span className="flex-1 font-medium text-neutral-900 dark:text-white">
-                          {category.short}
-                        </span>
-                        {isSelected && (
-                          <svg className="w-5 h-5 text-brand-ink shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </label>
-                    );
-                  })}
                 </div>
               </div>
             )}

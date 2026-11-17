@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { CalendarDays, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import { ExploreSearchOverlay } from '@/components/features/ExploreSearchOverlay';
+import { useCustomerSession } from '@/hooks/useCustomerSession';
 import { useLocale } from '@/components/locale/LocaleProvider';
 import { cn } from '@/utils/cn';
 import { Z_INDEX } from '@/lib/zIndex';
@@ -23,6 +23,7 @@ export function HomeHeader() {
   const [isVisible, setIsVisible] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { user: customerUser } = useCustomerSession();
 
   useEffect(() => {
     setMounted(true);
@@ -105,18 +106,20 @@ export function HomeHeader() {
             </button>
           </div>
 
-          {/* Right: Trips + theme toggle (desktop) + burger */}
+          {/* Right: theme toggle + avatar (logged-in only) + burger */}
           <div className="flex shrink-0 items-center gap-1">
-            <Link
-              href="/trips"
-              className="hidden h-11 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-neutral-800 transition-colors hover:bg-brand/30 md:inline-flex dark:text-neutral-100"
-            >
-              <CalendarDays className="h-4 w-4" aria-hidden="true" />
-              Trips
-            </Link>
             <span className="hidden md:block">
               <ThemeSwitcher />
             </span>
+            {customerUser && (
+              <span
+                className="hidden h-9 w-9 items-center justify-center rounded-full bg-brand-ink text-xs font-bold text-brand md:flex"
+                title={customerUser.name}
+                aria-label={`Account: ${customerUser.name}`}
+              >
+                {(customerUser.name || customerUser.email).charAt(0).toUpperCase()}
+              </span>
+            )}
 
             {/* Desktop: Burger menu */}
             <div className="hidden md:block">
