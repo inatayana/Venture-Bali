@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { VentureCard } from '@/components/ui';
 import { CATEGORY_FILTERS, resolveCategory } from '@/lib/taxonomy';
@@ -188,7 +188,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
 
   const hasMoreOnMobile = filteredVentures.length > MOBILE_INITIAL_CARDS;
 
-  // Default Explore view (no search/filter/sort) shows curated horizontal rows.
+  // Default Explore view (no search/filter/sort): curated rows on md+, vertical split list on mobile.
   const isDefaultExploreView =
     mode === 'explore' &&
     !search &&
@@ -199,6 +199,27 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
     !selfDriveOnly &&
     !bestSellerOnly &&
     sortBy === 'recommended';
+
+  // Unified sticky header (mobile): hide on scroll down, reveal on scroll up.
+  const [controlsHidden, setControlsHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    if (mode !== 'explore') return;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const delta = y - lastScrollY.current;
+      if (Math.abs(delta) <= 10) return; // 10px threshold against jitter
+      if (delta > 0 && y > 80) {
+        setControlsHidden(true); // scrolling down past the header height
+      } else if (delta < 0 || y <= 16) {
+        setControlsHidden(false); // scrolling up, or back at the top
+      }
+      lastScrollY.current = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [mode]);
 
   const dateLabel = dateFilter
     ? new Date(`${dateFilter}T00:00:00`).toLocaleDateString('en-GB', {
@@ -215,19 +236,48 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
   ].filter(Boolean).length;
 
   return (
-    <section id="results" className="container scroll-mt-24 mx-auto px-4 py-8">
-      {/* Filters only: the search itself lives in the hero */}
-      <div className="mb-4 space-y-3 md:mb-6 md:space-y-4">
-        {mode === 'explore' && (
-          <ExploreTopBar
-            title={search.trim() || 'Adventures in Bali'}
-            subtitle={`${dateLabel} · ${guestsLabel}`}
-            onOpenSearch={() => setSearchOpen(true)}
-            onOpenFilters={() => setFilterModalOpen(true)}
-            activeFilterCount={activeFilterCount}
-          />
-        )}
+    <section
+      id="results"
+      className={cn(
+        'container scroll-mt-24 mx-auto px-4',
+        mode === 'explore' ? 'pb-4 pt-0 md:py-8' : 'py-8'
+      )}
+    >
+      {/* Unified control bar: sticky + hide-on-scroll on mobile, static on md+.
+          Renders the pills exactly once. */}
+      {mode === 'explore' && (
+        <div
+          className={cn(
+            'sticky top-0 z-30 -mx-4 border-b border-neutral-200/80 bg-white/95 px-4 backdrop-blur-md transition-transform duration-300 ease-out',
+            'dark:border-white/10 dark:bg-neutral-950/95',
+            'md:static md:z-auto md:mx-0 md:border-b-0 md:bg-transparent md:px-0 md:backdrop-blur-none md:transition-none dark:md:bg-transparent'
+          )}
+        >
+          <div className={cn('transition-transform duration-300 ease-out md:transform-none', controlsHidden ? '-translate-y-full md:translate-y-0' : '')}>
+            <ExploreTopBar
+              title={search.trim() || 'Adventures in Bali'}
+              subtitle={`${dateLabel} · ${guestsLabel}`}
+              onOpenSearch={() => setSearchOpen(true)}
+              onOpenFilters={() => setFilterModalOpen(true)}
+              activeFilterCount={activeFilterCount}
+            />
+            <ExploreFilterPills
+              selectedCategory={selectedCategory}
+              onCategorySelect={setSelectedCategory}
+              transferIncluded={transferIncluded}
+              onTransferIncludedChange={setTransferIncluded}
+              selfDriveOnly={selfDriveOnly}
+              onSelfDriveChange={setSelfDriveOnly}
+              filtersOpen={filterModalOpen}
+              onFiltersToggle={() => setFilterModalOpen(true)}
+              bestSeller={bestSellerOnly}
+            />
+          </div>
+        </div>
+      )}
 
+      {/* Filters only: the search itself lives in the hero */}
+      <div className="mb-4 space-y-3 pt-2 md:mb-6 md:space-y-4 md:pt-0">
         {(dateFilter || paxFilter > 1) && (
           <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600">
             {dateFilter && (
@@ -263,20 +313,6 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
           </div>
         )}
 
-        {mode === 'explore' && (
-          <ExploreFilterPills
-            selectedCategory={selectedCategory}
-            onCategorySelect={setSelectedCategory}
-            transferIncluded={transferIncluded}
-            onTransferIncludedChange={setTransferIncluded}
-            selfDriveOnly={selfDriveOnly}
-            onSelfDriveChange={setSelfDriveOnly}
-            filtersOpen={filterModalOpen}
-            onFiltersToggle={() => setFilterModalOpen(true)}
-            bestSeller={bestSellerOnly}
-          />
-        )}
-
         {mode === 'default' && (
           <CategoryTiles
             categories={CATEGORIES}
@@ -291,8 +327,35 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
       </div>
 
       {/* Results */}
-      {isDefaultExploreView ? (
-        <CuratedRows ventures={ventures} />
+      {mode === 'explore' && isDefaultExploreView ? (
+        <>
+          {/* Mobile: vertical list of split cards (default browse) */}
+          <div className="flex flex-col gap-4 pb-2 pt-1 md:hidden">
+            {filteredVentures.map((venture, index) => (
+              <div
+                key={venture.id}
+                className={cn(!expanded && index >= MOBILE_INITIAL_CARDS && 'hidden')}
+              >
+                <VentureListCard venture={venture} />
+              </div>
+            ))}
+          </div>
+          {hasMoreOnMobile && !expanded && (
+            <div className="mt-4 flex justify-center md:hidden">
+              <button
+                type="button"
+                onClick={() => setExpanded(true)}
+                className="inline-flex min-h-[44px] items-center rounded-full border border-neutral-300 bg-white px-6 text-sm font-semibold text-neutral-900 transition-colors hover:border-neutral-900"
+              >
+                Load more adventures ({filteredVentures.length - MOBILE_INITIAL_CARDS})
+              </button>
+            </div>
+          )}
+          {/* md+: curated horizontal rows */}
+          <div className="hidden md:block">
+            <CuratedRows ventures={ventures} />
+          </div>
+        </>
       ) : mode === 'explore' ? (
         <>
           <div className="mb-3 flex items-center justify-between gap-3">
@@ -306,7 +369,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
               ) : (
                 <>
                   Explore {filteredVentures.length}{' '}
-                  {filteredVentures.length === 1 ? 'adventure' : 'adventures'}
+                  {filteredVentures.length === 1 ? 'adventure' : 'adventures'} in Bali
                 </>
               )}
             </h2>
@@ -319,7 +382,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
               Reset
             </button>
           </div>
-          <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+          <ul className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3">
             {filteredVentures.map((venture, index) => (
               <li
                 key={venture.id}

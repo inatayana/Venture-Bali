@@ -84,11 +84,12 @@ export function ExploreFilterPills({
       role="group"
       aria-label="Filter adventures"
     >
+      {/* Desktop-only filter entry — mobile uses the top bar slider button instead, so exactly one filter entry per viewport. */}
       <button
         type="button"
         onClick={onFiltersToggle}
         aria-expanded={filtersOpen}
-        className={cn(pillBase, filtersOpen ? pillActive : pillIdle)}
+        className={cn(pillBase, 'hidden md:inline-flex', filtersOpen ? pillActive : pillIdle)}
       >
         <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
         Filters

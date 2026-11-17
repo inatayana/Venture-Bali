@@ -181,6 +181,10 @@ describe('VentureExplorer explore-mode filter pills', () => {
     expect(screen.getByRole('button', { name: /self-drive/i })).toBeInTheDocument();
     expect(screen.queryByRole('dialog', { name: 'Filters' })).not.toBeInTheDocument();
 
+    // Exactly one filter entry per viewport: the strip pill is desktop-only,
+    // mobile uses the top bar slider button.
+    expect(screen.getByRole('button', { name: /^filters/i })).toHaveClass('hidden', 'md:inline-flex');
+
     await user.click(screen.getByRole('button', { name: /^filters/i }));
     expect(screen.getByRole('dialog', { name: 'Filters' })).toBeInTheDocument();
   });
@@ -242,7 +246,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
     expect(screen.queryByText(transferOnly.title)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /reset filters/i }));
-    expect(screen.getByText(transferOnly.title)).toBeInTheDocument();
+    expect(screen.getAllByText(transferOnly.title).length).toBeGreaterThan(0);
   });
 });
 

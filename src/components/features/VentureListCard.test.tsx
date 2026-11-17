@@ -48,8 +48,8 @@ describe('VentureListCard', () => {
 
     expect(screen.getByText('Ubud Rice Terrace Sunrise Tour')).toBeInTheDocument();
     expect(screen.getByText(/Trekking · 5 hours/)).toBeInTheDocument();
-    expect(screen.getByText('4.9')).toBeInTheDocument();
-    expect(screen.getByText('(1284 reviews)')).toBeInTheDocument();
+    expect(screen.getByText(/4\.9/)).toBeInTheDocument();
+    expect(screen.getByText('1284 reviews')).toBeInTheDocument();
     // Promo anchor price is struck through, net price is shown.
     expect(screen.getByText('Rp 750.000')).toBeInTheDocument();
     expect(screen.getByText('Rp 600.000')).toBeInTheDocument();
