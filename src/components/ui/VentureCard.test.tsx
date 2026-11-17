@@ -55,9 +55,9 @@ describe('VentureCard Component', () => {
     expect(screen.getByText(/Rp 450\.000|IDR 450\.000/)).toBeInTheDocument();
   });
 
-  it('displays location with map pin icon', () => {
+  it('displays category and duration on line 2', () => {
     render(<VentureCard venture={mockVenture} />);
-    expect(screen.getByText(mockVenture.location)).toBeInTheDocument();
+    expect(screen.getByText(/culture · 5h/)).toBeInTheDocument();
   });
 
   it('displays duration and max participants', () => {
@@ -72,16 +72,30 @@ describe('VentureCard Component', () => {
     expect(screen.getByText('(1284)')).toBeInTheDocument();
   });
 
-  it('renders the category badge', () => {
+  it('renders the category on line 2, not as an image badge', () => {
     render(<VentureCard venture={mockVenture} />);
-    const badge = screen.getByText('culture');
-    expect(badge).toBeInTheDocument();
+    const line = screen.getByText(/culture · 5h/);
+    expect(line).toBeInTheDocument();
+    expect(line).not.toHaveClass('uppercase');
   });
 
   it('shows Sold Out badge when isAvailable is false', () => {
     const unavailableVenture = { ...mockVenture, isAvailable: false };
     render(<VentureCard venture={unavailableVenture} />);
     expect(screen.getByText('Sold Out')).toBeInTheDocument();
+  });
+
+  it('renders the venture badge as a top-left pill when set', () => {
+    const badged = { ...mockVenture, badge: 'Trending' };
+    render(<VentureCard venture={badged} />);
+    expect(screen.getByText('Trending')).toBeInTheDocument();
+  });
+
+  it('shows Sold Out instead of the badge when isAvailable is false', () => {
+    const unavailable = { ...mockVenture, badge: 'Trending', isAvailable: false };
+    render(<VentureCard venture={unavailable} />);
+    expect(screen.getByText('Sold Out')).toBeInTheDocument();
+    expect(screen.queryByText('Trending')).not.toBeInTheDocument();
   });
 
   it('does not show Sold Out badge when isAvailable is true', () => {
