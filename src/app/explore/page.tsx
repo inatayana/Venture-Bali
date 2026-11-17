@@ -40,13 +40,15 @@ export default async function ExplorePage() {
 
   return (
     <main className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
-      {/* Search Card - Replaces standard header */}
-      <ExploreSearchCard />
+      {/* Desktop search card — mobile uses the in-page top bar (State 1) instead */}
+      <div className="hidden md:block">
+        <ExploreSearchCard />
+      </div>
 
-      {/* Page Title & Category Filter */}
-      <div className="container mx-auto px-4 py-6">
+      {/* Page Title */}
+      <div className="container mx-auto px-4 pb-2 pt-2 md:py-6">
         <div className="flex items-center justify-between gap-4 mb-1">
-          <h1 className="font-heading text-3xl font-bold text-neutral-900 dark:text-white">Explore</h1>
+          <h1 className="sr-only md:not-sr-only font-heading text-3xl font-bold text-neutral-900 dark:text-white">Explore</h1>
         </div>
       </div>
 
@@ -69,7 +71,7 @@ export default async function ExplorePage() {
           </div>
         ) : (
           <>
-            <p className="mb-4 text-sm text-neutral-600">
+            <p className="mb-4 hidden text-sm text-neutral-600 md:block">
               {ventures.length} curated adventures across {categories.length} categories.
             </p>
             <VentureExplorer ventures={ventures} mode="explore" />

@@ -13,16 +13,25 @@ export interface ExploreFilterPillsProps {
   onTransferIncludedChange: (value: boolean) => void;
   selfDriveOnly: boolean;
   onSelfDriveChange: (value: boolean) => void;
-  /** Whether the full filter/sort panel (CategoryTiles) is expanded. */
+  /** Whether the full-screen Filters modal is open. */
   filtersOpen: boolean;
   onFiltersToggle: () => void;
+  /** Whether the Best Seller filter is active (counts towards the badge). */
+  bestSeller?: boolean;
   className?: string;
 }
 
 const scrollbarHidden =
   '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden';
 
-function TogglePill({
+const pillBase =
+  'inline-flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2';
+
+const pillActive = 'border-brand-ink bg-brand-ink text-brand shadow-sm';
+const pillIdle =
+  'border-neutral-200 bg-white text-neutral-700 hover:border-brand-ink/50 hover:bg-brand/5 dark:border-white/10 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:border-brand-ink/50 dark:hover:bg-brand/5';
+
+export function FilterTogglePill({
   active,
   onClick,
   icon: Icon,
@@ -38,12 +47,7 @@ function TogglePill({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={cn(
-        'inline-flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
-        active
-          ? 'border-brand-ink bg-brand-ink text-brand shadow-sm'
-          : 'border-neutral-200 bg-white text-neutral-700 hover:border-brand-ink/50 hover:bg-brand/5 dark:border-white/10 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:border-brand-ink/50 dark:hover:bg-brand/5'
-      )}
+      className={cn(pillBase, active ? pillActive : pillIdle)}
     >
       <Icon className="h-4 w-4" aria-hidden="true" />
       {label}
@@ -65,12 +69,14 @@ export function ExploreFilterPills({
   onSelfDriveChange,
   filtersOpen,
   onFiltersToggle,
+  bestSeller = false,
   className,
 }: ExploreFilterPillsProps) {
   const selectedSlug: MegaCategorySlug | null =
     CATEGORY_REGISTRY.find((category) => category.short === selectedCategory)?.slug ?? null;
 
-  const advancedActive = (transferIncluded ? 1 : 0) + (selfDriveOnly ? 1 : 0);
+  const advancedActive =
+    (transferIncluded ? 1 : 0) + (selfDriveOnly ? 1 : 0) + (bestSeller ? 1 : 0);
 
   return (
     <div
@@ -82,12 +88,7 @@ export function ExploreFilterPills({
         type="button"
         onClick={onFiltersToggle}
         aria-expanded={filtersOpen}
-        className={cn(
-          'inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
-          filtersOpen
-            ? 'border-brand-ink bg-brand-ink text-brand shadow-sm'
-            : 'border-neutral-200 bg-white text-neutral-700 hover:border-brand-ink/50 hover:bg-brand/5 dark:border-white/10 dark:bg-neutral-800 dark:text-neutral-300'
-        )}
+        className={cn(pillBase, filtersOpen ? pillActive : pillIdle)}
       >
         <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
         Filters
@@ -102,13 +103,13 @@ export function ExploreFilterPills({
         />
       </button>
 
-      <TogglePill
+      <FilterTogglePill
         active={transferIncluded}
         onClick={() => onTransferIncludedChange(!transferIncluded)}
         icon={Car}
         label="Transfer Included"
       />
-      <TogglePill
+      <FilterTogglePill
         active={selfDriveOnly}
         onClick={() => onSelfDriveChange(!selfDriveOnly)}
         icon={KeyRound}

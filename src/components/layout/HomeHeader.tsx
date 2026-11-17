@@ -1,9 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { CalendarDays, Search } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
+import { ExploreSearchOverlay } from '@/components/features/ExploreSearchOverlay';
 import { useLocale } from '@/components/locale/LocaleProvider';
 import { cn } from '@/utils/cn';
 import { Z_INDEX } from '@/lib/zIndex';
@@ -18,6 +22,7 @@ export function HomeHeader() {
   const { t } = useLocale();
   const [isVisible, setIsVisible] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -66,31 +71,67 @@ export function HomeHeader() {
   );
 
   return (
-    <header className={headerClass} role="banner">
-      <div className="container mx-auto flex items-center justify-between gap-2 px-4 py-2 sm:py-3">
-        {/* Left: Logo + tagline (desktop only) */}
-        <div className="flex min-w-0 items-center gap-3">
-          <p className="shrink-0 text-brand-ink dark:text-white">
-            <BrandWordmark className="text-2xl" />
-          </p>
-          <p className="hidden truncate text-xs text-gray-500 dark:text-gray-400 lg:block">
-            {t('headerTagline')}
-          </p>
-        </div>
-
-        {/* Right: Burger menu only */}
-        <div className="flex shrink-0 items-center gap-1">
-          {/* Desktop: Burger menu */}
-          <div className="hidden md:block">
-            <DesktopNavMenu />
+    <>
+      <header className={headerClass} role="banner">
+        <div className="container mx-auto flex items-center justify-between gap-2 px-4 py-2 sm:py-3">
+          {/* Left: Logo + tagline (desktop only) */}
+          <div className="flex min-w-0 items-center gap-3">
+            <p className="shrink-0 text-brand-ink dark:text-white">
+              <BrandWordmark className="text-2xl" />
+            </p>
+            <p className="hidden truncate text-xs text-gray-500 dark:text-gray-400 lg:block">
+              {t('headerTagline')}
+            </p>
           </div>
 
-          {/* Mobile: Burger menu */}
-          <div className="md:hidden">
-            <MobileNavDropdown />
+          {/* Center: Floating Search Pill (desktop only) */}
+          <div className="hidden md:flex">
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              aria-label="Open search"
+              className="flex h-11 items-center rounded-full border border-neutral-200 bg-white pl-5 pr-1 shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand dark:border-white/10 dark:bg-neutral-900"
+            >
+              <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
+                Location / Activity
+              </span>
+              <span className="mx-3 h-5 w-px bg-neutral-200 dark:bg-white/15" aria-hidden="true" />
+              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Anytime</span>
+              <span className="mx-3 h-5 w-px bg-neutral-200 dark:bg-white/15" aria-hidden="true" />
+              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Add guests</span>
+              <span className="ml-3 flex h-8 w-8 items-center justify-center rounded-full bg-brand-ink">
+                <Search className="h-4 w-4 text-white" aria-hidden="true" />
+              </span>
+            </button>
+          </div>
+
+          {/* Right: Trips + theme toggle (desktop) + burger */}
+          <div className="flex shrink-0 items-center gap-1">
+            <Link
+              href="/trips"
+              className="hidden h-11 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-neutral-800 transition-colors hover:bg-brand/30 md:inline-flex dark:text-neutral-100"
+            >
+              <CalendarDays className="h-4 w-4" aria-hidden="true" />
+              Trips
+            </Link>
+            <span className="hidden md:block">
+              <ThemeSwitcher />
+            </span>
+
+            {/* Desktop: Burger menu */}
+            <div className="hidden md:block">
+              <DesktopNavMenu />
+            </div>
+
+            {/* Mobile: Burger menu */}
+            <div className="md:hidden">
+              <MobileNavDropdown />
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {searchOpen && <ExploreSearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />}
+    </>
   );
 }

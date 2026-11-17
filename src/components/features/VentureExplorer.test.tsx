@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { VentureExplorer } from './VentureExplorer';
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ back: jest.fn(), push: jest.fn() }),
+}));
 import { SearchProvider } from '@/components/search/SearchProvider';
 import type { VentureItem, Variant } from '@/types/venture';
 
@@ -169,16 +173,16 @@ describe('VentureExplorer explore-mode filter pills', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('shows the pill strip and keeps the full panel collapsed until Filters is opened', async () => {
+  it('shows the pill strip and opens the full-screen filter modal from the Filters pill', async () => {
     const user = userEvent.setup();
     render(<VentureExplorer ventures={[rafting]} mode="explore" />, { wrapper: SearchProvider });
 
     expect(screen.getByRole('button', { name: /transfer included/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /self-drive/i })).toBeInTheDocument();
-    expect(screen.queryByText('Recommended')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Filters' })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /filters/i }));
-    expect(screen.getByText('Recommended')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^filters/i }));
+    expect(screen.getByRole('dialog', { name: 'Filters' })).toBeInTheDocument();
   });
 
   it('Self-Drive pill hides transfer-only ventures and vice versa', async () => {
@@ -189,7 +193,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
     );
 
     await user.click(screen.getByRole('button', { name: /self-drive/i }));
-    expect(screen.getByText(withAvailability.title)).toBeInTheDocument();
+    expect(screen.getAllByText(withAvailability.title).length).toBeGreaterThan(0);
     expect(screen.queryByText(transferOnly.title)).not.toBeInTheDocument();
 
     unmount();
@@ -198,7 +202,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
       wrapper: SearchProvider,
     });
     await user.click(screen.getByRole('button', { name: /transfer included/i }));
-    expect(screen.getByText(transferOnly.title)).toBeInTheDocument();
+    expect(screen.getAllByText(transferOnly.title).length).toBeGreaterThan(0);
     expect(screen.queryByText(withAvailability.title)).not.toBeInTheDocument();
   });
 
@@ -209,8 +213,23 @@ describe('VentureExplorer explore-mode filter pills', () => {
     });
 
     await user.click(screen.getByRole('radio', { name: /^rafting/i }));
-    expect(screen.getByText(rafting.title)).toBeInTheDocument();
+    expect(screen.getAllByText(rafting.title).length).toBeGreaterThan(0);
     expect(screen.queryByText(tubing.title)).not.toBeInTheDocument();
+  });
+
+  it('shows the State 4 list header with live count and a reset control', async () => {
+    const user = userEvent.setup();
+    render(<VentureExplorer ventures={[withAvailability]} mode="explore" />, {
+      wrapper: SearchProvider,
+    });
+
+    await user.click(screen.getByRole('button', { name: /self-drive/i }));
+    expect(screen.getByRole('heading', { name: /explore 1 adventure/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^reset$/i }));
+    expect(
+      screen.queryByRole('heading', { name: /explore 1 adventure/i })
+    ).not.toBeInTheDocument();
   });
 
   it('Reset Filters restores ventures hidden by the pill filters', async () => {
