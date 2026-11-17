@@ -27,7 +27,7 @@ export default async function ExplorePage() {
   try {
     const rows = await prisma.venture.findMany({
       orderBy: [{ rating: 'desc' }, { title: 'asc' }],
-      take: 24,
+      take: 60,
       include: ventureWithRelations(),
     });
     ventures = rows.map(toVentureItem);

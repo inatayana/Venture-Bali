@@ -6,6 +6,7 @@ import { CATEGORY_FILTERS, resolveCategory } from '@/lib/taxonomy';
 import { isDateAvailable, isSlotBookable } from '@/lib/pricing';
 import { CategoryTiles } from '@/components/features/CategoryTiles';
 import { ExploreFilterPills } from '@/components/features/ExploreFilterPills';
+import { CuratedRows } from '@/components/features/CuratedRows';
 import { useSearch } from '@/components/search/SearchProvider';
 import { cn } from '@/utils/cn';
 import type { VentureItem } from '@/types/venture';
@@ -164,6 +165,17 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
 
   const hasMoreOnMobile = filteredVentures.length > MOBILE_INITIAL_CARDS;
 
+  // Default Explore view (no search/filter/sort) shows curated horizontal rows.
+  const isDefaultExploreView =
+    mode === 'explore' &&
+    !search &&
+    !selectedCategory &&
+    !dateFilter &&
+    paxFilter === 1 &&
+    !transferIncluded &&
+    !selfDriveOnly &&
+    sortBy === 'recommended';
+
   return (
     <section id="results" className="container scroll-mt-24 mx-auto px-4 py-8">
       {/* Filters only: the search itself lives in the hero */}
@@ -230,6 +242,10 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
       </div>
 
       {/* Results */}
+      {isDefaultExploreView ? (
+        <CuratedRows ventures={ventures} />
+      ) : (
+      <>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredVentures.map((venture, index) => (
           <VentureCard
@@ -251,6 +267,8 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
             Load more adventures ({filteredVentures.length - MOBILE_INITIAL_CARDS})
           </button>
         </div>
+      )}
+      </>
       )}
 
       {filteredVentures.length === 0 && (
