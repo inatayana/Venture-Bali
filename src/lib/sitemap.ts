@@ -135,6 +135,21 @@ export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry
       changeFrequency: 'daily',
       priority: 0.9,
     },
+    {
+      url: `${baseUrl}/terms`,
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/privacy`,
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/refund`,
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
     ...experiences,
     ...articles,
   ];
