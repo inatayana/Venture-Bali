@@ -131,6 +131,9 @@ function pickRows(ventures: VentureItem[]): CuratedRow[] {
     .slice(0, MAX_ROW_ITEMS);
 
   // Row 3 — BaliWild Signature Day Trips: full-day escapes (6h+), any category.
+  // NOTE: the pre-launch catalogue ships with only short half-day products, so
+  // this row stays hidden until full-day/combo packages are seeded (or the
+  // threshold is relaxed). Never ship placeholder products to make it appear.
   const signature = byRating
     .filter((venture) => venture.durationHours >= 6)
     .slice(0, MAX_ROW_ITEMS);

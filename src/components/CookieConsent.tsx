@@ -82,7 +82,8 @@ export function CookieConsent() {
     <div
       ref={barRef}
       data-cookie-consent
-      className={`fixed inset-x-0 bottom-0 z-[${Z_INDEX.cookie}] px-3 pb-[calc(0.5rem+env(safe-area-inset-bottom))]`}
+      className="fixed inset-x-0 bottom-0 px-3 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
+      style={{ zIndex: Z_INDEX.cookie }}
     >
       <div className="relative mx-auto flex max-w-2xl items-center gap-2 rounded-xl border border-white/15 bg-brand-ink/95 px-3 py-2 text-white shadow-2xl backdrop-blur sm:gap-3 sm:px-4">
         <Cookie className="hidden h-4 w-4 shrink-0 text-brand sm:block" aria-hidden="true" />
