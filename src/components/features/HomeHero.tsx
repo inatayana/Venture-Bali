@@ -1,8 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-import { CheckCircle, RefreshCw, ShieldCheck } from 'lucide-react';
-import { HeroSearch, type HeroSuggestion } from '@/components/search/HeroSearch';
+import { ArrowRight, CheckCircle, RefreshCw, ShieldCheck } from 'lucide-react';
 import { RotatingKeyword } from '@/components/features/RotatingKeyword';
 import { HeroVideo } from '@/components/features/HeroVideo';
 import { useLocale } from '@/components/locale/LocaleProvider';
@@ -13,25 +11,13 @@ const TRUST_POINTS = [
   { icon: ShieldCheck, key: 'trustRefund' as const },
 ];
 
-const INTENT_PILLS = [
-  { href: '/?sort=popular', key: 'heroBest' as const, emoji: '⚡' },
-  { href: '/?category=water-sports', key: 'heroWater' as const, emoji: '🌊' },
-  { href: '/?category=trekking', key: 'heroTrekking' as const, emoji: '🏔️' },
-  { href: '/?category=combo', key: 'heroCombos' as const, emoji: '🔥' },
-  { href: '/?category=tubing', key: 'heroTubing' as const, emoji: '🛶' },
-];
-
-interface HomeHeroProps {
-  hubs: readonly string[];
-  suggestions: readonly HeroSuggestion[];
-}
-
 /**
- * Home hero: four layers only — positioning badge, headline + subtitle,
- * search, then the three documented trust promises. Intent pills sit directly
- * under the search as quick category filters.
+ * Home hero: positioning badge, headline + subtitle, one decisive CTA,
+ * then the three documented trust promises.
+ * Search lives in the header pill and the catalogue filter strip below —
+ * never here.
  */
-export function HomeHero({ hubs, suggestions }: HomeHeroProps) {
+export function HomeHero() {
   const { t } = useLocale();
 
   return (
@@ -56,7 +42,7 @@ export function HomeHero({ hubs, suggestions }: HomeHeroProps) {
         className="pointer-events-none absolute -bottom-40 left-1/3 h-80 w-80 rounded-full bg-brand/10 blur-3xl"
       />
 
-      <div className="container relative mx-auto px-4 pb-8 pt-10 sm:pt-14 lg:pb-12 lg:pt-20">
+      <div className="container relative mx-auto px-4 pb-6 pt-8 sm:pt-10 lg:pb-10 lg:pt-14">
         <div className="max-w-3xl">
           <p className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand">
             {t('heroBadge')}
@@ -73,21 +59,13 @@ export function HomeHero({ hubs, suggestions }: HomeHeroProps) {
             {t('heroSub')}
           </p>
 
-          <div className="mt-5">
-            <HeroSearch hubs={hubs} suggestions={suggestions} />
-          </div>
-
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible [&::-webkit-scrollbar]:hidden">
-            {INTENT_PILLS.map((pill) => (
-              <Link
-                key={pill.href}
-                href={pill.href}
-                className="inline-flex min-h-[44px] shrink-0 items-center rounded-full border border-white/20 bg-white/5 px-3 text-xs font-semibold text-white/80 backdrop-blur-[1px] transition-colors hover:border-brand hover:bg-brand/10 hover:text-brand"
-              >
-                {pill.emoji} {t(pill.key)}
-              </Link>
-            ))}
-          </div>
+          <a
+            href="#results"
+            className="mt-5 inline-flex min-h-[52px] items-center gap-2 rounded-full bg-brand px-7 text-base font-bold text-brand-ink transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            Explore Adventures
+            <ArrowRight className="h-5 w-5" aria-hidden="true" />
+          </a>
 
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-white/80">
             {TRUST_POINTS.map(({ icon: Icon, key }) => (

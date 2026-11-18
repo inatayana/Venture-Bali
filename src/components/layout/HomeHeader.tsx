@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
-import { ExploreSearchOverlay } from '@/components/features/ExploreSearchOverlay';
+import { HeaderSearchPill } from '@/components/layout/HeaderSearchPill';
 import { useCustomerSession } from '@/hooks/useCustomerSession';
 import { useLocale } from '@/components/locale/LocaleProvider';
 import { cn } from '@/utils/cn';
@@ -22,7 +21,6 @@ export function HomeHeader() {
   const { t } = useLocale();
   const [isVisible, setIsVisible] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const { user: customerUser } = useCustomerSession();
 
   useEffect(() => {
@@ -88,26 +86,8 @@ export function HomeHeader() {
             </p>
           </div>
 
-          {/* Center: Floating Search Pill (desktop only) */}
-          <div className="hidden md:flex">
-            <button
-              type="button"
-              onClick={() => setSearchOpen(true)}
-              aria-label="Open search"
-              className="flex h-11 items-center rounded-full border border-neutral-200 bg-white pl-5 pr-1 shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand dark:border-white/10 dark:bg-neutral-900"
-            >
-              <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                Location / Activity
-              </span>
-              <span className="mx-3 h-5 w-px bg-neutral-200 dark:bg-white/15" aria-hidden="true" />
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Anytime</span>
-              <span className="mx-3 h-5 w-px bg-neutral-200 dark:bg-white/15" aria-hidden="true" />
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Add guests</span>
-              <span className="ml-3 flex h-8 w-8 items-center justify-center rounded-full bg-brand-ink">
-                <Search className="h-4 w-4 text-white" aria-hidden="true" />
-              </span>
-            </button>
-          </div>
+          {/* Center: Interactive Search Pill (desktop only) */}
+          <HeaderSearchPill />
 
           {/* Right: theme toggle + avatar (logged-in only) + burger */}
           <div className="flex shrink-0 items-center gap-1">
@@ -136,8 +116,6 @@ export function HomeHeader() {
           </div>
         </div>
       </header>
-
-      {searchOpen && <ExploreSearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />}
     </>
   );
 }

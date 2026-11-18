@@ -11,6 +11,7 @@ import { ThemeProvider, themeInitScript } from '@/components/theme/ThemeProvider
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
 import { SentryClientProvider } from '@/components/SentryClientProvider';
 import { BottomNavigation } from '@/components/layout/BottomNavigation';
+import { DesktopUtilityBar } from '@/components/layout/DesktopUtilityBar';
 import { SearchProvider } from '@/components/search/SearchProvider';
 import {
   BRAND_NAME,
@@ -74,6 +75,7 @@ export default function RootLayout({
                 <PwaRegistration />
                 <InstallPrompt />
                 <BottomNavigation />
+                <DesktopUtilityBar />
                 <CookieConsent />
                 <ChatWidget />
               </SearchProvider>

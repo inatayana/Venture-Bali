@@ -316,7 +316,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
               onFiltersToggle={() => setFilterModalOpen(true)}
               bestSeller={bestSellerOnly}
             />
-            <SortMenu value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
+            <SortMenu className="ml-3 shrink-0" value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
           </div>
         )}
       </div>
