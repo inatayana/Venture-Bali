@@ -13,7 +13,7 @@ export default async function Home() {
   const { ventures, source } = await loadVentures();
 
   return (
-    <main className="min-h-screen bg-neutral-50 md:pb-12">
+    <main className="min-h-screen bg-neutral-50">
       <JsonLd data={generateWebsiteStructuredData(getBaseUrl())} />
       <HomeHeader />
 

@@ -39,7 +39,7 @@ export default async function ExplorePage() {
   const categories = CATEGORY_REGISTRY;
 
   return (
-    <main className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
+    <main className="min-h-screen bg-neutral-50 pb-24">
       {/* Desktop search card — mobile uses the in-page top bar (State 1) instead */}
       <div className="hidden md:block">
         <ExploreSearchCard />

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   ChevronUp,
   MessageCircle,
@@ -13,12 +14,7 @@ import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { cn } from '@/utils/cn';
 
-/**
- * Mirrors the tenant concierge number in `src/lib/tenant/config.ts`
- * (communication.whatsapp.businessNumber). Update both when the real
- * 24/7 line is confirmed.
- */
-const CONCIERGE_WHATSAPP_URL = 'https://wa.me/6281234567890';
+const CONCIERGE_WHATSAPP_URL = 'https://wa.me/6285117321388';
 
 const linkClass =
   'transition-colors hover:text-neutral-900 hover:underline dark:hover:text-white';
@@ -30,6 +26,8 @@ const linkClass =
 export function DesktopUtilityBar() {
   const [supportOpen, setSupportOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith('/admin') ?? false;
 
   useEffect(() => {
     if (!supportOpen) return;
@@ -48,6 +46,9 @@ export function DesktopUtilityBar() {
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [supportOpen]);
+
+  // The utility bar is public chrome — never shown on operator/admin screens.
+  if (isAdmin) return null;
 
   return (
     <div

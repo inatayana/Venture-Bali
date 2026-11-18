@@ -63,7 +63,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${barlowCondensed.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
-      <body className="font-sans">
+      <body className="font-sans md:pb-11">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <ThemeProvider>
           <CurrencyProvider>
