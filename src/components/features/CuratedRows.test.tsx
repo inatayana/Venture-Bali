@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import { CuratedRows } from './CuratedRows';
-import type { VentureItem } from '@/types/venture';
+import type { VentureItem, Variant } from '@/types/venture';
 
 let sequence = 0;
 function buildVenture(overrides: Partial<VentureItem>): VentureItem {
@@ -41,47 +41,134 @@ function buildVenture(overrides: Partial<VentureItem>): VentureItem {
   };
 }
 
+function buildBookableVariant(): Variant {
+  return {
+    id: `var-${sequence}`,
+    ventureId: 'unused',
+    title: 'Self Drive',
+    shortDescription: 'Meet at the base camp',
+    fulfillmentMode: 'SELF_DRIVE',
+    sortOrder: 1,
+    blackoutDates: [],
+    priceTiers: [{ minPax: 1, maxPax: 10, pricePerPax: 450000 }],
+    slotTimes: [
+      {
+        id: `slot-${sequence}`,
+        variantId: 'var-1',
+        time: '23:59',
+        maxCapacity: 10,
+        currentBookings: 0,
+        isAvailable: true,
+        cutoffHours: 0,
+        createdAt: new Date('2026-01-15T08:00:00Z'),
+        updatedAt: new Date('2026-01-15T08:00:00Z'),
+      },
+    ],
+    createdAt: new Date('2026-01-15T08:00:00Z'),
+    updatedAt: new Date('2026-08-01T10:30:00Z'),
+  };
+}
+
+const fourBookToday = () =>
+  Array.from({ length: 4 }, (_, i) =>
+    buildVenture({
+      id: `today-${i}`,
+      title: `Bookable Today ${i}`,
+      variants: [buildBookableVariant()],
+    })
+  );
+
+const fourHalfDays = () =>
+  Array.from({ length: 4 }, (_, i) =>
+    buildVenture({ id: `halfday-${i}`, title: `Easy Escape ${i}`, durationHours: 3 })
+  );
+
+const fourFullDays = () =>
+  Array.from({ length: 4 }, (_, i) =>
+    buildVenture({ id: `fullday-${i}`, title: `Day Trip ${i}`, durationHours: 8 })
+  );
+
 describe('CuratedRows', () => {
   beforeEach(() => {
     sequence = 0;
   });
 
-  it('always renders the featured row, badged ventures first', () => {
-    const badged = buildVenture({ id: 'badged', title: 'Badged Adventure', badge: 'Trending', rating: 4.0 });
-    const highRated = buildVenture({ id: 'rated', title: 'Top Rated Adventure', rating: 5.0 });
+  it('always renders Most Booked in Bali, ordered by popularity', () => {
+    const popular = buildVenture({ id: 'hit', title: 'Crowd Favourite', bookedThisMonth: 120, rating: 4.9 });
+    const quiet = buildVenture({ id: 'miss', title: 'Hidden Gem', bookedThisMonth: 3, rating: 4.2 });
 
-    render(<CuratedRows ventures={[highRated, badged]} />);
+    render(<CuratedRows ventures={[popular, quiet]} />);
 
-    const featured = screen.getByRole('region', { name: 'Your next Bali adventure' });
-    const links = within(featured).getAllByRole('link');
-    expect(links[0]).toHaveAttribute('href', '/experiences/badged/slug-badged');
-    expect(within(featured).getByText('Top Rated Adventure')).toBeInTheDocument();
+    const row = screen.getByRole('region', { name: 'Most Booked in Bali' });
+    const links = within(row).getAllByRole('link');
+    expect(links[0]).toHaveAttribute('href', '/experiences/hit/slug-hit');
+    expect(within(row).getByText('Hidden Gem')).toBeInTheDocument();
   });
 
-  it('renders the under-1m row only when at least four affordable ventures exist', () => {
-    const cheap = Array.from({ length: 4 }, (_, i) =>
-      buildVenture({ id: `cheap-${i}`, title: `Budget ${i}`, priceIdr: 500_000 + i })
-    );
-    const expensive = Array.from({ length: 3 }, (_, i) =>
-      buildVenture({ id: `exp-${i}`, title: `Premium ${i}`, priceIdr: 2_000_000 + i })
-    );
+  it('renders Book Today, Go Today only when bookable-today ventures reach the threshold', () => {
+    const { rerender } = render(<CuratedRows ventures={fourBookToday()} />);
+    expect(screen.getByRole('region', { name: 'Book Today, Go Today' })).toBeInTheDocument();
 
-    const { rerender } = render(<CuratedRows ventures={[...cheap, ...expensive]} />);
-    expect(screen.getByRole('region', { name: 'Bali under 1 million IDR' })).toBeInTheDocument();
-
-    rerender(<CuratedRows ventures={[...cheap.slice(0, 3), ...expensive]} />);
-    expect(screen.queryByRole('region', { name: 'Bali under 1 million IDR' })).not.toBeInTheDocument();
+    rerender(
+      <CuratedRows
+        ventures={[
+          buildVenture({
+            id: 'no-slots',
+            title: 'Unbookable Today',
+            variants: [{ ...buildBookableVariant(), slotTimes: [] }],
+          }),
+          ...fourHalfDays().slice(0, 3),
+        ]}
+      />
+    );
+    expect(screen.queryByRole('region', { name: 'Book Today, Go Today' })).not.toBeInTheDocument();
   });
 
-  it('renders a category row only for categories with at least four ventures', () => {
-    const tubing = Array.from({ length: 4 }, (_, i) =>
-      buildVenture({ id: `tubing-${i}`, title: `Tubing Trip ${i}`, category: 'Tubing' })
+  it('renders BaliWild Signature Day Trips for 6h+ adventures, hidden when sparse', () => {
+    const { rerender } = render(
+      <CuratedRows ventures={[...fourFullDays(), ...fourBookToday()]} />
     );
-    const trekking = [buildVenture({ id: 'trek-1', title: 'Lone Trek', category: 'Trekking' })];
+    expect(
+      screen.getByRole('region', { name: 'BaliWild Signature Day Trips' })
+    ).toBeInTheDocument();
 
-    render(<CuratedRows ventures={[...tubing, ...trekking]} />);
+    rerender(<CuratedRows ventures={fourFullDays().slice(0, 3)} />);
+    expect(
+      screen.queryByRole('region', { name: 'BaliWild Signature Day Trips' })
+    ).not.toBeInTheDocument();
+  });
 
-    expect(screen.getByRole('region', { name: 'Tubing' })).toBeInTheDocument();
-    expect(screen.queryByRole('region', { name: 'Trekking' })).not.toBeInTheDocument();
+  it('renders Easy Half-Day Escapes for duration ≤ 4h, hidden when sparse', () => {
+    const { rerender } = render(
+      <CuratedRows ventures={[...fourHalfDays(), ...fourBookToday()]} />
+    );
+    expect(
+      screen.getByRole('region', { name: 'Easy Half-Day Escapes · Under 4 Hours' })
+    ).toBeInTheDocument();
+
+    rerender(<CuratedRows ventures={fourHalfDays().slice(0, 3)} />);
+    expect(
+      screen.queryByRole('region', { name: 'Easy Half-Day Escapes · Under 4 Hours' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps only Most Booked when no optional row reaches the threshold', () => {
+    render(
+      <CuratedRows
+        ventures={[
+          buildVenture({ id: 'a', title: 'Quiet A', durationHours: 5, rating: 4.5 }),
+          buildVenture({ id: 'b', title: 'Quiet B', durationHours: 5, rating: 4.6 }),
+        ]}
+      />
+    );
+
+    expect(screen.getByRole('region', { name: 'Most Booked in Bali' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Book Today, Go Today' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('region', { name: 'BaliWild Signature Day Trips' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('region', { name: 'Easy Half-Day Escapes · Under 4 Hours' })
+    ).not.toBeInTheDocument();
   });
 });

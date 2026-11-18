@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { VentureCard } from '@/components/ui';
-import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
+import { isSlotBookable } from '@/lib/pricing';
 import { cn } from '@/utils/cn';
 import type { VentureItem } from '@/types/venture';
 
@@ -101,38 +101,59 @@ const MIN_ROW_ITEMS = 4;
 
 function pickRows(ventures: VentureItem[]): CuratedRow[] {
   const byRating = [...ventures].sort((a, b) => b.rating - a.rating);
-  const badged = byRating.filter((venture) => venture.badge);
-  const featured = [
-    ...badged,
-    ...byRating.filter((venture) => !venture.badge),
-  ].slice(0, MAX_ROW_ITEMS);
+  const byPopularity = [...ventures].sort(
+    (a, b) =>
+      (b.bookedThisMonth ?? 0) - (a.bookedThisMonth ?? 0) ||
+      b.rating - a.rating ||
+      b.reviewCount - a.reviewCount
+  );
 
-  const budget = [...ventures]
-    .filter((venture) => venture.priceIdr < 1_000_000)
-    .sort((a, b) => a.priceIdr - b.priceIdr)
+  // Row 1 — Most Booked in Bali: the crowd favourites, all levels.
+  const mostBooked = byPopularity.slice(0, MAX_ROW_ITEMS);
+
+  // Row 2 — Today's departures that can actually be booked right now.
+  const todayKey = (() => {
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  })();
+  const bookToday = byRating
+    .filter((venture) =>
+      (venture.variants ?? []).some(
+        (variant) =>
+          variant.slotTimes?.some(
+            (slot) =>
+              slot.isAvailable &&
+              isSlotBookable(todayKey, slot.time, variant.fulfillmentMode, new Date(), slot.cutoffHours)
+          )
+      )
+    )
+    .slice(0, MAX_ROW_ITEMS);
+
+  // Row 3 — BaliWild Signature Day Trips: full-day escapes (6h+), any category.
+  const signature = byRating
+    .filter((venture) => venture.durationHours >= 6)
+    .slice(0, MAX_ROW_ITEMS);
+
+  // Row 4 — Easy Half-Day Escapes: gentle, flexible, under 4 hours.
+  const halfDays = byRating
+    .filter((venture) => venture.durationHours <= 4)
     .slice(0, MAX_ROW_ITEMS);
 
   const rows: CuratedRow[] = [
-    { id: 'featured', title: 'Your next Bali adventure', items: featured },
+    { id: 'most-booked', title: 'Most Booked in Bali', items: mostBooked },
   ];
 
-  if (budget.length >= MIN_ROW_ITEMS) {
-    rows.push({ id: 'under-1m', title: 'Bali under 1 million IDR', items: budget });
+  if (bookToday.length >= MIN_ROW_ITEMS) {
+    rows.push({ id: 'today', title: 'Book Today, Go Today', items: bookToday });
   }
 
-  // One row per major category, in taxonomy order, skipping thin categories.
-  for (const category of CATEGORY_REGISTRY) {
-    const items = byRating
-      .filter(
-        (venture) =>
-          venture.category.toLowerCase() === category.short.toLowerCase() ||
-          venture.title.toLowerCase().includes(category.short.toLowerCase())
-      )
-      .slice(0, MAX_ROW_ITEMS);
-    if (items.length >= MIN_ROW_ITEMS) {
-      rows.push({ id: `category-${category.slug}`, title: category.short, items });
-    }
-    if (rows.length >= 5) break;
+  if (signature.length >= MIN_ROW_ITEMS) {
+    rows.push({ id: 'signature-day-trips', title: 'BaliWild Signature Day Trips', items: signature });
+  }
+
+  if (halfDays.length >= MIN_ROW_ITEMS) {
+    rows.push({ id: 'half-days', title: 'Easy Half-Day Escapes · Under 4 Hours', items: halfDays });
   }
 
   return rows;

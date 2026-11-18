@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, ShieldCheck } from 'lucide-react';
 import { VentureCard } from '@/components/ui';
 import { resolveCategory } from '@/lib/taxonomy';
 import { isDateAvailable, isSlotBookable } from '@/lib/pricing';
@@ -177,9 +177,10 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
 
   const hasMoreOnMobile = filteredVentures.length > MOBILE_INITIAL_CARDS;
 
-  // Default Explore view (no search/filter/sort): curated rows on md+, vertical split list on mobile.
+  // Default view (no search/filter/sort): curated rows. Used by both the
+  // homepage (default mode, adds the guarantee banner + full grid below)
+  // and the Explore page (explore mode, rows only).
   const isDefaultExploreView =
-    mode === 'explore' &&
     !search &&
     !selectedCategory &&
     !dateFilter &&
@@ -263,6 +264,27 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
             />
           </div>
         </div>
+      )}
+
+      {/* Homepage curated catalogue: rows → guarantee banner → section 5 heading */}
+      {mode === 'default' && isDefaultExploreView && (
+        <>
+          <CuratedRows ventures={ventures} />
+
+          <div className="mt-2 flex items-center justify-center gap-3 rounded-2xl bg-brand-ink px-6 py-4 text-center text-white dark:bg-neutral-900">
+            <ShieldCheck className="h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
+            <p className="text-sm font-semibold sm:text-base">
+              100% Operated by BaliWild
+              <span className="text-white/60">
+                {' '}— Certified Local Guides · Safety-Checked Equipment · 24/7 Personal Concierge
+              </span>
+            </p>
+          </div>
+
+          <h2 className="mt-6 font-heading text-2xl font-bold text-neutral-900 dark:text-white">
+            All Bali Adventures
+          </h2>
+        </>
       )}
 
       {/* Filters only: the search itself lives in the hero */}

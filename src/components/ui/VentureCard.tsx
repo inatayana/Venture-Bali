@@ -15,6 +15,18 @@ export interface VentureCardProps {
   className?: string;
 }
 
+/**
+ * Map overly aggressive badge wording to a warmer, broadly appealing label.
+ * The catalogue still teaches the exact same product — just framed for
+ * every traveller, not only the extreme-sports crowd.
+ */
+export function friendlyBadge(badge: string): string {
+  const value = badge.trim();
+  if (/adrenaline/i.test(value)) return 'Best Seller';
+  if (/extreme/i.test(value)) return 'All Levels';
+  return value;
+}
+
 /** Cheapest tier across the package list — used for the "N+ guests" price hint. */
 function cheapestTier(venture: VentureItem) {
   return (venture.variants ?? [])
@@ -70,7 +82,7 @@ export function VentureCard({
           </span>
         ) : venture.badge ? (
           <span className="absolute left-2.5 top-2.5 rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-800 shadow-sm backdrop-blur sm:left-3 sm:top-3 sm:px-2.5 sm:py-1">
-            {venture.badge}
+            {friendlyBadge(venture.badge)}
           </span>
         ) : null}
         <button
@@ -130,7 +142,7 @@ export function VentureCard({
             <span className="text-xs text-gray-500">· {tierHint.minPax}+ guests</span>
           )}
           <span className="ml-auto flex items-center gap-1">
-            <Star className="h-3.5 w-3.5 fill-brand text-brand" aria-hidden="true" />
+            <Star className="h-3.5 w-3.5 fill-brand text-brand-ink dark:text-brand" aria-hidden="true" />
             {venture.reviewCount > 0 ? (
               <>
                 <span className="text-xs font-medium text-gray-900">{venture.rating.toFixed(1)}</span>
@@ -143,8 +155,12 @@ export function VentureCard({
         </div>
         <PriceApprox amountIdr={venture.priceIdr} suffix=" / person" className="mt-0.5 block" />
 
-        {/* Line 4 — operational value tags */}
+        {/* Line 4 — operational reassurance tags */}
         <div className="mt-2 hidden flex-wrap gap-1.5 sm:flex">
+          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+            <Users className="h-3 w-3" aria-hidden="true" />
+            Beginner Friendly
+          </span>
           <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
             <CheckCircle className="h-3 w-3" aria-hidden="true" />
             Instant Confirmation

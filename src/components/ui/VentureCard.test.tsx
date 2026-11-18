@@ -91,6 +91,22 @@ describe('VentureCard Component', () => {
     expect(screen.getByText('Trending')).toBeInTheDocument();
   });
 
+  it('maps aggressive badges to warmer labels', () => {
+    render(<VentureCard venture={{ ...mockVenture, badge: 'ADRENALINE' }} />);
+    expect(screen.getByText('Best Seller')).toBeInTheDocument();
+    expect(screen.queryByText('ADRENALINE')).not.toBeInTheDocument();
+  });
+
+  it('maps EXTREME badges to All Levels', () => {
+    render(<VentureCard venture={{ ...mockVenture, badge: 'EXTREME' }} />);
+    expect(screen.getByText('All Levels')).toBeInTheDocument();
+  });
+
+  it('shows Beginner Friendly in the value tags', () => {
+    render(<VentureCard venture={mockVenture} />);
+    expect(screen.getByText('Beginner Friendly')).toBeInTheDocument();
+  });
+
   it('shows Sold Out instead of the badge when isAvailable is false', () => {
     const unavailable = { ...mockVenture, badge: 'Trending', isAvailable: false };
     render(<VentureCard venture={unavailable} />);

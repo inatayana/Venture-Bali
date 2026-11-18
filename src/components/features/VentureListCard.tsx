@@ -6,6 +6,7 @@ import type { VentureItem } from '@/types/venture';
 import { cn } from '@/utils/cn';
 import { formatPrice } from '@/lib/i18n';
 import { useWishlist, toWishlistDraft } from '@/store/wishlistStore';
+import { friendlyBadge } from '@/components/ui/VentureCard';
 
 export interface VentureListCardProps {
   venture: VentureItem;
@@ -59,7 +60,7 @@ export function VentureListCard({ venture, href, className }: VentureListCardPro
               </span>
             ) : venture.badge ? (
               <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-neutral-800 shadow-sm backdrop-blur">
-                {venture.badge}
+                {friendlyBadge(venture.badge)}
               </span>
             ) : null}
           </div>

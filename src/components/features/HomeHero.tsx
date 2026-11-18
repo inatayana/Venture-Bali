@@ -1,19 +1,18 @@
 'use client';
 
-import { ArrowRight, CheckCircle, RefreshCw, ShieldCheck } from 'lucide-react';
-import { RotatingKeyword } from '@/components/features/RotatingKeyword';
+import { ArrowRight, Users, CheckCircle, RefreshCw } from 'lucide-react';
 import { HeroVideo } from '@/components/features/HeroVideo';
 import { useLocale } from '@/components/locale/LocaleProvider';
 
 const TRUST_POINTS = [
-  { icon: CheckCircle, key: 'trustInstant' as const },
-  { icon: RefreshCw, key: 'trustReschedule' as const },
-  { icon: ShieldCheck, key: 'trustRefund' as const },
+  { icon: Users, label: 'Beginner & Family Friendly' },
+  { icon: CheckCircle, label: 'Instant Confirmation' },
+  { icon: RefreshCw, label: 'Free Reschedule ≥24h' },
 ];
 
 /**
  * Home hero: positioning badge, headline + subtitle, one decisive CTA,
- * then the three documented trust promises.
+ * then three trust promises.
  * Search lives in the header pill and the catalogue filter strip below —
  * never here.
  */
@@ -48,11 +47,9 @@ export function HomeHero() {
             {t('heroBadge')}
           </p>
 
-          <h1 className="mt-4 max-w-3xl font-heading text-[clamp(1.75rem,7.5vw,2.25rem)] font-bold uppercase leading-[1.06] tracking-tight text-white lg:text-[3.25rem]">
-            <span className="block">
-              {t('heroBook')} <RotatingKeyword />
-            </span>
-            <span className="mt-1.5 block">{t('heroOwn')}</span>
+          <h1 className="mt-4 max-w-3xl font-heading text-[clamp(1.75rem,7.5vw,2.25rem)] font-bold leading-[1.06] tracking-tight text-white lg:text-[3.25rem]">
+            <span className="block">{t('heroBook')}</span>
+            <span className="mt-1.5 block text-brand">{t('heroOwn')}</span>
           </h1>
 
           <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/75 sm:text-base">
@@ -68,10 +65,10 @@ export function HomeHero() {
           </a>
 
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-white/80">
-            {TRUST_POINTS.map(({ icon: Icon, key }) => (
-              <span key={key} className="inline-flex items-center gap-1.5">
+            {TRUST_POINTS.map(({ icon: Icon, label }) => (
+              <span key={label} className="inline-flex items-center gap-1.5">
                 <Icon className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-                {t(key)}
+                {label}
               </span>
             ))}
           </div>

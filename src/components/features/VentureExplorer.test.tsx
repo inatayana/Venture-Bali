@@ -269,7 +269,7 @@ describe('VentureExplorer category deep link', () => {
 
     render(<VentureExplorer ventures={[rafting, tubing]} />, { wrapper: SearchProvider });
 
-    expect(screen.getByText(tubing.title)).toBeInTheDocument();
-    expect(screen.getByText(rafting.title)).toBeInTheDocument();
+    expect(screen.getAllByText(tubing.title).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(rafting.title).length).toBeGreaterThan(0);
   });
 });
