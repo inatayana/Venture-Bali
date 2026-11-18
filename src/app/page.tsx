@@ -44,9 +44,14 @@ export default async function Home() {
 
           {/* Section 3 Title + Show More - stacked on mobile, side-by-side on desktop */}
           <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <h2 className="font-heading text-2xl font-bold text-neutral-900 dark:text-white whitespace-nowrap">
-              Explore All Guided Adventures
-            </h2>
+            <div>
+              <h2 className="font-heading text-2xl font-bold text-neutral-900 dark:text-white whitespace-nowrap">
+                Explore All Guided Adventures
+              </h2>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Guided local trips · Safety-checked gear · Transparent pricing
+              </p>
+            </div>
             <a
               href="/explore"
               className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-5 text-sm font-semibold text-neutral-900 transition-colors hover:border-neutral-900 dark:border-white/10 dark:bg-neutral-800 dark:text-white"
@@ -78,6 +83,14 @@ export default async function Home() {
                 variant="horizontal"
               />
             ))}
+            {/* Show More button at bottom of mobile list */}
+            <a
+              href="/explore"
+              className="mt-4 w-full inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full border border-neutral-300 bg-white px-5 text-sm font-semibold text-neutral-900 transition-colors hover:border-neutral-900 dark:border-white/10 dark:bg-neutral-800 dark:text-white"
+            >
+              Show More Adventures
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </a>
           </div>
         </div>
       </section>

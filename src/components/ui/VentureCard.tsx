@@ -53,7 +53,7 @@ export function VentureCard({
     }
   };
 
-  // 2-line Price Block component (shared between variants)
+  // 2-line Price Block component (used by vertical variant)
   const PriceBlock = () => (
     <div className="min-h-[36px] flex flex-col justify-end">
       {/* Line 1: From + original price (if promo) */}
@@ -93,11 +93,26 @@ export function VentureCard({
         <Star className="h-3 w-3 fill-brand text-brand-ink dark:text-brand" aria-hidden="true" />
         <span className="font-semibold">{venture.rating.toFixed(1)}</span>
         <span aria-hidden="true">·</span>
-        <span>{venture.reviewCount} reviews</span>
+        <span>
+          {venture.reviewCount > 0
+            ? `${venture.reviewCount} reviews`
+            : '★ New'}
+        </span>
       </p>
 
-      {/* Row 4 — price (2-line block) */}
-      <PriceBlock />
+      {/* Row 4 — price (compact 1-line: From + strikethrough + sale price + /guest) */}
+      <div className="mt-1 flex items-baseline gap-1 text-xs leading-4 min-h-[16px] flex-wrap">
+        <span className="text-muted-foreground">From</span>
+        {hasPromo && (
+          <span className="tabular-nums text-red-500 line-through dark:text-red-400 font-medium">
+            {formatPrice(originalPrice)}
+          </span>
+        )}
+        <span className="font-bold text-foreground dark:text-white tabular-nums">
+          {formatPrice(salePrice)}
+        </span>
+        <span className="text-muted-foreground font-normal">/ guest</span>
+      </div>
 
       {/* Row 5 — value pill (optional) */}
       <span className="mt-1.5 inline-flex w-fit items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
@@ -297,7 +312,7 @@ export function VentureCard({
   const cardContent = variant === 'horizontal' ? horizontalContent : content;
   const cardClassName = cn(
     variant === 'horizontal'
-      ? 'flex gap-3 rounded-2xl bg-white p-2 shadow-sm ring-1 ring-neutral-100 transition-shadow hover:shadow-md dark:bg-neutral-900 dark:ring-white/10 h-full flex flex-col'
+      ? 'flex gap-3.5 h-full flex flex-col'
       : 'group overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full flex flex-col',
     className
   );

@@ -76,6 +76,8 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
     if (sort && SORT_OPTIONS.some((option) => option.value === sort)) {
       setSortBy(sort);
     }
+    if (params.get('transferIncluded') === '1') setTransferIncluded(true);
+    if (params.get('selfDrive') === '1') setSelfDriveOnly(true);
   }, []);
 
   const filteredVentures = useMemo(() => {
