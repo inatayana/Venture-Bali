@@ -290,18 +290,12 @@ export function ExperienceDetailClient({
     setIsSheetOpen(true);
   };
 
-  /** Handle "Show dates" click — desktop: scroll to sticky booking + focus date picker; mobile: open drawer */
+  /** Handle "Show dates" click — desktop: open modal centered in viewport; mobile: open drawer */
   const handleShowDates = (variantId: string) => {
     openBooking(variantId);
-    // On desktop, scroll to the sticky booking card and focus the date picker after a tick
-    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
-      setTimeout(() => {
-        const bookingCard = document.getElementById('pdp-main');
-        if (bookingCard) {
-          bookingCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
-    }
+    // On desktop, the modal opens centered in the viewport (fixed position).
+    // No scroll needed - the modal is fixed-position and visible regardless of scroll position.
+    // On mobile, the BottomSheet slides up from bottom automatically.
   };
 
   const share = async () => {
