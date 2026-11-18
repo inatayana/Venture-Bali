@@ -79,4 +79,40 @@ describe('TripCard — upcoming trip', () => {
     render(<TripCard {...baseProps} isUpcoming={false} />);
     expect(screen.queryByText('BaliWild Boarding Pass')).not.toBeInTheDocument();
   });
+
+  it('shows past-trip self-serve actions once expanded', () => {
+    const { getByRole } = render(
+      <TripCard
+        {...baseProps}
+        isUpcoming={false}
+        booking={{
+          ...baseBooking,
+          waiverAcceptedAt: new Date(),
+          variant: {
+            ...baseBooking.variant,
+            venture: {
+              ...baseBooking.variant.venture,
+              id: 'vtr-9',
+              slug: 'ayung-river-rafting',
+            },
+          },
+        }}
+      />
+    );
+    // Expand the card to reveal actions.
+    getByRole('button', { name: /expand trip details/i }).click();
+
+    expect(getByRole('link', { name: /download invoice/i })).toHaveAttribute(
+      'href',
+      expect.stringContaining('/trips/invoice/bk-1?token=tok')
+    );
+    expect(getByRole('link', { name: /view signed waiver/i })).toHaveAttribute(
+      'href',
+      expect.stringContaining('/waiver/bk-1?token=tok')
+    );
+    expect(getByRole('link', { name: /book again/i })).toHaveAttribute(
+      'href',
+      '/experiences/vtr-9/ayung-river-rafting'
+    );
+  });
 });

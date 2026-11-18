@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle, AlertCircle, Calendar, MapPin, Clock, QrCode, Navigation, Shield, ShieldAlert, ChevronDown, ChevronUp, MessageCircle } from 'lucide-react';
+import { CheckCircle, AlertCircle, Calendar, MapPin, Clock, QrCode, Navigation, Shield, ShieldAlert, ChevronDown, ChevronUp, MessageCircle, FileText, RefreshCw } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { formatPrice } from '@/lib/i18n';
 import { LIFECYCLE_LABELS } from '@/lib/bookingLifecycle';
@@ -28,6 +28,8 @@ interface TripCardProps {
         imageUrl: string;
         location: { name: string } | string | null;
         meetingPoint?: string | null;
+        id?: string;
+        slug?: string;
       };
       slotTimes: { id: string; time: string; maxCapacity: number; currentBookings: number }[];
     };
@@ -410,6 +412,35 @@ export function TripCard({ booking, token, voucherToken, isUpcoming, countdown, 
                   >
                     <QrCode className="h-3.5 w-3.5" />
                     View Voucher
+                  </Link>
+                )}
+
+                {/* Past trips: invoice, signed waiver, book again */}
+                {!isUpcoming && token && (
+                  <Link
+                    href={`/trips/invoice/${id}?token=${encodeURIComponent(token)}`}
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-xs font-semibold text-neutral-900 transition-colors hover:border-brand"
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    Download Invoice
+                  </Link>
+                )}
+                {!isUpcoming && token && waiverAcceptedAt && (
+                  <Link
+                    href={`/waiver/${id}?token=${encodeURIComponent(token)}`}
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-xs font-semibold text-neutral-900 transition-colors hover:border-brand"
+                  >
+                    <Shield className="h-3.5 w-3.5" />
+                    View Signed Waiver
+                  </Link>
+                )}
+                {!isUpcoming && venture.id && venture.slug && (
+                  <Link
+                    href={`/experiences/${venture.id}/${venture.slug}`}
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-brand-ink px-3 text-xs font-semibold text-white transition-colors hover:bg-neutral-900"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    Book Again
                   </Link>
                 )}
 

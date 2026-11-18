@@ -47,7 +47,16 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
         include: {
           variant: {
             include: {
-              venture: { select: { title: true, imageUrl: true, location: true, meetingPoint: true } },
+              venture: {
+                select: {
+                  id: true,
+                  slug: true,
+                  title: true,
+                  imageUrl: true,
+                  location: true,
+                  meetingPoint: true,
+                },
+              },
               slotTimes: { select: { id: true, time: true, maxCapacity: true, currentBookings: true } },
             },
           },
