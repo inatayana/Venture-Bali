@@ -76,7 +76,7 @@ const translations = {
   hero: {
     tagline: { en: 'Own the wild. Adventure, booked in minutes.', id: 'Taklukkan alam liar. Petualangan, dipesan dalam hitungan menit.' },
     categories: { en: 'Bali · 9 adventure categories', id: 'Bali · 9 kategori petualangan' },
-    badge: { en: "Bali's #1 Outdoor & Adventure OTA", id: 'OTA Petualangan & Aktivitas Outdoor #1 di Bali' },
+    badge: { en: "Bali's #1 Adventure Operator", id: 'Operator Petualangan #1 di Bali' },
     book: { en: 'Book the', id: 'Pesan' },
     own: { en: 'Own the wild!', id: 'Taklukkan alam liar!' },
     sub: { en: 'Rafting, ATV, tubing & trekking across Bali. Instant confirmation, free reschedule, and 100% locally operated.', id: 'Rafting, ATV, tubing & trekking di seluruh Bali. Konfirmasi instan, reschedule gratis, dan 100% dijalankan operator lokal.' },

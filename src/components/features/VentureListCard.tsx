@@ -24,7 +24,7 @@ export function VentureListCard({ venture, href, className }: VentureListCardPro
 
   const destination = href ?? `/experiences/${venture.id}/${venture.slug}`;
   const hasPromo = venture.promoPriceIdr !== null;
-  const valueTag = hasPromo ? 'Book early to save' : 'Instant Confirmation';
+  const valueTag = hasPromo ? 'Promo price' : 'Instant Confirmation';
   const ValueIcon = hasPromo ? RefreshCw : CheckCircle;
 
   const handleWishlist = () => {
@@ -92,7 +92,7 @@ export function VentureListCard({ venture, href, className }: VentureListCardPro
 
         {/* Row 3 — rating & reviews */}
         <p className="mt-1 flex items-center gap-1 text-xs text-foreground/90 dark:text-neutral-200">
-          <Star className="h-3 w-3 fill-brand text-brand" aria-hidden="true" />
+          <Star className="h-3 w-3 fill-brand text-brand-ink dark:text-brand" aria-hidden="true" />
           <span className="font-semibold">{venture.rating.toFixed(1)}</span>
           <span aria-hidden="true">·</span>
           <span>{venture.reviewCount} reviews</span>

@@ -67,7 +67,7 @@ export function DesktopUtilityBar() {
           <Link href="/terms" className={linkClass}>
             Terms
           </Link>
-          <Link href="/terms" className={linkClass}>
+          <Link href="/refund" className={linkClass}>
             Refund Policy
           </Link>
         </nav>
@@ -114,13 +114,13 @@ export function DesktopUtilityBar() {
                     24/7 BaliWild Concierge
                   </span>
                   <span className="block text-[11px] text-neutral-500 dark:text-neutral-400">
-                    Chat with our team on WhatsApp
+                    AI assistant 24/7 · our team takes over on WhatsApp during operating hours
                   </span>
                 </span>
               </a>
 
               <Link
-                href="/terms"
+                href="/refund"
                 onClick={() => setSupportOpen(false)}
                 className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5"
               >
@@ -150,7 +150,7 @@ export function DesktopUtilityBar() {
                     Safety &amp; Equipment Guarantee
                   </span>
                   <span className="block text-[11px] text-neutral-500 dark:text-neutral-400">
-                    Private fleet · international safety gear · licensed crew
+                    Facilities, insurance & service are covered by the providers BaliWild appoints
                   </span>
                 </span>
               </Link>

@@ -53,7 +53,7 @@ describe('VentureListCard', () => {
     // Promo anchor price is struck through, net price is shown.
     expect(screen.getByText('Rp 750.000')).toBeInTheDocument();
     expect(screen.getByText('Rp 600.000')).toBeInTheDocument();
-    expect(screen.getByText('Book early to save')).toBeInTheDocument();
+    expect(screen.getByText('Promo price')).toBeInTheDocument();
   });
 
   it('renders the badge and a wishlist toggle', async () => {

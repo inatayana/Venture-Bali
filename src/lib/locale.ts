@@ -9,7 +9,7 @@ const MESSAGES = {
   en: {
     headerTagline: 'Own the wild. Adventure, booked in minutes.',
     heroCategories: 'Bali · 9 adventure categories',
-    heroBadge: "Bali's #1 Outdoor & Adventure OTA",
+    heroBadge: "Bali's #1 Adventure Operator",
     heroBook: 'Book the',
     heroOwn: 'Own the wild!',
     heroSub:
@@ -50,7 +50,7 @@ const MESSAGES = {
   id: {
     headerTagline: 'Taklukkan alam liar. Petualangan, dipesan dalam hitungan menit.',
     heroCategories: 'Bali · 9 kategori petualangan',
-    heroBadge: 'OTA Petualangan & Aktivitas Outdoor #1 di Bali',
+    heroBadge: 'Operator Petualangan #1 di Bali',
     heroBook: 'Pesan',
     heroOwn: 'Taklukkan alam liar!',
     heroSub:

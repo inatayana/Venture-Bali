@@ -132,6 +132,11 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/refund" className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand">
+                  Refund &amp; reschedule
+                </Link>
+              </li>
+              <li>
                 <Link href="/waiver" className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand">
                   Safety waiver
                 </Link>
