@@ -377,7 +377,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
               Reset
             </button>
           </div>
-          <ul className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-4 lg:grid-cols-5 xl:grid-cols-6">
+          <ul className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-4 lg:grid-cols-5">
             {filteredVentures.map((venture, index) => (
               <li
                 key={venture.id}
@@ -407,7 +407,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
         </>
       ) : (
       <>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
         {filteredVentures.map((venture, index) => (
           <VentureCard
             key={venture.id}
