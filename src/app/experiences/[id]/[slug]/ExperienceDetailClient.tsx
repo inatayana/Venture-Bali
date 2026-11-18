@@ -1069,15 +1069,16 @@ export function ExperienceDetailClient({
             More adventures to explore
           </h2>
           <div
-            className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4"
+            className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4 min-w-0"
             aria-label="More adventures to explore"
           >
             {related.map((item) => (
-              <VentureCard
-                key={item.id}
-                venture={item}
-                href={`/experiences/${item.id}/${item.slug}`}
-              />
+              <div key={item.id} className="min-w-0">
+                <VentureCard
+                  venture={item}
+                  href={`/experiences/${item.id}/${item.slug}`}
+                />
+              </div>
             ))}
           </div>
         </section>

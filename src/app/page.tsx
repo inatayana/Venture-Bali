@@ -42,9 +42,9 @@ export default async function Home() {
             </p>
           </div>
 
-          {/* Section 3 Title + Show More */}
-          <div className="mb-3 md:mb-4 flex items-end justify-between gap-4">
-            <h2 className="font-heading text-2xl font-bold text-neutral-900 dark:text-white">
+          {/* Section 3 Title + Show More - stacked on mobile, side-by-side on desktop */}
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h2 className="font-heading text-2xl font-bold text-neutral-900 dark:text-white whitespace-nowrap">
               Explore All Guided Adventures
             </h2>
             <a
@@ -56,8 +56,8 @@ export default async function Home() {
             </a>
           </div>
 
-          {/* Grid: mobile = horizontal split cards, desktop = 5-col vertical grid */}
-          <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 lg:gap-5">
+          {/* Grid: desktop = 5-col vertical grid */}
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 lg:gap-5">
             {ventures.map((venture) => (
               <VentureCard
                 key={venture.id}

@@ -75,7 +75,7 @@ export function VentureCard({
     </div>
   );
 
-  // Horizontal variant content (for mobile list view in Section 3)
+  // Horizontal variant content (for mobile list view in Section 3) - Airbnb-style split card
   const horizontalCardBody = (
     <>
       {/* Row 1 — title */}
@@ -109,28 +109,29 @@ export function VentureCard({
 
   const horizontalContent = (
     <>
-      <div className="relative w-[40%] max-w-[160px] shrink-0">
+      {/* Left: Image - fixed size 1:1 aspect ratio */}
+      <div className="relative w-[124px] h-[124px] sm:w-[140px] sm:h-[140px] shrink-0 rounded-2xl overflow-hidden">
         {href ? (
           <a
             href={href}
             aria-label={`View details for ${venture.title}`}
             className="block overflow-hidden rounded-2xl bg-gray-200"
           >
-            <div className="relative aspect-square w-full">
+            <div className="relative aspect-square w-full h-full">
               <Image
                 src={venture.imageUrl}
                 alt={venture.title}
                 fill
-                sizes="40vw"
+                sizes="124px"
                 className="object-cover"
                 onError={() => setImageError(true)}
               />
               {!imageError && !venture.isAvailable ? (
-                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-red-600 shadow-sm backdrop-blur">
+                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-red-600 shadow-sm backdrop-blur">
                   Sold Out
                 </span>
               ) : !imageError && venture.badge ? (
-                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-neutral-800 shadow-sm backdrop-blur">
+                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-neutral-800 shadow-sm backdrop-blur">
                   {friendlyBadge(venture.badge)}
                 </span>
               ) : imageError ? (
@@ -142,21 +143,21 @@ export function VentureCard({
           </a>
         ) : (
           <div className="overflow-hidden rounded-2xl bg-gray-200">
-            <div className="relative aspect-square w-full">
+            <div className="relative aspect-square w-full h-full">
               <Image
                 src={venture.imageUrl}
                 alt={venture.title}
                 fill
-                sizes="40vw"
+                sizes="124px"
                 className="object-cover"
                 onError={() => setImageError(true)}
               />
               {!imageError && !venture.isAvailable ? (
-                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-red-600 shadow-sm backdrop-blur">
+                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-red-600 shadow-sm backdrop-blur">
                   Sold Out
                 </span>
               ) : !imageError && venture.badge ? (
-                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-neutral-800 shadow-sm backdrop-blur">
+                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-neutral-800 shadow-sm backdrop-blur">
                   {friendlyBadge(venture.badge)}
                 </span>
               ) : imageError ? (
@@ -167,30 +168,25 @@ export function VentureCard({
             </div>
           </div>
         )}
+        {/* Wishlist button - top right of image */}
         <button
           type="button"
           onClick={handleWishlist}
           aria-pressed={wishlisted}
           aria-label={wishlisted ? `Remove ${venture.title} from wishlists` : `Save ${venture.title} to wishlists`}
-          className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full border border-white/80 bg-black/20 text-white backdrop-blur-sm transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full border border-white/80 bg-black/20 text-white backdrop-blur-sm transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           <Heart
-            className={cn('h-4 w-4', wishlisted ? 'fill-red-400 text-red-400' : 'text-white')}
+            className={cn('h-3.5 w-3.5', wishlisted ? 'fill-red-400 text-red-400' : 'text-white')}
             aria-hidden="true"
           />
         </button>
       </div>
 
-      {/* Content — ~60% */}
-      {href ? (
-        <a href={href} className="flex min-w-0 flex-1 flex-col justify-center py-1">
-          {horizontalCardBody}
-        </a>
-      ) : (
-        <div className="flex min-w-0 flex-1 flex-col justify-center py-1" onClick={handleClick} onKeyDown={handleKeyDown} role="button" tabIndex={0}>
-          {horizontalCardBody}
-        </div>
-      )}
+      {/* Right: Content - flex-1 with proper text truncation */}
+      <div className="flex-1 min-w-0 flex flex-col justify-center py-1">
+        {horizontalCardBody}
+      </div>
     </>
   );
 
