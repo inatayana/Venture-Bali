@@ -19,8 +19,10 @@ interface TripCardProps {
     slotTime?: { time: string } | null;
     paxCount: number;
     totalPrice: number;
+    fulfillmentMode: 'SELF_DRIVE' | 'SHARED_TRANSFER' | 'PRIVATE_TRANSFER';
+    driverInfo?: unknown | null;
     paymentStatus: 'PENDING' | 'PAID' | 'CANCELLED' | 'FAILED' | 'PARTIALLY_REFUNDED' | 'REFUNDED';
-    lifecycleStatus: 'AWAITING_PAYMENT' | 'CONFIRMED' | 'COMPLETED' | 'NO_SHOW' | 'CANCELLED';
+    lifecycleStatus: 'AWAITING_PAYMENT' | 'CONFIRMED' | 'DRIVER_ASSIGNED' | 'CHECKED_IN' | 'COMPLETED' | 'NO_SHOW' | 'CANCELLED';
     variant: {
       title: string;
       venture: {
@@ -28,6 +30,7 @@ interface TripCardProps {
         imageUrl: string;
         location: { name: string } | string | null;
         meetingPoint?: string | null;
+        meetingPointMapsUrl?: string | null;
         id?: string;
         slug?: string;
       };
@@ -48,8 +51,30 @@ interface TripCardProps {
   reviewToken?: string | null;
 }
 
+interface ParsedDriverInfo {
+  name: string;
+  phone: string;
+  vehicle_model: string | null;
+  plate_number: string | null;
+}
+
+/** Defensive parse of the JSON column — the DB can hold anything. */
+function parseDriverInfo(value: unknown): ParsedDriverInfo | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  const name = typeof record.name === 'string' ? record.name.trim() : '';
+  const phone = typeof record.phone === 'string' ? record.phone.trim() : '';
+  if (!name || !phone) return null;
+  return {
+    name,
+    phone,
+    vehicle_model: typeof record.vehicle_model === 'string' ? record.vehicle_model : null,
+    plate_number: typeof record.plate_number === 'string' ? record.plate_number : null,
+  };
+}
+
 export function TripCard({ booking, token, voucherToken, isUpcoming, countdown, reviewToken }: TripCardProps) {
-  const { id, bookingCode, bookingDate, slotTime, paxCount, totalPrice, paymentStatus, lifecycleStatus, variant, review, refund, vouchers, waiverAcceptedAt, variant: { title: variantTitle, venture } } = booking as TripCardProps['booking'] & { cancelledAt?: Date | null };
+  const { id, bookingCode, bookingDate, slotTime, paxCount, totalPrice, fulfillmentMode, paymentStatus, lifecycleStatus, driverInfo, variant, review, refund, vouchers, waiverAcceptedAt, variant: { title: variantTitle, venture } } = booking as TripCardProps['booking'] & { cancelledAt?: Date | null };
 
   const [expanded, setExpanded] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -70,6 +95,8 @@ export function TripCard({ booking, token, voucherToken, isUpcoming, countdown, 
   const getLifecycleColor = (status: string) => {
     switch (status) {
       case 'CONFIRMED': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+      case 'DRIVER_ASSIGNED': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+      case 'CHECKED_IN': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400';
       case 'AWAITING_PAYMENT': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
       case 'COMPLETED': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
       case 'CANCELLED': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
@@ -106,13 +133,6 @@ export function TripCard({ booking, token, voucherToken, isUpcoming, countdown, 
 
   const meetingPoint = parseMeetingPoint(venture.meetingPoint ?? null);
 
-  // Generate Google Maps directions URL
-  const getDirections = (): string => {
-    if (!meetingPoint) return '';
-    const destination = `${meetingPoint.latitude},${meetingPoint.longitude}`;
-    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
-  };
-
   const primaryVoucher = vouchers?.status === 'ACTIVE' ? vouchers : null;
 
   const waiverPending = !waiverAcceptedAt;
@@ -120,19 +140,30 @@ export function TripCard({ booking, token, voucherToken, isUpcoming, countdown, 
     `Hi BaliWild! I have a question about booking ${bookingCode} (${variant.venture.title}, ${formatDisplayDate(bookingDate)}).`
   )}`;
 
-  // Real-signal stepper: three stages derived ONLY from data we actually hold.
-  // The "driver assigned" state does not exist in this codebase yet (no driver
-  // assignment table), so it is deliberately omitted rather than faked.
+  // 4-step operational stepper derived from the operational lifecycle:
+  // CONFIRMED → DRIVER_ASSIGNED → CHECKED_IN → COMPLETED.
   const steps = [
     {
       label: 'Confirmed',
       detail: 'Payment settled, slot locked',
-      done: lifecycleStatus === 'CONFIRMED' || lifecycleStatus === 'COMPLETED',
+      done:
+        lifecycleStatus === 'CONFIRMED' ||
+        lifecycleStatus === 'DRIVER_ASSIGNED' ||
+        lifecycleStatus === 'CHECKED_IN' ||
+        lifecycleStatus === 'COMPLETED',
     },
     {
-      label: 'Check-in',
+      label: 'Driver assigned',
+      detail: 'Your driver is on the way to the pickup zone',
+      done:
+        lifecycleStatus === 'DRIVER_ASSIGNED' ||
+        lifecycleStatus === 'CHECKED_IN' ||
+        lifecycleStatus === 'COMPLETED',
+    },
+    {
+      label: 'Checked in',
       detail: 'Show the QR at the meeting point',
-      done: lifecycleStatus === 'COMPLETED',
+      done: lifecycleStatus === 'CHECKED_IN' || lifecycleStatus === 'COMPLETED',
     },
     {
       label: 'Completed',
@@ -140,6 +171,19 @@ export function TripCard({ booking, token, voucherToken, isUpcoming, countdown, 
       done: lifecycleStatus === 'COMPLETED',
     },
   ];
+
+  const isTransfer = fulfillmentMode !== 'SELF_DRIVE';
+  const mapsUrl =
+    venture.meetingPointMapsUrl ??
+    (meetingPoint && meetingPoint.latitude !== 0 && meetingPoint.longitude !== 0
+      ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+          `${meetingPoint.latitude},${meetingPoint.longitude}`
+        )}`
+      : meetingPoint
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(meetingPoint.name)}`
+        : null);
+  const driver = parseDriverInfo(driverInfo);
+  const driverWaLink = driver ? `https://wa.me/${driver.phone.replace(/[^\d]/g, '').replace(/^0/, '62')}` : null;
 
   return (
     <div className="rounded-2xl bg-white shadow-sm ring-1 ring-neutral-200 dark:bg-neutral-900 dark:ring-white/10 overflow-hidden transition-shadow hover:shadow-md">
@@ -206,7 +250,7 @@ export function TripCard({ booking, token, voucherToken, isUpcoming, countdown, 
         {isUpcoming && (
           <ol
             aria-label="Trip progress"
-            className="mb-4 grid grid-cols-3 gap-1 rounded-2xl border border-neutral-100 bg-neutral-50 p-3 dark:border-white/10 dark:bg-neutral-800/50"
+            className="mb-4 grid grid-cols-4 gap-1 rounded-2xl border border-neutral-100 bg-neutral-50 p-3 dark:border-white/10 dark:bg-neutral-800/50"
           >
             {steps.map((step, index) => (
               <li key={step.label} className="flex flex-col items-center text-center">
@@ -335,30 +379,77 @@ export function TripCard({ booking, token, voucherToken, isUpcoming, countdown, 
           )}
         >
           <div className="space-y-4">
-            {/* Meeting Point & Directions */}
-            {meetingPoint && (
+            {/* Logistics module — transfer: driver card · self-drive: meeting point */}
+            {isTransfer && driver ? (
               <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/50 p-4 border border-neutral-100 dark:border-white/10">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand-ink dark:bg-brand/20 dark:text-brand">
-                      <Navigation className="h-5 w-5" />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand/20 text-sm font-bold text-brand-ink dark:bg-brand/30 dark:text-brand">
+                      {driver.name.trim().charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-semibold text-neutral-900 dark:text-white">Meeting Point</p>
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400">{meetingPoint.name}</p>
+                      <p className="font-semibold text-neutral-900 dark:text-white">
+                        {driver.name}
+                      </p>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                        {driver.vehicle_model ? `${driver.vehicle_model} · ` : ''}
+                        <span className="font-mono font-semibold text-neutral-900 dark:text-white">
+                          {driver.plate_number}
+                        </span>
+                      </p>
+                      {slotTime && (
+                        <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                          Pickup at {slotTime.time}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <Link
-                    href={getDirections()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-xs font-semibold text-neutral-900 transition-colors hover:border-brand shrink-0"
-                  >
-                    <Navigation className="h-3.5 w-3.5" />
-                    Directions
-                  </Link>
+                  {driverWaLink && (
+                    <a
+                      href={driverWaLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`WhatsApp driver ${driver.name}`}
+                      className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-xs font-semibold text-neutral-900 transition-colors hover:border-brand shrink-0 dark:text-white"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      WhatsApp
+                    </a>
+                  )}
                 </div>
               </div>
+            ) : isTransfer && !driver ? (
+              <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-xs text-neutral-600 dark:border-white/10 dark:bg-neutral-800/50 dark:text-neutral-300">
+                Your driver is being assigned — the pickup details will be sent to your WhatsApp
+                once assigned.
+              </div>
+            ) : (
+              meetingPoint && (
+                <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/50 p-4 border border-neutral-100 dark:border-white/10">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand-ink dark:bg-brand/20 dark:text-brand">
+                        <Navigation className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-neutral-900 dark:text-white">Meeting Point</p>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-400">{meetingPoint.name}</p>
+                      </div>
+                    </div>
+                    {mapsUrl && (
+                      <Link
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-xs font-semibold text-neutral-900 transition-colors hover:border-brand shrink-0"
+                      >
+                        <Navigation className="h-3.5 w-3.5" />
+                        Open in Google Maps
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )
             )}
 
             {/* Voucher QR Code */}

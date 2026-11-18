@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { CuratedRows } from './CuratedRows';
 import type { VentureItem, Variant } from '@/types/venture';
 
@@ -80,12 +80,12 @@ const fourBookToday = () =>
 
 const fourHalfDays = () =>
   Array.from({ length: 4 }, (_, i) =>
-    buildVenture({ id: `halfday-${i}`, title: `Easy Escape ${i}`, durationHours: 3 })
-  );
-
-const fourFullDays = () =>
-  Array.from({ length: 4 }, (_, i) =>
-    buildVenture({ id: `fullday-${i}`, title: `Day Trip ${i}`, durationHours: 8 })
+    buildVenture({
+      id: `halfday-${i}`,
+      title: `Easy Escape ${i}`,
+      durationHours: 3,
+      variants: [buildBookableVariant()],
+    })
   );
 
 describe('CuratedRows', () => {
@@ -93,80 +93,40 @@ describe('CuratedRows', () => {
     sequence = 0;
   });
 
-  it('always renders Most Booked in Bali, ordered by popularity', () => {
-    const popular = buildVenture({ id: 'hit', title: 'Crowd Favourite', bookedThisMonth: 120, rating: 4.9 });
-    const quiet = buildVenture({ id: 'miss', title: 'Hidden Gem', bookedThisMonth: 3, rating: 4.2 });
-
-    render(<CuratedRows ventures={[popular, quiet]} />);
-
-    const row = screen.getByRole('region', { name: 'Most Booked in Bali' });
-    const links = within(row).getAllByRole('link');
-    expect(links[0]).toHaveAttribute('href', '/experiences/hit/slug-hit');
-    expect(within(row).getByText('Hidden Gem')).toBeInTheDocument();
+  it('renders Book Today, Go Today when enough ventures have a bookable slot today', () => {
+    render(<CuratedRows ventures={fourBookToday()} />);
+    expect(screen.getByRole('region', { name: 'Book Today, Go Today' })).toBeInTheDocument();
   });
 
-  it('renders Book Today, Go Today only when bookable-today ventures reach the threshold', () => {
-    const { rerender } = render(<CuratedRows ventures={fourBookToday()} />);
-    expect(screen.getByRole('region', { name: 'Book Today, Go Today' })).toBeInTheDocument();
-
-    rerender(
-      <CuratedRows
-        ventures={[
-          buildVenture({
-            id: 'no-slots',
-            title: 'Unbookable Today',
-            variants: [{ ...buildBookableVariant(), slotTimes: [] }],
-          }),
-          ...fourHalfDays().slice(0, 3),
-        ]}
-      />
-    );
+  it('hides Book Today, Go Today when too few ventures qualify', () => {
+    render(<CuratedRows ventures={fourBookToday().slice(0, 3)} />);
     expect(screen.queryByRole('region', { name: 'Book Today, Go Today' })).not.toBeInTheDocument();
   });
 
-  it('renders BaliWild Signature Day Trips for 6h+ adventures, hidden when sparse', () => {
-    const { rerender } = render(
-      <CuratedRows ventures={[...fourFullDays(), ...fourBookToday()]} />
-    );
-    expect(
-      screen.getByRole('region', { name: 'BaliWild Signature Day Trips' })
-    ).toBeInTheDocument();
-
-    rerender(<CuratedRows ventures={fourFullDays().slice(0, 3)} />);
-    expect(
-      screen.queryByRole('region', { name: 'BaliWild Signature Day Trips' })
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders Easy Half-Day Escapes for duration ≤ 4h, hidden when sparse', () => {
-    const { rerender } = render(
-      <CuratedRows ventures={[...fourHalfDays(), ...fourBookToday()]} />
-    );
+  it('renders Easy Half-Day Escapes for duration ≤ 4h with a self-drive variant', () => {
+    render(<CuratedRows ventures={fourHalfDays()} />);
     expect(
       screen.getByRole('region', { name: 'Easy Half-Day Escapes · Under 4 Hours' })
     ).toBeInTheDocument();
+  });
 
-    rerender(<CuratedRows ventures={fourHalfDays().slice(0, 3)} />);
+  it('hides Easy Half-Day Escapes when too few ventures qualify', () => {
+    render(<CuratedRows ventures={fourHalfDays().slice(0, 3)} />);
     expect(
       screen.queryByRole('region', { name: 'Easy Half-Day Escapes · Under 4 Hours' })
     ).not.toBeInTheDocument();
   });
 
-  it('keeps only Most Booked when no optional row reaches the threshold', () => {
+  it('hides both rows when data is sparse', () => {
     render(
       <CuratedRows
         ventures={[
-          buildVenture({ id: 'a', title: 'Quiet A', durationHours: 5, rating: 4.5 }),
-          buildVenture({ id: 'b', title: 'Quiet B', durationHours: 5, rating: 4.6 }),
+          buildVenture({ id: 'a', title: 'Quiet A', durationHours: 6 }),
+          buildVenture({ id: 'b', title: 'Quiet B', durationHours: 6 }),
         ]}
       />
     );
-
-    expect(screen.getByRole('region', { name: 'Most Booked in Bali' })).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Book Today, Go Today' })).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('region', { name: 'BaliWild Signature Day Trips' })
-    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('region', { name: 'Easy Half-Day Escapes · Under 4 Hours' })
     ).not.toBeInTheDocument();

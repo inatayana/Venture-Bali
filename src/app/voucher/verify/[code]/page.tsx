@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 import { CheckCircle, AlertCircle, Clock, Users, MapPin, ShieldCheck } from 'lucide-react';
+import { ADMIN_SESSION_COOKIE, hasRole, verifySessionToken } from '@/lib/adminSession';
+import { CheckInButton } from './CheckInButton';
 
 interface VerifyPageProps {
   params: { code: string };
@@ -14,12 +17,16 @@ export const metadata: Metadata = {
 
 /**
  * Staff-facing voucher verification page — the destination encoded in the
- * voucher QR code. Read-only on purpose: scanning must never accidently
- * redeem a voucher.
+ * voucher QR code. Read-only for guests; signed-in operators can check the
+ * guest in (which redeems the voucher).
  */
 export default async function VoucherVerifyPage({ params }: VerifyPageProps) {
+  const { code } = await params;
+  const session = await verifySessionToken(cookies().get(ADMIN_SESSION_COOKIE)?.value);
+  const isAdmin = Boolean(session && hasRole(session, 'ADMIN'));
+
   const booking = await prisma.booking.findUnique({
-    where: { bookingCode: decodeURIComponent(params.code) },
+    where: { bookingCode: decodeURIComponent(code) },
     include: { variant: { select: { title: true } }, slotTime: { select: { time: true } }, customer: true, vouchers: true },
   });
 
@@ -99,6 +106,12 @@ export default async function VoucherVerifyPage({ params }: VerifyPageProps) {
             )}
           </div>
         </div>
+
+        {isAdmin && booking.paymentStatus === 'PAID' && (
+          <div className="mt-4">
+            <CheckInButton bookingId={booking.id} alreadyCheckedIn={isRedeemed} />
+          </div>
+        )}
 
         <p className="mt-4 flex items-center justify-center gap-2 text-xs text-neutral-500">
           <ShieldCheck className="h-4 w-4" />

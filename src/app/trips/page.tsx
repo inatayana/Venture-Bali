@@ -45,6 +45,8 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
       bookings: {
         orderBy: { bookingDate: 'desc' },
         include: {
+          // TODO(driver-info): add `driverInfo: true` after `prisma generate` runs
+          // (blocked on a node process holding the client DLL).
           variant: {
             include: {
               venture: {
@@ -55,6 +57,7 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
                   imageUrl: true,
                   location: true,
                   meetingPoint: true,
+                  meetingPointMapsUrl: true,
                 },
               },
               slotTimes: { select: { id: true, time: true, maxCapacity: true, currentBookings: true } },

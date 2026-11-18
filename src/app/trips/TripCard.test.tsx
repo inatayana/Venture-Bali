@@ -12,6 +12,7 @@ const baseBooking = {
   slotTime: { time: '09:00 AM' },
   paxCount: 2,
   totalPrice: 900000,
+  fulfillmentMode: 'SELF_DRIVE' as const,
   paymentStatus: 'PAID' as const,
   lifecycleStatus: 'CONFIRMED' as const,
   variant: {
@@ -70,9 +71,46 @@ describe('TripCard — upcoming trip', () => {
   it('shows a real-signal stepper and never fabricates a driver step', () => {
     render(<TripCard {...baseProps} />);
     expect(screen.getAllByText('Confirmed').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('Check-in')).toBeInTheDocument();
+    expect(screen.getByText('Driver assigned')).toBeInTheDocument();
+    expect(screen.getByText('Checked in')).toBeInTheDocument();
     expect(screen.getAllByText('Completed').length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText(/driver assigned/i)).not.toBeInTheDocument();
+  });
+
+  it('renders the driver card for private transfer bookings with driver info', () => {
+    render(
+      <TripCard
+        {...baseProps}
+        booking={{
+          ...baseBooking,
+          fulfillmentMode: 'PRIVATE_TRANSFER',
+          lifecycleStatus: 'DRIVER_ASSIGNED',
+          driverInfo: {
+            name: 'Wayan',
+            phone: '+62812-3456-7890',
+            vehicle_model: 'Avanza',
+            plate_number: 'DK 1234 AB',
+          },
+        }}
+      />
+    );
+
+    expect(screen.getByText('Wayan')).toBeInTheDocument();
+    expect(screen.getByText('DK 1234 AB')).toBeInTheDocument();
+    const waLinks = screen.getAllByRole('link', { name: /whatsapp driver wayan/i });
+    expect(waLinks[0]).toHaveAttribute(
+      'href',
+      expect.stringContaining('wa.me/6281234567890')
+    );
+  });
+
+  it('shows an assignment notice for transfer bookings without driver info', () => {
+    const { getByText } = render(
+      <TripCard
+        {...baseProps}
+        booking={{ ...baseBooking, fulfillmentMode: 'PRIVATE_TRANSFER' }}
+      />
+    );
+    expect(getByText(/being assigned/i)).toBeInTheDocument();
   });
 
   it('does not render the boarding pass for past trips', () => {

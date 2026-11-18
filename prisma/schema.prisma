@@ -541,6 +541,9 @@ model Booking {
   /// Infants (0-2) declared by the parent when the variant allows them.
   /// Never counted in paxCount/capacity and never priced.
   infantCount             Int              @default(0)
+  /// Driver assignment recorded by operations for transfer bookings.
+  /// Shape: { name, phone, vehicle_model, plate_number, assigned_at }.
+  driverInfo              Json?
   tenantId                String
   tenant                  Tenant           @relation(fields: [tenantId], references: [id])
   customer                Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
@@ -802,6 +805,8 @@ enum PaymentStatus {
 enum BookingLifecycle {
   AWAITING_PAYMENT
   CONFIRMED
+  DRIVER_ASSIGNED
+  CHECKED_IN
   COMPLETED
   NO_SHOW
   CANCELLED

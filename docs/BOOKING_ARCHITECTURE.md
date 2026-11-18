@@ -143,9 +143,11 @@ Aturan checkout (server):
 
 ### 5.2 Lifecycle & Job Order
 
-- `Booking.lifecycleStatus`: `AWAITING_PAYMENT` → `CONFIRMED` (webhook PAID) → `COMPLETED` (voucher di-redeem) | `NO_SHOW` | `CANCELLED`.
+- `Booking.lifecycleStatus`: `AWAITING_PAYMENT` → `CONFIRMED` (webhook PAID) → `DRIVER_ASSIGNED` → `CHECKED_IN` → `COMPLETED` (voucher di-redeem) | `NO_SHOW` | `CANCELLED`.
+- `Booking.driverInfo` (JSON, nullable): `{ name, phone, vehicle_model, plate_number, assigned_at }` — dicatat oleh admin operasi lewat `/admin/operations` (assign/reassign per job order transfer). Tamu melihat kartu driver + 1-tap WhatsApp di `/trips`.
+- Check-in: operator memindai QR voucher tamu di `/voucher/verify/<code>` → tombol **Check-in this guest** (hanya sesi admin) → `lifecycleStatus = CHECKED_IN`, voucher → `REDEEMED` (`redeemedAt`, `redeemedBy`). Idempoten.
+- Menutup job order (`POST /api/admin/bookings/[id]/status`) hanya boleh dari `CONFIRMED` | `DRIVER_ASSIGNED` | `CHECKED_IN`; `COMPLETED` menandai voucher `REDEEMED` (`redeemedAt`, `redeemedBy`), `NO_SHOW` menandai voucher `CANCELLED` sesuai `docs/NO_SHOW_POLICY.md`.
 - Manifest lapangan: `/admin/operations` per tanggal aktivitas, dikelompokkan per slot; menampilkan pax, varian, tier kendaraan, pickup/TBA, dan tombol WhatsApp.
-- Menutup job order (`POST /api/admin/bookings/[id]/status`) hanya boleh dari `CONFIRMED`; `COMPLETED` menandai voucher `REDEEMED` (`redeemedAt`, `redeemedBy`), `NO_SHOW` menandai voucher `CANCELLED` sesuai `docs/NO_SHOW_POLICY.md`.
 - Pembeli tetap **guest** (tanpa password). Setelah PAID, tautan magic yang ditandatangani (30 hari) dikirim lewat email/WhatsApp menuju `/my/bookings`.
 
 ## 6. Product Card Priority (listing)

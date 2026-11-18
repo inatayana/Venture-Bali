@@ -68,6 +68,7 @@ const booking: Booking = {
   waiverIpAddress: null,
   waiverUserAgent: null,
   billingAddress: null,
+  driverInfo: null,
   createdAt: new Date(),
   updatedAt: new Date(),
   tenantId: 'tenant-001',
