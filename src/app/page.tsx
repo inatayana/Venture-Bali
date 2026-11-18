@@ -24,12 +24,12 @@ export default async function Home() {
       {/* Section 1 & 2: Curated horizontal rows */}
       <section className="px-4 sm:px-6 lg:px-10 pt-4 md:pt-7 pb-0">
         <div className="max-w-[1440px] mx-auto">
-          <CuratedRows ventures={ventures} />
+          <CuratedRows ventures={ventures} source={source} referenceDate={source === 'fallback' ? '2026-01-01' : new Date().toISOString().split('T')[0]} />
         </div>
       </section>
 
       {/* Section 3: Direct Operator Guarantee Strip + Explore All Guided Adventures */}
-      <section className="px-4 sm:px-6 lg:px-10 pt-0 pb-16">
+      <section className="px-4 sm:px-6 lg:px-10 pt-7 md:pt-10 pb-16">
         <div className="max-w-[1440px] mx-auto space-y-7 md:space-y-10">
           {/* Guarantee Strip */}
           <div className="flex items-center justify-center gap-3 rounded-2xl bg-brand-ink px-6 py-4 text-center text-white dark:bg-neutral-900">

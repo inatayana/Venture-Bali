@@ -57,6 +57,15 @@ interface ExperienceDetailClientProps {
 
 const PAYMENT_LOGOS = ['VISA', 'Mastercard', 'GoPay', 'QRIS'];
 const PROMO_CODE = 'TRYBALI2026';
+const PROMO_DISCOUNT_PERCENT = 40;
+const PROMO_STORAGE_KEY = 'baliwild_promo_dismissed';
+const CANCELLATION = REFUND_WINDOWS[0];
+
+// Airbnb-style 12-column grid
+const GRID_COLS = 'max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 px-4';
+const LEFT_COL = 'lg:col-span-7';
+const RIGHT_COL = 'lg:col-span-5';
+const STICKY_TOP = 'lg:sticky lg:top-24';
 
 /** Anchor targets in the sticky PDP sub-nav. */
 const PDP_SECTIONS = [
@@ -66,10 +75,6 @@ const PDP_SECTIONS = [
   { id: 'coverage', label: 'Location' },
   { id: 'related', label: 'More' },
 ] as const;
-// Mirrors the launch coupon in src/data/catalogue.ts (display label only).
-const PROMO_DISCOUNT_PERCENT = 40;
-const PROMO_STORAGE_KEY = 'baliwild_promo_dismissed';
-const CANCELLATION = REFUND_WINDOWS[0];
 
 function buildInitialConfig(venture: VentureItem): BookingConfig {
   const firstVariant = venture.variants?.[0] ?? null;
@@ -285,6 +290,20 @@ export function ExperienceDetailClient({
     setIsSheetOpen(true);
   };
 
+  /** Handle "Show dates" click — desktop: scroll to sticky booking + focus date picker; mobile: open drawer */
+  const handleShowDates = (variantId: string) => {
+    openBooking(variantId);
+    // On desktop, scroll to the sticky booking card and focus the date picker after a tick
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      setTimeout(() => {
+        const bookingCard = document.getElementById('pdp-main');
+        if (bookingCard) {
+          bookingCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  };
+
   const share = async () => {
     const url = window.location.href;
     try {
@@ -379,7 +398,7 @@ export function ExperienceDetailClient({
   const serviceType = selectedVariant?.fulfillmentMode === 'SELF_DRIVE' ? 'Meeting point' : 'Hotel pickup available';
 
   return (
-    <main className="min-h-screen bg-white pb-28 lg:pb-10">
+    <main className="min-h-screen bg-white pb-28 lg:pb-10" id="pdp-main">
       {/* Sticky product bar: back link + breadcrumb stay reachable while scrolling */}
       <div className="sticky top-0 z-40 bg-white/95 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4">
@@ -449,613 +468,466 @@ export function ExperienceDetailClient({
         </div>
       </div>
 
-      {/* Sticky section nav — floats in the right content column */}
-      <div className="mx-auto max-w-7xl px-4 pb-4 pt-4">
-        {promoVisible && (
-          <div className="mb-4">
-            <PromoBanner code={PROMO_CODE} label={`Launch offer — ${PROMO_DISCOUNT_PERCENT}% off with code`} onDismiss={dismissPromo} />
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(340px,380px)_1fr] lg:items-start">
-          {/* LEFT — sticky booking card (desktop only) */}
-          <aside className="hidden lg:sticky lg:top-[76px] lg:block">
-            <div className="rounded-2xl border border-neutral-200 p-5 shadow-sm">
-              <p className="text-xs uppercase tracking-wider text-neutral-500">
-                {selectedVariant ? 'Selected package' : 'Starting price'}
-              </p>
-              <p className="mt-0.5 font-heading text-base font-bold text-neutral-900">
-                {selectedVariant?.title ?? venture.title}
-              </p>
-
-              <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <span className="text-xs font-medium text-neutral-500">From</span>
-                {estimate.promoActive && (
-                  <span className="text-sm tabular-nums text-red-500 line-through">
-                    {formatPrice(estimate.listPricePerPaxIdr)}
-                  </span>
-                )}
-                <span className="font-heading text-3xl font-bold tabular-nums text-neutral-900">
-                  {formatPrice(selectedPrice)}
-                </span>
-                {isAgeTiered && (
-                  <div className="mt-2 text-xs text-neutral-500">
-                    <p>👧 Kids (5-11 yo) — From {formatPrice(kidsFromPrice ?? 0)} / guest</p>
-                    <p>🧑 Youth (13-16 yo) — From {formatPrice(youthFromPrice ?? 0)} / guest</p>
-                  </div>
-                )}
-                <span className="text-sm text-neutral-500">/ guest</span>
-              </div>
-
-              {isAgeTiered && (
-                <p className="mt-2 text-sm text-neutral-600">
-                  👥 More mates = cheaper rate
-                </p>
-              )}
-
-              {selectedVariant?.minimumSpendIdr ? (
-                <p className="mt-1 text-xs font-medium text-neutral-600">
-                  Minimum {formatPrice(selectedVariant.minimumSpendIdr)} to book
-                </p>
-              ) : (
-                <p className="mt-1 text-xs text-neutral-500">No minimum spend</p>
-              )}
-
-              <div className="mt-3 rounded-xl bg-neutral-50 px-3 py-2">
-                <Stepper
-                  label={isAgeTiered ? 'Adults (17+)' : 'Guests'}
-                  value={config.adults}
-                  min={1}
-                  max={Math.min(10, venture.maxParticipants)}
-                  onChange={(value) => patchConfig({ adults: value })}
-                />
-              </div>
-
-              <div className="mt-3 space-y-1 text-sm text-neutral-600">
-                <div className="flex justify-between">
-                  <span>
-                    {config.adults} × {formatPrice(estimate.unitPricePerPaxIdr)}
-                  </span>
-                  <span className="tabular-nums">{formatPrice(estimate.subtotalIdr)}</span>
-                </div>
-                {estimate.discountIdr > 0 && (
-                  <div className="flex justify-between text-green-700">
-                    <span>You Save</span>
-                    <span className="tabular-nums">{formatPrice(estimate.discountIdr)}</span>
-                  </div>
-                )}
-                {estimate.minimumTopUpIdr > 0 && (
-                  <div className="flex justify-between">
-                    <span>Minimum spend top-up</span>
-                    <span className="tabular-nums">{formatPrice(estimate.minimumTopUpIdr)}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-3 flex items-center justify-between border-t border-neutral-200 pt-3">
-                <span className="text-sm font-medium text-neutral-900">Estimated total</span>
-                <span className="font-heading text-xl font-bold tabular-nums text-neutral-900">
-                  {formatPrice(estimate.totalPriceIdr)}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => selectedVariant && openBooking(selectedVariant.id)}
-                className="mt-3 min-h-[48px] w-full rounded-xl bg-brand-ink text-sm font-semibold text-brand transition-colors hover:bg-neutral-900"
-              >
-                Show dates
-              </button>
-              <p className="mt-2 text-center text-xs text-neutral-500">
-                Pickup and add-ons are added in the next step.
-              </p>
-
-              <div className="mt-3 space-y-1.5 border-t border-neutral-100 pt-3 text-xs text-neutral-500">
-                <p className="flex items-center gap-2">
-                  <Shield className="h-4 w-4" /> {CANCELLATION.description} · reschedule free ≥24h
-                </p>
-                <p className="flex items-center gap-2">
-                  <Wallet className="h-4 w-4" /> Secure checkout · {PAYMENT_LOGOS.join(' / ')}
-                </p>
-              </div>
+      {/* Airbnb-style 2-column layout: Left content (7/12), Right sticky booking (5/12) */}
+      <div className={GRID_COLS}>
+        {/* LEFT COLUMN — Content */}
+        <div className={LEFT_COL} id="pdp-content">
+          {/* Promo banner at top of content */}
+          {promoVisible && (
+            <div className="mb-4">
+              <PromoBanner code={PROMO_CODE} label={`Launch offer — ${PROMO_DISCOUNT_PERCENT}% off with code`} onDismiss={dismissPromo} />
             </div>
-          </aside>
+          )}
 
-          {/* RIGHT — hero, header and all scrollable content */}
-          <div className="space-y-6">
-            {/* Floating section nav: revealed at #packages, centred on the content column */}
+          {/* Floating section nav — revealed at #packages, centered on the content column */}
+          <div
+            className={cn(
+              'sticky top-[64px] z-30 h-0 transition-all duration-300 ease-out',
+              navVisible
+                ? 'visible translate-y-0 opacity-100'
+                : 'invisible -translate-y-2 opacity-0'
+            )}
+          >
             <div
-              className={cn(
-                'sticky top-[64px] z-30 h-0 transition-all duration-300 ease-out',
-                navVisible
-                  ? 'visible translate-y-0 opacity-100'
-                  : 'invisible -translate-y-2 opacity-0'
-              )}
-            >
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 -top-3 h-16 bg-gradient-to-b from-white via-white/90 to-transparent dark:from-[#212121] dark:via-[#212121]/90"
-              />
-              <div className="relative flex justify-center pt-1">
-                <nav
-                  aria-label="Page sections"
-                  className="inline-flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full border border-neutral-200/80 bg-white/95 p-1 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.25)] backdrop-blur scrollbar-hide"
-                >
-                  {PDP_SECTIONS.map((section) => {
-                    const isActive = activeSection === section.id;
-                    return (
-                      <a
-                        key={section.id}
-                        href={`#${section.id}`}
-                        aria-current={isActive ? 'true' : undefined}
-                        className={cn(
-                          'inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-                          isActive
-                            ? 'bg-brand-ink text-brand'
-                            : 'text-neutral-600 hover:bg-brand/25 hover:text-neutral-900'
-                        )}
-                      >
-                        {section.label}
-                      </a>
-                    );
-                  })}
-                </nav>
-              </div>
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 -top-3 h-16 bg-gradient-to-b from-white via-white/90 to-transparent dark:from-[#212121] dark:via-[#212121]/90"
+            />
+            <div className="relative flex justify-center pt-1">
+              <nav
+                aria-label="Page sections"
+                className="inline-flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full border border-neutral-200/80 bg-white/95 p-1 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.25)] backdrop-blur scrollbar-hide"
+              >
+                {PDP_SECTIONS.map((section) => {
+                  const isActive = activeSection === section.id;
+                  return (
+                    <a
+                      key={section.id}
+                      href={`#${section.id}`}
+                      aria-current={isActive ? 'true' : undefined}
+                      className={cn(
+                        'inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+                        isActive
+                          ? 'bg-brand-ink text-brand'
+                          : 'text-neutral-600 hover:bg-brand/25 hover:text-neutral-900'
+                      )}
+                    >
+                      {section.label}
+                    </a>
+                  );
+                })}
+              </nav>
             </div>
+          </div>
 
-            {/* Desktop: asymmetric gallery — one large photo plus three tiles */}
-            <div className="!mt-0 hidden sm:grid sm:h-[440px] sm:grid-cols-[2fr_1fr] sm:grid-rows-3 sm:gap-2">
+          {/* Desktop: asymmetric gallery — one large photo plus three tiles */}
+          <div className="!mt-0 hidden sm:grid sm:h-[440px] sm:grid-cols-[2fr_1fr] sm:grid-rows-3 sm:gap-2">
+            {orderedGallery.map((image, index) => (
+              <button
+                key={`${image}-${index}`}
+                type="button"
+                onClick={() => setLightboxIndex(index)}
+                className={cn(
+                  'group relative overflow-hidden rounded-2xl bg-neutral-100',
+                  index === 0 && 'row-span-3'
+                )}
+                aria-label={index === 0 ? 'Main product photo' : `View photo ${index + 1}`}
+              >
+                <Image
+                  src={image}
+                  alt={index === 0 ? venture.title : ''}
+                  fill
+                  sizes={index === 0 ? '(max-width: 1024px) 100vw, 760px' : '380px'}
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  priority={index === 0}
+                />
+                <span className="pointer-events-none absolute inset-0 bg-brand-ink/0 transition-colors duration-300 group-hover:bg-brand-ink/5" />
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile: swipeable gallery slider (no thumbnail row) */}
+          <div className="relative !mt-0 sm:hidden">
+            <div
+              ref={gallerySliderRef}
+              onScroll={handleGalleryScroll}
+              role="group"
+              aria-roledescription="carousel"
+              aria-label={`${venture.title} photos`}
+              className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl bg-neutral-100 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
               {orderedGallery.map((image, index) => (
                 <button
-                  key={`${image}-${index}`}
+                  key={`mobile-${image}-${index}`}
                   type="button"
                   onClick={() => setLightboxIndex(index)}
-                  className={cn(
-                    'group relative overflow-hidden rounded-2xl bg-neutral-100',
-                    index === 0 && 'row-span-3'
-                  )}
-                  aria-label={index === 0 ? 'Main product photo' : `View photo ${index + 1}`}
+                  className="relative aspect-[4/3] w-full shrink-0 snap-center overflow-hidden"
+                  aria-label={`Open photo ${index + 1} of ${orderedGallery.length}`}
                 >
                   <Image
                     src={image}
-                    alt={index === 0 ? venture.title : ''}
+                    alt={index === 0 ? venture.title : `${venture.title} — photo ${index + 1}`}
                     fill
-                    sizes={index === 0 ? '(max-width: 1024px) 100vw, 760px' : '380px'}
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    sizes="100vw"
+                    className="object-cover"
                     priority={index === 0}
                   />
-                  <span className="pointer-events-none absolute inset-0 bg-brand-ink/0 transition-colors duration-300 group-hover:bg-brand-ink/5" />
                 </button>
               ))}
             </div>
 
-            {/* Mobile: swipeable gallery slider (no thumbnail row) */}
-            <div className="relative !mt-0 sm:hidden">
-              <div
-                ref={gallerySliderRef}
-                onScroll={handleGalleryScroll}
-                role="group"
-                aria-roledescription="carousel"
-                aria-label={`${venture.title} photos`}
-                className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl bg-neutral-100 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              >
+            <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-neutral-950/55 px-2.5 py-1 text-xs font-semibold tabular-nums text-white backdrop-blur">
+              {Math.min(mobileSlideIndex + 1, orderedGallery.length)} / {orderedGallery.length}
+            </span>
+
+            {orderedGallery.length > 1 && (
+              <div className="mt-2.5 flex items-center justify-center gap-1.5" aria-hidden="true">
                 {orderedGallery.map((image, index) => (
-                  <button
-                    key={`mobile-${image}-${index}`}
-                    type="button"
-                    onClick={() => setLightboxIndex(index)}
-                    className="relative aspect-[4/3] w-full shrink-0 snap-center overflow-hidden"
-                    aria-label={`Open photo ${index + 1} of ${orderedGallery.length}`}
-                  >
-                    <Image
-                      src={image}
-                      alt={index === 0 ? venture.title : `${venture.title} — photo ${index + 1}`}
-                      fill
-                      sizes="100vw"
-                      className="object-cover"
-                      priority={index === 0}
-                    />
-                  </button>
-                ))}
-              </div>
-
-              <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-neutral-950/55 px-2.5 py-1 text-xs font-semibold tabular-nums text-white backdrop-blur">
-                {Math.min(mobileSlideIndex + 1, orderedGallery.length)} / {orderedGallery.length}
-              </span>
-
-              {orderedGallery.length > 1 && (
-                <div className="mt-2.5 flex items-center justify-center gap-1.5" aria-hidden="true">
-                  {orderedGallery.map((image, index) => (
-                    <span
-                      key={`dot-${image}-${index}`}
-                      className={cn(
-                        'h-1.5 rounded-full transition-all duration-300',
-                        index === mobileSlideIndex ? 'w-5 bg-neutral-900' : 'w-1.5 bg-neutral-300'
-                      )}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="rounded-full bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-ink">
-                  {venture.category}
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-3 py-1 font-medium text-neutral-700">
-                  <MapPin className="h-3.5 w-3.5" /> {venture.location || 'Bali'}
-                </span>
-                <span className="text-xs text-neutral-500">{serviceType}</span>
-              </div>
-
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h1 className="font-heading text-2xl font-bold leading-tight text-neutral-900 md:text-3xl">
-                    {venture.title}
-                  </h1>
-                  <p className="mt-1 text-sm font-medium leading-relaxed text-neutral-700">
-                    {clampText(venture.hook3Sec, HOOK_MAX)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-600">
-                {reviewCount > 0 ? (
-                  <a
-                    href="#reviews"
-                    className="inline-flex items-center gap-1 rounded-lg transition-colors hover:bg-neutral-100 hover:underline underline-offset-4"
-                    aria-label={`Rated ${venture.rating.toFixed(1)} from ${reviewCount} reviews — jump to the reviews`}
-                  >
-                    <Star className="h-4 w-4 fill-brand text-brand" />
-                    <strong className="text-neutral-900">{venture.rating.toFixed(1)}</strong>
-                    <span>
-                      · {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
-                    </span>
-                  </a>
-                ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-700">
-                    <Star className="h-3.5 w-3.5 text-neutral-600" />
-                    New · no reviews yet
-                  </span>
-                )}
-                <span className="inline-flex items-center gap-1">
-                  <Clock className="h-4 w-4" /> {selectedVariant?.duration ?? venture.duration}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Users className="h-4 w-4" /> Up to {venture.maxParticipants} guests
-                </span>
-                {venture.bookedThisMonth ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-xs font-medium text-neutral-800">
-                    <Users className="h-3.5 w-3.5" /> {venture.bookedThisMonth} booked this month
-                  </span>
-                ) : null}
-              </div>
-
-              <div className="grid gap-2 sm:grid-cols-3">
-                <span className="inline-flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2 text-xs font-medium text-green-800">
-                  <CheckCircle className="h-4 w-4" /> Instant confirmation
-                </span>
-                <span className="inline-flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs font-medium text-neutral-700">
-                  <Wallet className="h-4 w-4" /> Reschedule free ≥24h
-                </span>
-                <span className="inline-flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs font-medium text-neutral-700">
-                  <Shield className="h-4 w-4" /> {CANCELLATION.percentage}% refund ≥24h
-                </span>
-              </div>
-            </div>
-
-            <section id="packages">
-              <h2 className="mb-1 font-heading text-lg font-bold text-neutral-900">Choose your package</h2>
-              <p className="mb-3 text-sm text-neutral-500">
-                Same adventure, different ways to get there. Prices per guest.
-              </p>
-              <div className="space-y-3">
-                {venture.variants.map((item) => (
-                  <VariantCatalogCard
-                    key={item.id}
-                    variant={item}
-                    selected={item.id === selectedVariant?.id}
-                    onSelect={() => selectVariant(item)}
-                    onShowDates={() => openBooking(item.id)}
-                    onOpenDetails={() => openVariantDetails(item)}
-                    fallbackImageUrl={venture.imageUrl}
+                  <span
+                    key={`dot-${image}-${index}`}
+                    className={cn(
+                      'h-1.5 rounded-full transition-all duration-300',
+                      index === mobileSlideIndex ? 'w-5 bg-neutral-900' : 'w-1.5 bg-neutral-300'
+                    )}
                   />
                 ))}
               </div>
-            </section>
-
-            {(selectedVariant?.addons?.length ?? 0) > 0 && (
-              <section>
-                <h2 className="mb-2 font-heading text-lg font-bold text-neutral-900">
-                  Add-ons for this package
-                </h2>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {selectedVariant?.addons?.map((addon) => (
-                    <div key={addon.id} className="rounded-xl border border-neutral-200 p-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-semibold text-neutral-900">{addon.name}</p>
-                        <span className="shrink-0 text-sm font-semibold tabular-nums text-neutral-900">
-                          {formatPrice(addon.price)}
-                        </span>
-                      </div>
-                      {addon.description && (
-                        <p className="mt-0.5 text-xs text-neutral-500">{addon.description}</p>
-                      )}
-                      {addon.requiresTransfer && (
-                        <p className="mt-1 text-xs font-medium text-neutral-500">
-                          Available with transfer packages
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-2 text-xs text-neutral-500">
-                  Select add-ons in the booking sheet after choosing a date.
-                </p>
-              </section>
             )}
+          </div>
 
-            {venture.highlights.length > 0 && (
-              <section className="rounded-2xl border border-neutral-200 p-5">
-                <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">Highlights</h2>
-                <ul className="grid gap-2 sm:grid-cols-2">
-                  {venture.highlights.map((item, index) => (
-                    <li
-                      key={`${item}-${index}`}
-                      className="flex items-start gap-2 rounded-xl bg-neutral-50 px-3 py-2 text-sm text-neutral-700"
-                    >
-                      <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#cdff00]" />
-                      <span>{clampText(item, HIGHLIGHT_MAX)}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            <section id="safety" className="rounded-2xl border border-neutral-200 p-5">
-              <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">
-                Safety & requirements
-              </h2>
-              <div className="grid gap-2 sm:grid-cols-3">
-                <div className="rounded-xl bg-neutral-50 px-3 py-2">
-                  <p className="text-xs uppercase tracking-wider text-neutral-500">Minimum age</p>
-                  <p className="mt-0.5 text-sm font-semibold text-neutral-900">
-                    {venture.minAge ? `${venture.minAge}+ years` : 'All ages'}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-neutral-50 px-3 py-2">
-                  <p className="text-xs uppercase tracking-wider text-neutral-500">Maximum weight</p>
-                  <p className="mt-0.5 text-sm font-semibold text-neutral-900">
-                    {venture.maxWeightKg ? `${venture.maxWeightKg} kg` : '—'}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-neutral-50 px-3 py-2">
-                  <p className="text-xs uppercase tracking-wider text-neutral-500">Duration</p>
-                  <p className="mt-0.5 text-sm font-semibold text-neutral-900">
-                    {selectedVariant?.duration ?? venture.duration}
-                  </p>
-                </div>
-              </div>
-
-              {venture.safetyBriefing && (
-                <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                  <Shield className="mr-1 inline h-4 w-4" />
-                  {venture.safetyBriefing}
-                </p>
-              )}
-
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                {venture.essentialInfo.whatToBring.length > 0 && (
-                  <div>
-                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-neutral-900">
-                      What to bring
-                    </h3>
-                    <ul className="space-y-1.5 text-sm text-neutral-700">
-                      {venture.essentialInfo.whatToBring.map((item) => (
-                        <li key={item} className="flex items-start gap-2">
-                          <span aria-hidden="true" className="text-neutral-600">•</span>
-                          <span>{emphasiseLead(item)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {venture.essentialInfo.knowBeforeYouGo.length > 0 && (
-                  <div>
-                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-neutral-900">
-                      Know before you go
-                    </h3>
-                    <ul className="space-y-1.5 text-sm text-neutral-700">
-                      {venture.essentialInfo.knowBeforeYouGo.map((item) => (
-                        <li key={item} className="flex items-start gap-2">
-                          <span aria-hidden="true" className="text-neutral-600">•</span>
-                          <span>{emphasiseLead(item)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              {faqs.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <h3 className="text-sm font-semibold text-neutral-900">Frequently asked</h3>
-                  {faqs.map((faq, index) => (
-                    <div key={index} className="overflow-hidden rounded-lg border border-neutral-200">
-                      <button
-                        type="button"
-                        onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
-                        className="flex min-h-[44px] w-full items-center justify-between p-3.5 text-left text-sm font-medium text-neutral-900 hover:bg-neutral-50"
-                      >
-                        {faq.question}
-                        {expandedFaq === index ? (
-                          <ChevronUp className="h-5 w-5 text-neutral-600" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-neutral-600" />
-                        )}
-                      </button>
-                      {expandedFaq === index && (
-                        <div className="px-3.5 pb-3.5 text-sm text-neutral-600">{faq.answer}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
-
-            <section id="details" className="scroll-mt-28 rounded-2xl border border-neutral-200 p-5">
-              <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">What to expect</h2>
-              <CollapsibleText
-                text={venture.longDescription ?? venture.description}
-                limit={225}
-                id="venture-description"
-                className="mb-4 text-sm leading-relaxed text-neutral-600"
-              />
-
-              {venture.itinerary.length > 0 && (
-                <div className="mb-4">
-                  <h3 className="mb-3 text-sm font-semibold text-neutral-900">Itinerary</h3>                  <ol className="relative ml-3 space-y-4 border-l-[3px] border-neutral-200 pl-6">
-                    {venture.itinerary.map((item, index) => {
-                      const step = itineraryStepDisplay(item.activity);
-                      return (
-                        <li key={`${item.time}-${index}`} className="relative">
-                          <span
-                            className="absolute -left-[39px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold tabular-nums text-brand-ink ring-4 ring-white"
-                            aria-hidden="true"
-                          >
-                            {index + 1}
-                          </span>
-                          {(item.durationMinutes || item.duration) && (
-                            <p className="text-xs font-semibold text-neutral-500">
-                              <span className="uppercase tracking-wide">Duration:</span>{' '}
-                              <span className="tabular-nums">
-                                {item.duration ??
-                                  formatDuration(item.durationMinutes ?? 0)}
-                              </span>
-                            </p>
-                          )}
-                          <p className="mt-0.5 text-sm font-semibold leading-snug text-neutral-900">
-                            {step.title}
-                          </p>
-                          {step.description && (
-                            <p className="mt-0.5 text-xs leading-relaxed text-neutral-600">
-                              {step.description}
-                            </p>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ol>
-                  {itineraryTotal !== null && (
-                    <div className="mt-4 rounded-xl bg-neutral-50 px-3.5 py-3">
-                      <p className="text-xs font-semibold text-neutral-900">
-                        Total estimated duration:{' '}
-                        <span className="tabular-nums">{formatDuration(itineraryTotal)}</span>
-                      </p>
-                      <p className="mt-1 text-xs leading-relaxed text-neutral-500">
-                        {TRANSFER_NOTE}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </section>
-
-            {/* Provider card — deliberately contains no partner name or photo (AGENTS.md §9). */}
-            <section className="flex items-center gap-3 rounded-2xl border border-neutral-200 p-4">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-neutral-900 font-heading text-sm font-bold text-white">
-                VB
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="rounded-full bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-ink">
+                {venture.category}
               </span>
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 text-sm font-bold text-neutral-900">
-                  Licensed local adventure team
-                  <BadgeCheck className="h-4 w-4 text-[#cdff00]" />
-                </p>
-                <p className="text-xs text-neutral-500">
-                  Verified operator · English-speaking guides · Bali, Indonesia
+              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-3 py-1 font-medium text-neutral-700">
+                <MapPin className="h-3.5 w-3.5" /> {venture.location || 'Bali'}
+              </span>
+              <span className="text-xs text-neutral-500">{serviceType}</span>
+            </div>
+
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h1 className="font-heading text-2xl font-bold leading-tight text-neutral-900 md:text-3xl">
+                  {venture.title}
+                </h1>
+                <p className="mt-1 text-sm font-medium leading-relaxed text-neutral-700">
+                  {clampText(venture.hook3Sec, HOOK_MAX)}
                 </p>
               </div>
-            </section>
+            </div>
 
-            <section id="reviews" className="rounded-2xl border border-neutral-200 p-5">
-              <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">Reviews</h2>
-              <ReviewsSection
-                reviews={reviews}
-                average={venture.rating}
-                count={reviewCount}
-                ventureId={venture.id}
-              />
-            </section>
-
-            <section id="coverage" className="rounded-2xl border border-neutral-200 p-5">
-              <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">
-                Coverage & meeting point
-              </h2>
-              {venture.meetingPoint?.latitude != null && venture.meetingPoint?.longitude != null ? (
-                <iframe
-                  title={`Map of ${venture.meetingPoint.name}`}
-                  src={`https://www.google.com/maps?q=${venture.meetingPoint.latitude},${venture.meetingPoint.longitude}&z=14&output=embed`}
-                  className="h-64 w-full rounded-xl border border-neutral-200"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  allowFullScreen
-                />
-              ) : (
-                <div className="flex h-32 items-center justify-center rounded-xl bg-neutral-100">
-                  <MapPin className="h-10 w-10 text-neutral-300" />
-                </div>
-              )}
-
-              <div className="mt-3 rounded-xl border border-neutral-200 p-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
-                  Meeting point
-                </p>
-                <p className="mt-1 text-sm font-medium text-neutral-900">
-                  {venture.meetingPoint?.name ?? venture.location}
-                </p>
-                <p className="mt-0.5 text-xs text-neutral-500">
-                  For self-drive packages · transfers are picked up at your hotel
-                </p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-600">
+              {reviewCount > 0 ? (
                 <a
-                  href={mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1 inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-neutral-900 underline"
+                  href="#reviews"
+                  className="inline-flex items-center gap-1 rounded-lg transition-colors hover:bg-neutral-100 hover:underline underline-offset-4"
+                  aria-label={`Rated ${venture.rating.toFixed(1)} from ${reviewCount} reviews — jump to the reviews`}
                 >
-                  <MapPin className="h-4 w-4" /> Open in Google Maps
+                  <Star className="h-4 w-4 fill-brand text-brand" />
+                  <strong className="text-neutral-900">{venture.rating.toFixed(1)}</strong>
+                  <span>
+                    · {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
+                  </span>
                 </a>
-              </div>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-700">
+                  <Star className="h-3.5 w-3.5 text-neutral-600" />
+                  New · no reviews yet
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1">
+                <Clock className="h-4 w-4" /> {selectedVariant?.duration ?? venture.duration}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Users className="h-4 w-4" /> Up to {venture.maxParticipants} guests
+              </span>
+              {venture.bookedThisMonth ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-brand/30 px-2 py-0.5 text-xs font-medium text-neutral-800">
+                  <Users className="h-3.5 w-3.5" /> {venture.bookedThisMonth} booked this month
+                </span>
+              ) : null}
+            </div>
 
-              <h3 className="mt-4 text-sm font-semibold text-neutral-900">Hotel pickup zones</h3>
-              <ul className="mt-2 space-y-1.5">
-                {zones.map((zone) => {
-                  const sharedFee = zone.surchargePerPaxIdr ?? 0;
-                  const privateFee = zone.surchargeIdr;
-                  return (
-                    <li key={zone.id} className="flex items-center justify-between gap-3 text-sm">
-                      <span className="text-neutral-700">{zone.name}</span>
-                      <span className="shrink-0 text-xs font-medium text-neutral-500">
-                        {zone.isCustomQuote
-                          ? 'Custom quote'
-                          : `${sharedFee > 0 ? `Shared +${formatPrice(sharedFee)}/guest` : 'Shared included'} · ${
-                              privateFee > 0 ? `Private +${formatPrice(privateFee)}/vehicle` : 'Private included'
-                            }`}
+            {/* Direct Operator Trust Strip */}
+            <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 p-4 bg-neutral-50">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand/20">
+                <Shield className="h-6 w-6 text-brand" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-neutral-900">Operated Directly by BaliWild</p>
+                <p className="text-xs text-neutral-600">Beginner & Family Friendly · Safety-Checked Gear · Licensed Local Guides</p>
+              </div>
+            </div>
+          </div>
+
+          <section id="packages">
+            <h2 className="mb-1 font-heading text-lg font-bold text-neutral-900">Choose your package</h2>
+            <p className="mb-3 text-sm text-neutral-500">
+              Same adventure, different ways to get there. Prices per guest.
+            </p>
+            <div className="space-y-3">
+              {venture.variants.map((item) => (
+                <VariantCatalogCard
+                  key={item.id}
+                  variant={item}
+                  selected={item.id === selectedVariant?.id}
+                  onSelect={() => selectVariant(item)}
+                  onShowDates={() => handleShowDates(item.id)}
+                  onOpenDetails={() => openVariantDetails(item)}
+                  fallbackImageUrl={venture.imageUrl}
+                />
+              ))}
+            </div>
+          </section>
+
+          {(selectedVariant?.addons?.length ?? 0) > 0 && (
+            <section>
+              <h2 className="mb-2 font-heading text-lg font-bold text-neutral-900">
+                Add-ons for this package
+              </h2>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {selectedVariant?.addons?.map((addon) => (
+                  <div key={addon.id} className="rounded-xl border border-neutral-200 p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-semibold text-neutral-900">{addon.name}</p>
+                      <span className="shrink-0 text-sm font-semibold tabular-nums text-neutral-900">
+                        {formatPrice(addon.price)}
                       </span>
-                    </li>
-                  );
-                })}
-              </ul>
+                    </div>
+                    {addon.description && (
+                      <p className="mt-0.5 text-xs text-neutral-500">{addon.description}</p>
+                    )}
+                    {addon.requiresTransfer && (
+                      <p className="mt-1 text-xs font-medium text-neutral-500">
+                        Available with transfer packages
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
               <p className="mt-2 text-xs text-neutral-500">
-                Pickup is available on Shared and Private transfer packages. Choose your area in the
-                booking sheet. Private pricing is per vehicle; shared pricing is per guest.
+                Select add-ons in the booking sheet after choosing a date.
               </p>
             </section>
+          )}
 
+          {venture.highlights.length > 0 && (
             <section className="rounded-2xl border border-neutral-200 p-5">
-              <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">
-                Terms & cancellation
-              </h2>
+              <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">Highlights</h2>
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {venture.highlights.map((item, index) => (
+                  <li
+                    key={`${item}-${index}`}
+                    className="flex items-start gap-2 rounded-xl bg-neutral-50 px-3 py-2 text-sm text-neutral-700"
+                  >
+                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#cdff00]" />
+                    <span>{clampText(item, HIGHLIGHT_MAX)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <section id="safety" className="rounded-2xl border border-neutral-200 p-5">
+            <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">
+              Safety & requirements
+            </h2>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <div className="rounded-xl bg-neutral-50 px-3 py-2">
+                <p className="text-xs uppercase tracking-wider text-neutral-500">Minimum age</p>
+                <p className="mt-0.5 text-sm font-semibold text-neutral-900">
+                  {venture.minAge ? `${venture.minAge}+ years` : 'All ages'}
+                </p>
+              </div>
+              <div className="rounded-xl bg-neutral-50 px-3 py-2">
+                <p className="text-xs uppercase tracking-wider text-neutral-500">Maximum weight</p>
+                <p className="mt-0.5 text-sm font-semibold text-neutral-900">
+                  {venture.maxWeightKg ? `${venture.maxWeightKg} kg` : '—'}
+                </p>
+              </div>
+              <div className="rounded-xl bg-neutral-50 px-3 py-2">
+                <p className="text-xs uppercase tracking-wider text-neutral-500">Duration</p>
+                <p className="mt-0.5 text-sm font-semibold text-neutral-900">
+                  {selectedVariant?.duration ?? venture.duration}
+                </p>
+              </div>
+            </div>
+
+            {venture.safetyBriefing && (
+              <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <Shield className="mr-1 inline h-4 w-4" />
+                {venture.safetyBriefing}
+              </p>
+            )}
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              {venture.essentialInfo.whatToBring.length > 0 && (
+                <div>
+                  <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-neutral-900">
+                    What to bring
+                  </h3>
+                  <ul className="space-y-1.5 text-sm text-neutral-700">
+                    {venture.essentialInfo.whatToBring.map((item) => (
+                      <li key={item} className="flex items-start gap-2">
+                        <span aria-hidden="true" className="text-neutral-600">•</span>
+                        <span>{emphasiseLead(item)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {venture.essentialInfo.knowBeforeYouGo.length > 0 && (
+                <div>
+                  <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-neutral-900">
+                    Know before you go
+                  </h3>
+                  <ul className="space-y-1.5 text-sm text-neutral-700">
+                    {venture.essentialInfo.knowBeforeYouGo.map((item) => (
+                      <li key={item} className="flex items-start gap-2">
+                        <span aria-hidden="true" className="text-neutral-600">•</span>
+                        <span>{emphasiseLead(item)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {faqs.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <h3 className="text-sm font-semibold text-neutral-900">Frequently asked</h3>
+                {faqs.map((faq, index) => (
+                  <div key={index} className="overflow-hidden rounded-lg border border-neutral-200">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
+                      className="flex min-h-[44px] w-full items-center justify-between p-3.5 text-left text-sm font-medium text-neutral-900 hover:bg-neutral-50"
+                    >
+                      {faq.question}
+                      {expandedFaq === index ? (
+                        <ChevronUp className="h-5 w-5 text-neutral-600" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-neutral-600" />
+                      )}
+                    </button>
+                    {expandedFaq === index && (
+                      <div className="px-3.5 pb-3.5 text-sm text-neutral-600">{faq.answer}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section id="details" className="scroll-mt-28 rounded-2xl border border-neutral-200 p-5">
+            <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">What to expect</h2>
+            <CollapsibleText
+              text={venture.longDescription ?? venture.description}
+              limit={225}
+              id="venture-description"
+              className="mb-4 text-sm leading-relaxed text-neutral-600"
+            />
+
+            {venture.itinerary.length > 0 && (
+              <div className="mb-4">
+                <h3 className="mb-3 text-sm font-semibold text-neutral-900">Itinerary</h3>
+                <ol className="relative ml-3 space-y-4 border-l-[3px] border-neutral-200 pl-6">
+                  {venture.itinerary.map((item, index) => {
+                    const step = itineraryStepDisplay(item.activity);
+                    return (
+                      <li key={`${item.time}-${index}`} className="relative">
+                        <span
+                          className="absolute -left-[39px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold tabular-nums text-brand-ink ring-4 ring-white"
+                          aria-hidden="true"
+                        >
+                          {index + 1}
+                        </span>
+                        {(item.durationMinutes || item.duration) && (
+                          <p className="text-xs font-semibold text-neutral-500">
+                            <span className="uppercase tracking-wide">Duration:</span>{' '}
+                            <span className="tabular-nums">
+                              {item.duration ??
+                                formatDuration(item.durationMinutes ?? 0)}
+                            </span>
+                          </p>
+                        )}
+                        <p className="mt-0.5 text-sm font-semibold leading-snug text-neutral-900">
+                          {step.title}
+                        </p>
+                        {step.description && (
+                          <p className="mt-0.5 text-xs leading-relaxed text-neutral-600">
+                            {step.description}
+                          </p>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ol>
+                {itineraryTotal !== null && (
+                  <div className="mt-4 rounded-xl bg-neutral-50 px-3.5 py-3">
+                    <p className="text-xs font-semibold text-neutral-900">
+                      Total estimated duration:{' '}
+                      <span className="tabular-nums">{formatDuration(itineraryTotal)}</span>
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-neutral-500">
+                      {TRANSFER_NOTE}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Pickup Zone Surcharges - Single positive line */}
+            <div className="mt-4 rounded-xl bg-neutral-50 px-4 py-3">
+              <p className="text-sm font-medium text-neutral-900">Flexible Logistics</p>
+              <p className="mt-1 text-sm text-neutral-700">
+                Self-drive (meet on location) or add Shared / Private hotel transfer from Ubud, Kuta, Seminyak, Canggu, Sanur & Nusa Dua.
+              </p>
+            </div>
+          </section>
+
+          <section id="coverage" className="rounded-2xl border border-neutral-200 p-5">
+            <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">
+              Coverage & meeting point
+            </h2>
+            {venture.meetingPoint?.latitude != null && venture.meetingPoint?.longitude != null ? (
+              <iframe
+                title={`Map of ${venture.meetingPoint.name}`}
+                src={`https://www.google.com/maps?q=${venture.meetingPoint.latitude},${venture.meetingPoint.longitude}&z=14&output=embed`}
+                className="h-64 w-full rounded-xl border border-neutral-200"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
+            ) : (
+              <div className="flex h-32 items-center justify-center rounded-xl bg-neutral-100">
+                <MapPin className="h-10 w-10 text-neutral-300" />
+              </div>
+            )}
+
+            <div className="mt-3 rounded-xl border border-neutral-200 p-3">
+              <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                Meeting point
+              </p>
+              <p className="mt-1 text-sm font-medium text-neutral-900">
+                {venture.meetingPoint?.name ?? venture.location}
+              </p>
+              <p className="mt-0.5 text-xs text-neutral-500">
+                For self-drive packages · transfers are picked up at your hotel
+              </p>
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-neutral-900 underline"
+              >
+                <MapPin className="h-4 w-4" /> Open in Google Maps
+              </a>
+            </div>
+
+            {/* Cancellation Policy moved here */}
+            <div className="mt-4 rounded-2xl border border-neutral-200 p-4">
+              <h3 className="mb-2 font-heading text-base font-bold text-neutral-900">Cancellation Policy</h3>
               <ul className="space-y-1.5 text-sm text-neutral-700">
                 <li>• {CANCELLATION.percentage}% refund when cancelling at least 24 hours before the activity.</li>
                 <li>• Cancellation inside 24 hours is not possible.</li>
@@ -1063,17 +935,138 @@ export function ExperienceDetailClient({
                 <li>• No-show without confirmation: no refund.</li>
                 <li>• The activity safety waiver must be accepted at checkout.</li>
               </ul>
-              <div className="mt-3 flex flex-wrap gap-3 text-sm font-medium">
-                <a href="/terms" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center underline">
-                  Booking terms
-                </a>
-                <a href="/waiver" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center underline">
-                  Safety waiver
-                </a>
-              </div>
-            </section>
-          </div>
+            </div>
+          </section>
+
+          {/* Provider card — deliberately contains no partner name or photo (AGENTS.md §9). */}
+          <section className="flex items-center gap-3 rounded-2xl border border-neutral-200 p-4">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-neutral-900 font-heading text-sm font-bold text-white">
+              VB
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="flex items-center gap-1.5 text-sm font-bold text-neutral-900">
+                Licensed local adventure team
+                <BadgeCheck className="h-4 w-4 text-[#cdff00]" />
+              </p>
+              <p className="text-xs text-neutral-500">
+                Verified operator · English-speaking guides · Bali, Indonesia
+              </p>
+            </div>
+          </section>
+
+          <section id="reviews" className="rounded-2xl border border-neutral-200 p-5">
+            <h2 className="mb-3 font-heading text-lg font-bold text-neutral-900">Reviews</h2>
+            <ReviewsSection
+              reviews={reviews}
+              average={venture.rating}
+              count={reviewCount}
+              ventureId={venture.id}
+            />
+          </section>
         </div>
+
+        {/* RIGHT COLUMN — Sticky Booking Card */}
+        <aside className={cn(RIGHT_COL, STICKY_TOP)} aria-label="Booking summary">
+          <div className="rounded-2xl border border-neutral-200 p-5 shadow-sm bg-white">
+            <p className="text-xs uppercase tracking-wider text-neutral-500">
+              {selectedVariant ? 'Selected package' : 'Starting price'}
+            </p>
+            <p className="mt-0.5 font-heading text-base font-bold text-neutral-900">
+              {selectedVariant?.title ?? venture.title}
+            </p>
+
+            <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-xs font-medium text-neutral-500">From</span>
+              {estimate.promoActive && (
+                <span className="text-sm tabular-nums text-red-500 line-through">
+                  {formatPrice(estimate.listPricePerPaxIdr)}
+                </span>
+              )}
+              <span className="font-heading text-3xl font-bold tabular-nums text-neutral-900">
+                {formatPrice(selectedPrice)}
+              </span>
+              {isAgeTiered && (
+                <div className="mt-2 text-xs text-neutral-500">
+                  <p>👧 Kids (5-11 yo) — From {formatPrice(kidsFromPrice ?? 0)} / guest</p>
+                  <p>🧑 Youth (13-16 yo) — From {formatPrice(youthFromPrice ?? 0)} / guest</p>
+                </div>
+              )}
+              <span className="text-sm text-neutral-500">/ guest</span>
+            </div>
+
+            {isAgeTiered && (
+              <p className="mt-2 text-sm text-neutral-600">
+                👥 More mates = cheaper rate
+              </p>
+            )}
+
+            {selectedVariant?.minimumSpendIdr ? (
+              <p className="mt-1 text-xs font-medium text-neutral-600">
+                Minimum {formatPrice(selectedVariant.minimumSpendIdr)} to book
+              </p>
+            ) : (
+              <p className="mt-1 text-xs text-neutral-500">No minimum spend</p>
+            )}
+
+            <div className="mt-3 rounded-xl bg-neutral-50 px-3 py-2">
+              <Stepper
+                label={isAgeTiered ? 'Adults (17+)' : 'Guests'}
+                value={config.adults}
+                min={1}
+                max={Math.min(10, venture.maxParticipants)}
+                onChange={(value) => patchConfig({ adults: value })}
+              />
+            </div>
+
+            <div className="mt-3 space-y-1 text-sm text-neutral-600">
+              <div className="flex justify-between">
+                <span>
+                  {config.adults} × {formatPrice(estimate.unitPricePerPaxIdr)}
+                </span>
+                <span className="tabular-nums">{formatPrice(estimate.subtotalIdr)}</span>
+              </div>
+              {estimate.discountIdr > 0 && (
+                <div className="flex justify-between text-green-700">
+                  <span>You Save</span>
+                  <span className="tabular-nums">{formatPrice(estimate.discountIdr)}</span>
+                </div>
+              )}
+              {estimate.minimumTopUpIdr > 0 && (
+                <div className="flex justify-between">
+                  <span>Minimum spend top-up</span>
+                  <span className="tabular-nums">{formatPrice(estimate.minimumTopUpIdr)}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-3 flex items-center justify-between border-t border-neutral-200 pt-3">
+              <span className="text-sm font-medium text-neutral-900">Estimated total</span>
+              <span className="font-heading text-xl font-bold tabular-nums text-neutral-900">
+                {formatPrice(estimate.totalPriceIdr)}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleShowDates(selectedVariant?.id ?? '')}
+              className="mt-3 min-h-[48px] w-full rounded-xl bg-yellow-400 text-zinc-950 text-sm font-bold transition-colors hover:bg-yellow-300"
+            >
+              Show dates
+            </button>
+            <p className="mt-2 text-center text-xs text-neutral-500">
+              Pickup and add-ons are added in the next step.
+            </p>
+
+            <div className="mt-3 space-y-1.5 border-t border-neutral-100 pt-3 text-xs text-neutral-500">
+              <p className="flex items-center gap-2">
+                <Shield className="h-4 w-4" /> {CANCELLATION.description} · reschedule free ≥24h
+              </p>
+              <p className="flex items-center gap-2">
+                <Wallet className="h-4 w-4" /> Secure checkout · {PAYMENT_LOGOS.join(' / ')}
+              </p>
+            </div>
+          </div>
+        </aside>
       </div>
 
       {related.length > 0 && (
@@ -1082,7 +1075,7 @@ export function ExperienceDetailClient({
             More adventures to explore
           </h2>
           <div
-            className="mt-3 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden"
+            className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4"
             aria-label="More adventures to explore"
           >
             {related.map((item) => (
@@ -1090,7 +1083,6 @@ export function ExperienceDetailClient({
                 key={item.id}
                 venture={item}
                 href={`/experiences/${item.id}/${item.slug}`}
-                className="w-[78%] shrink-0 snap-start sm:w-auto"
               />
             ))}
           </div>
@@ -1118,8 +1110,8 @@ export function ExperienceDetailClient({
           </div>
           <button
             type="button"
-            onClick={() => selectedVariant && openBooking(selectedVariant.id)}
-            className="min-h-[44px] shrink-0 rounded-xl bg-brand-ink px-5 text-sm font-semibold text-brand"
+            onClick={() => selectedVariant && handleShowDates(selectedVariant.id)}
+            className="min-h-[44px] shrink-0 rounded-xl bg-yellow-400 text-zinc-950 px-5 text-sm font-bold transition-colors hover:bg-yellow-300"
           >
             Show dates
           </button>

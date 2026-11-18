@@ -8,6 +8,7 @@ import { createPortal } from 'react-dom';
 import {
   Bell,
   CalendarDays,
+  ChevronDown,
   DollarSign,
   Globe,
   Heart,
@@ -148,7 +149,7 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
               : 'bg-neutral-100 dark:bg-white/10')
         )}
       >
-        <Menu className="h-5 w-5 text-brand" aria-hidden="true" />
+        <Menu className="h-5 w-5 text-brand-ink dark:text-brand" aria-hidden="true" />
       </button>
 
       {open ? (
@@ -171,9 +172,9 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                       type="button"
                       role="menuitem"
                       onClick={handleSignOut}
-                      className="flex min-h-[44px] w-full items-center gap-3 px-4 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand dark:text-neutral-300 dark:hover:bg-white/5"
+                      className="flex min-h-[44px] w-full items-center gap-3 px-4 text-sm font-semibold text-brand-ink dark:text-white transition-colors hover:bg-brand/10 dark:hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                     >
-                      <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                      <item.icon className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                       {label}
                     </button>
                   );
@@ -188,12 +189,12 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                         onClick={handleLocaleToggle}
                         className={cn(
                           'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
-                          'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/10',
+                          'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
                           'transition-colors'
                         )}
                       >
                         <div className="flex items-center gap-3">
-                          <Globe className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
+                          <Globe className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                           <span className="text-sm font-medium">{locale === 'en' ? 'Language' : 'Bahasa'}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
@@ -215,15 +216,15 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                         onClick={handleThemeToggle}
                         className={cn(
                           'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
-                          'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/10',
+                          'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
                           'transition-colors'
                         )}
                       >
                         <div className="flex items-center gap-3">
                           {isDark ? (
-                            <Sun className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
+                            <Sun className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                           ) : (
-                            <Moon className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
+                            <Moon className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                           )}
                           <span className="text-sm font-medium">{isDark ? 'Dark Mode' : 'Light Mode'}</span>
                         </div>
@@ -238,16 +239,16 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                         onClick={() => setOpen(false)}
                         className={cn(
                           'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
-                          'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/10',
+                          'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
                           'transition-colors'
                         )}
                       >
                         <div className="flex items-center gap-3">
-                          <Mail className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
+                          <Mail className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                           <span className="text-sm font-medium">{locale === 'en' ? 'Contact' : 'Kontak'}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0 truncate">
-                          <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">hello@baliwild.com</span>
+                          <span className="text-sm font-medium text-brand-ink/70 dark:text-brand/70">hello@baliwild.com</span>
                         </div>
                       </a>
                     </div>
@@ -265,11 +266,11 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                     className={cn(
                       'flex min-h-[44px] items-center gap-3 px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand',
                       isActive
-                        ? 'bg-neutral-100 text-brand-ink dark:bg-white/10 dark:text-white'
-                        : 'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5'
+                        ? 'bg-brand/10 text-brand-ink dark:bg-white/10 dark:text-white'
+                        : 'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10'
                     )}
                   >
-                    <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <item.icon className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                     {label}
                   </Link>
                 );
@@ -304,9 +305,9 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                       type="button"
                       role="menuitem"
                       onClick={handleSignOut}
-                      className="flex min-h-[44px] w-full items-center gap-3 px-4 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand dark:text-neutral-300 dark:hover:bg-white/5"
+                      className="flex min-h-[44px] w-full items-center gap-3 px-4 text-sm font-semibold text-brand-ink dark:text-white transition-colors hover:bg-brand/10 dark:hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                     >
-                      <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                      <item.icon className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                       {label}
                     </button>
                   );
@@ -321,12 +322,12 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                         onClick={handleLocaleToggle}
                         className={cn(
                           'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
-                          'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/10',
+                          'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
                           'transition-colors'
                         )}
                       >
                         <div className="flex items-center gap-3">
-                          <Globe className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
+                          <Globe className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                           <span className="text-sm font-medium">{locale === 'en' ? 'Language' : 'Bahasa'}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
@@ -348,15 +349,15 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                         onClick={handleThemeToggle}
                         className={cn(
                           'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
-                          'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/10',
+                          'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
                           'transition-colors'
                         )}
                       >
                         <div className="flex items-center gap-3">
                           {isDark ? (
-                            <Sun className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
+                            <Sun className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                           ) : (
-                            <Moon className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
+                            <Moon className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                           )}
                           <span className="text-sm font-medium">{isDark ? 'Dark Mode' : 'Light Mode'}</span>
                         </div>
@@ -371,16 +372,16 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                         onClick={() => setOpen(false)}
                         className={cn(
                           'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
-                          'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/10',
+                          'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
                           'transition-colors'
                         )}
                       >
                         <div className="flex items-center gap-3">
-                          <Mail className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
+                          <Mail className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                           <span className="text-sm font-medium">{locale === 'en' ? 'Contact' : 'Kontak'}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0 truncate">
-                          <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">hello@baliwild.com</span>
+                          <span className="text-sm font-medium text-brand-ink/70 dark:text-brand/70">hello@baliwild.com</span>
                         </div>
                       </a>
                     </div>
@@ -398,11 +399,11 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                     className={cn(
                       'flex min-h-[44px] items-center gap-3 px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand',
                       isActive
-                        ? 'bg-neutral-100 text-brand-ink dark:bg-white/10 dark:text-white'
-                        : 'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5'
+                        ? 'bg-brand/10 text-brand-ink dark:bg-white/10 dark:text-white'
+                        : 'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10'
                     )}
                   >
-                    <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <item.icon className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                     {label}
                   </Link>
                 );
@@ -454,20 +455,21 @@ function CurrencyRow({
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
-          'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/10',
+          'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
           'transition-colors'
         )}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
         <div className="flex items-center gap-3">
-          <DollarSign className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
+          <DollarSign className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
           <span className="text-sm font-medium">{label}</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <span className="flex items-center gap-1.5 text-sm font-semibold">
             {selected?.flag} {selected?.code}
           </span>
+          <ChevronDown className={cn('h-4 w-4 text-brand-ink/60 dark:text-brand/60 transition-transform', isOpen && 'rotate-180')} aria-hidden="true" />
         </div>
       </button>
 
@@ -489,14 +491,14 @@ function CurrencyRow({
                 'flex min-h-[44px] w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
                 currency.code === selectedCurrency
                   ? 'bg-brand/40 text-brand-ink font-medium'
-                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10'
+                  : 'text-brand-ink/70 dark:text-brand/70 hover:bg-brand/10 dark:hover:bg-white/10'
               )}
               role="option"
               aria-selected={currency.code === selectedCurrency}
             >
               <span>{currency.flag}</span>
               <span>{currency.code}</span>
-              <span className="text-gray-600 dark:text-gray-400 ml-auto text-xs">{currency.symbol}</span>
+              <span className="text-brand-ink/60 dark:text-brand/60 ml-auto text-xs">{currency.symbol}</span>
             </button>
           ))}
         </div>

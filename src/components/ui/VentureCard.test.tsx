@@ -97,9 +97,9 @@ describe('VentureCard Component', () => {
     expect(screen.queryByText('ADRENALINE')).not.toBeInTheDocument();
   });
 
-  it('maps EXTREME badges to All Levels', () => {
+  it('maps EXTREME badges to Guided Adventure', () => {
     render(<VentureCard venture={{ ...mockVenture, badge: 'EXTREME' }} />);
-    expect(screen.getByText('All Levels')).toBeInTheDocument();
+    expect(screen.getByText('Guided Adventure')).toBeInTheDocument();
   });
 
   it('shows Beginner Friendly in the value tags', () => {

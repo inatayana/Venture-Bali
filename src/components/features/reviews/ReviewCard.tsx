@@ -60,7 +60,7 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
               className={cn(
                 'h-3.5 w-3.5',
                 index < review.rating
-                  ? 'fill-brand text-brand'
+                  ? 'fill-brand text-brand-ink dark:text-brand'
                   : 'text-neutral-200'
               )}
               aria-hidden="true"

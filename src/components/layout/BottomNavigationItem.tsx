@@ -45,7 +45,7 @@ export function BottomNavigationItem({ config, isActive, pathname }: BottomNavig
 
   const baseClasses = "flex flex-col items-center justify-center gap-1 px-3 py-2 min-h-[48px] min-w-[64px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950 active:opacity-70";
   const activeClasses = isActive
-    ? 'text-brand'
+    ? 'text-brand-ink dark:text-brand'
     : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200';
 
   return (

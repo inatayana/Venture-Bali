@@ -53,8 +53,8 @@ function Row({ row }: CuratedRowProps) {
   };
 
   return (
-    <section aria-label={row.title} className="mb-8 last:mb-0">
-      <div className="mb-3 flex items-end justify-between gap-4">
+    <section aria-label={row.title} className="mb-0">
+      <div className="mb-3 md:mb-4 flex items-end justify-between gap-4">
         <h2 className="font-heading text-xl font-bold text-neutral-900 dark:text-white">
           {row.title}
         </h2>
@@ -82,7 +82,7 @@ function Row({ row }: CuratedRowProps) {
       <div
         ref={scrollRef}
         className={cn(
-          'flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2',
+          'flex snap-x snap-mandatory gap-3 md:gap-4 overflow-x-auto pb-2',
           scrollbarHidden
         )}
       >
@@ -99,7 +99,11 @@ function Row({ row }: CuratedRowProps) {
 const MAX_ROW_ITEMS = 12;
 const MIN_ROW_ITEMS = 4;
 
-function pickRows(ventures: VentureItem[]): CuratedRow[] {
+function pickRows(
+  ventures: VentureItem[],
+  source: 'database' | 'fallback' = 'database',
+  referenceDate?: string
+): CuratedRow[] {
   const byRating = [...ventures].sort((a, b) => b.rating - a.rating);
   const byPopularity = [...ventures].sort(
     (a, b) =>
@@ -108,51 +112,40 @@ function pickRows(ventures: VentureItem[]): CuratedRow[] {
       b.reviewCount - a.reviewCount
   );
 
-  // Row 1 — Most Booked in Bali: the crowd favourites, all levels.
-  const mostBooked = byPopularity.slice(0, MAX_ROW_ITEMS);
-
-  // Row 2 — Today's departures that can actually be booked right now.
+  // Section 1 — Book Today, Go Today: packages with instant confirmation / available today
+  // Use provided referenceDate or compute on client
+  const resolvedReferenceDate = referenceDate ?? (source === 'fallback' ? '2026-01-01' : new Date().toISOString().split('T')[0]);
   const todayKey = (() => {
-    const now = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
+    if (source === 'fallback') return '2026-01-01';
+    const now = new Date();
     return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   })();
-  const bookToday = byRating
+  const bookToday = byPopularity
     .filter((venture) =>
       (venture.variants ?? []).some(
         (variant) =>
           variant.slotTimes?.some(
             (slot) =>
               slot.isAvailable &&
-              isSlotBookable(todayKey, slot.time, variant.fulfillmentMode, new Date(), slot.cutoffHours)
+              isSlotBookable(todayKey, slot.time, variant.fulfillmentMode, new Date(resolvedReferenceDate), slot.cutoffHours)
           )
       )
     )
     .slice(0, MAX_ROW_ITEMS);
 
-  // Row 3 — BaliWild Signature Day Trips: full-day escapes (6h+), any category.
-  // NOTE: the pre-launch catalogue ships with only short half-day products, so
-  // this row stays hidden until full-day/combo packages are seeded (or the
-  // threshold is relaxed). Never ship placeholder products to make it appear.
-  const signature = byRating
-    .filter((venture) => venture.durationHours >= 6)
-    .slice(0, MAX_ROW_ITEMS);
-
-  // Row 4 — Easy Half-Day Escapes: gentle, flexible, under 4 hours.
+  // Section 2 — Easy Half-Day Escapes · Under 4 Hours: duration <= 4h, SELF_DRIVE only
   const halfDays = byRating
-    .filter((venture) => venture.durationHours <= 4)
+    .filter((venture) =>
+      venture.durationHours <= 4 &&
+      (venture.variants ?? []).some((variant) => variant.fulfillmentMode === 'SELF_DRIVE')
+    )
     .slice(0, MAX_ROW_ITEMS);
 
-  const rows: CuratedRow[] = [
-    { id: 'most-booked', title: 'Most Booked in Bali', items: mostBooked },
-  ];
+  const rows: CuratedRow[] = [];
 
   if (bookToday.length >= MIN_ROW_ITEMS) {
-    rows.push({ id: 'today', title: 'Book Today, Go Today', items: bookToday });
-  }
-
-  if (signature.length >= MIN_ROW_ITEMS) {
-    rows.push({ id: 'signature-day-trips', title: 'BaliWild Signature Day Trips', items: signature });
+    rows.push({ id: 'book-today', title: 'Book Today, Go Today', items: bookToday });
   }
 
   if (halfDays.length >= MIN_ROW_ITEMS) {
@@ -162,16 +155,24 @@ function pickRows(ventures: VentureItem[]): CuratedRow[] {
   return rows;
 }
 
+interface CuratedRowsProps {
+  ventures: VentureItem[];
+  /** 'database' = real-time data, 'fallback' = offline mock data */
+  source?: 'database' | 'fallback';
+  /** Reference date in YYYY-MM-DD format for slot availability checks. Computed on server. */
+  referenceDate?: string;
+}
+
 /**
  * Curated horizontal rows for the default Explore view (Airbnb-style).
  * Renders instead of the flat grid when no filter/search is active.
  * Cards are snap-aligned; mobile shows ~2 full cards + a peeking third.
  */
-export function CuratedRows({ ventures }: { ventures: VentureItem[] }) {
-  const rows = useMemo(() => pickRows(ventures), [ventures]);
+export function CuratedRows({ ventures, source = 'database', referenceDate }: CuratedRowsProps) {
+  const rows = useMemo(() => pickRows(ventures, source, referenceDate), [ventures, source, referenceDate]);
 
   return (
-    <div>
+    <div className="space-y-7 md:space-y-10">
       {rows.map((row) => (
         <Row key={row.id} row={row} />
       ))}

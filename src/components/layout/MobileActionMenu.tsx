@@ -49,7 +49,7 @@ export function MobileActionMenu() {
         aria-label="Settings"
         className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-neutral-200 text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-white/15 dark:text-white dark:hover:bg-white/10"
       >
-        <SlidersHorizontal className="h-5 w-5 text-brand" aria-hidden="true" />
+        <SlidersHorizontal className="h-5 w-5 text-brand-ink dark:text-brand" aria-hidden="true" />
       </button>
 
       <BottomSheet
