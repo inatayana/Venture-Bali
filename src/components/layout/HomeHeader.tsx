@@ -60,9 +60,12 @@ export function HomeHeader() {
     };
   }, []);
 
-  // During SSR / first paint, render header visible to avoid flash
+  // During SSR / first paint, render header visible to avoid flash.
+  // NOTE: z-index is applied via inline style — a class merged from a template
+  // literal like `z-[${Z_INDEX.header}]` is invisible to Tailwind's static
+  // extraction and would silently never be generated.
   const headerClass = cn(
-    `sticky top-0 z-[${Z_INDEX.header}] bg-white/95 backdrop-blur shadow-[0_2px_10px_rgba(0,0,0,0.08)]`,
+    'sticky top-0 bg-white/95 backdrop-blur shadow-[0_2px_10px_rgba(0,0,0,0.08)]',
     'dark:bg-neutral-950/95 dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)]',
     'transition-[transform,opacity] duration-300 ease-out will-change-transform',
     isVisible
@@ -73,7 +76,7 @@ export function HomeHeader() {
 
   return (
     <>
-      <header className={headerClass} role="banner">
+      <header className={headerClass} role="banner" style={{ zIndex: Z_INDEX.header }}>
         <div className="container mx-auto flex items-center justify-between gap-2 px-4 py-2 sm:py-3">
           {/* Left: Logo + tagline (desktop only) */}
           <div className="flex min-w-0 items-center gap-3">
