@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { SlidersHorizontal } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
-import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { ExploreSearchOverlay } from '@/components/features/ExploreSearchOverlay';
 import { HeaderSearchPill } from '@/components/layout/HeaderSearchPill';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
@@ -85,20 +84,18 @@ export function HomeHeader() {
   return (
     <>
       <header className={headerClass} role="banner" style={{ zIndex: Z_INDEX.header }}>
-        <div className="container mx-auto flex items-center justify-between gap-2 px-4 py-2 sm:py-3">
-          {/* Left: Logo (hidden on mobile — mobile uses the full-width search chrome) */}
+        {/* Desktop layout — hidden on mobile, where the two-row search chrome below takes over */}
+        <div className="container mx-auto hidden items-center justify-between gap-2 px-4 py-2 sm:py-3 md:flex">
           <Link href="/" aria-label="BaliWild home" className="shrink-0">
             <p className="text-brand-ink dark:text-white">
               <BrandWordmark className="text-2xl" />
             </p>
           </Link>
 
-          {/* Desktop: tagline next to logo */}
           <p className="hidden max-w-[16rem] truncate text-right text-xs leading-tight text-gray-500 dark:text-gray-400 lg:block">
             {t('headerTagline')}
           </p>
 
-          {/* Center: Interactive Search Pill (desktop) */}
           <HeaderSearchPill />
 
           {/* Right: theme toggle + avatar (logged-in only) + burger */}
@@ -116,7 +113,6 @@ export function HomeHeader() {
               </span>
             )}
 
-            {/* Desktop: Burger menu */}
             <div className="hidden md:block">
               <DesktopNavMenu />
             </div>
@@ -147,7 +143,6 @@ export function HomeHeader() {
             >
               <SlidersHorizontal className="h-5 w-5 text-neutral-800 dark:text-neutral-200" aria-hidden="true" />
             </button>
-            <MobileNavDropdown />
           </div>
           <div className="flex items-center gap-2 overflow-x-auto px-4 pb-2.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {mobileCategoryStrip.map((item) => (
