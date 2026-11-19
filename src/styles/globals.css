@@ -110,7 +110,10 @@
   }
 
   body {
-    overflow-x: hidden;
+    /* `hidden` on body creates a scroll container and breaks `position: sticky`
+       for the header/explore bar. `clip` still prevents horizontal overflow
+       without creating a scroll container. */
+    overflow-x: clip;
   }
 }
 

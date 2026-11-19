@@ -34,7 +34,7 @@ export function ExploreControlBar({ showBack = true }: { showBack?: boolean }) {
     resultCount,
   } = useExploreFilters();
 
-  const controlsHidden = useHideOnScroll(80, 16);
+  const controlsHidden = useHideOnScroll(80, 150);
 
   const dateLabel = date
     ? new Date(`${date}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
