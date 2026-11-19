@@ -62,6 +62,14 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
   const [searchOpen, setSearchOpen] = useState(false);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
 
+  // Homepage header's filter button dispatches this event; any explorer
+  // instance on the page opens its full-screen filter sheet.
+  useEffect(() => {
+    const onOpenFilters = () => setFilterModalOpen(true);
+    window.addEventListener('baliwild:open-filters', onOpenFilters);
+    return () => window.removeEventListener('baliwild:open-filters', onOpenFilters);
+  }, []);
+
   // Deep link support: the PDP breadcrumb links to /?category=<slug>. Reading it
   // after hydration keeps the homepage statically rendered. Date, guests and the
   // query are restored by SearchProvider.

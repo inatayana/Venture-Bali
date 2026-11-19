@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { VentureExplorer } from './VentureExplorer';
 
@@ -171,6 +171,18 @@ describe('VentureExplorer date and pax filter', () => {
 describe('VentureExplorer explore-mode filter pills', () => {
   afterEach(() => {
     window.history.pushState({}, '', '/');
+  });
+
+  it('opens the filters dialog when the homepage header dispatches baliwild:open-filters', () => {
+    render(<VentureExplorer ventures={[rafting]} mode="explore" />, { wrapper: SearchProvider });
+
+    expect(screen.queryByRole('dialog', { name: 'Filters' })).not.toBeInTheDocument();
+
+    act(() => {
+      window.dispatchEvent(new CustomEvent('baliwild:open-filters'));
+    });
+
+    expect(screen.getByRole('dialog', { name: 'Filters' })).toBeInTheDocument();
   });
 
   it('shows the pill strip and opens the full-screen filter modal from the Filters pill', async () => {

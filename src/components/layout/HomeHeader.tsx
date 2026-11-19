@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { SlidersHorizontal } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
@@ -25,7 +24,6 @@ import { Z_INDEX } from '@/lib/zIndex';
  */
 export function HomeHeader() {
   const { t } = useLocale();
-  const router = useRouter();
   const [isVisible, setIsVisible] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -138,8 +136,9 @@ export function HomeHeader() {
             </button>
             <button
               type="button"
-              onClick={() => router.push('/explore')}
+              onClick={() => window.dispatchEvent(new CustomEvent('baliwild:open-filters'))}
               aria-label="Open filters"
+              aria-haspopup="dialog"
               className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand dark:border-white/10 dark:bg-neutral-900"
             >
               <SlidersHorizontal className="h-5 w-5 text-neutral-800 dark:text-neutral-200" aria-hidden="true" />
