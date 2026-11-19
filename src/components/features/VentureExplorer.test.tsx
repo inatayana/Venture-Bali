@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { VentureExplorer } from './VentureExplorer';
 
@@ -6,7 +6,16 @@ jest.mock('next/navigation', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn() }),
 }));
 import { SearchProvider } from '@/components/search/SearchProvider';
+import { ExploreFiltersProvider } from '@/components/features/ExploreFiltersProvider';
 import type { VentureItem, Variant } from '@/types/venture';
+
+function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <ExploreFiltersProvider>
+      <SearchProvider>{children}</SearchProvider>
+    </ExploreFiltersProvider>
+  );
+}
 
 function buildVenture(overrides: Partial<VentureItem>): VentureItem {
   return {
@@ -138,7 +147,7 @@ describe('VentureExplorer date and pax filter', () => {
 
     render(
       <VentureExplorer ventures={[withAvailability, blackedOut, fullyBooked, smallGroup]} />,
-      { wrapper: SearchProvider }
+      { wrapper: Providers }
     );
 
     expect(screen.getByText(withAvailability.title)).toBeInTheDocument();
@@ -149,7 +158,7 @@ describe('VentureExplorer date and pax filter', () => {
   it('hides ventures that cannot host the group size', () => {
     window.history.pushState({}, '', '/?pax=4');
 
-    render(<VentureExplorer ventures={[withAvailability, smallGroup]} />, { wrapper: SearchProvider });
+    render(<VentureExplorer ventures={[withAvailability, smallGroup]} />, { wrapper: Providers });
 
     expect(screen.getByText(withAvailability.title)).toBeInTheDocument();
     expect(screen.queryByText(smallGroup.title)).not.toBeInTheDocument();
@@ -159,7 +168,7 @@ describe('VentureExplorer date and pax filter', () => {
     window.history.pushState({}, '', `/?date=${FUTURE_DATE}&pax=2`);
 
     render(<VentureExplorer ventures={[withAvailability, smallGroup]} />, {
-      wrapper: SearchProvider,
+      wrapper: Providers,
     });
 
     expect(screen.getByText('15 Jun')).toBeInTheDocument();
@@ -173,21 +182,20 @@ describe('VentureExplorer explore-mode filter pills', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('opens the filters dialog when the homepage header dispatches baliwild:open-filters', () => {
-    render(<VentureExplorer ventures={[rafting]} mode="explore" />, { wrapper: SearchProvider });
+  it('opens the filters dialog from the mobile control bar slider button', async () => {
+    const user = userEvent.setup();
+    render(<VentureExplorer ventures={[rafting]} mode="explore" />, { wrapper: Providers });
 
     expect(screen.queryByRole('dialog', { name: 'Filters' })).not.toBeInTheDocument();
 
-    act(() => {
-      window.dispatchEvent(new CustomEvent('baliwild:open-filters'));
-    });
+    await user.click(screen.getByRole('button', { name: /open filters/i }));
 
     expect(screen.getByRole('dialog', { name: 'Filters' })).toBeInTheDocument();
   });
 
   it('shows the pill strip and opens the full-screen filter modal from the Filters pill', async () => {
     const user = userEvent.setup();
-    render(<VentureExplorer ventures={[rafting]} mode="explore" />, { wrapper: SearchProvider });
+    render(<VentureExplorer ventures={[rafting]} mode="explore" />, { wrapper: Providers });
 
     expect(screen.getByRole('button', { name: /transfer included/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /self-drive/i })).toBeInTheDocument();
@@ -205,7 +213,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
     const user = userEvent.setup();
     const { unmount } = render(
       <VentureExplorer ventures={[withAvailability, transferOnly]} mode="explore" />,
-      { wrapper: SearchProvider }
+      { wrapper: Providers }
     );
 
     await user.click(screen.getByRole('button', { name: /self-drive/i }));
@@ -215,7 +223,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
     unmount();
 
     render(<VentureExplorer ventures={[withAvailability, transferOnly]} mode="explore" />, {
-      wrapper: SearchProvider,
+      wrapper: Providers,
     });
     await user.click(screen.getByRole('button', { name: /transfer included/i }));
     expect(screen.getAllByText(transferOnly.title).length).toBeGreaterThan(0);
@@ -225,7 +233,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
   it('category pill filters the catalogue', async () => {
     const user = userEvent.setup();
     render(<VentureExplorer ventures={[rafting, tubing]} mode="explore" />, {
-      wrapper: SearchProvider,
+      wrapper: Providers,
     });
 
     await user.click(screen.getByRole('radio', { name: /^rafting/i }));
@@ -236,7 +244,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
   it('shows the State 4 list header with live count and a reset control', async () => {
     const user = userEvent.setup();
     render(<VentureExplorer ventures={[withAvailability]} mode="explore" />, {
-      wrapper: SearchProvider,
+      wrapper: Providers,
     });
 
     await user.click(screen.getByRole('button', { name: /self-drive/i }));
@@ -251,7 +259,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
   it('Reset Filters restores ventures hidden by the pill filters', async () => {
     const user = userEvent.setup();
     render(<VentureExplorer ventures={[transferOnly]} mode="explore" />, {
-      wrapper: SearchProvider,
+      wrapper: Providers,
     });
 
     await user.click(screen.getByRole('button', { name: /self-drive/i }));
@@ -270,7 +278,7 @@ describe('VentureExplorer category deep link', () => {
   it('filters the catalogue from the ?category= query string', () => {
     window.history.pushState({}, '', '/?category=tubing');
 
-    render(<VentureExplorer ventures={[rafting, tubing]} />, { wrapper: SearchProvider });
+    render(<VentureExplorer ventures={[rafting, tubing]} />, { wrapper: Providers });
 
     expect(screen.getByText(tubing.title)).toBeInTheDocument();
     expect(screen.queryByText(rafting.title)).not.toBeInTheDocument();
@@ -279,7 +287,7 @@ describe('VentureExplorer category deep link', () => {
   it('shows the full catalogue for an unknown category slug', () => {
     window.history.pushState({}, '', '/?category=hotels');
 
-    render(<VentureExplorer ventures={[rafting, tubing]} />, { wrapper: SearchProvider });
+    render(<VentureExplorer ventures={[rafting, tubing]} />, { wrapper: Providers });
 
     expect(screen.getAllByText(tubing.title).length).toBeGreaterThan(0);
     expect(screen.getAllByText(rafting.title).length).toBeGreaterThan(0);

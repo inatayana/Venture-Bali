@@ -1,17 +1,18 @@
 ﻿'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { X, ShieldCheck } from 'lucide-react';
 import { VentureCard } from '@/components/ui';
 import { resolveCategory } from '@/lib/taxonomy';
-import { isDateAvailable, isSlotBookable } from '@/lib/pricing';
+import { filterCatalogue } from '@/lib/filterCatalogue';
 import { SortMenu } from '@/components/features/SortMenu';
+import { ExploreControlBar } from '@/components/features/ExploreControlBar';
 import { ExploreFilterPills } from '@/components/features/ExploreFilterPills';
 import { CuratedRows } from '@/components/features/CuratedRows';
-import { ExploreTopBar } from '@/components/features/ExploreTopBar';
 import { ExploreSearchOverlay } from '@/components/features/ExploreSearchOverlay';
 import { ExploreFilterModal } from '@/components/features/ExploreFilterModal';
 import { VentureListCard } from '@/components/features/VentureListCard';
+import { useExploreFilters } from '@/components/features/ExploreFiltersProvider';
 import { useSearch } from '@/components/search/SearchProvider';
 import { cn } from '@/utils/cn';
 import type { VentureItem } from '@/types/venture';
@@ -44,7 +45,9 @@ export interface VentureExplorerProps {
  * Receives already-loaded ventures so the page itself stays a server component.
  */
 export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerProps) {
-  // Search filters are shared with the hero search via context.
+  // Search filters are shared with the hero search via context; the curated
+  // catalogue filters (category, sort, logistics toggles) are shared with the
+  // mobile header chrome via ExploreFiltersContext.
   const {
     query: search,
     date: dateFilter,
@@ -53,22 +56,22 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
     setDate: setDateFilter,
     setPax: setPaxFilter,
   } = useSearch();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<string>('recommended');
+  const {
+    transferIncluded,
+    setTransferIncluded,
+    selfDriveOnly,
+    setSelfDriveOnly,
+    bestSellerOnly,
+    setBestSellerOnly,
+    selectedCategory,
+    setSelectedCategory,
+    sortBy,
+    setSortBy,
+    setResultCount,
+  } = useExploreFilters();
   const [expanded, setExpanded] = useState(false);
-  const [transferIncluded, setTransferIncluded] = useState(false);
-  const [selfDriveOnly, setSelfDriveOnly] = useState(false);
-  const [bestSellerOnly, setBestSellerOnly] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
-
-  // Homepage header's filter button dispatches this event; any explorer
-  // instance on the page opens its full-screen filter sheet.
-  useEffect(() => {
-    const onOpenFilters = () => setFilterModalOpen(true);
-    window.addEventListener('baliwild:open-filters', onOpenFilters);
-    return () => window.removeEventListener('baliwild:open-filters', onOpenFilters);
-  }, []);
 
   // Deep link support: the PDP breadcrumb links to /?category=<slug>. Reading it
   // after hydration keeps the homepage statically rendered. Date, guests and the
@@ -86,88 +89,28 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
     }
     if (params.get('transferIncluded') === '1') setTransferIncluded(true);
     if (params.get('selfDrive') === '1') setSelfDriveOnly(true);
-  }, []);
+  }, [setSelectedCategory, setSortBy, setTransferIncluded, setSelfDriveOnly]);
 
-  const filteredVentures = useMemo(() => {
-    let result = [...ventures];
+  const filteredVentures = useMemo(
+    () =>
+      filterCatalogue(ventures, {
+        search,
+        date: dateFilter,
+        pax: paxFilter,
+        transferIncluded,
+        selfDriveOnly,
+        bestSellerOnly,
+        selectedCategory,
+        sortBy,
+      }),
+    [ventures, search, selectedCategory, sortBy, dateFilter, paxFilter, transferIncluded, selfDriveOnly, bestSellerOnly]
+  );
 
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (v) =>
-          v.title.toLowerCase().includes(q) ||
-          v.location.toLowerCase().includes(q) ||
-          v.description.toLowerCase().includes(q)
-      );
-    }
-
-    if (selectedCategory) {
-      result = result.filter(
-        (v) =>
-          v.category.toLowerCase() === selectedCategory.toLowerCase() ||
-          v.title.toLowerCase().includes(selectedCategory.toLowerCase())
-      );
-    }
-
-    if (bestSellerOnly) {
-      result = result.filter((venture) => venture.badge === 'Best Seller');
-    }
-
-    if (transferIncluded) {
-      result = result.filter((venture) =>
-        (venture.variants ?? []).some((variant) => variant.fulfillmentMode !== 'SELF_DRIVE')
-      );
-    }
-
-    if (selfDriveOnly) {
-      result = result.filter((venture) =>
-        (venture.variants ?? []).some((variant) => variant.fulfillmentMode === 'SELF_DRIVE')
-      );
-    }
-
-    if (dateFilter || paxFilter > 1) {
-      result = result.filter((venture) => {
-        if (paxFilter > venture.maxParticipants) return false;
-        if (!dateFilter) return true;
-
-        // At least one package must have a free departure for that date and pax.
-        return (venture.variants ?? []).some((variant) => {
-          if (!isDateAvailable(variant, dateFilter)) return false;
-          const slots = variant.slotTimes ?? [];
-          if (slots.length === 0) return true;
-          return slots.some(
-            (slot) =>
-              slot.isAvailable &&
-              slot.maxCapacity - slot.currentBookings >= paxFilter &&
-              isSlotBookable(dateFilter, slot.time, variant.fulfillmentMode, new Date(), slot.cutoffHours)
-          );
-        });
-      });
-    }
-
-    switch (sortBy) {
-      case 'popular':
-        result.sort(
-          (a, b) =>
-            (b.bookedThisMonth ?? 0) - (a.bookedThisMonth ?? 0) || b.rating - a.rating
-        );
-        break;
-      case 'price-low':
-        result.sort((a, b) => a.priceIdr - b.priceIdr);
-        break;
-      case 'price-high':
-        result.sort((a, b) => b.priceIdr - a.priceIdr);
-        break;
-      case 'rating':
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'duration':
-        result.sort((a, b) => a.durationHours - b.durationHours);
-        break;
-    }
-
-    return result;
-  }, [ventures, search, selectedCategory, sortBy, dateFilter, paxFilter, transferIncluded, selfDriveOnly, bestSellerOnly]);
+  // Publish the live filtered count so the mobile header chrome can show
+  // "Show N results" with the same truth as the grid below.
+  useEffect(() => {
+    setResultCount(filteredVentures.length);
+  }, [filteredVentures.length, setResultCount]);
 
   // A new filter or sort starts a fresh, compact mobile list.
   useEffect(() => {
@@ -200,41 +143,6 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
     !bestSellerOnly &&
     sortBy === 'recommended';
 
-  // Unified sticky header (mobile): hide on scroll down, reveal on scroll up.
-  const [controlsHidden, setControlsHidden] = useState(false);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    if (mode !== 'explore') return;
-    const onScroll = () => {
-      const y = window.scrollY;
-      const delta = y - lastScrollY.current;
-      if (Math.abs(delta) <= 10) return; // 10px threshold against jitter
-      if (delta > 0 && y > 80) {
-        setControlsHidden(true); // scrolling down past the header height
-      } else if (delta < 0 || y <= 16) {
-        setControlsHidden(false); // scrolling up, or back at the top
-      }
-      lastScrollY.current = y;
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [mode]);
-
-  const dateLabel = dateFilter
-    ? new Date(`${dateFilter}T00:00:00`).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-      })
-    : 'Anytime';
-  const guestsLabel = paxFilter > 1 ? `${paxFilter} guests` : 'Add guests';
-  const activeFilterCount = [
-    transferIncluded,
-    selfDriveOnly,
-    bestSellerOnly,
-    selectedCategory !== null,
-  ].filter(Boolean).length;
-
   return (
     <section
       id="results"
@@ -243,38 +151,8 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
         mode === 'explore' ? 'pb-4 pt-0 md:py-8' : 'py-8'
       )}
     >
-      {/* Unified control bar: sticky + hide-on-scroll on mobile, static on md+.
-          Renders the pills exactly once. */}
-      {mode === 'explore' && (
-        <div
-          className={cn(
-            'sticky top-0 z-30 -mx-4 border-b border-neutral-200/80 bg-white/95 px-4 backdrop-blur-md transition-transform duration-300 ease-out',
-            'dark:border-white/10 dark:bg-neutral-950/95',
-            'md:static md:z-auto md:mx-0 md:border-b-0 md:bg-transparent md:px-0 md:backdrop-blur-none md:transition-none dark:md:bg-transparent'
-          )}
-        >
-          <div className={cn('transition-transform duration-300 ease-out md:transform-none', controlsHidden ? '-translate-y-full md:translate-y-0' : '')}>
-            <ExploreTopBar
-              title={search.trim() || 'Adventures in Bali'}
-              subtitle={`${dateLabel} · ${guestsLabel}`}
-              onOpenSearch={() => setSearchOpen(true)}
-              onOpenFilters={() => setFilterModalOpen(true)}
-              activeFilterCount={activeFilterCount}
-            />
-            <ExploreFilterPills
-              selectedCategory={selectedCategory}
-              onCategorySelect={setSelectedCategory}
-              transferIncluded={transferIncluded}
-              onTransferIncludedChange={setTransferIncluded}
-              selfDriveOnly={selfDriveOnly}
-              onSelfDriveChange={setSelfDriveOnly}
-              filtersOpen={filterModalOpen}
-              onFiltersToggle={() => setFilterModalOpen(true)}
-              bestSeller={bestSellerOnly}
-            />
-          </div>
-        </div>
-      )}
+      {/* Unified control bar (shared with the homepage mobile chrome) */}
+      <ExploreControlBar showBack={mode === 'explore'} />
 
       {/* Homepage curated catalogue: rows → guarantee banner → section 5 heading */}
       {mode === 'default' && isDefaultExploreView && (
@@ -335,7 +213,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
         )}
 
         {mode === 'default' && (
-          <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 md:flex">
             <ExploreFilterPills
               className="min-w-0 flex-1"
               selectedCategory={selectedCategory}

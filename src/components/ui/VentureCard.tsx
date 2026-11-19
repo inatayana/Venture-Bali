@@ -312,7 +312,7 @@ export function VentureCard({
   const cardContent = variant === 'horizontal' ? horizontalContent : content;
   const cardClassName = cn(
     variant === 'horizontal'
-      ? 'flex gap-3.5 h-full flex flex-col'
+      ? 'flex gap-3.5 h-full items-stretch rounded-2xl bg-white p-2 shadow-sm ring-1 ring-neutral-100 transition-shadow hover:shadow-md dark:bg-neutral-900 dark:ring-white/10'
       : 'group overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full flex flex-col',
     className
   );
@@ -320,11 +320,11 @@ export function VentureCard({
   if (href) {
     return (
       <article
-        className={cn(cardClassName, variant === 'horizontal' ? 'flex gap-3' : '')}
+        className={cardClassName}
         aria-label={`View details for ${venture.title}`}
         data-testid={`venture-card-${venture.id}`}
       >
-        <a href={href} className={variant === 'horizontal' ? 'flex flex-1' : 'block'} style={{height: '100%'}}>
+        <a href={href} className={variant === 'horizontal' ? 'flex flex-1 gap-3 sm:gap-4' : 'block'} style={{height: '100%'}}>
           {cardContent}
         </a>
       </article>

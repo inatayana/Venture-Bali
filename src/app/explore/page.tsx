@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
+import { ExploreFiltersProvider } from '@/components/features/ExploreFiltersProvider';
 import { ExploreSearchCard } from '@/components/features/ExploreSearchCard';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
@@ -40,6 +41,7 @@ export default async function ExplorePage() {
 
   return (
     <main className="min-h-screen bg-neutral-50 pb-24">
+      <ExploreFiltersProvider>
       {/* Desktop search card — mobile uses the in-page top bar (State 1) instead */}
       <div className="hidden md:block">
         <ExploreSearchCard />
@@ -78,6 +80,7 @@ export default async function ExplorePage() {
           </>
         )}
       </section>
+      </ExploreFiltersProvider>
     </main>
   );
 }

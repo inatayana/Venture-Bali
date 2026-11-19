@@ -1,5 +1,4 @@
 import { render, screen, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { HomeHeader } from './HomeHeader';
 import { LocaleProvider } from '@/components/locale/LocaleProvider';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
@@ -54,16 +53,9 @@ describe('HomeHeader hide-on-scroll', () => {
     expect(screen.getByRole('banner')).toHaveClass('-translate-y-full');
   });
 
-  it('dispatches baliwild:open-filters when the filter button is tapped', async () => {
-    const listener = jest.fn();
-    window.addEventListener('baliwild:open-filters', listener);
-    const user = userEvent.setup();
+  it('does not duplicate the mobile catalogue filter button', () => {
     render(<HomeHeader />, { wrapper: Providers });
-
-    await user.click(screen.getByRole('button', { name: /open filters/i }));
-    expect(listener).toHaveBeenCalledTimes(1);
-
-    window.removeEventListener('baliwild:open-filters', listener);
+    expect(screen.queryByRole('button', { name: /open filters/i })).not.toBeInTheDocument();
   });
 
   it('reveals again when scrolling back up', async () => {

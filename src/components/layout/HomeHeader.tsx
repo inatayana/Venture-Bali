@@ -2,13 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { SlidersHorizontal } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
-import { ExploreSearchOverlay } from '@/components/features/ExploreSearchOverlay';
 import { HeaderSearchPill } from '@/components/layout/HeaderSearchPill';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
-import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { useCustomerSession } from '@/hooks/useCustomerSession';
 import { useLocale } from '@/components/locale/LocaleProvider';
 import { cn } from '@/utils/cn';
@@ -26,7 +23,6 @@ export function HomeHeader() {
   const { t } = useLocale();
   const [isVisible, setIsVisible] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const lastScrollY = useRef(0);
   const { user: customerUser } = useCustomerSession();
 
@@ -70,21 +66,16 @@ export function HomeHeader() {
     mounted ? '' : 'translate-y-0 opacity-100'
   );
 
-  const mobileCategoryStrip = [
-    { label: 'All', href: '/explore' },
-    { label: 'Transfer Included', href: '/explore?transferIncluded=1' },
-    { label: 'Self-Drive', href: '/explore?selfDrive=1' },
-    ...CATEGORY_REGISTRY.map((category) => ({
-      label: category.short,
-      href: `/explore?category=${encodeURIComponent(category.short)}`,
-    })),
-  ];
-
   return (
     <>
-      <header className={headerClass} role="banner" style={{ zIndex: Z_INDEX.header }}>
-        {/* Desktop layout — hidden on mobile, where the two-row search chrome below takes over */}
-        <div className="container mx-auto hidden items-center justify-between gap-2 px-4 py-2 sm:py-3 md:flex">
+      {/* Desktop-only header — mobile uses the unified /explore control bar
+          (capsule + filter slider) rendered inside the catalogue section. */}
+      <header
+        className={cn(headerClass, 'hidden md:block')}
+        role="banner"
+        style={{ zIndex: Z_INDEX.header }}
+      >
+        <div className="container mx-auto flex items-center justify-between gap-2 px-4 py-2 sm:py-3 md:flex">
           <Link href="/" aria-label="BaliWild home" className="shrink-0">
             <p className="text-brand-ink dark:text-white">
               <BrandWordmark className="text-2xl" />
@@ -97,7 +88,6 @@ export function HomeHeader() {
 
           <HeaderSearchPill />
 
-          {/* Right: theme toggle + avatar (logged-in only) + burger */}
           <div className="flex shrink-0 items-center gap-1">
             <span className="hidden md:block">
               <ThemeSwitcher />
@@ -117,48 +107,7 @@ export function HomeHeader() {
             </div>
           </div>
         </div>
-
-        {/* Mobile chrome: two rows (search + filter, then category strip) */}
-        <div className="border-t border-neutral-200/70 md:hidden dark:border-white/10">
-          <div className="flex items-center gap-2.5 px-4 pt-3 pb-2">
-            <button
-              type="button"
-              onClick={() => setSearchOpen(true)}
-              className="flex h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-full border border-neutral-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-white/10 dark:bg-neutral-900"
-              aria-label="Search adventures"
-            >
-              <span className="text-sm font-semibold leading-tight text-neutral-900 dark:text-white">
-                Adventures in Bali
-              </span>
-              <span className="text-[10px] leading-tight text-neutral-500 dark:text-neutral-400">
-                Anytime · Add guests
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent('baliwild:open-filters'))}
-              aria-label="Open filters"
-              aria-haspopup="dialog"
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand dark:border-white/10 dark:bg-neutral-900"
-            >
-              <SlidersHorizontal className="h-5 w-5 text-neutral-800 dark:text-neutral-200" aria-hidden="true" />
-            </button>
-          </div>
-          <div className="flex items-center gap-2 overflow-x-auto px-4 pb-2.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {mobileCategoryStrip.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="shrink-0 whitespace-nowrap rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:border-brand-ink hover:text-brand-ink dark:border-white/10 dark:bg-neutral-900 dark:text-neutral-200"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        </div>
       </header>
-
-      {searchOpen && <ExploreSearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />}
     </>
   );
 }

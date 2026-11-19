@@ -14,6 +14,8 @@ export interface ExploreTopBarProps {
   onOpenFilters: () => void;
   /** Number of active non-category filters — shown as a badge on the filter button. */
   activeFilterCount: number;
+  /** Hide the back button (homepage is a root destination). */
+  showBack?: boolean;
 }
 
 /**
@@ -28,19 +30,22 @@ export function ExploreTopBar({
   onOpenSearch,
   onOpenFilters,
   activeFilterCount,
+  showBack = true,
 }: ExploreTopBarProps) {
   const router = useRouter();
 
   return (
     <div className="flex items-center gap-2 py-2 md:hidden">
-      <button
-        type="button"
-        onClick={() => router.back()}
-        aria-label="Go back"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-800 shadow-sm transition-colors hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand dark:border-white/10 dark:bg-neutral-900 dark:text-neutral-200"
-      >
-        <ChevronLeft className="h-5 w-5" aria-hidden="true" />
-      </button>
+      {showBack ? (
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Go back"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-800 shadow-sm transition-colors hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand dark:border-white/10 dark:bg-neutral-900 dark:text-neutral-200"
+        >
+          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+        </button>
+      ) : null}
 
       <button
         type="button"
