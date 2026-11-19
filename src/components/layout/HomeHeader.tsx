@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SlidersHorizontal } from 'lucide-react';
@@ -16,7 +16,7 @@ import { cn } from '@/utils/cn';
 import { Z_INDEX } from '@/lib/zIndex';
 
 /**
- * Home header — hides on scroll, reveals on pause.
+ * Home header — Airbnb-style hide on scroll down (>80px), reveal on scroll up.
  * Desktop (md+): logo · search pill · theme toggle · avatar · burger.
  * Mobile (<md): two-row chrome — floating search pill + filter shortcut,
  * then a scrollable category strip. Every control routes to /explore
@@ -29,26 +29,28 @@ export function HomeHeader() {
   const [isVisible, setIsVisible] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const lastScrollY = useRef(0);
   const { user: customerUser } = useCustomerSession();
 
   useEffect(() => {
     setMounted(true);
 
     let raf = 0;
-    let revealTimer: ReturnType<typeof setTimeout> | undefined;
 
+    // Airbnb-style: hide on scroll down past the header height, reveal on any scroll up.
     const handleScroll = () => {
       if (raf) return;
       raf = window.requestAnimationFrame(() => {
         raf = 0;
-        if (window.scrollY > 80) {
+        const y = window.scrollY;
+        const delta = y - lastScrollY.current;
+        if (Math.abs(delta) <= 10) return; // ignore micro jitter
+        if (delta > 0 && y > 80) {
           setIsVisible(false);
-          window.clearTimeout(revealTimer);
-          revealTimer = setTimeout(() => setIsVisible(true), 150);
-        } else {
-          window.clearTimeout(revealTimer);
+        } else if (delta < 0 || y <= 16) {
           setIsVisible(true);
         }
+        lastScrollY.current = y;
       });
     };
 
@@ -56,7 +58,6 @@ export function HomeHeader() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.cancelAnimationFrame(raf);
-      window.clearTimeout(revealTimer);
     };
   }, []);
 
