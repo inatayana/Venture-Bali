@@ -58,12 +58,15 @@ describe('HomeHeader hide-on-scroll', () => {
     expect(screen.queryByRole('button', { name: /open filters/i })).not.toBeInTheDocument();
   });
 
-  it('reveals again when scrolling back up', async () => {
+  it('reveals again once scrolling stops', async () => {
     render(<HomeHeader />, { wrapper: Providers });
     await scrollTo(200);
     expect(screen.getByRole('banner')).toHaveClass('-translate-y-full');
 
-    await scrollTo(100);
+    // Wait past the 150ms pause window.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 220));
+    });
     expect(screen.getByRole('banner')).toHaveClass('translate-y-0');
   });
 

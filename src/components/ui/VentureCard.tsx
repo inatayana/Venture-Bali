@@ -324,7 +324,7 @@ export function VentureCard({
         aria-label={`View details for ${venture.title}`}
         data-testid={`venture-card-${venture.id}`}
       >
-        <a href={href} className={variant === 'horizontal' ? 'flex flex-1 gap-3 sm:gap-4' : 'block'} style={{height: '100%'}}>
+        <a href={href} className={variant === 'horizontal' ? 'flex flex-1 gap-4 sm:gap-5' : 'block'} style={{height: '100%'}}>
           {cardContent}
         </a>
       </article>

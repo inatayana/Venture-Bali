@@ -7,7 +7,6 @@ import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { HeaderSearchPill } from '@/components/layout/HeaderSearchPill';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import { useCustomerSession } from '@/hooks/useCustomerSession';
-import { useLocale } from '@/components/locale/LocaleProvider';
 import { cn } from '@/utils/cn';
 import { Z_INDEX } from '@/lib/zIndex';
 
@@ -20,10 +19,10 @@ import { Z_INDEX } from '@/lib/zIndex';
  * never depends on duplicated filter state living in the header.
  */
 export function HomeHeader() {
-  const { t } = useLocale();
   const [isVisible, setIsVisible] = useState(true);
   const [mounted, setMounted] = useState(false);
   const lastScrollY = useRef(0);
+  const revealTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { user: customerUser } = useCustomerSession();
 
   useEffect(() => {
@@ -31,7 +30,7 @@ export function HomeHeader() {
 
     let raf = 0;
 
-    // Airbnb-style: hide on scroll down past the header height, reveal on any scroll up.
+    // Hide while the guest is actively scrolling; reveal once scrolling stops.
     const handleScroll = () => {
       if (raf) return;
       raf = window.requestAnimationFrame(() => {
@@ -39,12 +38,21 @@ export function HomeHeader() {
         const y = window.scrollY;
         const delta = y - lastScrollY.current;
         if (Math.abs(delta) <= 10) return; // ignore micro jitter
-        if (delta > 0 && y > 80) {
-          setIsVisible(false);
-        } else if (delta < 0 || y <= 16) {
-          setIsVisible(true);
-        }
         lastScrollY.current = y;
+
+        // Always visible at the very top of the page.
+        if (y <= 16) {
+          if (revealTimer.current) clearTimeout(revealTimer.current);
+          setIsVisible(true);
+          return;
+        }
+
+        // Actively scrolling -> hide immediately.
+        setIsVisible(false);
+
+        // Scrolling paused -> reveal again.
+        if (revealTimer.current) clearTimeout(revealTimer.current);
+        revealTimer.current = setTimeout(() => setIsVisible(true), 150);
       });
     };
 
@@ -52,6 +60,7 @@ export function HomeHeader() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.cancelAnimationFrame(raf);
+      if (revealTimer.current) clearTimeout(revealTimer.current);
     };
   }, []);
 
@@ -81,10 +90,6 @@ export function HomeHeader() {
               <BrandWordmark className="text-2xl" />
             </p>
           </Link>
-
-          <p className="hidden max-w-[16rem] truncate text-right text-xs leading-tight text-gray-500 dark:text-gray-400 lg:block">
-            {t('headerTagline')}
-          </p>
 
           <HeaderSearchPill />
 
