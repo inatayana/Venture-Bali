@@ -82,6 +82,17 @@ Sebelum mengerjakan sesuatu, **cek daftar ini**. Jangan mengarang aturan.
 7. **Biaya antar-jemput** = (surcharge zona + delta kelas kendaraan) × jumlah kendaraan.
 8. **Add-on `requiresTransfer=true`** hanya bisa dipilih pada mode `PRIVATE_TRANSFER`.
 
+### Guardrail Misi (Local Economic Sovereignty)
+
+Misi lengkap ada di `docs/BUSINESS_BLUEPRINT.md §1.4`. Terapkan pada setiap task:
+
+9. **Setiap fitur harus bisa dijelaskan kontribusinya pada pendapatan lokal Bali.** Jika sebuah fitur hanya menambah kenyamanan tanpa memperkuat direct booking, kepercayaan, atau dampak lokal — tanya dulu sebelum mengerjakan.
+10. **Dilarang menambah perantara asing atau biaya komisi OTA** ke dalam alur produk, harga, atau pemesanan. Keunggulan BaliWild justru **memotong** komisi 20–30% yang dipungut GetYourGuide/Klook/Viator/Airbnb.
+11. **TIDAK ADA sistem komisi, affiliate, atau referral fee.** Keuntungan BaliWild murni **margin operasional** dari rate kerja sama dengan provider lokal (contoh: bayar 150k → jual 200k → margin 50k). Jangan membuat modul payout referral/afiliasi tanpa keputusan owner.
+12. **Klaim dampak harus terverifikasi.** Boleh menyatakan "direct booking menopang pemandu & operator lokal Bali". **Jangan** mengklaim "zero foreign vendor" — pembayaran (Midtrans) dan infrastruktur (hosting/DB) tetap memakai vendor. Artikan klaim sebagai **"tanpa komisi perantara OTA asing"**.
+13. **Aturan umur per produk, bukan seragam.** Kids 5–11 wajib didampingi dewasa; Youth 12–15 mandiri di lapangan tapi **dilarang booking atas nama sendiri** (tanpa kartu pembayaran); Adult 16–75 boleh booking. `minAge` tetap bersumber dari `src/data/catalogue.ts`.
+14. **Harga transparan, bukan klaim murah.** Tampilkan `listPriceIdr` dicoret → `priceIdr` sebagai harga jual. Sesuai `BRAND_GUIDELINES.md §5`, jangan pakai "Cheapest", "Best", atau "Free" sebagai klaim.
+
 ---
 
 ## 5. Standar Kualitas Kode

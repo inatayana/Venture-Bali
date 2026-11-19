@@ -30,6 +30,7 @@
 > **Changelog v3.7.2:** Real-review collection — `Review.source` labels verified bookings vs founding guests vs imported reviews, guest photos (max 3, compressed WebP, 4:3) render in review cards and the admin queue, comments cap at 500 characters, and the admin gets per-product coverage (target 10), source/status/product filters, bulk approve/delete and photo removal.
 > **Changelog v3.8.0:** Founding-guest invites — `/admin/reviews/invites` creates up to 10 single-use links/QR per product, signed `ri1` tokens can be regenerated from the invite id, guests submit without an account, and every founding-guest review is labelled **Founding guest** and waits for moderation. Invite coverage is tracked alongside published reviews.
 > **Changelog v3.9.0:** Product Manager — `/admin/ventures/new` and `/admin/ventures/[id]/edit` create/edit core product fields, validate titles/categories/slugs, manage a hero plus up to 8 gallery photos with drag & drop upload, browse, reorder, delete and “Set hero”, and redirect to the package editor after creation. `POST /api/experiences` is now admin-only.
+> **Changelog v3.9.1 (2026-11-19):** Koreksi tema dark — halaman `#525252`, header/card/input `#191919` (`globals.css`). Entrada v3.6.6 (`#212121`) sudah tidak berlaku. Homepage: 3 section (2 carousel 6-kolom + grid), header desktop tanpa tagline, sticky header hilang saat scroll aktif & muncul saat scroll berhenti.
 
 ## 1. Design Principles
 

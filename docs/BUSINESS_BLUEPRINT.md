@@ -20,6 +20,42 @@
 ### 1.3 Mission
 Membangun ekosistem petualangan Bali yang **terpercaya**, **terstandarisasi**, dan **berskala** — di mana BaliWild mengontrol kualitas end-to-end, namun arsitektur sistem siap berkembang menjadi **Marketplace/Platform** saat waktu yang tepat.
 
+### 1.4 Why We Exist — Kedaulatan Ekonomi Pariwisata Bali
+
+> **BaliWild bukan sekadar aplikasi pemesanan. Misi besarnya adalah memotong perantara asing agar nilai ekonomi pariwisata berputar langsung di tangan pemandu, sopir, dan pelaku usaha lokal Bali — sambil menjaga alam dan budaya Bali.**
+
+Sebagai **Direct Vertical Operator**, BaliWild memiliki keunggulan yang tidak dimiliki OTA: **kendali langsung di lapangan dan hubungan manusia yang autentik**. OTA menjual voucher digital dari luar negeri; BaliWild berada di Bali, memegang setir, mendampingi tamu di sungai dan jalur ATV, serta mengontrol kualitas dari awal hingga akhir.
+
+**Data komisi — pertama tangan dari owner (supplier di semua platform ini):**
+
+| Platform | Fee yang dipotong | Dampak |
+|---|---|---|
+| GetYourGuide | **30%** | 30% harga tamu keluar dari Bali |
+| Klook | **30%** | 30% harga tamu keluar dari Bali |
+| Viator | **25%** | 25% harga tamu keluar dari Bali |
+| Airbnb Experiences | **20%** | 20% harga tamu keluar dari Bali |
+
+angka ini adalah **data first-hand terverifikasi dari owner**, bukan perkiraan industri. Gunakan sebagai dasar narasi "Why Book Direct", bukan sebagai angka yang dikarang.
+
+**Tiga keunggulan yang harus tercermin di setiap produk & halaman:**
+
+1. **Harga jujur (Price Advantage)** — tanpa potongan OTA 20–30%, harga direct bisa transparan (coret `listPriceIdr` → harga jual `priceIdr`) dengan tetap menyisakan margin sehat untuk kesejahteraan pemandu & perawatan alat keselamatan.
+2. **Fleksibilitas logistik lapangan** — `SELF_DRIVE` (meet on location) untuk tamu yang sudah punya sopir harian; `SHARED_TRANSFER` / `PRIVATE_TRANSFER` berbasis zona untuk yang perlu antar-jemput. OTA luar biasanya kaku.
+3. **Dampak emosional & budaya** — setiap pemesanan langsung menopang ekonomi komunitas Bali dan konservasi sungai/subak tempat aktivitas berlangsung.
+
+**Model ekonomi ( IMPORTAN — jangan disalahartikan):**
+> **TIDAK ADA sistem komisi / affiliate / referral fee di BaliWild.** Keuntungan BaliWild adalah **margin operasional** dari rate kerja sama dengan provider lokal. Contoh: provider lokal dibayar Rp150.000/orang, dijual Rp200.000/orang → margin Rp50.000/orang. Margin inilah yang menopang operasi, keselamatan, dan kesejahteraan tim — **bukan komisi perantara asing, bukan pula program bagi hasil dengan pihak eksternal.**
+
+**Aturan umur (berlaku di seluruh produk — selaras dengan `AGE_TIERED` price tiers):**
+
+| Segmen | Umur | Aturan |
+|---|---|---|
+| **Kids** | 5–11 tahun | **Wajib didampingi orang dewasa** |
+| **Youth** | 12–15 tahun | Mandiri di lapangan (mampu tubing/ATV/zipline sendiri), **tapi tidak boleh melakukan booking atas nama sendiri** — belum memiliki kartu pembayaran |
+| **Adult** | 16–75 tahun | Aman & **boleh booking** atas nama sendiri |
+
+> ⚠️ Usia minimum **bukan angka seragam** untuk semua produk. Setiap venture menyimpan `minAge`-nya sendiri di `src/data/catalogue.ts` (6, 7, 8, 10, 12, 14, 15). Tampilkan **per produk**, jangan klaim "6–65 untuk semua".
+
 ---
 
 ## 2. Business Model Definition

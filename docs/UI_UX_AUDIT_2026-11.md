@@ -7,6 +7,8 @@
 > **Method:** 14 workstream · 5 agen auditor paralel (read-only) + verifikasi orchestrator
 > **Prinsip:** read-only, tanpa asumsi, semua temuan dapat diverifikasi di file:baris
 
+> **Catatan koreksi pasca-audit (2026-11-19):** laporan ini adalah snapshot 3 November. Temuan §A/§L yang menyebut dark page `#212121` **sudah tidak berlaku** — halaman dark kini `#525252` (`globals.css`), header/card `#191919`. Jumlah test juga berkembang dari 652 menjadi 740 (88 suite). Angka di bawah tetap dipertahankan sebagai catatan historis, bukan fakta terkini.
+
 ---
 
 ## Ringkasan Eksekutif (untuk Owner)

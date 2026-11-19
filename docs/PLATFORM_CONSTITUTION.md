@@ -42,7 +42,7 @@ This document establishes the **immutable principles** that govern the BaliWild 
 ### 4. Testing is Documentation
 > **Tests are the only reliable documentation.**
 
-- 676+ tests passing (unit + integration)
+- 740+ tests passing across 88 suites (unit + integration) — per 2026-11-19
 - Test fixtures mirror production data shapes
 - Contract tests for API compatibility
 - E2E tests for critical user journeys
@@ -97,7 +97,7 @@ This document establishes the **immutable principles** that govern the BaliWild 
 # Must pass before merge
 npm run lint       # ESLint zero warnings
 npm run typecheck  # tsc --noEmit zero errors
-npm test           # 76 suites, 676+ tests passing
+npm test           # 88 suites, 740+ tests passing (per 2026-11-19)
 npm run build      # Next.js production build success
 ```
 
