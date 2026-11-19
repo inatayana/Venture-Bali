@@ -26,7 +26,7 @@ export function SiteFooter() {
   return (
     <footer className="bg-brand-ink text-white">
       <div className="mx-auto max-w-7xl px-4 py-10">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           <div>
             <p className="text-white">
               <BrandWordmark className="text-lg" />
@@ -160,6 +160,32 @@ export function SiteFooter() {
                   className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand"
                 >
                   Partner with us · {BRAND_EMAIL_PARTNERS}
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-[0.14em] text-white/50">
+              Company
+            </h2>
+            <ul className="mt-3 space-y-0 text-sm">
+              <li>
+                <Link href="/about" className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand">
+                  Our Story &amp; Local Impact
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand">
+                  Bali adventure guides
+                </Link>
+              </li>
+              <li>
+                <a
+                  href={`mailto:${BRAND_EMAIL_PARTNERS}`}
+                  className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand"
+                >
+                  Partner with us
                 </a>
               </li>
             </ul>
