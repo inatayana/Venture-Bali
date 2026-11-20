@@ -147,11 +147,12 @@ Never do the following without an explicit owner decision:
 | P0 | Make `requestIndexing()` honest (no fake success) | 4 | **DONE** (`5511a77`) | No |
 | P1 | `llms.txt` factual briefing from approved sources | 1 | **DONE** (`572d93f`) | No |
 | P1 | Real `/faq` page + FAQPage JSON-LD | 1 | **DONE** (`572d93f`) | No |
-| P1 | Abandoned-hold recovery + wishlist alerts | 2 | PLANNED | **Yes** — sending domain / WA template approval |
-| P1 | Funnel analytics + SEO CI checks | 4 | PLANNED | Team coordination (event callsites owned by other work) |
-| P1 | `/api/v1` public contracts | 3 | PLANNED | Team coordination (present on `main`, absent on this branch) |
+| P1 | Wishlist WhatsApp enquiry + hold-recovery message builder | 2 | **DONE** (conversion core) | Outbound sending still needs WA template approval |
+| P1 | Funnel step registry | 4 | **DONE** (`trackFunnelStep`) | GTM/GA4 injection still external |
+| P1 | Cron cadence comment corrected | 4 | **DONE** | Schedule intentionally daily (hosting plan limit) |
+| P1 | `/api/v1` public contracts | 3 | **WON'T DO** | Intentionally removed in `5f4cd5a` (security hardening / legacy cleanup). Do not resurrect without a new RFC. |
 | P2 | Agent may persist bookings | 3 | BLOCKED | **Yes** |
-| P2 | Programmatic activity–destination pages | 1 | RFC | **Yes** — URL map |
+| P2 | Programmatic activity–destination pages | 1 | **DONE** (`4ca1e38`) | No — owner accepted all proposals 2026-11-20 |
 | P2 | Expert author schema / E-E-A-T profiles | 1 | BLOCKED | **Yes** — real named experts |
 | P2 | Expansion beyond Bali / beyond 9 categories | 5 | BLOCKED | **Yes** — RFC + owner |
 

@@ -5,9 +5,14 @@ import { sendHoldExpired } from '@/lib/notifications';
 export const dynamic = 'force-dynamic';
 
 /**
- * Reap stale inventory holds (Vercel Cron every 10 minutes).
- * A PENDING booking whose `expiresAt` has passed no longer owns capacity, so
- * it is cancelled here — before it can shadow a real booking in the manifest.
+ * Reap stale inventory holds.
+ *
+ * NOTE: vercel.json currently runs this once daily (03:00 UTC) to stay within
+ * the hosting plan's cron limits. The 10-minute hold itself is enforced live
+ * by the checkout page: it blocks payment and shows an expiry countdown, so a
+ * guest cannot complete a stale booking. This cron is the eventual DB cleanup,
+ * not the real-time guard. Do not change the schedule without checking the
+ * hosting plan's cron allowance.
  */
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;

@@ -1,6 +1,8 @@
 # RFC — Quality-gated activity × destination pages
 
-> **Status:** PROPOSED — awaiting owner approval
+> **Status:** IMPLEMENTED — owner accepted all proposals on 2026-11-20;
+> shipped in commit `4ca1e38` (quality gate, SSR page, sitemap integration).
+> The approval checklist below is kept for audit history.
 > **Author:** Senior UI/UX & growth engineering
 > **Date:** 2026-11-20
 > **Process:** `docs/PLATFORM_CONSTITUTION.md` §Governance (propose → 5 business
