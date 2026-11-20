@@ -126,70 +126,38 @@ export function VentureCard({
     <>
       {/* Left: Image - fixed size 1:1 aspect ratio */}
       <div className="relative w-[124px] h-[124px] sm:w-[140px] sm:h-[140px] shrink-0 rounded-2xl overflow-hidden">
-        {href ? (
-          <a
-            href={href}
-            aria-label={`View details for ${venture.title}`}
-            className="block overflow-hidden rounded-2xl bg-gray-200"
-          >
-            <div className="relative aspect-square w-full h-full">
-              <Image
-                src={venture.imageUrl}
-                alt={venture.title}
-                fill
-                sizes="124px"
-                className="object-cover"
-                onError={() => setImageError(true)}
-              />
-              {!imageError && !venture.isAvailable ? (
-                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-red-600 shadow-sm backdrop-blur">
-                  Sold Out
-                </span>
-              ) : !imageError && venture.badge ? (
-                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-neutral-800 shadow-sm backdrop-blur">
-                  {friendlyBadge(venture.badge)}
-                </span>
-              ) : imageError ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800">
-                  <ImageIcon className="h-8 w-8 text-neutral-400 dark:text-neutral-500" aria-hidden="true" />
-                </div>
-              ) : null}
-            </div>
-          </a>
-        ) : (
-          <div className="overflow-hidden rounded-2xl bg-gray-200">
-            <div className="relative aspect-square w-full h-full">
-              <Image
-                src={venture.imageUrl}
-                alt={venture.title}
-                fill
-                sizes="124px"
-                className="object-cover"
-                onError={() => setImageError(true)}
-              />
-              {!imageError && !venture.isAvailable ? (
-                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-red-600 shadow-sm backdrop-blur">
-                  Sold Out
-                </span>
-              ) : !imageError && venture.badge ? (
-                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-neutral-800 shadow-sm backdrop-blur">
-                  {friendlyBadge(venture.badge)}
-                </span>
-              ) : imageError ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800">
-                  <ImageIcon className="h-8 w-8 text-neutral-400 dark:text-neutral-500" aria-hidden="true" />
-                </div>
-              ) : null}
-            </div>
+        <div className="overflow-hidden rounded-2xl bg-gray-200">
+          <div className="relative aspect-square w-full h-full">
+            <Image
+              src={venture.imageUrl}
+              alt={venture.title}
+              fill
+              sizes="124px"
+              className="object-cover"
+              onError={() => setImageError(true)}
+            />
+            {!imageError && !venture.isAvailable ? (
+              <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-red-600 shadow-sm backdrop-blur">
+                Sold Out
+              </span>
+            ) : !imageError && venture.badge ? (
+              <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-neutral-800 shadow-sm backdrop-blur">
+                {friendlyBadge(venture.badge)}
+              </span>
+            ) : imageError ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800">
+                <ImageIcon className="h-8 w-8 text-neutral-400 dark:text-neutral-500" aria-hidden="true" />
+              </div>
+            ) : null}
           </div>
-        )}
+        </div>
         {/* Wishlist button - top right of image */}
         <button
           type="button"
           onClick={handleWishlist}
           aria-pressed={wishlisted}
           aria-label={wishlisted ? `Remove ${venture.title} from wishlists` : `Save ${venture.title} to wishlists`}
-          className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full border border-white/80 bg-black/20 text-white backdrop-blur-sm transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="absolute right-1.5 top-1.5 z-20 flex h-7 w-7 items-center justify-center rounded-full border border-white/80 bg-black/20 text-white backdrop-blur-sm transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           <Heart
             className={cn('h-3.5 w-3.5', wishlisted ? 'fill-red-400 text-red-400' : 'text-white')}
@@ -235,7 +203,7 @@ export function VentureCard({
           onClick={handleWishlist}
           aria-label={wishlisted ? `Remove ${venture.title} from wishlists` : `Save ${venture.title} to wishlists`}
           aria-pressed={wishlisted}
-          className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:right-3 sm:top-3"
+          className="absolute right-2.5 top-2.5 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:right-3 sm:top-3"
         >
           <Heart
             className={cn('h-4.5 w-4.5', wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-700')}
@@ -311,6 +279,7 @@ export function VentureCard({
 
   const cardContent = variant === 'horizontal' ? horizontalContent : content;
   const cardClassName = cn(
+    'relative',
     variant === 'horizontal'
       ? 'flex gap-3.5 h-full items-stretch rounded-2xl bg-white p-2 shadow-sm ring-1 ring-neutral-100 transition-shadow hover:shadow-md dark:bg-neutral-900 dark:ring-white/10'
       : 'group overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full flex flex-col',
@@ -318,15 +287,22 @@ export function VentureCard({
   );
 
   if (href) {
+    // Stretched-link pattern: a single absolutely-positioned link covers the
+    // card, while the wishlist button (z-20) stays above it and remains
+    // interactive. This avoids nesting <a>/<button> inside <a>, which is
+    // invalid HTML and causes React hydration mismatches.
     return (
       <article
         className={cardClassName}
         aria-label={`View details for ${venture.title}`}
         data-testid={`venture-card-${venture.id}`}
       >
-        <a href={href} className={variant === 'horizontal' ? 'flex flex-1 gap-4 sm:gap-5' : 'block'} style={{height: '100%'}}>
-          {cardContent}
-        </a>
+        <a
+          href={href}
+          aria-label={`View details for ${venture.title}`}
+          className="absolute inset-0 z-10"
+        />
+        {cardContent}
       </article>
     );
   }

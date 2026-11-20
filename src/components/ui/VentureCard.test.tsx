@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { VentureCard } from './VentureCard';
+import { useWishlist } from '@/store/wishlistStore';
 import type { VentureItem } from '@/types/venture';
 
 const mockVenture: VentureItem = {
@@ -44,6 +45,10 @@ const mockVenture: VentureItem = {
 };
 
 describe('VentureCard Component', () => {
+  beforeEach(() => {
+    useWishlist.setState({ items: [] });
+  });
+
   it('renders venture title and trust badge', () => {
     render(<VentureCard venture={mockVenture} />);
     expect(screen.getByText(mockVenture.title)).toBeInTheDocument();
@@ -166,5 +171,53 @@ describe('VentureCard Component', () => {
     render(<VentureCard venture={mockVenture} />);
     const image = screen.getByAltText(mockVenture.title);
     expect(image).toBeInTheDocument();
+  });
+
+  // Regression: nesting <a>/<button> inside an outer <a> is invalid HTML and
+  // caused the browser to restructure the DOM, producing a React hydration
+  // mismatch ("Expected server HTML to contain a matching <div> in <a>").
+  it.each(['vertical', 'horizontal'] as const)(
+    'renders exactly one link with no nested interactive elements when href is set (%s variant)',
+    (variant) => {
+      render(
+        <VentureCard
+          venture={mockVenture}
+          href="/experiences/vtr-001/ubud-rice-terrace-sunrise-tour"
+          variant={variant}
+        />
+      );
+
+      const card = screen.getByTestId('venture-card-vtr-001');
+      const links = card.querySelectorAll('a');
+      expect(links).toHaveLength(1);
+      expect(links[0]).toHaveAttribute(
+        'href',
+        '/experiences/vtr-001/ubud-rice-terrace-sunrise-tour'
+      );
+      // The stretched link must not wrap any other <a> or <button>.
+      expect(links[0].querySelector('a, button')).toBeNull();
+    }
+  );
+
+  it('keeps the wishlist button interactive outside the link when href is set', async () => {
+    const user = userEvent.setup();
+    render(
+      <VentureCard
+        venture={mockVenture}
+        href="/experiences/vtr-001/ubud-rice-terrace-sunrise-tour"
+      />
+    );
+
+    const card = screen.getByTestId('venture-card-vtr-001');
+    const link = card.querySelector('a') as HTMLAnchorElement;
+    const wishlist = screen.getByRole('button', {
+      name: /save ubud rice terrace sunrise tour to wishlists/i,
+    });
+
+    // The wishlist button is a sibling of the link, not a descendant.
+    expect(link.contains(wishlist)).toBe(false);
+
+    await user.click(wishlist);
+    expect(useWishlist.getState().items.some((item) => item.id === 'vtr-001')).toBe(true);
   });
 });
