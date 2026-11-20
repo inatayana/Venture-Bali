@@ -150,6 +150,11 @@ export function buildStaticSitemapEntries(baseUrl: string): SitemapEntry[] {
       changeFrequency: 'monthly',
       priority: 0.3,
     },
+    {
+      url: `${baseUrl}/faq`,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
     // robots.txt allows the listing and the 9 taxonomy hubs. Omitting them
     // kept them invisible in Search Console despite being indexable.
     {
