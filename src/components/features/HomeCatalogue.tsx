@@ -6,8 +6,8 @@ import { ShieldCheck, ChevronRight, SearchX } from 'lucide-react';
 import { useSearch } from '@/components/search/SearchProvider';
 import { useExploreFilters } from '@/components/features/ExploreFiltersProvider';
 import { SortMenu } from '@/components/features/SortMenu';
-import { ExploreFilterPills, FiltersTriggerButton } from '@/components/features/ExploreFilterPills';
-import { ExploreFilterModal } from '@/components/features/ExploreFilterModal';
+import { ExploreFilterPills, FiltersTriggerButton, countActiveFilters } from '@/components/features/ExploreFilterPills';
+import { CatalogueFilterSheet } from '@/components/features/CatalogueFilterSheet';
 import { VentureCard } from '@/components/ui';
 import { filterCatalogue } from '@/lib/filterCatalogue';
 import type { VentureItem } from '@/types/venture';
@@ -78,8 +78,12 @@ export function HomeCatalogue({
     selectedCategory !== null ||
     sortBy !== 'recommended';
 
-  const activeAdvancedFilters =
-    (transferIncluded ? 1 : 0) + (selfDriveOnly ? 1 : 0) + (bestSellerOnly ? 1 : 0);
+  const activeAdvancedFilters = countActiveFilters({
+    transferIncluded,
+    selfDriveOnly,
+    bestSeller: bestSellerOnly,
+    selectedCategory,
+  });
 
   const dateLabel = date
     ? new Date(`${date}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
@@ -226,25 +230,10 @@ export function HomeCatalogue({
       </div>
 
       {/* Filter sheet opened from the heading row (desktop + mobile). */}
-      <ExploreFilterModal
+      <CatalogueFilterSheet
         open={filterModalOpen}
         onClose={() => setFilterModalOpen(false)}
-        transferIncluded={transferIncluded}
-        onTransferIncludedChange={setTransferIncluded}
-        selfDriveOnly={selfDriveOnly}
-        onSelfDriveChange={setSelfDriveOnly}
-        bestSeller={bestSellerOnly}
-        onBestSellerChange={setBestSellerOnly}
-        selectedCategory={selectedCategory}
-        onCategorySelect={setSelectedCategory}
         resultCount={filtered.length}
-        onClearAll={() => {
-          setTransferIncluded(false);
-          setSelfDriveOnly(false);
-          setBestSellerOnly(false);
-          setSelectedCategory(null);
-          setSortBy('recommended');
-        }}
       />
     </section>
   );

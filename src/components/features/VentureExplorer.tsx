@@ -10,7 +10,7 @@ import { ExploreControlBar } from '@/components/features/ExploreControlBar';
 import { ExploreFilterPills } from '@/components/features/ExploreFilterPills';
 import { CuratedRows } from '@/components/features/CuratedRows';
 import { ExploreSearchOverlay } from '@/components/features/ExploreSearchOverlay';
-import { ExploreFilterModal } from '@/components/features/ExploreFilterModal';
+import { CatalogueFilterSheet } from '@/components/features/CatalogueFilterSheet';
 import { VentureListCard } from '@/components/features/VentureListCard';
 import { useExploreFilters } from '@/components/features/ExploreFiltersProvider';
 import { useSearch } from '@/components/search/SearchProvider';
@@ -363,24 +363,10 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
       {mode === 'explore' && (
         <ExploreSearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       )}
-      <ExploreFilterModal
+      <CatalogueFilterSheet
         open={filterModalOpen}
         onClose={() => setFilterModalOpen(false)}
-        transferIncluded={transferIncluded}
-        onTransferIncludedChange={setTransferIncluded}
-        selfDriveOnly={selfDriveOnly}
-        onSelfDriveChange={setSelfDriveOnly}
-        bestSeller={bestSellerOnly}
-        onBestSellerChange={setBestSellerOnly}
-        selectedCategory={selectedCategory}
-        onCategorySelect={setSelectedCategory}
         resultCount={filteredVentures.length}
-        onClearAll={() => {
-          setTransferIncluded(false);
-          setSelfDriveOnly(false);
-          setBestSellerOnly(false);
-          setSelectedCategory(null);
-        }}
       />
     </section>
   );

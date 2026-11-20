@@ -37,6 +37,30 @@ const pillActive = 'border-brand-ink bg-brand-ink text-brand shadow-sm';
 const pillIdle =
   'border-neutral-200 bg-white text-neutral-700 hover:border-brand-ink/50 hover:bg-brand/5 dark:border-white/10 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:border-brand-ink/50 dark:hover:bg-brand/5';
 
+/**
+ * Single definition of "how many filters are active" for every badge that
+ * points at the filter sheet (homepage heading, pill strip, mobile top bar).
+ * Keep in sync with the sections inside ExploreFilterModal.
+ */
+export function countActiveFilters({
+  transferIncluded,
+  selfDriveOnly,
+  bestSeller,
+  selectedCategory,
+}: {
+  transferIncluded: boolean;
+  selfDriveOnly: boolean;
+  bestSeller: boolean;
+  selectedCategory: string | null;
+}): number {
+  return (
+    (transferIncluded ? 1 : 0) +
+    (selfDriveOnly ? 1 : 0) +
+    (bestSeller ? 1 : 0) +
+    (selectedCategory !== null ? 1 : 0)
+  );
+}
+
 export function FilterTogglePill({
   active,
   onClick,
@@ -122,8 +146,12 @@ export function ExploreFilterPills({
   const selectedSlug: MegaCategorySlug | null =
     CATEGORY_REGISTRY.find((category) => category.short === selectedCategory)?.slug ?? null;
 
-  const advancedActive =
-    (transferIncluded ? 1 : 0) + (selfDriveOnly ? 1 : 0) + (bestSeller ? 1 : 0);
+  const advancedActive = countActiveFilters({
+    transferIncluded,
+    selfDriveOnly,
+    bestSeller,
+    selectedCategory,
+  });
 
   return (
     <div

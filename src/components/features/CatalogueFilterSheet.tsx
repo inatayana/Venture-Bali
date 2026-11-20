@@ -1,0 +1,62 @@
+'use client';
+
+import { ExploreFilterModal } from '@/components/features/ExploreFilterModal';
+import { useExploreFilters } from '@/components/features/ExploreFiltersProvider';
+
+export interface CatalogueFilterSheetProps {
+  open: boolean;
+  onClose: () => void;
+  /**
+   * Live result count for the primary CTA. Defaults to the count the catalogue
+   * publishes to ExploreFiltersContext, so callers normally omit it.
+   */
+  resultCount?: number;
+}
+
+/**
+ * The one filter sheet used by every catalogue surface (homepage,
+ * /explore, legacy catalogue). It reads the shared filter state itself and
+ * renders the shared ExploreFilterModal, so callers only own the open state:
+ *
+ *   const [open, setOpen] = useState(false);
+ *   <CatalogueFilterSheet open={open} onClose={() => setOpen(false)} />
+ *
+ * "Clear all" is defined here once, so every surface resets the same fields.
+ */
+export function CatalogueFilterSheet({ open, onClose, resultCount }: CatalogueFilterSheetProps) {
+  const {
+    transferIncluded,
+    setTransferIncluded,
+    selfDriveOnly,
+    setSelfDriveOnly,
+    bestSellerOnly,
+    setBestSellerOnly,
+    selectedCategory,
+    setSelectedCategory,
+    setSortBy,
+    resultCount: liveResultCount,
+  } = useExploreFilters();
+
+  return (
+    <ExploreFilterModal
+      open={open}
+      onClose={onClose}
+      transferIncluded={transferIncluded}
+      onTransferIncludedChange={setTransferIncluded}
+      selfDriveOnly={selfDriveOnly}
+      onSelfDriveChange={setSelfDriveOnly}
+      bestSeller={bestSellerOnly}
+      onBestSellerChange={setBestSellerOnly}
+      selectedCategory={selectedCategory}
+      onCategorySelect={setSelectedCategory}
+      resultCount={resultCount ?? liveResultCount}
+      onClearAll={() => {
+        setTransferIncluded(false);
+        setSelfDriveOnly(false);
+        setBestSellerOnly(false);
+        setSelectedCategory(null);
+        setSortBy('recommended');
+      }}
+    />
+  );
+}

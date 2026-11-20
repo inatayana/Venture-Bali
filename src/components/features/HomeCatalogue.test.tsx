@@ -106,6 +106,8 @@ describe('HomeCatalogue filter entry', () => {
     await user.click(screen.getByRole('radio', { name: 'ATV' }));
 
     expect(screen.getByRole('button', { name: /show 1 result$/i })).toBeInTheDocument();
+    // The trigger badge counts the category chosen inside the sheet.
+    expect(screen.getByRole('button', { name: /^filters/i })).toHaveTextContent(/filters\s*1/i);
     expect(screen.queryAllByRole('heading', { name: 'Ayung Rafting Adventure' })).toHaveLength(0);
     expect(screen.getAllByRole('heading', { name: 'Ubud ATV Quad Adventure' }).length).toBeGreaterThan(0);
   });

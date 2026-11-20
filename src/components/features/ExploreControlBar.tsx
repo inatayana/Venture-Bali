@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { ExploreTopBar } from '@/components/features/ExploreTopBar';
-import { ExploreFilterPills } from '@/components/features/ExploreFilterPills';
+import { ExploreFilterPills, countActiveFilters } from '@/components/features/ExploreFilterPills';
 import { ExploreSearchOverlay } from '@/components/features/ExploreSearchOverlay';
-import { ExploreFilterModal } from '@/components/features/ExploreFilterModal';
+import { CatalogueFilterSheet } from '@/components/features/CatalogueFilterSheet';
 import { useSearch } from '@/components/search/SearchProvider';
 import { useExploreFilters } from '@/components/features/ExploreFiltersProvider';
 import { useHideOnScroll } from '@/hooks/useHideOnScroll';
@@ -27,11 +27,8 @@ export function ExploreControlBar({ showBack = true }: { showBack?: boolean }) {
     selfDriveOnly,
     setSelfDriveOnly,
     bestSellerOnly,
-    setBestSellerOnly,
     selectedCategory,
     setSelectedCategory,
-    setSortBy,
-    resultCount,
   } = useExploreFilters();
 
   const controlsHidden = useHideOnScroll(80, 150);
@@ -40,12 +37,12 @@ export function ExploreControlBar({ showBack = true }: { showBack?: boolean }) {
     ? new Date(`${date}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
     : 'Anytime';
   const guestsLabel = pax > 1 ? `${pax} guests` : 'Add guests';
-  const activeFilterCount = [
+  const activeFilterCount = countActiveFilters({
     transferIncluded,
     selfDriveOnly,
-    bestSellerOnly,
-    selectedCategory !== null,
-  ].filter(Boolean).length;
+    bestSeller: bestSellerOnly,
+    selectedCategory,
+  });
 
   return (
     <>
@@ -85,26 +82,7 @@ export function ExploreControlBar({ showBack = true }: { showBack?: boolean }) {
       </div>
 
       <ExploreSearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <ExploreFilterModal
-        open={filterModalOpen}
-        onClose={() => setFilterModalOpen(false)}
-        transferIncluded={transferIncluded}
-        onTransferIncludedChange={setTransferIncluded}
-        selfDriveOnly={selfDriveOnly}
-        onSelfDriveChange={setSelfDriveOnly}
-        bestSeller={bestSellerOnly}
-        onBestSellerChange={setBestSellerOnly}
-        selectedCategory={selectedCategory}
-        onCategorySelect={setSelectedCategory}
-        resultCount={resultCount}
-        onClearAll={() => {
-          setTransferIncluded(false);
-          setSelfDriveOnly(false);
-          setBestSellerOnly(false);
-          setSelectedCategory(null);
-          setSortBy('recommended');
-        }}
-      />
+      <CatalogueFilterSheet open={filterModalOpen} onClose={() => setFilterModalOpen(false)} />
     </>
   );
 }
