@@ -152,6 +152,19 @@ satu prompt gemuk. Ini menahan biaya token dan memudahkan test.
 Semua tabel baru **usulan** dan memerlukan migration + persetujuan owner
 (`AGENTS.md` §4 melarang mengubah `prisma/schema.prisma` tanpa migration).
 
+**Artefak Fase 0 sudah tersedia** (kontrak, bukan DB live):
+
+| Artefak | Isi |
+|---|---|
+| `src/lib/growth/schema.ts` | kontrak tipe + metadata kolom (`GROWTH_TABLES`) + enum |
+| `src/lib/growth/state.ts` | state machine topik & aset, transisi sah, error bertipe |
+| `src/lib/growth/state.test.ts` / `schema.test.ts` | test lifecycle & integritas skema |
+| `docs/growth-schema.sql` | DDL Supabase siap apply (TEXT + CHECK) |
+
+`prisma/schema.prisma` **belum** diubah. Migration Prisma + verifikasi live
+(`npm run db:seed` di DB kosong + `npm run smoke`) menyusul setelah owner
+menyetujui skema.
+
 | Model | Kolom inti | Fungsi |
 |---|---|---|
 | `GrowthTopic` | `id`, `tenantId`, `clusterId`, `canonicalTitle`, `intent`, `status`, `priority`, `source`, `owner`, timestamps | Topik kanonik; sumber kebenaran "apa yang sedang dikerjakan" |
