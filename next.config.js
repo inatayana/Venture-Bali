@@ -90,18 +90,6 @@ const nextConfig = phase => ({
     formats: ['image/webp'],
     remotePatterns: supabaseImagePatterns(),
   },
-  async redirects() {
-    return [
-      // A magic link opened on /trips still reaches the customer area. Kept at
-      // the HTTP level so it works before any client JavaScript runs.
-      {
-        source: '/trips',
-        has: [{ type: 'query', key: 'token' }],
-        destination: '/my/bookings',
-        permanent: false, // 307 — the token in the query is forwarded along.
-      },
-    ];
-  },
   async headers() {
     const securityHeaders = [
       { key: 'X-Content-Type-Options', value: 'nosniff' },

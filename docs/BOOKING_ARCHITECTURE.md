@@ -148,7 +148,7 @@ Aturan checkout (server):
 - Check-in: operator memindai QR voucher tamu di `/voucher/verify/<code>` → tombol **Check-in this guest** (hanya sesi admin) → `lifecycleStatus = CHECKED_IN`, voucher → `REDEEMED` (`redeemedAt`, `redeemedBy`). Idempoten.
 - Menutup job order (`POST /api/admin/bookings/[id]/status`) hanya boleh dari `CONFIRMED` | `DRIVER_ASSIGNED` | `CHECKED_IN`; `COMPLETED` menandai voucher `REDEEMED` (`redeemedAt`, `redeemedBy`), `NO_SHOW` menandai voucher `CANCELLED` sesuai `docs/NO_SHOW_POLICY.md`.
 - Manifest lapangan: `/admin/operations` per tanggal aktivitas, dikelompokkan per slot; menampilkan pax, varian, tier kendaraan, pickup/TBA, dan tombol WhatsApp.
-- Pembeli tetap **guest** (tanpa password). Setelah PAID, tautan magic yang ditandatangani (30 hari) dikirim lewat email/WhatsApp menuju `/my/bookings`.
+- Pembeli tetap **guest** (tanpa password). Setelah PAID, tautan magic yang ditandatangani (30 hari) dikirim lewat email/WhatsApp menuju Trip Hub (`/trips?token=…`).
 
 ## 6. Product Card Priority (listing)
 

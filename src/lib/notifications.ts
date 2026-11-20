@@ -20,7 +20,7 @@ import {
   BRAND_EMAIL_BOOKING,
   BRAND_EMAIL_SUPPORT,
 } from '@/lib/brand';
-import { buildCustomerBookingsUrl, createReviewToken } from '@/lib/customerLink';
+import { buildCustomerTripsUrl, createReviewToken } from '@/lib/customerLink';
 import { buildReviewQrUrl, buildReviewUrl } from '@/lib/reviewLink';
 
 export type NotificationChannel = 'WHATSAPP' | 'EMAIL';
@@ -130,7 +130,7 @@ function pickupLine(booking: BookingForNotification): string {
 }
 
 export function buildConfirmationText(booking: BookingForNotification): string {
-  const manageUrl = buildCustomerBookingsUrl(booking.customer.id);
+  const manageUrl = buildCustomerTripsUrl(booking.customer.id);
 
   return [
     `Booking confirmed — ${booking.variant.title}`,
@@ -211,7 +211,7 @@ function emailHtml(
   booking: BookingForNotification,
   options: { title: string; intro: string },
 ): string {
-  const manageUrl = buildCustomerBookingsUrl(booking.customer.id);
+  const manageUrl = buildCustomerTripsUrl(booking.customer.id);
   const bring = whatToBringLines(booking);
   const rows = [
     ['Booking code', booking.bookingCode],
@@ -593,7 +593,7 @@ export async function sendCancellationConfirmation(
     `Refund: ${formatIdr(refundAmount)} (fee ${formatIdr(feeAmount)})`,
     `Method: ${method === 'MIDTRANS' ? 'Original payment method (Midtrans)' : 'Bank transfer — we will contact you'}`,
     '',
-    `Track status: ${buildCustomerBookingsUrl(entity.customer.id) ?? 'N/A'}`,
+    `Track status: ${buildCustomerTripsUrl(entity.customer.id) ?? 'N/A'}`,
   ].join('\n');
 
   const html = emailHtml(entity, {
@@ -632,7 +632,7 @@ export async function sendRescheduleConfirmation(
     pickupLine(entity),
     '',
     `Voucher & QR: ${voucherUrl(entity.bookingCode)}`,
-    `Manage: ${buildCustomerBookingsUrl(entity.customer.id) ?? 'N/A'}`,
+    `Manage: ${buildCustomerTripsUrl(entity.customer.id) ?? 'N/A'}`,
   ].join('\n');
 
   const html = emailHtml(entity, {
@@ -735,7 +735,7 @@ export async function sendVoucherDelivery(
     pickupLine(entity),
     '',
     `Voucher & QR: ${voucherUrl(entity.bookingCode)}`,
-    `Manage: ${buildCustomerBookingsUrl(entity.customer.id) ?? 'N/A'}`,
+    `Manage: ${buildCustomerTripsUrl(entity.customer.id) ?? 'N/A'}`,
   ].join('\n');
 
   const html = confirmationEmailHtml(entity);

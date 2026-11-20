@@ -260,11 +260,15 @@ export function verifyBookingReadAccess(
   return { allowed: account?.customerId === booking.customerId };
 }
 
-/** Public URL for the guest's booking history, or null when no secret is configured. */
-export function buildCustomerBookingsUrl(
+/**
+ * Public URL for the guest's Trip Hub (`/trips`), or null when no secret is
+ * configured. Guest messages ("Manage your bookings", "Track status") point
+ * guests here; the hub shows bookings, vouchers and cancellation status.
+ */
+export function buildCustomerTripsUrl(
   customerId: string,
   days: number = DEFAULT_TTL_DAYS,
 ): string | null {
   const token = createCustomerLinkToken(customerId, days);
-  return token ? `${getBaseUrl()}/my/bookings?token=${encodeURIComponent(token)}` : null;
+  return token ? `${getBaseUrl()}/trips?token=${encodeURIComponent(token)}` : null;
 }
