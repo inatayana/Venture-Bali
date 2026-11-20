@@ -1,6 +1,13 @@
 import { prisma } from '@/lib/prisma';
 import { mockExperiences } from '@/data/mockExperiences';
-import { MEGA_CATEGORY_SLUGS } from '@/lib/taxonomy';
+import { MEGA_CATEGORY_SLUGS, resolveCategory } from '@/lib/taxonomy';
+import {
+  DESTINATIONS,
+  buildEditorialIntro,
+  buildPageSlug,
+  buildPageTitle,
+  passesQualityGate,
+} from '@/lib/programmaticPages';
 
 export interface SitemapEntry {
   url: string;
@@ -170,11 +177,72 @@ export function buildStaticSitemapEntries(baseUrl: string): SitemapEntry[] {
   ];
 }
 
+/**
+ * Only pages that pass the RFC quality gate reach the sitemap — never thin or
+ * unsupported activity x destination combinations.
+ */
+async function getProgrammaticEntries(baseUrl: string): Promise<SitemapEntry[]> {
+  const entries: SitemapEntry[] = [];
+
+  for (const destination of DESTINATIONS) {
+    for (const activitySlug of destination.activities) {
+      const category = resolveCategory(activitySlug);
+      if (!category) continue;
+
+      try {
+        const ventureIds = await prisma.venture.findMany({
+          where: {
+            category: category.short,
+            OR: [
+              { location: { name: { contains: destination.name, mode: 'insensitive' } } },
+              { title: { contains: destination.name, mode: 'insensitive' } },
+            ],
+          },
+          select: { id: true },
+        });
+        if (ventureIds.length === 0) continue;
+
+        const approvedReviews = await prisma.review.count({
+          where: { isApproved: true, ventureId: { in: ventureIds.map((item) => item.id) } },
+        });
+
+        const title = buildPageTitle(category.canonical, destination.name);
+        const intro = buildEditorialIntro(
+          { activitySlug, activityName: category.canonical, destination },
+          ventureIds.length
+        );
+
+        if (
+          !passesQualityGate({
+            productCount: ventureIds.length,
+            approvedReviewCount: approvedReviews,
+            intro,
+            title,
+          })
+        ) {
+          continue;
+        }
+
+        entries.push({
+          url: `${baseUrl}/adventures/${buildPageSlug(activitySlug, destination.slug)}`,
+          changeFrequency: 'weekly',
+          priority: 0.7,
+        });
+      } catch (error) {
+        console.error(`Sitemap: could not evaluate ${activitySlug}-in-${destination.slug}:`, error);
+      }
+    }
+  }
+
+  return entries;
+}
+
 export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
-  const [experiences, articles] = await Promise.all([
+  const [experiences, articles, programmatic] = await Promise.all([
     getExperiences(baseUrl),
     getArticles(baseUrl),
+    getProgrammaticEntries(baseUrl),
   ]);
 
-  return [...buildStaticSitemapEntries(baseUrl), ...experiences, ...articles];
+  return [...buildStaticSitemapEntries(baseUrl), ...experiences, ...articles, ...programmatic];
 }
