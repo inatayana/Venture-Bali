@@ -87,7 +87,7 @@ export function SiteFooter() {
             </div>
             <div className="mt-3 flex items-center gap-2 text-white/70 [&_button:hover]:bg-white/10">
               <LanguageSwitcher />
-              <CurrencySelector />
+              <CurrencySelector dropUp />
               <ThemeSwitcher />
             </div>
           </div>

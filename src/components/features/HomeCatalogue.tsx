@@ -83,24 +83,8 @@ export function HomeCatalogue({
     : '';
 
   return (
-    <section className="px-4 pb-16 md:pb-20 sm:px-6 lg:px-10">
+    <section className="px-4 pb-16 pt-5 md:pb-20 md:pt-7 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-[1440px] space-y-5 md:space-y-7">
-        {/* Desktop-only pill strip — the mobile bar is rendered above the hero */}
-        <div className="hidden items-center gap-2 md:flex">
-          <ExploreFilterPills
-            className="min-w-0 flex-1"
-            selectedCategory={selectedCategory}
-            onCategorySelect={setSelectedCategory}
-            transferIncluded={transferIncluded}
-            onTransferIncludedChange={setTransferIncluded}
-            selfDriveOnly={selfDriveOnly}
-            onSelfDriveChange={setSelfDriveOnly}
-            filtersOpen={false}
-            onFiltersToggle={() => router.push('/explore')}
-            bestSeller={bestSellerOnly}
-          />
-        </div>
-
         {(date || pax > 1) && (
           <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600">
             {date && (
@@ -159,6 +143,22 @@ export function HomeCatalogue({
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
+        </div>
+
+        {/* Desktop-only pill strip — directly below the section heading */}
+        <div className="hidden items-center gap-2 md:flex">
+          <ExploreFilterPills
+            className="min-w-0 flex-1"
+            selectedCategory={selectedCategory}
+            onCategorySelect={setSelectedCategory}
+            transferIncluded={transferIncluded}
+            onTransferIncludedChange={setTransferIncluded}
+            selfDriveOnly={selfDriveOnly}
+            onSelfDriveChange={setSelfDriveOnly}
+            filtersOpen={false}
+            onFiltersToggle={() => router.push('/explore')}
+            bestSeller={bestSellerOnly}
+          />
         </div>
 
         {hasActiveFilters && (
