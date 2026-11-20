@@ -1,20 +1,21 @@
 /**
- * BaliWild — Growth: Article & Multi-Format Producer
- * ---------------------------------------------------
+ * BaliWild — Growth Phase 1: Web Article Producer & Phase 2: Multi-Format Producer
+ * -------------------------------------------------------------------------------
  * Phase 1: web article pipeline (brief → gate → generate → save)
  * Phase 2: multi-format producer (VIDEO_SCRIPT, SHORT_HOOK, SOCIAL_POST, FAQ_BLOCK)
+ * Phase 3b: persist generated assets when `autoPersist` is set.
  *
- * Phase 1 reuses the existing Article table. Phase 2 returns in-memory payloads
- * (no DB persistence yet — GrowthTopic/ContentAsset tables await owner-approved
- * migration per docs/CONTENT_GROWTH_ARCHITECT.md §13.2).
+ * Phase 1 reuses the existing Article table. Phase 2 produces in-memory payloads
+ * (no DB persistence yet — ContentAsset table awaits owner-approved migration per spec §13.2).
  *
  * Guardrail: the deterministic gate runs BEFORE the model is called, so a
  * constitution-violating title never burns a Gemini request. The generated
- * asset is gated again before being returned.
+ * asset is gated again before it is returned.
  *
- * Docs: docs/CONTENT_GROWTH_ARCHITECT.md §6.2–§6.4 (Fase 1), §8 (Fase 2)
+ * Docs: docs/CONTENT_GROWTH_ARCHITECT.md §6.2–§6.4 (Fase 1), §8 (Fase 2), §9 (Fase 3b)
  */
 
+import { Prisma } from '@prisma/client';
 import {
   generateArticle,
   saveArticle,
@@ -23,6 +24,8 @@ import {
 import { validateVentureTitle } from '@/lib/titleValidator';
 import { isAllowedCategory } from '@/lib/taxonomy';
 import { gateGrowthArticle } from './gate';
+import { persistGrowthAsset } from './persist';
+import { computeContentHash } from './state';
 import {
   generateVideoScript,
   type VideoScriptPayload,
@@ -60,6 +63,14 @@ export interface AssetBrief extends ArticleBrief {
   format?: AssetFormat;
   /** Target platform. Defaults by format. */
   platform?: 'WEB' | 'YOUTUBE' | 'TIKTOK' | 'FACEBOOK' | 'AI_ANSWER';
+  /**
+   * When true, generated multi-format assets are persisted to the Growth
+   * tables (ContentAsset / ContentVersion / AuditEvent / PlatformPublish /
+   * ApprovalRequest). Requires the Phase 3 migration to be deployed.
+   * Default false — Phase 2 remains in-memory until the owner approves the
+   * deployment (§13.2 / §9).
+   */
+  autoPersist?: boolean;
 }
 
 export type ProduceStatus = 'drafted' | 'published' | 'rejected' | 'failed';
@@ -108,12 +119,6 @@ export function gateBrief(brief: AssetBrief): string | null {
 
 /**
  * Produce one web article from a brief (Phase 1).
- *
- * Steps:
- *  1. Deterministic gate (title constitution + taxonomy).
- *  2. Gemini generation via `generateArticle` (which validates its own output).
- *  3. Full deterministic gate on the generated content.
- *  4. Persist to the `Article` table as a draft (or published when asked).
  */
 export async function produceArticle(brief: ArticleBrief): Promise<ProduceOutcome> {
   const rejection = gateBrief(brief);
@@ -168,13 +173,7 @@ export async function produceArticle(brief: ArticleBrief): Promise<ProduceOutcom
 }
 
 /**
- * Produce one multi-format asset from a brief (Phase 2).
- *
- * Steps:
- *  1. Deterministic gate (title constitution + taxonomy).
- *  2. Format-specific Gemini generation (video script / short hook / social post / FAQ).
- *  3. Format-specific gate + structural checks inside the generator.
- *  4. Returns in-memory payload (NOT persisted — no ContentAsset table yet).
+ * Produce one multi-format asset from a brief (Phase 2 + Phase 3b wiring).
  */
 export async function produceAsset(brief: AssetBrief): Promise<AssetOutcome> {
   const rejection = gateBrief(brief);
@@ -190,7 +189,6 @@ export async function produceAsset(brief: AssetBrief): Promise<AssetOutcome> {
   const format = brief.format ?? 'ARTICLE';
   const lang = brief.language ?? 'id';
 
-  // Route to the correct generator
   let payload:
     | VideoScriptPayload
     | ShortHookPayload
@@ -200,7 +198,6 @@ export async function produceAsset(brief: AssetBrief): Promise<AssetOutcome> {
   let genRejection: string | null = null;
 
   if (format === 'ARTICLE') {
-    // Reuse Phase 1 pipeline for articles (persists to DB)
     const articleOutcome = await produceArticle(brief);
     if (articleOutcome.status === 'rejected' || articleOutcome.status === 'failed') {
       return {
@@ -210,11 +207,10 @@ export async function produceAsset(brief: AssetBrief): Promise<AssetOutcome> {
         contentHash: null,
       };
     }
-    // Article persisted — return a minimal payload wrapper
     return {
       status: 'generated',
       reason: null,
-      payload: null, // article saved to DB; caller uses articleId/slug
+      payload: null,
       contentHash: null,
     };
   }
@@ -265,8 +261,6 @@ export async function produceAsset(brief: AssetBrief): Promise<AssetOutcome> {
     };
   }
 
-  // Compute content hash for dupe detection (will be used when ContentAsset table lands)
-  const { computeContentHash } = await import('./state');
   const contentHash = await computeContentHash({
     title: payload.title,
     slug: payload.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
@@ -276,6 +270,19 @@ export async function produceAsset(brief: AssetBrief): Promise<AssetOutcome> {
     tags: payload.tags,
     ventureId: null,
   });
+
+  // Phase 3b: persist to Growth tables when requested (requires deployed migration).
+  if (brief.autoPersist === true) {
+    await persistGrowthAsset({
+      brief: generatorBrief,
+      payload: JSON.parse(JSON.stringify(payload)) as Prisma.InputJsonValue,
+      format,
+      platform: brief.platform ?? 'WEB',
+      status: 'READY',
+      actor: 'growth-producer',
+      tenantId: 'default',
+    });
+  }
 
   return {
     status: 'generated',

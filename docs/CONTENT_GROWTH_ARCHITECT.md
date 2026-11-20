@@ -92,7 +92,7 @@ pipeline with format-specific outputs:
   SOCIAL_POST|FAQ_BLOCK` — invalid formats → 400 `VALIDATION_ERROR`; non-article formats
   return `{ asset, contentHash }` in `data`.
 
-## 9. Fase 3 — Growth tables (schema + migration file, deployment pending)
+## 9. Fase 3 — Growth tables + Fase 3b persistence wiring
 
 Phase 3 adds the persistence layer the Phase 2 pipeline needs. The Prisma models and the
 SQL migration are **committed but not yet applied** to the live Supabase database; the
@@ -107,14 +107,20 @@ migration) to avoid a circular Prisma relation.
 **Migration:** `prisma/migrations/20261120210000_add_growth_tables/migration.sql`
 (`CREATE TABLE IF NOT EXISTS` + indexes + FKs; idempotent, additive only).
 
+**Fase 3b — Persist wiring:**
+`src/lib/growth/persist.ts` → `persistGrowthAsset({ brief, payload, format, platform,
+status, actor, tenantId })` creates: GrowthTopic → ContentAsset → ContentVersion →
+AuditEvent (GENERATE) → ApprovalRequest (PENDING) → PlatformPublish (DRAFT). Publication
+stays human-gated (autoPersist creates the draft approval/publish chain; `autoPublish=true`
+remains the Phase 1 manual override for the Article format).
+
 **Deploy procedure (owner):**
 1. `npm run db:deploy` — applies the new tables.
 2. `npm run db:seed` — must succeed on the migrated DB.
 3. `npm run smoke` — must pass against the running app.
 
-Until deployed, the growth tables exist only in schema/migration; the runtime does not
-yet query them (Phase 2 remains in-memory). Wiring `produceAsset` to persist `ContentAsset`
-rows is the next step after deployment.
+Until deployed, `produceAsset({ autoPersist: true })` still builds the outcome in-memory;
+the persistence call is ready to hit the newly created tables.
 
 ## 10. Testing
 
