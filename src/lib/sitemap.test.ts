@@ -1,4 +1,5 @@
-import { renderSitemapXml } from './sitemap';
+import { buildStaticSitemapEntries, renderSitemapXml } from './sitemap';
+import { MEGA_CATEGORY_SLUGS } from './taxonomy';
 
 describe('renderSitemapXml', () => {
   it('lists URLs with lastmod, changefreq and priority', () => {
@@ -40,5 +41,20 @@ describe('renderSitemapXml', () => {
     ]);
 
     expect(xml).toContain('https://baliwild.com/?category=atv&amp;sort=top');
+  });
+});
+
+describe('buildStaticSitemapEntries', () => {
+  it('includes the indexable explore listing', () => {
+    const urls = buildStaticSitemapEntries('https://baliwild.com').map((entry) => entry.url);
+    expect(urls).toContain('https://baliwild.com/explore');
+  });
+
+  it('includes all nine taxonomy hubs', () => {
+    const urls = buildStaticSitemapEntries('https://baliwild.com').map((entry) => entry.url);
+    for (const slug of MEGA_CATEGORY_SLUGS) {
+      expect(urls).toContain(`https://baliwild.com/activities/${slug}`);
+    }
+    expect(MEGA_CATEGORY_SLUGS).toHaveLength(9);
   });
 });

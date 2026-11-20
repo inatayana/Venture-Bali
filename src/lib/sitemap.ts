@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { mockExperiences } from '@/data/mockExperiences';
+import { MEGA_CATEGORY_SLUGS } from '@/lib/taxonomy';
 
 export interface SitemapEntry {
   url: string;
@@ -117,12 +118,11 @@ async function getArticles(baseUrl: string): Promise<SitemapEntry[]> {
   }
 }
 
-export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
-  const [experiences, articles] = await Promise.all([
-    getExperiences(baseUrl),
-    getArticles(baseUrl),
-  ]);
-
+/**
+ * Static, indexable routes. Kept pure so the hub coverage is unit-testable
+ * without a database connection.
+ */
+export function buildStaticSitemapEntries(baseUrl: string): SitemapEntry[] {
   return [
     {
       url: baseUrl,
@@ -150,7 +150,26 @@ export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry
       changeFrequency: 'monthly',
       priority: 0.3,
     },
-    ...experiences,
-    ...articles,
+    // robots.txt allows the listing and the 9 taxonomy hubs. Omitting them
+    // kept them invisible in Search Console despite being indexable.
+    {
+      url: `${baseUrl}/explore`,
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    ...MEGA_CATEGORY_SLUGS.map((slug) => ({
+      url: `${baseUrl}/activities/${slug}`,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    })),
   ];
+}
+
+export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
+  const [experiences, articles] = await Promise.all([
+    getExperiences(baseUrl),
+    getArticles(baseUrl),
+  ]);
+
+  return [...buildStaticSitemapEntries(baseUrl), ...experiences, ...articles];
 }

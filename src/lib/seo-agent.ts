@@ -117,16 +117,18 @@ export async function planBacklinkStrategy(topic: string): Promise<BacklinkStrat
 
 /**
  * Request indexing for a specific URL.
- * Currently a placeholder for Google Search Console API.
+ *
+ * NOT CONNECTED YET. The Google Indexing API requires a Service Account key
+ * and a verified Search Console property. Until that is approved and wired,
+ * this must report failure honestly — a fake "success" made operators believe
+ * a request had been sent when nothing happened (see TECHNICAL_GROWTH_AUDIT).
  */
 export async function requestIndexing(url: string): Promise<{ success: boolean; message: string }> {
-  // In a real implementation, this would call the Google Indexing API.
-  // Requires a Service Account key (JSON) from Google Cloud.
-  
-  console.log(`[SEO Agent] Requesting indexing for ${url}`);
-  
   return {
-    success: true,
-    message: `Indexing request submitted for ${url}. Google usually crawls within 24-48 hours.`,
+    success: false,
+    message:
+      `Indexing is not connected yet, so no request was sent for ${url}. ` +
+      'Submit the URL through Google Search Console manually, or approve a ' +
+      'Google Service Account so this action can call the Indexing API.',
   };
 }

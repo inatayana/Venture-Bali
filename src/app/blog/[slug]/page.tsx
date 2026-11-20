@@ -6,6 +6,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { generateArticleStructuredData, getBaseUrl } from '@/lib/seo';
+import { renderMarkdownLinks } from '@/lib/blogMarkdown';
 
 interface Article {
   id: string;
@@ -97,7 +98,7 @@ export default async function BlogDetailPage({ params }: { params: { slug: strin
   const title = readText(article.title);
   const description = readText(article.metaDesc);
 
-  const htmlContent = article.content
+  const htmlContent = renderMarkdownLinks(article.content)
     .replace(/^## (.+)$/gm, '<h2 class="font-heading text-2xl font-bold uppercase tracking-wide text-neutral-900 mt-8 mb-4">$1</h2>')
     .replace(/^# (.+)$/gm, '<h1 class="font-heading text-3xl font-bold text-neutral-900 mb-4">$1</h1>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')

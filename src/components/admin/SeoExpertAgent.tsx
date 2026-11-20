@@ -92,7 +92,7 @@ const [audit, setAudit] = useState<AuditData | null>(null);
       });
       const json = await res.json();
       if (json.success) setIndexResult(json.data.message);
-      else setError(json.error);
+      else setError(json.data?.message ?? json.error ?? 'Failed to request indexing');
     } catch {
       setError('Failed to request indexing');
     } finally {

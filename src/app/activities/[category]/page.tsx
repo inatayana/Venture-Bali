@@ -8,6 +8,7 @@ import { CatalogueSortMenu } from '@/components/features/CatalogueSortMenu';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { generateCategoryMetadata, generateCategoryStructuredData } from '@/lib/seo';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { resolveCategory } from '@/lib/taxonomy';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
 
@@ -84,14 +85,11 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     return url.toString();
   };
 
-  const structuredData = generateCategoryStructuredData(cat, getBaseUrl());
+  const structuredData = generateCategoryStructuredData(cat, getBaseUrl(), ventureItems);
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
+      <JsonLd data={structuredData} />
       <main className="min-h-screen bg-neutral-50">
         {/* Hero */}
         <section className="relative bg-brand-ink text-white py-12 lg:py-20">

@@ -72,7 +72,10 @@ export async function POST(request: Request) {
     if (parsed.data.action === 'index') {
       const url = (parsed.data.payload?.url as string | undefined) ?? '';
       const data = await requestIndexing(url);
-      return NextResponse.json({ success: true, data });
+      return NextResponse.json(
+        { success: data.success, data },
+        { status: data.success ? 200 : 501 }
+      );
     }
 
     return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 });
