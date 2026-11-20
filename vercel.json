@@ -11,6 +11,11 @@
     {
       "path": "/api/cron/review-requests",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/growth/publish-articles",
+      "schedule": "0 4 * * *",
+      "note": "Growth Phase 1: produces one gated web article as draft (autoPublish=false). No auto-publish; human approval gate stays in loop per docs/CONTENT_GROWTH_ARCHITECT.md §7.1."
     }
   ]
 }
