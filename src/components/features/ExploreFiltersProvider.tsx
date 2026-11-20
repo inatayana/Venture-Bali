@@ -1,7 +1,12 @@
 'use client';
 
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import {
+  applyExploreFilters,
+  parseExploreFilters,
+  type ExploreUrlFilterState,
+} from '@/lib/exploreFiltersUrl';
 
 export interface ExploreFiltersValue {
   transferIncluded: boolean;
@@ -37,18 +42,80 @@ const defaultValue: ExploreFiltersValue = {
 
 const ExploreFiltersContext = createContext<ExploreFiltersValue>(defaultValue);
 
+export interface ExploreFiltersProviderProps {
+  children: ReactNode;
+  /**
+   * Mirror the filters into the URL so /explore links are shareable, survive a
+   * refresh and come back with Back/Forward. Off on the homepage, where the
+   * hero owns the URL and `?category=` is only an inbound deep link.
+   */
+  syncUrl?: boolean;
+}
+
 /**
  * Shared catalogue filter state for the Explore experience.
  * Wrapping HomeHeader + the catalogue lets the mobile chrome filter the
  * grid live, exactly like /explore — without duplicating state.
+ *
+ * The URL is read once after hydration (SSR stays deterministic) and, when
+ * `syncUrl` is on, written back with `replaceState` so filtering never stacks
+ * browser history entries.
  */
-export function ExploreFiltersProvider({ children }: { children: ReactNode }) {
+export function ExploreFiltersProvider({ children, syncUrl = false }: ExploreFiltersProviderProps) {
   const [transferIncluded, setTransferIncluded] = useState(false);
   const [selfDriveOnly, setSelfDriveOnly] = useState(false);
   const [bestSellerOnly, setBestSellerOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('recommended');
   const [resultCount, setResultCount] = useState(0);
+  const [hydrated, setHydrated] = useState(false);
+
+  const applyState = (state: ExploreUrlFilterState) => {
+    setSelectedCategory(state.selectedCategory);
+    setSortBy(state.sortBy);
+    setTransferIncluded(state.transferIncluded);
+    setSelfDriveOnly(state.selfDriveOnly);
+    setBestSellerOnly(state.bestSellerOnly);
+  };
+
+  // Restore the shared link after hydration: PDP breadcrumbs and the footer
+  // already link to /?category=<slug>, and /explore links can carry every
+  // filter. Reading in an effect keeps the server HTML filter-free.
+  useEffect(() => {
+    applyState(parseExploreFilters(window.location.search));
+    setHydrated(true);
+    // Setters from useState are stable; this must run exactly once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Back/Forward and a restored tab must not leave stale filters on screen.
+  useEffect(() => {
+    const onPopState = () => applyState(parseExploreFilters(window.location.search));
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Mirror state into the URL. replaceState (not router.replace) keeps the
+  // catalogue client-side: no server round-trip, no history entry per toggle.
+  useEffect(() => {
+    if (!syncUrl || !hydrated) return;
+
+    const params = applyExploreFilters(window.location.search, {
+      selectedCategory,
+      sortBy,
+      transferIncluded,
+      selfDriveOnly,
+      bestSellerOnly,
+    });
+    const query = params.toString();
+    const pathname = window.location.pathname;
+    const nextUrl = `${pathname}${query ? `?${query}` : ''}`;
+    const currentUrl = `${pathname}${window.location.search}`;
+    if (nextUrl !== currentUrl) {
+      window.history.replaceState(null, '', nextUrl);
+    }
+  }, [syncUrl, hydrated, transferIncluded, selfDriveOnly, bestSellerOnly, selectedCategory, sortBy]);
 
   const value = useMemo<ExploreFiltersValue>(
     () => ({

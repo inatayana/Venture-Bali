@@ -182,6 +182,12 @@ describe('VentureExplorer explore-mode filter pills', () => {
     window.history.pushState({}, '', '/');
   });
 
+  // Both viewports render the strip (one is CSS-hidden), so the shared state is
+  // driven by either instance. Tests act on the first, like a screen reader on
+  // the visible one.
+  const selfDrivePill = () => screen.getAllByRole('button', { name: /self-drive/i })[0];
+  const transferPill = () => screen.getAllByRole('button', { name: /transfer included/i })[0];
+
   it('opens the filters dialog from the mobile control bar slider button', async () => {
     const user = userEvent.setup();
     render(<VentureExplorer ventures={[rafting]} mode="explore" />, { wrapper: Providers });
@@ -197,15 +203,19 @@ describe('VentureExplorer explore-mode filter pills', () => {
     const user = userEvent.setup();
     render(<VentureExplorer ventures={[rafting]} mode="explore" />, { wrapper: Providers });
 
-    expect(screen.getByRole('button', { name: /transfer included/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /self-drive/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /transfer included/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: /self-drive/i }).length).toBeGreaterThan(0);
     expect(screen.queryByRole('dialog', { name: 'Filters' })).not.toBeInTheDocument();
 
     // Exactly one filter entry per viewport: the strip pill is desktop-only,
     // mobile uses the top bar slider button.
-    expect(screen.getByRole('button', { name: /^filters/i })).toHaveClass('hidden', 'md:inline-flex');
+    const filterTriggers = screen.getAllByRole('button', { name: /^filters/i });
+    expect(filterTriggers.length).toBeGreaterThan(0);
+    for (const trigger of filterTriggers) {
+      expect(trigger).toHaveClass('hidden', 'md:inline-flex');
+    }
 
-    await user.click(screen.getByRole('button', { name: /^filters/i }));
+    await user.click(filterTriggers[0]);
     expect(screen.getByRole('dialog', { name: 'Filters' })).toBeInTheDocument();
   });
 
@@ -216,7 +226,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
       { wrapper: Providers }
     );
 
-    await user.click(screen.getByRole('button', { name: /self-drive/i }));
+    await user.click(selfDrivePill());
     expect(screen.getAllByText(withAvailability.title).length).toBeGreaterThan(0);
     expect(screen.queryByText(transferOnly.title)).not.toBeInTheDocument();
 
@@ -225,7 +235,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
     render(<VentureExplorer ventures={[withAvailability, transferOnly]} mode="explore" />, {
       wrapper: Providers,
     });
-    await user.click(screen.getByRole('button', { name: /transfer included/i }));
+    await user.click(transferPill());
     expect(screen.getAllByText(transferOnly.title).length).toBeGreaterThan(0);
     expect(screen.queryByText(withAvailability.title)).not.toBeInTheDocument();
   });
@@ -236,7 +246,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
       wrapper: Providers,
     });
 
-    await user.click(screen.getByRole('radio', { name: /^rafting/i }));
+    await user.click(screen.getAllByRole('radio', { name: /^rafting/i })[0]);
     expect(screen.getAllByText(rafting.title).length).toBeGreaterThan(0);
     expect(screen.queryByText(tubing.title)).not.toBeInTheDocument();
   });
@@ -247,7 +257,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
       wrapper: Providers,
     });
 
-    await user.click(screen.getByRole('button', { name: /self-drive/i }));
+    await user.click(selfDrivePill());
     expect(screen.getByRole('heading', { name: /explore 1 adventure/i })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /^reset$/i }));
@@ -262,7 +272,7 @@ describe('VentureExplorer explore-mode filter pills', () => {
       wrapper: Providers,
     });
 
-    await user.click(screen.getByRole('button', { name: /self-drive/i }));
+    await user.click(selfDrivePill());
     expect(screen.queryByText(transferOnly.title)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /reset filters/i }));

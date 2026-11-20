@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { X, ShieldCheck } from 'lucide-react';
 import { VentureCard } from '@/components/ui';
-import { resolveCategory } from '@/lib/taxonomy';
 import { filterCatalogue } from '@/lib/filterCatalogue';
+import { EXPLORE_SORT_OPTIONS } from '@/lib/exploreFiltersUrl';
 import { SortMenu } from '@/components/features/SortMenu';
 import { ExploreControlBar } from '@/components/features/ExploreControlBar';
 import { ExploreFilterPills } from '@/components/features/ExploreFilterPills';
@@ -20,14 +20,7 @@ import type { VentureItem } from '@/types/venture';
 /** First screenful on phones; desktop always shows the full catalogue. */
 const MOBILE_INITIAL_CARDS = 6;
 
-const SORT_OPTIONS = [
-  { value: 'recommended', label: 'Recommended' },
-  { value: 'popular', label: 'Best Sellers' },
-  { value: 'price-low', label: 'Price: Low to High' },
-  { value: 'price-high', label: 'Price: High to Low' },
-  { value: 'rating', label: 'Rating' },
-  { value: 'duration', label: 'Duration' },
-] as const;
+const SORT_OPTIONS = EXPLORE_SORT_OPTIONS;
 
 export interface VentureExplorerProps {
   ventures: VentureItem[];
@@ -73,24 +66,9 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
   const [searchOpen, setSearchOpen] = useState(false);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
 
-  // Deep link support: the PDP breadcrumb links to /?category=<slug>. Reading it
-  // after hydration keeps the homepage statically rendered. Date, guests and the
-  // query are restored by SearchProvider.
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const slug = params.get('category');
-    if (slug) {
-      const category = resolveCategory(slug);
-      if (category) setSelectedCategory(category.short);
-    }
-    const sort = params.get('sort');
-    if (sort && SORT_OPTIONS.some((option) => option.value === sort)) {
-      setSortBy(sort);
-    }
-    if (params.get('transferIncluded') === '1') setTransferIncluded(true);
-    if (params.get('selfDrive') === '1') setSelfDriveOnly(true);
-  }, [setSelectedCategory, setSortBy, setTransferIncluded, setSelfDriveOnly]);
-
+  // Deep links (?category=, ?sort=, ?transferIncluded=, ?selfDrive=) are read
+  // by ExploreFiltersProvider after hydration, so this component only consumes
+  // the resulting shared state. SearchProvider restores q/date/pax the same way.
   const filteredVentures = useMemo(
     () =>
       filterCatalogue(ventures, {
@@ -212,23 +190,24 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
           </div>
         )}
 
-        {mode === 'default' && (
-          <div className="hidden items-center gap-2 md:flex">
-            <ExploreFilterPills
-              className="min-w-0 flex-1"
-              selectedCategory={selectedCategory}
-              onCategorySelect={setSelectedCategory}
-              transferIncluded={transferIncluded}
-              onTransferIncludedChange={setTransferIncluded}
-              selfDriveOnly={selfDriveOnly}
-              onSelfDriveChange={setSelfDriveOnly}
-              filtersOpen={filterModalOpen}
-              onFiltersToggle={() => setFilterModalOpen(true)}
-              bestSeller={bestSellerOnly}
-            />
-            <SortMenu className="ml-3 shrink-0" value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
-          </div>
-        )}
+        {/* Desktop pill strip: homepage heading row owns its own Filters entry,
+            /explore uses the strip's Filters button. Hidden on mobile, where
+            the sticky control bar above provides the same controls. */}
+        <div className="hidden items-center gap-2 md:flex">
+          <ExploreFilterPills
+            className="min-w-0 flex-1"
+            selectedCategory={selectedCategory}
+            onCategorySelect={setSelectedCategory}
+            transferIncluded={transferIncluded}
+            onTransferIncludedChange={setTransferIncluded}
+            selfDriveOnly={selfDriveOnly}
+            onSelfDriveChange={setSelfDriveOnly}
+            filtersOpen={filterModalOpen}
+            onFiltersToggle={() => setFilterModalOpen(true)}
+            bestSeller={bestSellerOnly}
+          />
+          <SortMenu className="ml-3 shrink-0" value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
+        </div>
       </div>
 
       {/* Results */}

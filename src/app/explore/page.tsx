@@ -41,7 +41,7 @@ export default async function ExplorePage() {
 
   return (
     <main className="min-h-screen bg-neutral-50 pb-24">
-      <ExploreFiltersProvider>
+      <ExploreFiltersProvider syncUrl>
       {/* Desktop search card — mobile uses the in-page top bar (State 1) instead */}
       <div className="hidden md:block">
         <ExploreSearchCard />

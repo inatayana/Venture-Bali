@@ -48,6 +48,35 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     setIsReady(true);
   }, []);
 
+  // Back/Forward and a restored tab must not leave the previous query on
+  // screen while the URL says something else.
+  useEffect(() => {
+    const onPopState = () => setState(readInitialState());
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  // `submit()` writes non-default values. When everything is back to defaults
+  // (Reset, the date/guest clear chip, clearing the search box) drop the
+  // params so a copied URL always matches the visible results.
+  useEffect(() => {
+    if (!isReady) return;
+    if (state.query.trim() || state.date || state.pax > 1) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('q') && !params.has('date') && !params.has('pax')) return;
+
+    params.delete('q');
+    params.delete('date');
+    params.delete('pax');
+    const search = params.toString();
+    window.history.replaceState(
+      null,
+      '',
+      search ? `${window.location.pathname}?${search}` : window.location.pathname
+    );
+  }, [isReady, state.query, state.date, state.pax]);
+
   const setQuery = useCallback((query: string) => {
     setState((prev) => ({ ...prev, query }));
   }, []);
