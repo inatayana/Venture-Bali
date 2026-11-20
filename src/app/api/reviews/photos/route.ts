@@ -5,6 +5,7 @@ import { canReviewBooking } from '@/lib/reviewSchema';
 import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 import {
   ReviewPhotoError,
+  isReviewPhotoUploadEnabled,
   REVIEW_PHOTO_MAX_BYTES,
   uploadReviewPhoto,
   validateReviewPhoto,
@@ -20,6 +21,19 @@ export const dynamic = 'force-dynamic';
  * browser, checked again here, then written to the public Supabase bucket.
  */
 export async function POST(request: NextRequest) {
+  if (!isReviewPhotoUploadEnabled()) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: 'PHOTO_UPLOADS_DISABLED',
+          message: 'Review photos are disabled for this product.',
+        },
+      },
+      { status: 400 },
+    );
+  }
+
   const limit = await rateLimit(`review-photo:${clientIp(request)}`, 20, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(

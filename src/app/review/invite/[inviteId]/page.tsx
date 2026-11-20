@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { verifyInviteToken } from '@/lib/reviewInvite';
-import { isReviewPhotoStorageConfigured } from '@/lib/reviewPhotos';
+import { reviewPhotosEnabled } from '@/lib/reviewPhotos';
 import { FoundingGuestReviewForm } from '@/components/features/FoundingGuestReviewForm';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 
@@ -87,7 +87,7 @@ export default async function FoundingGuestReviewPage({ params, searchParams }: 
             ventureTitle={invite.venture.title}
             defaultName={invite.guestName ?? ''}
             defaultCountryCode={invite.guestCountryCode ?? 'ID'}
-            photosEnabled={isReviewPhotoStorageConfigured()}
+            photosEnabled={reviewPhotosEnabled()}
           />
         </div>
       </div>

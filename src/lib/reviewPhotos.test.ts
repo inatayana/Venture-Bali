@@ -1,6 +1,7 @@
 import {
   isAllowedReviewPhotoUrl,
   REVIEW_PHOTO_MAX_BYTES,
+  reviewPhotosEnabled,
   validateReviewPhoto,
 } from './reviewPhotos';
 
@@ -49,5 +50,41 @@ describe('review photo rules', () => {
     expect(
       isAllowedReviewPhotoUrl('https://demo.supabase.co/storage/v1/object/public/reviews/../a.webp')
     ).toBe(false);
+  });
+});
+
+describe('reviewPhotosEnabled', () => {
+  const ENV_KEYS = ['NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'REVIEW_PHOTOS_ENABLED'] as const;
+  const previous: Record<string, string | undefined> = {};
+
+  beforeEach(() => {
+    for (const key of ENV_KEYS) previous[key] = process.env[key];
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://demo.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key';
+  });
+
+  afterEach(() => {
+    for (const key of ENV_KEYS) {
+      if (previous[key] === undefined) delete process.env[key];
+      else process.env[key] = previous[key];
+    }
+  });
+
+  it('is false unless the flag is turned on', () => {
+    delete process.env.REVIEW_PHOTOS_ENABLED;
+    expect(reviewPhotosEnabled()).toBe(false);
+    process.env.REVIEW_PHOTOS_ENABLED = 'false';
+    expect(reviewPhotosEnabled()).toBe(false);
+  });
+
+  it('is true when the flag is on and storage is configured', () => {
+    process.env.REVIEW_PHOTOS_ENABLED = 'true';
+    expect(reviewPhotosEnabled()).toBe(true);
+  });
+
+  it('is false when the flag is on but storage is not configured', () => {
+    process.env.REVIEW_PHOTOS_ENABLED = 'true';
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    expect(reviewPhotosEnabled()).toBe(false);
   });
 });
