@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, Calendar, Users, ChevronRight } from 'lucide-react';
+import { Search, Calendar, Users, ChevronRight, X } from 'lucide-react';
 import { useSearch } from '@/components/search/SearchProvider';
 import { cn } from '@/utils/cn';
 
@@ -71,41 +71,51 @@ export function ExploreSearchCard({ hubs = HUBS, onSearch }: ExploreSearchCardPr
           isMobile ? '' : 'md:grid md:grid-cols-[1fr_auto_auto_auto] md:items-end md:gap-4 md:space-y-0'
         )}>
           
-          {/* Main Search - Where/What */}
+          {/* Main search — a real input, so the first click lets you type */}
           <div className={cn('w-full', isMobile ? '' : 'md:col-span-1')}>
-            <button
-              type="button"
-              onClick={() => setOpenField(openField === 'where' ? null : 'where')}
+            <div
               className={cn(
-                'w-full flex min-h-[52px] items-center gap-3 px-4 rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
-                'border-neutral-200 bg-white hover:border-brand-ink/50 hover:bg-brand/5 dark:border-white/10 dark:bg-neutral-900 dark:hover:border-brand-ink/50 dark:hover:bg-brand/5',
+                'flex min-h-[52px] w-full items-center gap-3 rounded-xl border px-4 transition-colors',
+                'border-neutral-200 bg-white hover:border-brand-ink/50 dark:border-white/10 dark:bg-neutral-900 dark:hover:border-brand-ink/50',
+                'focus-within:border-brand-ink focus-within:ring-2 focus-within:ring-brand/20',
                 openField === 'where' && 'border-brand-ink ring-2 ring-brand/20'
               )}
-              aria-label="Search adventures"
-              aria-expanded={openField === 'where'}
             >
-              <Search className="w-5 h-5 text-neutral-400 shrink-0" aria-hidden="true" />
-              <span className="flex-1 text-left text-base text-neutral-500 font-medium">
-                {query.trim() || 'Search destinations or adventures…'}
-              </span>
-              <ChevronRight className={cn('w-5 h-5 text-neutral-400 shrink-0 transition-transform', openField === 'where' && 'rotate-90')} aria-hidden="true" />
-            </button>
+              <Search className="h-5 w-5 shrink-0 text-neutral-400" aria-hidden="true" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onFocus={() => setOpenField('where')}
+                placeholder="Search destinations or adventures…"
+                aria-label="Search destinations or adventures"
+                autoComplete="off"
+                enterKeyHint="search"
+                className="min-w-0 flex-1 bg-transparent text-base font-medium text-neutral-900 placeholder:text-neutral-500 focus:outline-none dark:text-white"
+              />
+              {query ? (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  aria-label="Clear search"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-white"
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+              ) : (
+                <ChevronRight
+                  className={cn(
+                    'h-5 w-5 shrink-0 text-neutral-400 transition-transform',
+                    openField === 'where' && 'rotate-90'
+                  )}
+                  aria-hidden="true"
+                />
+              )}
+            </div>
 
-            {/* Expanded Where/Query */}
+            {/* Suggestions — opened by focusing the input, never a second field */}
             {openField === 'where' && (
               <div className="space-y-3 pt-2 border-t border-neutral-200 dark:border-white/10 animate-in slide-in-from-top-2 duration-200">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" aria-hidden="true" />
-                  <input
-                    type="search"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search destinations or adventures…"
-                    className="w-full px-4 py-3 pl-12 text-base border border-neutral-200 rounded-xl focus:border-brand-ink focus:ring-2 focus:ring-brand/20 focus:outline-none"
-                    autoComplete="off"
-                  />
-                </div>
-
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">Popular in Bali</p>
                   <div className="flex flex-wrap gap-2">

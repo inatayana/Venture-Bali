@@ -18,6 +18,12 @@ export interface ExploreFilterPillsProps {
   onFiltersToggle: () => void;
   /** Whether the Best Seller filter is active (counts towards the badge). */
   bestSeller?: boolean;
+  /**
+   * Render the "Filters" entry inside the strip. Turn off when the surrounding
+   * layout already owns a filter entry (e.g. the homepage heading row) so the
+   * same viewport never shows two buttons opening the same modal.
+   */
+  showFiltersTrigger?: boolean;
   className?: string;
 }
 
@@ -56,6 +62,46 @@ export function FilterTogglePill({
 }
 
 /**
+ * The "Filters" entry that opens the full-screen filter modal.
+ * Shared by the desktop pill strip, the homepage heading row and the mobile
+ * control bar so the trigger keeps one look everywhere.
+ */
+export function FiltersTriggerButton({
+  activeCount,
+  open = false,
+  onClick,
+  className,
+}: {
+  /** Number of active logistics/featured filters — drives the badge. */
+  activeCount: number;
+  open?: boolean;
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-expanded={open}
+      aria-haspopup="dialog"
+      className={cn(pillBase, open ? pillActive : pillIdle, className)}
+    >
+      <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+      Filters
+      {activeCount > 0 && (
+        <span className="ml-0.5 rounded-full bg-brand px-1.5 text-[11px] font-bold text-brand-ink">
+          {activeCount}
+        </span>
+      )}
+      <ChevronDown
+        className={cn('h-4 w-4 transition-transform', open && 'rotate-180')}
+        aria-hidden="true"
+      />
+    </button>
+  );
+}
+
+/**
  * Horizontal filter pill strip for the Explore catalogue.
  * Airbnb-style capsule row: [Filters] [Transfer Included] [Self-Drive] | category pills.
  * Categories reuse the shared CategoryChips component (single-select).
@@ -70,6 +116,7 @@ export function ExploreFilterPills({
   filtersOpen,
   onFiltersToggle,
   bestSeller = false,
+  showFiltersTrigger = true,
   className,
 }: ExploreFilterPillsProps) {
   const selectedSlug: MegaCategorySlug | null =
@@ -85,24 +132,14 @@ export function ExploreFilterPills({
       aria-label="Filter adventures"
     >
       {/* Desktop-only filter entry — mobile uses the top bar slider button instead, so exactly one filter entry per viewport. */}
-      <button
-        type="button"
-        onClick={onFiltersToggle}
-        aria-expanded={filtersOpen}
-        className={cn(pillBase, 'hidden md:inline-flex', filtersOpen ? pillActive : pillIdle)}
-      >
-        <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-        Filters
-        {advancedActive > 0 && (
-          <span className="ml-0.5 rounded-full bg-brand px-1.5 text-[11px] font-bold text-brand-ink">
-            {advancedActive}
-          </span>
-        )}
-        <ChevronDown
-          className={cn('h-4 w-4 transition-transform', filtersOpen && 'rotate-180')}
-          aria-hidden="true"
+      {showFiltersTrigger && (
+        <FiltersTriggerButton
+          activeCount={advancedActive}
+          open={filtersOpen}
+          onClick={onFiltersToggle}
+          className="hidden md:inline-flex"
         />
-      </button>
+      )}
 
       <FilterTogglePill
         active={transferIncluded}

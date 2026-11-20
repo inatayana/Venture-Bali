@@ -70,7 +70,10 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     else params.delete('pax');
 
     const search = params.toString();
-    window.history.replaceState(null, '', search ? `/?${search}` : '/');
+    // Keep the current route: submitting from /explore must not rewrite the URL
+    // into the homepage path (that made a reload land somewhere else).
+    const { pathname } = window.location;
+    window.history.replaceState(null, '', search ? `${pathname}?${search}` : pathname);
 
     document
       .getElementById('results')

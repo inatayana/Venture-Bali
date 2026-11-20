@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ShieldCheck, ChevronRight, SearchX } from 'lucide-react';
 import { useSearch } from '@/components/search/SearchProvider';
 import { useExploreFilters } from '@/components/features/ExploreFiltersProvider';
-import { useRouter } from 'next/navigation';
 import { SortMenu } from '@/components/features/SortMenu';
-import { ExploreFilterPills } from '@/components/features/ExploreFilterPills';
+import { ExploreFilterPills, FiltersTriggerButton } from '@/components/features/ExploreFilterPills';
+import { ExploreFilterModal } from '@/components/features/ExploreFilterModal';
 import { VentureCard } from '@/components/ui';
 import { filterCatalogue } from '@/lib/filterCatalogue';
 import type { VentureItem } from '@/types/venture';
@@ -33,7 +33,7 @@ export function HomeCatalogue({
 }: {
   ventures: VentureItem[];
 }) {
-  const router = useRouter();
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
   const { query, date, pax, setQuery, setDate, setPax } = useSearch();
   const {
     transferIncluded,
@@ -77,6 +77,9 @@ export function HomeCatalogue({
     bestSellerOnly ||
     selectedCategory !== null ||
     sortBy !== 'recommended';
+
+  const activeAdvancedFilters =
+    (transferIncluded ? 1 : 0) + (selfDriveOnly ? 1 : 0) + (bestSellerOnly ? 1 : 0);
 
   const dateLabel = date
     ? new Date(`${date}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
@@ -123,7 +126,7 @@ export function HomeCatalogue({
           </p>
         </div>
 
-        {/* Section title + sort */}
+        {/* Section title + filter / sort / view all */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-heading text-2xl font-bold text-neutral-900 dark:text-white">
@@ -133,11 +136,16 @@ export function HomeCatalogue({
               Guided local trips · Safety-checked gear · Transparent pricing
             </p>
           </div>
-          <div className="flex items-center justify-between gap-2 sm:justify-end">
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            <FiltersTriggerButton
+              activeCount={activeAdvancedFilters}
+              open={filterModalOpen}
+              onClick={() => setFilterModalOpen(true)}
+            />
             <SortMenu value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
             <Link
               href="/explore"
-              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-5 text-sm font-semibold text-neutral-900 transition-colors hover:border-neutral-900 dark:border-white/10 dark:bg-neutral-800 dark:text-white"
+              className="ml-auto inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-5 text-sm font-semibold text-neutral-900 transition-colors hover:border-neutral-900 sm:ml-0 dark:border-white/10 dark:bg-neutral-800 dark:text-white"
             >
               View all
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -145,7 +153,8 @@ export function HomeCatalogue({
           </div>
         </div>
 
-        {/* Desktop-only pill strip — directly below the section heading */}
+        {/* Desktop-only quick pills — directly below the section heading.
+            The Filters modal entry lives in the heading row, so it is omitted here. */}
         <div className="hidden items-center gap-2 md:flex">
           <ExploreFilterPills
             className="min-w-0 flex-1"
@@ -155,9 +164,10 @@ export function HomeCatalogue({
             onTransferIncludedChange={setTransferIncluded}
             selfDriveOnly={selfDriveOnly}
             onSelfDriveChange={setSelfDriveOnly}
-            filtersOpen={false}
-            onFiltersToggle={() => router.push('/explore')}
+            filtersOpen={filterModalOpen}
+            onFiltersToggle={() => setFilterModalOpen(true)}
             bestSeller={bestSellerOnly}
+            showFiltersTrigger={false}
           />
         </div>
 
@@ -214,6 +224,28 @@ export function HomeCatalogue({
           </>
         )}
       </div>
+
+      {/* Filter sheet opened from the heading row (desktop + mobile). */}
+      <ExploreFilterModal
+        open={filterModalOpen}
+        onClose={() => setFilterModalOpen(false)}
+        transferIncluded={transferIncluded}
+        onTransferIncludedChange={setTransferIncluded}
+        selfDriveOnly={selfDriveOnly}
+        onSelfDriveChange={setSelfDriveOnly}
+        bestSeller={bestSellerOnly}
+        onBestSellerChange={setBestSellerOnly}
+        selectedCategory={selectedCategory}
+        onCategorySelect={setSelectedCategory}
+        resultCount={filtered.length}
+        onClearAll={() => {
+          setTransferIncluded(false);
+          setSelfDriveOnly(false);
+          setBestSellerOnly(false);
+          setSelectedCategory(null);
+          setSortBy('recommended');
+        }}
+      />
     </section>
   );
 }
