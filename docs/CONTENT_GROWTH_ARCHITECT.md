@@ -1,6 +1,6 @@
-# Content Growth Architect — Phase 1
+# Content Growth Architect — Phases 1 & 2
 
-> Version: 1.0 · Status: Phase 1 — web article producer (draft, human-gated)
+> Version: 1.0 · Status: Phase 1 (web article producer, draft, human-gated) + Phase 2 (multi-format producer, in-memory)
 
 ## 1. Overview
 
@@ -12,6 +12,7 @@ SEO and brand discovery. Phase 1 is the **article producer**:
 - Pure pipeline modules in `src/lib/growth/` — no DB writes.
 - Persistence uses the existing `Article` table — no new tables yet (§13.2).
 - Entry point: `GET /api/cron/growth/publish-articles` (Vercel Cron, see `vercel.json`).
+- Phase 2 produces in-memory multi-format assets (§8) — no persistence yet.
 
 ## 2. Guardrail — 9 mega categories only
 
@@ -66,6 +67,30 @@ reason, slug, articleId }`.
 
 Default `autoPublish=false`: the job stores a draft; publication is human-gated
 (admin panel / later workflow).
+
+## 8. Fase 2 — Multi-Format Producer
+
+`produceAsset(brief: AssetBrief): Promise<AssetOutcome>` (`src/lib/growth/produce.ts`) extends the
+pipeline with format-specific outputs:
+
+- `AssetBrief` — `ArticleBrief` + `format` (`ARTICLE` | `VIDEO_SCRIPT` | `SHORT_HOOK` |
+  `SOCIAL_POST` | `FAQ_BLOCK`) + optional `platform` (`YOUTUBE` default for `VIDEO_SCRIPT`;
+  otherwise `WEB`).
+- `AssetOutcome = { status: 'generated' | 'rejected' | 'failed', reason, payload, contentHash }`.
+- Modules (`src/lib/growth/formats/`, barrel `formats/index.ts`):
+  - `videoScript.ts` — `generateVideoScript` → YouTube script payload (`title`, `intro`,
+    `sections[{title, duration, summary}]`, `cta`, `estimatedDuration`, `keywords`, `tags`).
+  - `shortHook.ts` — `generateShortHook` → short hook payload for social channels.
+  - `socialPost.ts` — `generateSocialPost` → platform caption payload.
+  - `faqBlock.ts` — `generateFaqBlock` → FAQ entries payload.
+- All generators call Gemini (`generateJson` via `@/lib/gemini`) and re-run the deterministic
+  `gateGrowthArticle` on the payload before it is returned.
+- Phase 2 assets are **in-memory** — not persisted (the ContentAsset table awaits the
+  owner-approved migration, §13.2). The `ARTICLE` format routes through the Phase 1
+  pipeline (`produceArticle`, persisted as draft).
+- Cron entry: `GET /api/cron/growth/publish-articles?format=VIDEO_SCRIPT|SHORT_HOOK|
+  SOCIAL_POST|FAQ_BLOCK` — invalid formats → 400 `VALIDATION_ERROR`; non-article formats
+  return `{ asset, contentHash }` in `data`.
 
 ## 10. Testing
 
