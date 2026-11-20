@@ -92,11 +92,40 @@ pipeline with format-specific outputs:
   SOCIAL_POST|FAQ_BLOCK` — invalid formats → 400 `VALIDATION_ERROR`; non-article formats
   return `{ asset, contentHash }` in `data`.
 
+## 9. Fase 3 — Growth tables (schema + migration file, deployment pending)
+
+Phase 3 adds the persistence layer the Phase 2 pipeline needs. The Prisma models and the
+SQL migration are **committed but not yet applied** to the live Supabase database; the
+owner runs `npm run db:deploy` when ready (safe `migrate deploy`, no drift reset).
+
+**Prisma models** (`prisma/schema.prisma`): `GrowthTopic`, `ContentAsset`, `ContentVersion`,
+`FactSource`, `PlatformPublish`, `ApprovalRequest`, `MetricSnapshot`, `AuditEvent`.
+They mirror `GROWTH_TABLES` in `src/lib/growth/schema.ts` (snake_case columns ↔ camelCase
+Prisma fields). `ContentAsset.currentVersionId` is a plain scalar (the DB FK is in the
+migration) to avoid a circular Prisma relation.
+
+**Migration:** `prisma/migrations/20261120210000_add_growth_tables/migration.sql`
+(`CREATE TABLE IF NOT EXISTS` + indexes + FKs; idempotent, additive only).
+
+**Deploy procedure (owner):**
+1. `npm run db:deploy` — applies the new tables.
+2. `npm run db:seed` — must succeed on the migrated DB.
+3. `npm run smoke` — must pass against the running app.
+
+Until deployed, the growth tables exist only in schema/migration; the runtime does not
+yet query them (Phase 2 remains in-memory). Wiring `produceAsset` to persist `ContentAsset`
+rows is the next step after deployment.
+
 ## 10. Testing
 
 `produce.test.ts`, `schema.test.ts`, `state.test.ts` (`npm test`).
 
 ## 13. Migration backlog (§13.2)
 
-- `GrowthTopic` / `ContentAsset` tables + audit — pending owner approval.
+- `GrowthTopic` / `ContentAsset` / `ContentVersion` / `FactSource` / `PlatformPublish` /
+  `ApprovalRequest` / `MetricSnapshot` / `AuditEvent` — schema + migration file committed;
+  **deployment pending owner `npm run db:deploy`** (§9).
+- Persisting `produceAsset` output to `ContentAsset` rows — pending deployment.
+- Monitor/decay pipeline (metric ingestion → `NEEDS_REFRESH`) — pending.
+- Backlink outreach + multi-tenancy — pending.
 - Auto-publish pipeline — pending.
