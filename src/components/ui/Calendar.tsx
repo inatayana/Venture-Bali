@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   format,
@@ -19,6 +19,10 @@ import { cn } from '@/utils/cn';
 interface CalendarProps {
   selectedDate: Date | null;
   onDateSelect: (date: Date) => void;
+  /** Dates the server marked as sold out (rendered as crossed-out). */
+  unavailableDates?: string[];
+  /** Fires whenever the visible month changes (including on mount). */
+  onMonthChange?: (month: Date) => void;
   blackoutDates?: string[];
   minDate?: Date;
   className?: string;
@@ -29,6 +33,8 @@ const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 export function Calendar({
   selectedDate,
   onDateSelect,
+  unavailableDates = [],
+  onMonthChange,
   blackoutDates = [],
   minDate = new Date(),
   className,
@@ -42,6 +48,16 @@ export function Calendar({
     [blackoutDates]
   );
 
+  const unavailableDateObjects = useMemo(
+    () => unavailableDates.map((d) => new Date(d)),
+    [unavailableDates]
+  );
+
+  // Notify the parent of the visible month so it can fetch availability data.
+  useEffect(() => {
+    onMonthChange?.(currentMonth);
+  }, [currentMonth, onMonthChange]);
+
   const days = useMemo(() => {
     const start = startOfMonth(currentMonth);
     const end = endOfMonth(currentMonth);
@@ -52,6 +68,9 @@ export function Calendar({
 
   const isBlackout = (date: Date) =>
     blackoutDateObjects.some((bd) => isSameDay(bd, date));
+
+  const isUnavailable = (date: Date) =>
+    unavailableDateObjects.some((bd) => isSameDay(bd, date));
 
   const isPast = (date: Date) => isBefore(date, today);
 
@@ -99,9 +118,11 @@ export function Calendar({
         ))}
 
         {days.map((day) => {
-          const disabled = isPast(day) || isBlackout(day);
+          const disabled = isPast(day) || isBlackout(day) || isUnavailable(day);
+          const soldOut = isUnavailable(day);
           const selected = selectedDate && isSameDay(day, selectedDate);
           const isToday = isSameDay(day, new Date());
+          const dayLabel = format(day, 'MMMM d, yyyy');
 
           return (
             <button
@@ -109,6 +130,7 @@ export function Calendar({
               type="button"
               onClick={() => !disabled && onDateSelect(day)}
               disabled={disabled}
+              aria-label={soldOut && !isPast(day) ? `${dayLabel} — sold out` : dayLabel}
               className={cn(
                 'aspect-square flex items-center justify-center rounded-lg text-sm transition-colors',
                 disabled && 'text-gray-300 cursor-not-allowed line-through',
@@ -116,7 +138,6 @@ export function Calendar({
                 selected && 'bg-brand-ink text-brand font-bold dark:bg-brand dark:text-brand-ink',
                 isToday && !selected && 'ring-2 ring-brand'
               )}
-              aria-label={format(day, 'MMMM d, yyyy')}
             >
               {format(day, 'd')}
             </button>

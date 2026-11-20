@@ -3,12 +3,28 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { isSlotBookable } from '@/lib/pricing';
 import { hoursBeforeActivity } from '@/lib/refundUtils';
+import { buildAvailabilityDays, parseAvailabilityRange } from '@/lib/availabilityRange';
 import type { FulfillmentMode } from '@prisma/client';
 
-const availabilitySchema = z.object({
-  variantId: z.string().min(1),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
-});
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+const dateField = z.string().regex(DATE_REGEX, 'Invalid date format (YYYY-MM-DD)');
+
+/** Two modes: one date (default) or a month range. */
+const availabilitySchema = z.union(
+  [
+    z.object({ variantId: z.string().min(1), date: dateField }),
+    z
+      .object({ variantId: z.string().min(1), from: dateField, to: dateField })
+      .superRefine((value, ctx) => {
+        try {
+          parseAvailabilityRange(value.from, value.to);
+        } catch (error) {
+          ctx.addIssue({ code: 'custom', message: (error as Error).message });
+        }
+      }),
+  ],
+  { message: 'Provide "date", or both "from" and "to"' }
+);
 
 /**
  * Centralized availability API.
@@ -33,7 +49,13 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const { variantId, date } = parsed.data;
+  const variantId = parsed.data.variantId;
+  // Union of { variantId, date } | { variantId, from, to } — annotate so both
+  // branches read uniformly; the range branch below checks `from && to`.
+  const data: { variantId: string; date?: string; from?: string; to?: string } = parsed.data;
+  const date = data.date ?? null;
+  const from = data.from ?? null;
+  const to = data.to ?? null;
   const now = new Date();
 
   try {
@@ -62,6 +84,58 @@ export async function GET(request: NextRequest) {
     }
 
     const fulfillmentMode = variant.fulfillmentMode as FulfillmentMode;
+
+    if (from && to) {
+      let days;
+      try {
+        days = buildAvailabilityDays({
+          slots: variant.slotTimes,
+          bookings: await prisma.booking
+            .groupBy({
+              by: ['slotTimeId', 'bookingDate'],
+              where: {
+                variantId,
+                bookingDate: { gte: from, lte: to },
+                OR: [
+                  { paymentStatus: 'PAID' },
+                  { paymentStatus: 'PENDING', expiresAt: { gt: now } },
+                ],
+              },
+              _sum: { paxCount: true },
+            })
+            .then((rows) =>
+              rows.map((row) => ({
+                slotTimeId: row.slotTimeId,
+                bookingDate: row.bookingDate,
+                paxCount: row._sum.paxCount,
+              }))
+            ),
+          blackoutDates: (variant.blackoutDates as string[]) ?? [],
+          fulfillmentMode,
+          from,
+          to,
+          now,
+        });
+      } catch (error) {
+        if (error instanceof RangeError) {
+          return NextResponse.json(
+            { success: false, error: { code: 'VALIDATION_ERROR', message: error.message } },
+            { status: 400 },
+          );
+        }
+        throw error;
+      }
+
+      return NextResponse.json({ success: true, data: { variantId, from, to, days } });
+    }
+
+    // Single-date mode: the refine above guarantees this branch has a date.
+    if (!date) {
+      return NextResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'Provide "date", or both "from" and "to"' } },
+        { status: 400 },
+      );
+    }
 
     // Aggregate current bookings per slot (PAID + active PENDING)
     const booked = await prisma.booking.groupBy({

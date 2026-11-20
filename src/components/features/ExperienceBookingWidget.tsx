@@ -1,6 +1,7 @@
 ﻿'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { endOfMonth, format, startOfMonth } from 'date-fns';
 import { ArrowLeft, CalendarDays, Clock, Lock, MapPin, Shield, Tag, Users } from 'lucide-react';
 import { Button, Stepper, Calendar as CalendarComponent, TimeSlotPill } from '@/components/ui';
 import { PriceApprox } from '@/components/currency/PriceApprox';
@@ -139,6 +140,39 @@ export function ExperienceBookingWidget({
     summary: { totalAvailable: number; isFullyBooked: boolean };
   } | null>(null);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
+
+  // Sold-out flag per date for the calendar: a range fetch per visible month.
+  const [soldOutDates, setSoldOutDates] = useState<string[]>([]);
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
+
+  const handleMonthChange = useCallback((month: Date) => setCalendarMonth(startOfMonth(month)), []);
+
+  useEffect(() => {
+    if (!variant) {
+      setSoldOutDates([]);
+      return;
+    }
+
+    const from = format(startOfMonth(calendarMonth), 'yyyy-MM-dd');
+    const to = format(endOfMonth(calendarMonth), 'yyyy-MM-dd');
+    let cancelled = false;
+
+    fetch(`/api/availability?variantId=${variant.id}&from=${from}&to=${to}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled || !data?.success || !Array.isArray(data.data?.days)) return;
+        setSoldOutDates(
+          (data.data.days as Array<{ date: string; isFullyBooked: boolean }>)
+            .filter((day) => day.isFullyBooked)
+            .map((day) => day.date)
+        );
+      })
+      .catch((err) => console.error('Sold-out dates fetch failed:', err));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [variant, calendarMonth]);
 
   useEffect(() => {
     setZoneOverride(false);
@@ -459,16 +493,20 @@ export function ExperienceBookingWidget({
             const date = new Date();
             date.setDate(date.getDate() + quick.offset);
             const active = config.date?.toDateString() === date.toDateString();
+            const soldOut = soldOutDates.includes(format(date, 'yyyy-MM-dd'));
             return (
               <button
                 key={quick.label}
                 type="button"
+                disabled={soldOut}
+                aria-label={`${quick.label}${soldOut ? ' — sold out' : ''}`}
                 onClick={() => onChange({ date, slot: null })}
                 className={cn(
                   'min-h-[44px] rounded-lg border-2 px-4 text-sm font-medium transition-colors',
                   active
                     ? 'border-neutral-900 bg-neutral-900 text-white dark:border-brand dark:bg-brand dark:text-brand-ink'
-                    : 'border-neutral-200 text-neutral-600 hover:border-neutral-400'
+                    : 'border-neutral-200 text-neutral-600 hover:border-neutral-400',
+                  soldOut && !active && 'cursor-not-allowed border-neutral-300 bg-neutral-100 text-neutral-400'
                 )}
               >
                 {quick.label}
@@ -480,10 +518,15 @@ export function ExperienceBookingWidget({
           <CalendarComponent
             selectedDate={config.date}
             onDateSelect={(date) => onChange({ date, slot: null })}
+            unavailableDates={soldOutDates}
+            onMonthChange={handleMonthChange}
             blackoutDates={variant?.blackoutDates ?? []}
             minDate={new Date()}
           />
         </div>
+        <p className="mt-2 text-xs text-neutral-500">
+          Crossed-out dates are sold out or closed — pick another day.
+        </p>
         {dateBlocked && (
           <p className="mt-2 text-sm text-red-600">This date is not available. Please pick another day.</p>
         )}
