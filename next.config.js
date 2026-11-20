@@ -80,6 +80,14 @@ const nextConfig = phase => ({
      */
     dangerouslyAllowSVG: true,
     contentDispositionType: 'inline',
+    /*
+     * WebP only. AVIF output is deliberately NOT enabled: Next 14.2.35 is still
+     * affected by GHSA-2xp9-vwfh-vxw4 (RCE in the Image Optimization API when
+     * AVIF is used — see TECH_DECISION_LOG §12). Revisit after the Next major
+     * upgrade. sharp still powers the WebP encoder (faster than squoosh) and
+     * the server-side normaliser in src/lib/imageNormalize.ts.
+     */
+    formats: ['image/webp'],
     remotePatterns: supabaseImagePatterns(),
   },
   async redirects() {

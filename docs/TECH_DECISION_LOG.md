@@ -391,6 +391,47 @@ upgrade PR lands, regenerate the baseline and prune `next`, `postcss`, `zod`,
 
 ---
 
+## 15. Decision — sharp for server-side image normalisation (WebP)
+
+**Date:** 2026-11-20 · **Status:** Approved by owner · **Owner:** Engineering
+
+**Decision.** Add `sharp` as a production dependency and use it for two jobs:
+
+1. **Normalise every admin product upload** (`src/lib/imageNormalize.ts`, called
+   from `uploadProductPhoto`): decode the uploaded bytes, apply EXIF
+   orientation, strip all metadata, resize to a 1600 px longest edge and
+   re-encode a single WebP master ≤ 300 KB. Files that do not decode are
+   rejected with `INVALID_FILE`, even when `Content-Type: image/webp` was sent.
+2. **Power the production image optimizer** on `next start` (VPS phase), where
+   Next previously fell back to the slower squoosh/WASM encoder.
+
+Browser compression in the admin form stays the first layer (the editor sees
+the final size/dimensions before saving); the server is the second layer that
+guarantees the stored invariant.
+
+**Rationale.** The media memo previously stored whatever bytes the browser
+sent and trusted the `Content-Type` header. With an admin session or a scripted
+call that header is trivially spoofed; sharp makes "stored media is always a
+decodable WebP master under budget" enforceable, and removes GPS/device EXIF
+that the browser pipeline could miss if it is ever bypassed. It also unblocks
+the VPS deployment that the memo flagged as requiring sharp.
+
+**AVIF deferred.** `images.formats` stays `['image/webp']`. Enabling AVIF output
+would exercise the code path in `GHSA-2xp9-vwfh-vxw4` (see §12) and Next 14.2.35
+carries that advisory. AVIF is revisited in the Next 15/16 upgrade sprint, not
+before.
+
+**Alternatives rejected.** Trusting browser output (no server invariant,
+spoofable header); Supabase Image Transform (paid plan, rejected in the media
+memo); converting on the CDN (no CDN transform available on the current plan).
+
+**Consequences.** Admin uploads cost ~100–300 ms of CPU per photo (rate-limited
+to 40/minute, editor-only). `npm run audit:check` must accept the sharp
+transitives; if the gate flags a new high/critical advisory, record it in
+`scripts/audit-baseline.json` rather than weakening the gate.
+
+---
+
 **Approved by:** BaliWild Engineering Team
 **Date:** October 2026
 **Next Review:** January 2027

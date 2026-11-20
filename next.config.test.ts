@@ -23,12 +23,14 @@ describe('next.config', () => {
     expect(nextConfig(PHASE_PRODUCTION_SERVER).distDir).toBe('.next');
   });
 
-  it('keeps the SVG image optimizer settings', () => {
+  it('keeps the SVG image optimizer settings and WebP-only output', () => {
     // next/jest loads the local .env, so make the baseline hermetic.
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     expect(nextConfig(PHASE_PRODUCTION_SERVER).images).toEqual({
       dangerouslyAllowSVG: true,
       contentDispositionType: 'inline',
+      // AVIF stays off until the Next upgrade clears GHSA-2xp9-vwfh-vxw4.
+      formats: ['image/webp'],
       remotePatterns: [],
     });
   });

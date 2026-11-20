@@ -1,12 +1,13 @@
 import { createHash } from 'node:crypto';
+import { ImageNormalizeError, normalizeImageToWebp } from '@/lib/imageNormalize';
 
 /**
  * Product hero/gallery media live in a public Supabase Storage bucket
  * (`venture-assets`, prefix `products/`). The admin form compresses each
  * photo in the browser to a single WebP master (see
- * `docs/MEMO_MEDIA_ARCHITECTURE.md`); this module stores exactly one file
- * per photo. Names are content hashes, so re-uploading the same photo never
- * creates a duplicate.
+ * `docs/MEMO_MEDIA_ARCHITECTURE.md`); the server re-decodes and normalises it
+ * again with sharp before storing exactly one file per photo. Names are
+ * content hashes, so re-uploading the same photo never creates a duplicate.
  */
 
 /** Final compressed WebP master the admin form uploads. */
@@ -62,10 +63,22 @@ export async function uploadProductPhoto(file: File): Promise<string> {
   const invalid = validateProductPhoto(file);
   if (invalid) throw new ProductMediaError(invalid, 'INVALID_FILE');
 
-  const bytes = Buffer.from(await file.arrayBuffer());
+  let normalized;
+  try {
+    normalized = await normalizeImageToWebp(Buffer.from(await file.arrayBuffer()), {
+      maxEdge: 1600,
+      maxBytes: PRODUCT_PHOTO_MAX_BYTES,
+    });
+  } catch (error) {
+    if (error instanceof ImageNormalizeError) {
+      throw new ProductMediaError(error.message, 'INVALID_FILE');
+    }
+    throw error;
+  }
+
   // Content-hash naming: an identical photo maps to an identical path, so a
   // re-upload overwrites (upsert) instead of duplicating the stored file.
-  const hash = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
+  const hash = createHash('sha256').update(normalized.buffer).digest('hex').slice(0, 12);
   const month = new Date().toISOString().slice(0, 7);
   const path = `products/${month}/${hash}.webp`;
   const encodedPath = path.split('/').map(encodeURIComponent).join('/');
@@ -81,7 +94,7 @@ export async function uploadProductPhoto(file: File): Promise<string> {
         'x-upsert': 'true',
         'cache-control': '31536000',
       },
-      body: bytes,
+      body: normalized.buffer,
     },
   );
 
