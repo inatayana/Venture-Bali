@@ -125,3 +125,14 @@ describe('HomeCatalogue filter entry', () => {
     expect(screen.queryAllByRole('heading', { name: 'Ayung Rafting Adventure' })).toHaveLength(0);
   });
 });
+
+describe('HomeCatalogue results anchor', () => {
+  it('provides the #results target that the hero CTA and SearchProvider scroll to', () => {
+    render(<HomeCatalogue ventures={[rafting, atv]} />, { wrapper: Providers });
+
+    const target = document.getElementById('results');
+    expect(target).not.toBeNull();
+    expect(target?.tagName).toBe('SECTION');
+    expect(target).toHaveTextContent('Explore All Guided Adventures');
+  });
+});

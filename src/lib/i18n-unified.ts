@@ -76,10 +76,10 @@ const translations = {
   hero: {
     tagline: { en: 'Own the wild. Adventure, booked in minutes.', id: 'Taklukkan alam liar. Petualangan, dipesan dalam hitungan menit.' },
     categories: { en: 'Bali · 9 adventure categories', id: 'Bali · 9 kategori petualangan' },
-    badge: { en: "BALI'S TRUSTED OUTDOOR & NATURE OPERATOR", id: 'OPERATOR OUTDOOR & ALAM TEPERCAYA DI BALI' },
-    book: { en: "Discover Bali's Wild Beauty,", id: 'Jelajah Keindahan Liar Bali,' },
-    own: { en: 'Guided Safely.', id: 'Dipandu dengan Aman.' },
-    sub: { en: 'From gentle river tubing and scenic ATV rides to full-day island escapes. Operated directly by our local team with safety-checked gear and seamless pickup.', id: 'Mulai dari tubing sungai yang tenang hingga ATV seharian. Dioperasikan langsung oleh tim lokal kami dengan peralatan ter-check dan pickup tanpa ribet.' },
+    badge: { en: '100% BALI-OWNED & OPERATED · BUILT FOR BALI', id: '100% DIMILIKI & DIOPERASIKAN WARGA BALI · UNTUK BALI' },
+    book: { en: 'Discover Bali. Book Direct.', id: 'Jelajahi Bali. Pesan Langsung.' },
+    own: { en: 'Guided by Locals, Priced Honestly.', id: 'Dipandu Lokal, Harga Jujur.' },
+    sub: { en: "Your gateway to Bali, arranged by locals. From adventure to the island beyond, every booking supports local livelihoods and helps protect Bali's nature and traditions.", id: 'Gerbang Anda ke Bali, diatur oleh orang lokal. Dari petualangan hingga pulau di luar itu, setiap pemesanan menopang penghidupan warga Bali dan menjaga alam serta tradisi pulau ini.' },
     idrNote: { en: 'Prices in IDR · other currencies are approximate', id: 'Harga dalam IDR · mata uang lain hanya perkiraan' },
     best: { en: 'Best Sellers', id: 'Paling Dicari' },
     combos: { en: 'Adrenaline Combos', id: 'Kombinasi Adrenalin' },
@@ -109,6 +109,7 @@ const translations = {
     bookingIn: { en: 'in', id: 'di' },
   },
   trust: {
+    beginner: { en: 'Beginner & Family Friendly', id: 'Ramah Pemula & Keluarga' },
     instant: { en: 'Instant confirmation', id: 'Konfirmasi instan' },
     reschedule: { en: 'Free reschedule ≥24h', id: 'Reschedule gratis ≥24 jam' },
     refund: { en: '80% refund ≥24h', id: 'Refund 80% ≥24 jam' },
@@ -353,6 +354,7 @@ const LEGACY_KEY_MAP: Record<string, [string, string]> = {
   heroBookingIn: ['hero', 'bookingIn'],
   
   // Trust section
+  trustBeginner: ['trust', 'beginner'],
   trustInstant: ['trust', 'instant'],
   trustReschedule: ['trust', 'reschedule'],
   trustRefund: ['trust', 'refund'],

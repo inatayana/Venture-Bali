@@ -90,7 +90,12 @@ export function HomeCatalogue({
     : '';
 
   return (
-    <section className="px-4 pb-16 pt-5 md:pb-20 md:pt-7 sm:px-6 lg:px-10">
+    // Anchor target for the hero CTA and SearchProvider.submit(). Keep in sync
+    // with VentureExplorer's `id="results"` on /explore and /experiences.
+    <section
+      id="results"
+      className="px-4 pb-16 pt-5 md:pb-20 md:pt-7 sm:px-6 lg:px-10"
+    >
       <div className="mx-auto max-w-[1440px] space-y-5 md:space-y-7">
         {(date || pax > 1) && (
           <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600">

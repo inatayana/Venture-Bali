@@ -105,8 +105,17 @@
 
   /* Keep anchor targets (e.g. #packages, #reviews) clear of the sticky bar. */
   html {
+    /* Smooth anchor jumps (hero CTA -> #results). scroll-padding-top keeps the
+       target clear of the sticky bar; do not also add scroll-mt on the target. */
+    scroll-behavior: smooth;
     scroll-padding-top: 6.5rem;
     overflow-x: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {

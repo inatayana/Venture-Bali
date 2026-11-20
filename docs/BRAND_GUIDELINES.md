@@ -98,8 +98,8 @@ Avoid:
 Misi kedaulatan ekonomi lokal ada di `docs/BUSINESS_BLUEPRINT.md §1.4`. Aturan klaim:
 
 **Boleh dikatakan:**
-- “100% Bali-owned & operated” **hanya setelah owner mengonfirmasi status legal entity**.
-- “No foreign OTA commission — you pay the local operator directly.”
+- “100% Bali-owned & operated” — **DISETUJUI owner 2026-11-20** (status legal entity dikonfirmasi). Boleh dipakai di badge/hero.
+- “No foreign OTA commission — you pay the local operator directly.” — **hanya di konteks edukatif** (`/about`, `/faq`, `llms.txt`).
 - “Your booking supports Balinese guides, drivers and nature conservation.”
 - “Direct price: Rp200.000 (coret Rp250.000)” — angka harus sesuai `listPriceIdr` / `priceIdr` di katalog.
 
@@ -109,6 +109,7 @@ Misi kedaulatan ekonomi lokal ada di `docs/BUSINESS_BLUEPRINT.md §1.4`. Aturan 
 - Sebutkan angka komisi OTA sebagai “perkiraan” — datafirst-hand owner: **GYG 30%, Klook 30%, Viator 25%, Airbnb 20%**.
 - Klaim umur seragam “6–65”. Aturan: Kids 5–11 didampingi dewasa; Youth 12–15 mandiri di lapangan tapi **tidak boleh booking atas nama sendiri**; Adult 16–75 boleh booking. `minAge` per produk ada di `src/data/catalogue.ts`.
 - Kata “Cheapest” / “Best price” / “Free” — pakai “direct price”, “transparent pricing”, “no OTA commission”.
+- Menjadikan klaim komisi sebagai **badge/hero** (mis. "NO FOREIGN OTA COMMISSION") — owner menilai terlalu vulgar dan membuat kompetitor jadi pusat perhatian (keputusan 2026-11-20). Hero memakai payung identitas: `100% BALI-OWNED & OPERATED · BUILT FOR BALI`. Tone spesifik per produk tetap di halaman kategori (`CATEGORY_REGISTRY.description`).
 
 ## 6. Email addresses
 

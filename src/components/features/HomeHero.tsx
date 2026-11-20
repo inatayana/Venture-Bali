@@ -5,9 +5,9 @@ import { HeroVideo } from '@/components/features/HeroVideo';
 import { useLocale } from '@/components/locale/LocaleProvider';
 
 const TRUST_POINTS = [
-  { icon: Users, label: 'Beginner & Family Friendly' },
-  { icon: CheckCircle, label: 'Instant Confirmation' },
-  { icon: RefreshCw, label: 'Free Reschedule ≥24h' },
+  { icon: Users, key: 'trustBeginner' as const },
+  { icon: CheckCircle, key: 'trustInstant' as const },
+  { icon: RefreshCw, key: 'trustReschedule' as const },
 ];
 
 /**
@@ -22,7 +22,7 @@ export function HomeHero() {
   return (
     <section className="relative isolate overflow-hidden bg-brand-ink text-white">
       <HeroVideo />
-      <div aria-hidden="true" className="absolute inset-0 bg-black/20 lg:bg-transparent" />
+      <div aria-hidden="true" className="absolute inset-0 bg-black/10 lg:bg-transparent" />
       {/* Editorial scrim: lighter so background video/image is clearer while keeping text readable. */}
       <div
         aria-hidden="true"
@@ -30,7 +30,7 @@ export function HomeHero() {
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-t from-brand-ink via-transparent to-black/15 lg:hidden"
+        className="absolute inset-0 bg-gradient-to-t from-brand-ink/85 via-transparent to-transparent lg:hidden"
       />
       <div
         aria-hidden="true"
@@ -65,10 +65,10 @@ export function HomeHero() {
           </a>
 
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-white/80">
-            {TRUST_POINTS.map(({ icon: Icon, label }) => (
-              <span key={label} className="inline-flex items-center gap-1.5">
+            {TRUST_POINTS.map(({ icon: Icon, key }) => (
+              <span key={key} className="inline-flex items-center gap-1.5">
                 <Icon className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-                {label}
+                {t(key)}
               </span>
             ))}
           </div>
