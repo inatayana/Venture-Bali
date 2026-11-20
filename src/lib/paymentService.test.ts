@@ -51,6 +51,7 @@ const booking: Booking = {
   totalPrice: 836000,
   paymentStatus: 'PENDING',
   lifecycleStatus: 'AWAITING_PAYMENT',
+  driverInfo: null,
   cancelledAt: null,
   cancellationReason: null,
   expiresAt: null,
