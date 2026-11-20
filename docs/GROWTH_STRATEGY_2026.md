@@ -141,15 +141,15 @@ Never do the following without an explicit owner decision:
 | Priority | Item | Pillar | Status | Owner decision needed? |
 |---|---|---|---|---|
 | P0 | Hydration fix (`5d159a7`) | Foundation | **DONE** | No |
-| P0 | Fix article internal links (correct URL + markdown rendering) | 1 | IN PROGRESS | No |
-| P0 | Sitemap: include `/activities/*` and `/explore` | 1 | IN PROGRESS | No |
-| P0 | Fill category `ItemList` schema + use escaping helper | 1 | IN PROGRESS | No |
-| P0 | Make `requestIndexing()` honest (no fake success) | 4 | IN PROGRESS | No |
-| P1 | `llms.txt` + factual Markdown endpoints | 1 | PLANNED | No |
-| P1 | Real `/faq` page from policy files + FAQ schema | 1 | PLANNED | No |
+| P0 | Fix article internal links (correct URL + markdown rendering) | 1 | **DONE** (`5511a77`) | No |
+| P0 | Sitemap: include `/activities/*`, `/explore`, `/faq` | 1 | **DONE** (`5511a77`, `572d93f`) | No |
+| P0 | Fill category `ItemList` schema + use escaping helper | 1 | **DONE** (`5511a77`) | No |
+| P0 | Make `requestIndexing()` honest (no fake success) | 4 | **DONE** (`5511a77`) | No |
+| P1 | `llms.txt` factual briefing from approved sources | 1 | **DONE** (`572d93f`) | No |
+| P1 | Real `/faq` page + FAQPage JSON-LD | 1 | **DONE** (`572d93f`) | No |
 | P1 | Abandoned-hold recovery + wishlist alerts | 2 | PLANNED | **Yes** — sending domain / WA template approval |
-| P1 | Funnel analytics + SEO CI checks | 4 | PLANNED | No |
-| P1 | `/api/v1` public contracts | 3 | PLANNED | Team coordination |
+| P1 | Funnel analytics + SEO CI checks | 4 | PLANNED | Team coordination (event callsites owned by other work) |
+| P1 | `/api/v1` public contracts | 3 | PLANNED | Team coordination (present on `main`, absent on this branch) |
 | P2 | Agent may persist bookings | 3 | BLOCKED | **Yes** |
 | P2 | Programmatic activity–destination pages | 1 | RFC | **Yes** — URL map |
 | P2 | Expert author schema / E-E-A-T profiles | 1 | BLOCKED | **Yes** — real named experts |
