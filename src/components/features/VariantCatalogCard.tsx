@@ -18,6 +18,9 @@ interface VariantCatalogCardProps {
   onOpenDetails?: () => void;
   /** Photo shown when the package has no image of its own (usually the product hero). */
   fallbackImageUrl?: string;
+  /** Add/remove this package from the side-by-side comparison. */
+  compareChecked?: boolean;
+  onCompareToggle?: (checked: boolean) => void;
 }
 
 /**
@@ -34,6 +37,8 @@ export function VariantCatalogCard({
   onShowDates,
   onOpenDetails,
   fallbackImageUrl,
+  compareChecked = false,
+  onCompareToggle,
 }: VariantCatalogCardProps) {
   const { listPriceIdr, promoPriceIdr, priceIdr, lowestTierMinPax } =
     getVariantPriceDisplay(variant);
@@ -85,6 +90,27 @@ export function VariantCatalogCard({
             <span className="absolute left-1.5 top-1.5 rounded-full bg-brand px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-brand-ink shadow-sm">
               Promo
             </span>
+          )}
+
+          {onCompareToggle && (
+            <button
+              type="button"
+              aria-pressed={compareChecked}
+              aria-label={`Compare ${variant.title}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                onCompareToggle(!compareChecked);
+              }}
+              className={cn(
+                'absolute bottom-1.5 left-1.5 z-10 inline-flex min-h-[32px] items-center gap-1 rounded-full px-2 text-[11px] font-bold shadow-sm',
+                compareChecked
+                  ? 'bg-brand-ink text-white dark:bg-brand dark:text-brand-ink'
+                  : 'bg-white/95 text-neutral-800'
+              )}
+            >
+              {compareChecked ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : null}
+              Compare
+            </button>
           )}
         </div>
 
