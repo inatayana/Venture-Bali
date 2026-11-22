@@ -73,6 +73,8 @@ export async function GET(request: NextRequest) {
             cutoffHours: true,
           },
         },
+        // Needed for the per-date "from" price in the PDP calendar.
+        priceTiers: true,
       },
     });
 
@@ -115,6 +117,8 @@ export async function GET(request: NextRequest) {
           from,
           to,
           now,
+          priceTiers: variant.priceTiers,
+          promoPriceIdr: variant.promoPriceIdr,
         });
       } catch (error) {
         if (error instanceof RangeError) {

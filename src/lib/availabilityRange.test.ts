@@ -7,8 +7,17 @@ const SLOTS = [
   { id: 'slot-2', time: '14:00', maxCapacity: 10, cutoffHours: null },
 ];
 
+const PRICE_TIERS = [{ minPax: 1, maxPax: 10, pricePerPax: 200_000 }];
+
 function day(overrides: Partial<ReturnType<typeof buildAvailabilityDays>[number]> = {}) {
-  return { date: '2026-12-01', totalAvailable: 0, isFullyBooked: true, closed: false, ...overrides };
+  return {
+    date: '2026-12-01',
+    totalAvailable: 0,
+    isFullyBooked: true,
+    closed: false,
+    fromPriceIdr: null,
+    ...overrides,
+  };
 }
 
 describe('parseAvailabilityRange', () => {
@@ -134,5 +143,66 @@ describe('buildAvailabilityDays', () => {
     });
 
     expect(result[0]).toEqual(day({ date: '2026-11-20', totalAvailable: 10, isFullyBooked: true }));
+  });
+
+  it('exposes the cheapest one-guest price on an available date', () => {
+    const result = buildAvailabilityDays({
+      slots: SLOTS,
+      bookings: [],
+      blackoutDates: [],
+      fulfillmentMode: 'SELF_DRIVE',
+      from: '2026-12-01',
+      to: '2026-12-01',
+      now: NOW,
+      priceTiers: PRICE_TIERS,
+    });
+
+    expect(result[0].fromPriceIdr).toBe(200_000);
+  });
+
+  it('uses the promo price when it is lower than the tier price', () => {
+    const result = buildAvailabilityDays({
+      slots: SLOTS,
+      bookings: [],
+      blackoutDates: [],
+      fulfillmentMode: 'SELF_DRIVE',
+      from: '2026-12-01',
+      to: '2026-12-01',
+      now: NOW,
+      priceTiers: PRICE_TIERS,
+      promoPriceIdr: 150_000,
+    });
+
+    expect(result[0].fromPriceIdr).toBe(150_000);
+  });
+
+  it('never shows a price for a closed or fully booked date', () => {
+    const closed = buildAvailabilityDays({
+      slots: SLOTS,
+      bookings: [],
+      blackoutDates: ['2026-12-01'],
+      fulfillmentMode: 'SELF_DRIVE',
+      from: '2026-12-01',
+      to: '2026-12-01',
+      now: NOW,
+      priceTiers: PRICE_TIERS,
+    });
+    expect(closed[0].fromPriceIdr).toBeNull();
+
+    const soldOut = buildAvailabilityDays({
+      slots: SLOTS,
+      bookings: SLOTS.map((slot) => ({
+        slotTimeId: slot.id,
+        bookingDate: '2026-12-01',
+        paxCount: slot.maxCapacity,
+      })),
+      blackoutDates: [],
+      fulfillmentMode: 'SELF_DRIVE',
+      from: '2026-12-01',
+      to: '2026-12-01',
+      now: NOW,
+      priceTiers: PRICE_TIERS,
+    });
+    expect(soldOut[0].fromPriceIdr).toBeNull();
   });
 });

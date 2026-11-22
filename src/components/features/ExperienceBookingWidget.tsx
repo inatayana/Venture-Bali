@@ -141,8 +141,9 @@ export function ExperienceBookingWidget({
   } | null>(null);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
 
-  // Sold-out flag per date for the calendar: a range fetch per visible month.
+  // Per-date calendar data from one range fetch per visible month.
   const [soldOutDates, setSoldOutDates] = useState<string[]>([]);
+  const [dayPrices, setDayPrices] = useState<Record<string, number>>({});
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
 
   const handleMonthChange = useCallback((month: Date) => setCalendarMonth(startOfMonth(month)), []);
@@ -150,6 +151,7 @@ export function ExperienceBookingWidget({
   useEffect(() => {
     if (!variant) {
       setSoldOutDates([]);
+      setDayPrices({});
       return;
     }
 
@@ -161,11 +163,17 @@ export function ExperienceBookingWidget({
       .then((res) => res.json())
       .then((data) => {
         if (cancelled || !data?.success || !Array.isArray(data.data?.days)) return;
-        setSoldOutDates(
-          (data.data.days as Array<{ date: string; isFullyBooked: boolean }>)
-            .filter((day) => day.isFullyBooked)
-            .map((day) => day.date)
-        );
+        const days = data.data.days as Array<{
+          date: string;
+          isFullyBooked: boolean;
+          fromPriceIdr?: number | null;
+        }>;
+        setSoldOutDates(days.filter((day) => day.isFullyBooked).map((day) => day.date));
+        const prices: Record<string, number> = {};
+        for (const day of days) {
+          if (typeof day.fromPriceIdr === 'number') prices[day.date] = day.fromPriceIdr;
+        }
+        setDayPrices(prices);
       })
       .catch((err) => console.error('Sold-out dates fetch failed:', err));
 
@@ -519,13 +527,15 @@ export function ExperienceBookingWidget({
             selectedDate={config.date}
             onDateSelect={(date) => onChange({ date, slot: null })}
             unavailableDates={soldOutDates}
+            dayPrices={dayPrices}
             onMonthChange={handleMonthChange}
             blackoutDates={variant?.blackoutDates ?? []}
             minDate={new Date()}
           />
         </div>
         <p className="mt-2 text-xs text-neutral-500">
-          Crossed-out dates are sold out or closed — pick another day.
+          Prices shown are the lowest for one guest on that date. Crossed-out dates are sold out
+          or closed — pick another day.
         </p>
         {dateBlocked && (
           <p className="mt-2 text-sm text-red-600">This date is not available. Please pick another day.</p>

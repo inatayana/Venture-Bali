@@ -1,6 +1,7 @@
 import { eachDayOfInterval, format, parseISO } from 'date-fns';
-import { isSlotBookable } from '@/lib/pricing';
+import { computeQuote, isSlotBookable } from '@/lib/pricing';
 import { hoursBeforeActivity } from '@/lib/refundUtils';
+import type { PriceTier } from '@/types/venture';
 import type { FulfillmentMode } from '@prisma/client';
 
 /**
@@ -35,6 +36,9 @@ export interface AvailabilityDay {
   isFullyBooked: boolean;
   /** The variant is explicitly blacked out on this date. */
   closed: boolean;
+  /** Lowest total price for one guest across bookable slots on this date (IDR).
+   *  Null when the date is closed or has no bookable slot. */
+  fromPriceIdr: number | null;
 }
 
 export interface BuildAvailabilityDaysInput {
@@ -45,6 +49,10 @@ export interface BuildAvailabilityDaysInput {
   from: string;
   to: string;
   now?: Date;
+  /** Price tiers used to compute the per-date "from" price. Empty = no price. */
+  priceTiers?: PriceTier[];
+  /** Variant-level promo per guest (IDR), applied when lower than tier price. */
+  promoPriceIdr?: number | null;
 }
 
 function assertIsoDate(value: string, label: string): void {
@@ -88,6 +96,8 @@ export function buildAvailabilityDays({
   from,
   to,
   now = new Date(),
+  priceTiers = [],
+  promoPriceIdr = null,
 }: BuildAvailabilityDaysInput): AvailabilityDay[] {
   const dates = parseAvailabilityRange(from, to);
   const blackouts = new Set(blackoutDates);
@@ -103,6 +113,7 @@ export function buildAvailabilityDays({
     const closed = blackouts.has(date);
     let totalAvailable = 0;
     let hasEnabled = false;
+    const candidatePrices: number[] = [];
 
     for (const slot of slots) {
       const taken = reserved.get(`${date}|${slot.id}`) ?? 0;
@@ -113,7 +124,29 @@ export function buildAvailabilityDays({
       const bookable =
         isSlotBookable(date, slot.time, fulfillmentMode, now, slot.cutoffHours) &&
         hoursBeforeActivity(date, slot.time, now) >= 24;
-      if (bookable) hasEnabled = true;
+      if (!bookable) continue;
+      hasEnabled = true;
+
+      // "From" price = cheapest bookable departure for one guest. computeQuote
+      // is the single source of truth for pricing (night surcharge included),
+      // so the calendar can never drift from checkout. adultsCount:1 keeps
+      // AGE_TIERED tiers valid for this one-guest quote.
+      if (priceTiers.length > 0) {
+        try {
+          const quote = computeQuote({
+            priceTiers,
+            paxCount: 1,
+            adultsCount: 1,
+            fulfillmentMode: 'SELF_DRIVE',
+            promoPriceIdr,
+            slotTimeLabel: slot.time,
+            now,
+          });
+          candidatePrices.push(quote.totalPriceIdr);
+        } catch {
+          // A malformed tier must never break the calendar; omit the price.
+        }
+      }
     }
 
     return {
@@ -121,6 +154,7 @@ export function buildAvailabilityDays({
       totalAvailable: closed ? 0 : totalAvailable,
       isFullyBooked: closed || totalAvailable === 0 || !hasEnabled,
       closed,
+      fromPriceIdr: candidatePrices.length > 0 ? Math.min(...candidatePrices) : null,
     };
   });
 }

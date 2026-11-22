@@ -15,6 +15,7 @@ import {
   getDay,
 } from 'date-fns';
 import { cn } from '@/utils/cn';
+import { formatPrice } from '@/lib/i18n';
 
 interface CalendarProps {
   selectedDate: Date | null;
@@ -24,6 +25,8 @@ interface CalendarProps {
   /** Fires whenever the visible month changes (including on mount). */
   onMonthChange?: (month: Date) => void;
   blackoutDates?: string[];
+  /** ISO date -> cheapest price for one guest (IDR). Rendered under the day. */
+  dayPrices?: Record<string, number>;
   minDate?: Date;
   className?: string;
 }
@@ -36,6 +39,7 @@ export function Calendar({
   unavailableDates = [],
   onMonthChange,
   blackoutDates = [],
+  dayPrices = {},
   minDate = new Date(),
   className,
 }: CalendarProps) {
@@ -123,6 +127,10 @@ export function Calendar({
           const selected = selectedDate && isSameDay(day, selectedDate);
           const isToday = isSameDay(day, new Date());
           const dayLabel = format(day, 'MMMM d, yyyy');
+          const iso = format(day, 'yyyy-MM-dd');
+          const price = dayPrices[iso];
+          const priceLabel = price !== undefined ? formatPrice(price) : null;
+          const statusLabel = soldOut && !isPast(day) ? ' — sold out' : '';
 
           return (
             <button
@@ -130,16 +138,21 @@ export function Calendar({
               type="button"
               onClick={() => !disabled && onDateSelect(day)}
               disabled={disabled}
-              aria-label={soldOut && !isPast(day) ? `${dayLabel} — sold out` : dayLabel}
+              aria-label={`${dayLabel}${statusLabel}${priceLabel && !disabled ? ` — from ${priceLabel}` : ''}`}
               className={cn(
-                'aspect-square flex items-center justify-center rounded-lg text-sm transition-colors',
+                'flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg text-sm transition-colors',
                 disabled && 'text-gray-300 cursor-not-allowed line-through',
                 !disabled && !selected && 'hover:bg-brand/30 text-gray-900 dark:hover:text-brand-ink',
                 selected && 'bg-brand-ink text-brand font-bold dark:bg-brand dark:text-brand-ink',
                 isToday && !selected && 'ring-2 ring-brand'
               )}
             >
-              {format(day, 'd')}
+              <span className="leading-none">{format(day, 'd')}</span>
+              {priceLabel && !disabled && (
+                <span className="text-[9px] font-semibold leading-none text-brand-ink dark:text-brand">
+                  {priceLabel}
+                </span>
+              )}
             </button>
           );
         })}
