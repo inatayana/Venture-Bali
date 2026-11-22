@@ -58,3 +58,75 @@ npm run dev -- -p 3002
 ```
 
 Both output directories are git-ignored.
+
+## 3. Parallel Work with Git Worktrees
+
+We develop several branches at once with **git worktrees**, not separate clones.
+All worktrees share one repository and one history.
+
+### Layout
+
+```
+D:\_Project\venture-bali\            # container (not a repository)
+├─ repo\                             # primary worktree — branch: main
+│  ├─ .git\                          # the only real repository
+│  ├─ .env / .env.local              # single source of environment
+│  ├─ .vercel\                       # deploy only from here
+│  └─ node_modules\                  # single install
+├─ worktrees\
+│  ├─ integration\                   # release candidate
+│  ├─ growth\
+│  ├─ about\
+│  └─ content-architect\
+└─ README.md
+```
+
+### Rules
+
+1. **Never** put a worktree inside `repo\`. Worktrees must be siblings of
+   `repo\` under `worktrees\`. Otherwise `tsc`, Jest, ESLint, and Prettier scan
+   duplicate `src/` trees from other branches.
+2. `node_modules` is installed **once** in `repo\`. Every worktree uses a
+   junction to `repo\node_modules`. Do not run `npm install` inside a worktree.
+3. `.env` is a **hardlink** to `repo\.env`. Never create a separate `.env` per
+   worktree.
+4. `.vercel\` exists only in `repo\`. Deploy only from there.
+5. Keep at most **2–3 active worktrees**. Remove finished ones.
+
+### Commands
+
+```bash
+git -C D:\_Project\venture-bali\repo worktree list
+git -C D:\_Project\venture-bali\repo worktree add `
+  D:\_Project\venture-bali\worktrees\<name> <branch>
+git -C D:\_Project\venture-bali\repo worktree move <from> <to>
+git -C D:\_Project\venture-bali\repo worktree remove <path>
+git -C D:\_Project\venture-bali\repo worktree repair   # after moving folders
+```
+
+### Windows warning
+
+Deleting a `node_modules` junction with `Remove-Item -Recurse` also deletes the
+**target** contents. Use:
+
+```powershell
+(Get-Item -LiteralPath $path -Force).Delete()
+```
+
+## 4. Prisma Client and Branch Switching
+
+`prisma generate` writes a client into the shared `node_modules`. If two
+worktrees use different `prisma/schema.prisma` versions, the generated client
+only matches the branch that generated it last. Switching branches without
+regenerating produces **phantom type errors** (for example a Prisma enum that
+has more values than the TypeScript union in `src/types/venture.ts`).
+
+**Mandatory:** after any branch switch, schema change, or `git pull` that touches
+`prisma/`, run:
+
+```bash
+npm run db:generate
+```
+
+See `docs/ADR_WORKSPACE_AND_PRISMA.md` for the planned permanent fix
+(per-worktree Prisma client output).

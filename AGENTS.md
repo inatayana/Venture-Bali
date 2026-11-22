@@ -16,6 +16,7 @@
 8. `docs/AI_AGENT.md` — agent tools, session handling, content wizard rules
 9. `docs/BRAND_GUIDELINES.md` — BaliWild name, wordmark, palette, voice and migration checklist
 10. `docs/RUNBOOK_DEPLOY.md` — deploy, seed and recovery procedure; read before any migration or "it's broken" incident
+11. `docs/ADR_WORKSPACE_AND_PRISMA.md` — workspace layout, worktree rules and Prisma client policy
 11. `docs/GROWTH_STRATEGY_2026.md` — approved growth thesis, evidence, 5 pillars, priorities and owner decisions
 12. `docs/TECHNICAL_GROWTH_AUDIT.md` — factual capability map + verified gaps; check before proposing new features
 13. `docs/rfc/PROGRAMMATIC_PAGES.md` — proposed quality-gated long-tail page architecture (awaiting approval)
