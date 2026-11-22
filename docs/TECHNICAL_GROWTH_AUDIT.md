@@ -211,9 +211,10 @@ re-litigates the same investigation and no one builds something that already wor
 - Sentry: `sentry.ts` (`tracesSampleRate: 1.0`, noise filters), `instrumentation.ts`.
 - Smoke: `scripts/smoke.mjs` checks `/` and `/admin/login`, retries 3×.
 
+### Implemented
+- **GTM/GA4 sink** — `src/components/GoogleTagManager.tsx` + `src/lib/gtm.ts`: consent-gated injection of `https://www.googletagmanager.com/gtm.js?id=<NEXT_PUBLIC_GTM_ID>`; mounted in `src/app/layout.tsx`; no-op when unset.
+
 ### Gaps
-- No actual GTM/GA4 loader in source → analytics events have no production sink
-  until a tag manager is injected externally.
 - No funnel dashboard or experiment layer.
 
 ---

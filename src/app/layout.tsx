@@ -9,6 +9,7 @@ import { CurrencyProvider } from '@/components/currency/CurrencyProvider';
 import { LocaleProvider } from '@/components/locale/LocaleProvider';
 import { ThemeProvider, themeInitScript } from '@/components/theme/ThemeProvider';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
+import { GoogleTagManager } from '@/components/GoogleTagManager';
 import { SentryClientProvider } from '@/components/SentryClientProvider';
 import { BottomNavigation } from '@/components/layout/BottomNavigation';
 import { DesktopUtilityBar } from '@/components/layout/DesktopUtilityBar';
@@ -71,6 +72,7 @@ export default function RootLayout({
               <SearchProvider>
                 <SentryClientProvider />
                 {children}
+                <GoogleTagManager />
                 <AnalyticsPageView />
                 <PwaRegistration />
                 <InstallPrompt />

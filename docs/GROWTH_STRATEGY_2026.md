@@ -148,7 +148,7 @@ Never do the following without an explicit owner decision:
 | P1 | `llms.txt` factual briefing from approved sources | 1 | **DONE** (`572d93f`) | No |
 | P1 | Real `/faq` page + FAQPage JSON-LD | 1 | **DONE** (`572d93f`) | No |
 | P1 | Wishlist WhatsApp enquiry + hold-recovery message builder | 2 | **DONE** (conversion core) | Outbound sending still needs WA template approval |
-| P1 | Funnel step registry | 4 | **DONE** (`trackFunnelStep`) | GTM/GA4 injection still external |
+| P1 | Funnel step registry + GTM/GA4 sink | 4 | **DONE** (`trackFunnelStep`, `GoogleTagManager`) | Funnel dashboard still open |
 | P1 | Cron cadence comment corrected | 4 | **DONE** | Schedule intentionally daily (hosting plan limit) |
 | P1 | `/api/v1` public contracts | 3 | **WON'T DO** | Intentionally removed in `5f4cd5a` (security hardening / legacy cleanup). Do not resurrect without a new RFC. |
 | P2 | Agent may persist bookings | 3 | BLOCKED | **Yes** |
