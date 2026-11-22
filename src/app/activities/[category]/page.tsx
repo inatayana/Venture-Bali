@@ -84,7 +84,14 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     return url.toString();
   };
 
-  const structuredData = generateCategoryStructuredData(cat, getBaseUrl());
+  const structuredData = generateCategoryStructuredData(
+    cat,
+    getBaseUrl(),
+    ventureItems.map((venture) => ({
+      name: venture.title,
+      url: `${getBaseUrl()}/experiences/${venture.id}/${venture.slug}`,
+    }))
+  );
 
   return (
     <>

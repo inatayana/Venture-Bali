@@ -185,13 +185,14 @@ export function validateGeneratedArticle(
  */
 export function addInternalLinks(
   content: string,
-  ventures: { title: string; slug: string }[]
+  ventures: { id: string; title: string; slug: string }[]
 ): string {
   let result = content;
 
   for (const venture of ventures) {
-    if (!venture.title || !venture.slug) continue;
-    const link = `[${venture.title}](/experiences/${venture.slug})`;
+    if (!venture.id || !venture.title || !venture.slug) continue;
+    // Canonical PDP is /experiences/[id]/[slug] (see src/lib/seo.ts).
+    const link = `[${venture.title}](/experiences/${venture.id}/${venture.slug})`;
     result = result.split(venture.title).join(link);
   }
 
@@ -247,9 +248,9 @@ export async function saveArticle(
 /**
  * The catalogue entries that can be linked from an article.
  */
-export async function getLinkableVentures(): Promise<{ title: string; slug: string }[]> {
+export async function getLinkableVentures(): Promise<{ id: string; title: string; slug: string }[]> {
   const rows = await prisma.venture.findMany({
-    select: { title: true, slug: true },
+    select: { id: true, title: true, slug: true },
     orderBy: { title: 'asc' },
   });
   return rows;

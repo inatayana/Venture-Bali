@@ -102,7 +102,7 @@ describe('validateGeneratedArticle', () => {
 describe('addInternalLinks', () => {
   it('links every mention of a product title', () => {
     const ventures = [
-      { title: 'Ubud ATV Jungle Ride through Rice Terraces and Waterfalls', slug: 'ubud-atv-jungle-ride' },
+      { id: 'v-1', title: 'Ubud ATV Jungle Ride through Rice Terraces and Waterfalls', slug: 'ubud-atv-jungle-ride' },
     ];
 
     const result = addInternalLinks(
@@ -111,34 +111,34 @@ describe('addInternalLinks', () => {
     );
 
     expect(result).toContain(
-      '[Ubud ATV Jungle Ride through Rice Terraces and Waterfalls](/experiences/ubud-atv-jungle-ride)'
+      '[Ubud ATV Jungle Ride through Rice Terraces and Waterfalls](/experiences/v-1/ubud-atv-jungle-ride)'
     );
   });
 
   it('leaves the content alone when nothing matches', () => {
     const content = 'A paragraph about Bali.';
-    expect(addInternalLinks(content, [{ title: 'Other Product', slug: 'other' }])).toBe(content);
+    expect(addInternalLinks(content, [{ id: 'v-2', title: 'Other Product', slug: 'other' }])).toBe(content);
   });
 
   it('ignores entries without a title or slug', () => {
     const content = 'A paragraph about Bali.';
     expect(
       addInternalLinks(content, [
-        { title: '', slug: 'x' },
-        { title: 'Something', slug: '' },
+        { id: 'v-3', title: '', slug: 'x' },
+        { id: 'v-4', title: 'Something', slug: '' },
       ])
     ).toBe(content);
   });
 
   it('links several products', () => {
     const ventures = [
-      { title: 'Product One', slug: 'product-one' },
-      { title: 'Product Two', slug: 'product-two' },
+      { id: 'v-5', title: 'Product One', slug: 'product-one' },
+      { id: 'v-6', title: 'Product Two', slug: 'product-two' },
     ];
 
     const result = addInternalLinks('Product One and Product Two are great.', ventures);
 
-    expect(result).toContain('(/experiences/product-one)');
-    expect(result).toContain('(/experiences/product-two)');
+    expect(result).toContain('(/experiences/v-5/product-one)');
+    expect(result).toContain('(/experiences/v-6/product-two)');
   });
 });

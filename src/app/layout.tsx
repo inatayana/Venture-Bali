@@ -1,5 +1,6 @@
 import '@/styles/globals.css';
 import type { Metadata, Viewport } from 'next';
+import { cookies } from 'next/headers';
 import { barlowCondensed, plusJakartaSans } from '@/styles/fonts';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { PwaRegistration } from '@/components/PwaRegistration';
@@ -62,8 +63,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Set the document language on the server from the locale cookie so crawlers
+  // and screen readers see the right value before hydration.
+  const storedLocale = cookies().get('baliwild-locale')?.value;
+  const lang = storedLocale === 'id' || storedLocale === 'en' ? storedLocale : 'en';
+
   return (
-    <html lang="en" className={`${barlowCondensed.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
+    <html lang={lang} className={`${barlowCondensed.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
       <body className="font-sans md:pb-11">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <ThemeProvider>

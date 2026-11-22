@@ -1,9 +1,11 @@
 import {
   generateArticleStructuredData,
+  generateCategoryStructuredData,
   generateVentureMetadata,
   generateVentureStructuredData,
   generateWebsiteStructuredData,
 } from './seo';
+import { resolveCategory } from './taxonomy';
 import type { VentureItem } from '@/types/venture';
 
 const NOW = new Date('2026-11-01T00:00:00.000Z');
@@ -141,7 +143,7 @@ describe('generateVentureStructuredData', () => {
       'Ubud River Tubing Adventure with Lunch',
     ]);
     expect(breadcrumbs.itemListElement[1].item).toBe(
-      'https://baliwild.com/?category=tubing'
+      'https://baliwild.com/activities/tubing'
     );
   });
 });
@@ -189,5 +191,30 @@ describe('generateArticleStructuredData', () => {
       '@id': 'https://baliwild.com/blog/bali-rafting-guide',
     });
     expect(data['@graph'][1]['@type']).toBe('BreadcrumbList');
+  });
+});
+
+describe('generateCategoryStructuredData', () => {
+  it('emits the real item count and canonical product URLs', () => {
+    const category = resolveCategory('tubing');
+    const data = generateCategoryStructuredData(category, 'https://baliwild.com', [
+      {
+        name: 'Ubud River Tubing Adventure with Lunch',
+        url: 'https://baliwild.com/experiences/venture-1/ubud-river-tubing',
+      },
+    ]) as { numberOfItems: number; itemListElement: Array<{ position: number; url: string }> };
+
+    expect(data.numberOfItems).toBe(1);
+    expect(data.itemListElement[0]).toMatchObject({
+      position: 1,
+      url: 'https://baliwild.com/experiences/venture-1/ubud-river-tubing',
+    });
+  });
+
+  it('reports zero items for an unknown category', () => {
+    const data = generateCategoryStructuredData(null, 'https://baliwild.com') as {
+      numberOfItems?: number;
+    };
+    expect(data.numberOfItems).toBeUndefined();
   });
 });

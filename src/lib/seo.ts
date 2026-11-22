@@ -175,7 +175,7 @@ export function generateVentureStructuredData(params: GenerateVentureParams): Re
   const breadcrumbItems = [
     { name: 'Home', item: baseUrl },
     ...(category
-      ? [{ name: category.canonical, item: `${baseUrl}/?category=${category.slug}` }]
+      ? [{ name: category.canonical, item: `${baseUrl}/activities/${category.slug}` }]
       : []),
     { name: venture.title, item: canonicalUrl },
   ];
@@ -460,19 +460,26 @@ export function generateCategoryMetadata(categorySlug: string): Metadata {
  */
 export function generateCategoryStructuredData(
   category: CategoryDef | null,
-  baseUrl: string = getBaseUrl()
+  baseUrl: string = getBaseUrl(),
+  items: { name: string; url: string }[] = []
 ): Record<string, unknown> {
   if (!category) {
     return { '@context': 'https://schema.org', '@type': 'ItemList', itemListElement: [] };
   }
 
+  const url = `${baseUrl}/activities/${category.slug}`;
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: `${category.canonical} Adventures in Bali`,
     description: category.description || `Curated ${category.canonical.toLowerCase()} experiences in Bali.`,
-    url: `${baseUrl}/activities/${category.slug}`,
-    numberOfItems: 0, // Will be overridden by the page with actual count
-    itemListElement: [],
+    url,
+    numberOfItems: items.length,
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      url: item.url,
+    })),
   };
 }
