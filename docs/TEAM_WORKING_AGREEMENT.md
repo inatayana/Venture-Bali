@@ -60,6 +60,7 @@ Sebelum mengerjakan sesuatu, **cek daftar ini**. Jangan mengarang aturan.
 | Kategori produk yang boleh | `src/lib/taxonomy.ts` + `docs/SEO_TAXONOMY.md` | hanya 9 kategori |
 | Aturan judul produk | `src/lib/titleValidator.ts` + `docs/PRODUCT_TITLE_CONSTITUTION.md` | 45–60 char, Title Case, no emoji |
 | Strategi SEO | `docs/SEO_TAXONOMY.md` | |
+| **Agen growth & konten lintas platform** | `docs/CONTENT_GROWTH_ARCHITECT.md` | state machine, gate, approval, kuota |
 | Model database | `prisma/schema.prisma` | satu-satunya definisi field |
 | Data produk | `prisma/seed.ts` + `docs/MASTER_PRODUCT_CATALOG.md` | |
 | Environment variables | `.env.example` | jangan pernah bikin var baru tanpa update file ini |

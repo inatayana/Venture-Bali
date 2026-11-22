@@ -74,6 +74,7 @@ adventure block. Category and product URLs are stable.
 | Auto-301 broken links | A wrong redirect can hide real pages | Analytics/404 log + review queue |
 | Backlink outreach agent | Sending mail and scraping directories has legal/domain-reputation risk | Sending domain, outreach policy, approval |
 | Expert author schema | No real author profiles exist | Real named experts + consent |
+| Autonomous growth agent (riset lintas platform, multi-format, monitor, refresh) | Butuh keputusan owner soal dependency, kuota & approval | `docs/CONTENT_GROWTH_ARCHITECT.md` |
 
 ## 4. Verification
 
