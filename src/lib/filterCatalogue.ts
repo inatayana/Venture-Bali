@@ -7,6 +7,8 @@ import { isDateAvailable, isSlotBookable } from '@/lib/pricing';
  * inputs. Keep pure; no React, no context.
  */
 
+export type DurationBucket = 'any' | 'short' | 'half' | 'full';
+
 export interface CatalogueFilters {
   search: string;
   date: string;
@@ -14,6 +16,11 @@ export interface CatalogueFilters {
   transferIncluded: boolean;
   selfDriveOnly: boolean;
   bestSellerOnly: boolean;
+  freeCancellationOnly: boolean;
+  instantConfirmationOnly: boolean;
+  durationBucket: DurationBucket;
+  maxPriceIdr: number | null;
+  minRating: number | null;
   selectedCategory: string | null;
   sortBy: string;
 }
@@ -25,6 +32,11 @@ export const DEFAULT_CATALOGUE_FILTERS: CatalogueFilters = {
   transferIncluded: false,
   selfDriveOnly: false,
   bestSellerOnly: false,
+  freeCancellationOnly: false,
+  instantConfirmationOnly: false,
+  durationBucket: 'any',
+  maxPriceIdr: null,
+  minRating: null,
   selectedCategory: null,
   sortBy: 'recommended',
 };
@@ -37,6 +49,11 @@ export function filterCatalogue(ventures: VentureItem[], filters: CatalogueFilte
     transferIncluded,
     selfDriveOnly,
     bestSellerOnly,
+    freeCancellationOnly,
+    instantConfirmationOnly,
+    durationBucket,
+    maxPriceIdr,
+    minRating,
     selectedCategory,
     sortBy,
   } = filters;
@@ -63,6 +80,26 @@ export function filterCatalogue(ventures: VentureItem[], filters: CatalogueFilte
 
   if (bestSellerOnly) {
     result = result.filter((venture) => venture.badge === 'Best Seller');
+  }
+
+  if (freeCancellationOnly) {
+    result = result.filter((venture) => venture.badge === 'Free Cancellation');
+  }
+
+  if (instantConfirmationOnly) {
+    result = result.filter((venture) => venture.badge === 'Instant Confirmation');
+  }
+
+  if (durationBucket === 'short') result = result.filter((v) => v.durationHours <= 2);
+  if (durationBucket === 'half') result = result.filter((v) => v.durationHours <= 5);
+  if (durationBucket === 'full') result = result.filter((v) => v.durationHours > 5);
+
+  if (maxPriceIdr !== null) {
+    result = result.filter((v) => v.priceIdr <= maxPriceIdr);
+  }
+
+  if (minRating !== null) {
+    result = result.filter((v) => v.rating >= minRating);
   }
 
   if (transferIncluded) {

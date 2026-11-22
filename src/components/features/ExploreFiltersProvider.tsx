@@ -15,6 +15,16 @@ export interface ExploreFiltersValue {
   setSelfDriveOnly: (value: boolean) => void;
   bestSellerOnly: boolean;
   setBestSellerOnly: (value: boolean) => void;
+  freeCancellationOnly: boolean;
+  setFreeCancellationOnly: (value: boolean) => void;
+  instantConfirmationOnly: boolean;
+  setInstantConfirmationOnly: (value: boolean) => void;
+  durationBucket: 'any' | 'short' | 'half' | 'full';
+  setDurationBucket: (value: 'any' | 'short' | 'half' | 'full') => void;
+  maxPriceIdr: number | null;
+  setMaxPriceIdr: (value: number | null) => void;
+  minRating: number | null;
+  setMinRating: (value: number | null) => void;
   selectedCategory: string | null;
   setSelectedCategory: (value: string | null) => void;
   sortBy: string;
@@ -32,6 +42,16 @@ const defaultValue: ExploreFiltersValue = {
   setSelfDriveOnly: noop,
   bestSellerOnly: false,
   setBestSellerOnly: noop,
+  freeCancellationOnly: false,
+  setFreeCancellationOnly: noop,
+  instantConfirmationOnly: false,
+  setInstantConfirmationOnly: noop,
+  durationBucket: 'any',
+  setDurationBucket: noop,
+  maxPriceIdr: null,
+  setMaxPriceIdr: noop,
+  minRating: null,
+  setMinRating: noop,
   selectedCategory: null,
   setSelectedCategory: noop,
   sortBy: 'recommended',
@@ -65,6 +85,11 @@ export function ExploreFiltersProvider({ children, syncUrl = false }: ExploreFil
   const [transferIncluded, setTransferIncluded] = useState(false);
   const [selfDriveOnly, setSelfDriveOnly] = useState(false);
   const [bestSellerOnly, setBestSellerOnly] = useState(false);
+  const [freeCancellationOnly, setFreeCancellationOnly] = useState(false);
+  const [instantConfirmationOnly, setInstantConfirmationOnly] = useState(false);
+  const [durationBucket, setDurationBucket] = useState<'any' | 'short' | 'half' | 'full'>('any');
+  const [maxPriceIdr, setMaxPriceIdr] = useState<number | null>(null);
+  const [minRating, setMinRating] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('recommended');
   const [resultCount, setResultCount] = useState(0);
@@ -76,6 +101,11 @@ export function ExploreFiltersProvider({ children, syncUrl = false }: ExploreFil
     setTransferIncluded(state.transferIncluded);
     setSelfDriveOnly(state.selfDriveOnly);
     setBestSellerOnly(state.bestSellerOnly);
+    setFreeCancellationOnly(state.freeCancellationOnly);
+    setInstantConfirmationOnly(state.instantConfirmationOnly);
+    setDurationBucket(state.durationBucket);
+    setMaxPriceIdr(state.maxPriceIdr);
+    setMinRating(state.minRating);
   };
 
   // Restore the shared link after hydration: PDP breadcrumbs and the footer
@@ -107,6 +137,11 @@ export function ExploreFiltersProvider({ children, syncUrl = false }: ExploreFil
       transferIncluded,
       selfDriveOnly,
       bestSellerOnly,
+      freeCancellationOnly,
+      instantConfirmationOnly,
+      durationBucket,
+      maxPriceIdr,
+      minRating,
     });
     const query = params.toString();
     const pathname = window.location.pathname;
@@ -115,7 +150,20 @@ export function ExploreFiltersProvider({ children, syncUrl = false }: ExploreFil
     if (nextUrl !== currentUrl) {
       window.history.replaceState(null, '', nextUrl);
     }
-  }, [syncUrl, hydrated, transferIncluded, selfDriveOnly, bestSellerOnly, selectedCategory, sortBy]);
+  }, [
+    syncUrl,
+    hydrated,
+    transferIncluded,
+    selfDriveOnly,
+    bestSellerOnly,
+    freeCancellationOnly,
+    instantConfirmationOnly,
+    durationBucket,
+    maxPriceIdr,
+    minRating,
+    selectedCategory,
+    sortBy,
+  ]);
 
   const value = useMemo<ExploreFiltersValue>(
     () => ({
@@ -125,6 +173,16 @@ export function ExploreFiltersProvider({ children, syncUrl = false }: ExploreFil
       setSelfDriveOnly,
       bestSellerOnly,
       setBestSellerOnly,
+      freeCancellationOnly,
+      setFreeCancellationOnly,
+      instantConfirmationOnly,
+      setInstantConfirmationOnly,
+      durationBucket,
+      setDurationBucket,
+      maxPriceIdr,
+      setMaxPriceIdr,
+      minRating,
+      setMinRating,
       selectedCategory,
       setSelectedCategory,
       sortBy,
@@ -132,7 +190,19 @@ export function ExploreFiltersProvider({ children, syncUrl = false }: ExploreFil
       resultCount,
       setResultCount,
     }),
-    [transferIncluded, selfDriveOnly, bestSellerOnly, selectedCategory, sortBy, resultCount]
+    [
+      transferIncluded,
+      selfDriveOnly,
+      bestSellerOnly,
+      freeCancellationOnly,
+      instantConfirmationOnly,
+      durationBucket,
+      maxPriceIdr,
+      minRating,
+      selectedCategory,
+      sortBy,
+      resultCount,
+    ]
   );
 
   return (

@@ -12,6 +12,16 @@ function renderModal(overrides: Partial<Parameters<typeof ExploreFilterModal>[0]
     onSelfDriveChange: jest.fn(),
     bestSeller: false,
     onBestSellerChange: jest.fn(),
+    freeCancellationOnly: false,
+    onFreeCancellationChange: jest.fn(),
+    instantConfirmationOnly: false,
+    onInstantConfirmationChange: jest.fn(),
+    durationBucket: 'any',
+    onDurationBucketChange: jest.fn(),
+    maxPriceIdr: null,
+    onMaxPriceChange: jest.fn(),
+    minRating: null,
+    onMinRatingChange: jest.fn(),
     selectedCategory: null,
     onCategorySelect: jest.fn(),
     resultCount: 42,
@@ -79,8 +89,52 @@ describe('ExploreFilterModal', () => {
     expect(props.onClose).not.toHaveBeenCalled();
   });
 
+  it('toggles reassurance filters and exposes removable active chips', async () => {
+    const user = userEvent.setup();
+    const onFreeCancellationChange = jest.fn();
+    const props = renderModal({
+      freeCancellationOnly: true,
+      onFreeCancellationChange,
+      minRating: 4.5,
+    });
+
+    expect(screen.getByText(/reassurance & time/i)).toBeInTheDocument();
+    expect(screen.getByText(/price & rating/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /remove free cancellation filter/i }));
+    expect(onFreeCancellationChange).toHaveBeenCalledWith(false);
+
+    await user.click(screen.getByRole('button', { name: /remove 4\.5\+ stars filter/i }));
+    expect(props.onMinRatingChange).toHaveBeenCalledWith(null);
+  });
+
   it('renders nothing when closed', () => {
-    const { container } = render(<ExploreFilterModal open={false} onClose={jest.fn()} transferIncluded={false} onTransferIncludedChange={jest.fn()} selfDriveOnly={false} onSelfDriveChange={jest.fn()} bestSeller={false} onBestSellerChange={jest.fn()} selectedCategory={null} onCategorySelect={jest.fn()} resultCount={0} onClearAll={jest.fn()} />);
+    const { container } = render(
+      <ExploreFilterModal
+        open={false}
+        onClose={jest.fn()}
+        transferIncluded={false}
+        onTransferIncludedChange={jest.fn()}
+        selfDriveOnly={false}
+        onSelfDriveChange={jest.fn()}
+        bestSeller={false}
+        onBestSellerChange={jest.fn()}
+        freeCancellationOnly={false}
+        onFreeCancellationChange={jest.fn()}
+        instantConfirmationOnly={false}
+        onInstantConfirmationChange={jest.fn()}
+        durationBucket="any"
+        onDurationBucketChange={jest.fn()}
+        maxPriceIdr={null}
+        onMaxPriceChange={jest.fn()}
+        minRating={null}
+        onMinRatingChange={jest.fn()}
+        selectedCategory={null}
+        onCategorySelect={jest.fn()}
+        resultCount={0}
+        onClearAll={jest.fn()}
+      />
+    );
     expect(container).toBeEmptyDOMElement();
   });
 });

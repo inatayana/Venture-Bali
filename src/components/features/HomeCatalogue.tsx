@@ -39,6 +39,11 @@ export function HomeCatalogue({
     transferIncluded,
     selfDriveOnly,
     bestSellerOnly,
+    freeCancellationOnly,
+    instantConfirmationOnly,
+    durationBucket,
+    maxPriceIdr,
+    minRating,
     selectedCategory,
     sortBy,
     setSortBy,
@@ -58,10 +63,30 @@ export function HomeCatalogue({
         transferIncluded,
         selfDriveOnly,
         bestSellerOnly,
+        freeCancellationOnly,
+        instantConfirmationOnly,
+        durationBucket,
+        maxPriceIdr,
+        minRating,
         selectedCategory,
         sortBy,
       }),
-    [ventures, query, date, pax, transferIncluded, selfDriveOnly, bestSellerOnly, selectedCategory, sortBy]
+    [
+      ventures,
+      query,
+      date,
+      pax,
+      transferIncluded,
+      selfDriveOnly,
+      bestSellerOnly,
+      freeCancellationOnly,
+      instantConfirmationOnly,
+      durationBucket,
+      maxPriceIdr,
+      minRating,
+      selectedCategory,
+      sortBy,
+    ]
   );
 
   useEffect(() => {
@@ -75,6 +100,11 @@ export function HomeCatalogue({
     transferIncluded ||
     selfDriveOnly ||
     bestSellerOnly ||
+    freeCancellationOnly ||
+    instantConfirmationOnly ||
+    durationBucket !== 'any' ||
+    maxPriceIdr !== null ||
+    minRating !== null ||
     selectedCategory !== null ||
     sortBy !== 'recommended';
 
@@ -82,6 +112,11 @@ export function HomeCatalogue({
     transferIncluded,
     selfDriveOnly,
     bestSeller: bestSellerOnly,
+    freeCancellationOnly,
+    instantConfirmationOnly,
+    durationBucket,
+    maxPriceIdr,
+    minRating,
     selectedCategory,
   });
 

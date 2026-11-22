@@ -47,16 +47,31 @@ export function countActiveFilters({
   selfDriveOnly,
   bestSeller,
   selectedCategory,
+  freeCancellationOnly = false,
+  instantConfirmationOnly = false,
+  durationBucket = 'any',
+  maxPriceIdr = null,
+  minRating = null,
 }: {
   transferIncluded: boolean;
   selfDriveOnly: boolean;
   bestSeller: boolean;
   selectedCategory: string | null;
+  freeCancellationOnly?: boolean;
+  instantConfirmationOnly?: boolean;
+  durationBucket?: 'any' | 'short' | 'half' | 'full';
+  maxPriceIdr?: number | null;
+  minRating?: number | null;
 }): number {
   return (
     (transferIncluded ? 1 : 0) +
     (selfDriveOnly ? 1 : 0) +
     (bestSeller ? 1 : 0) +
+    (freeCancellationOnly ? 1 : 0) +
+    (instantConfirmationOnly ? 1 : 0) +
+    (durationBucket !== 'any' ? 1 : 0) +
+    (maxPriceIdr !== null ? 1 : 0) +
+    (minRating !== null ? 1 : 0) +
     (selectedCategory !== null ? 1 : 0)
   );
 }

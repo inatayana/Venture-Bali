@@ -56,6 +56,16 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
     setSelfDriveOnly,
     bestSellerOnly,
     setBestSellerOnly,
+    freeCancellationOnly,
+    setFreeCancellationOnly,
+    instantConfirmationOnly,
+    setInstantConfirmationOnly,
+    durationBucket,
+    setDurationBucket,
+    maxPriceIdr,
+    setMaxPriceIdr,
+    minRating,
+    setMinRating,
     selectedCategory,
     setSelectedCategory,
     sortBy,
@@ -78,10 +88,30 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
         transferIncluded,
         selfDriveOnly,
         bestSellerOnly,
+        freeCancellationOnly,
+        instantConfirmationOnly,
+        durationBucket,
+        maxPriceIdr,
+        minRating,
         selectedCategory,
         sortBy,
       }),
-    [ventures, search, selectedCategory, sortBy, dateFilter, paxFilter, transferIncluded, selfDriveOnly, bestSellerOnly]
+    [
+      ventures,
+      search,
+      selectedCategory,
+      sortBy,
+      dateFilter,
+      paxFilter,
+      transferIncluded,
+      selfDriveOnly,
+      bestSellerOnly,
+      freeCancellationOnly,
+      instantConfirmationOnly,
+      durationBucket,
+      maxPriceIdr,
+      minRating,
+    ]
   );
 
   // Publish the live filtered count so the mobile header chrome can show
@@ -93,7 +123,21 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
   // A new filter or sort starts a fresh, compact mobile list.
   useEffect(() => {
     setExpanded(false);
-  }, [search, selectedCategory, sortBy, dateFilter, paxFilter, transferIncluded, selfDriveOnly, bestSellerOnly]);
+  }, [
+    search,
+    selectedCategory,
+    sortBy,
+    dateFilter,
+    paxFilter,
+    transferIncluded,
+    selfDriveOnly,
+    bestSellerOnly,
+    freeCancellationOnly,
+    instantConfirmationOnly,
+    durationBucket,
+    maxPriceIdr,
+    minRating,
+  ]);
 
   const resetAllFilters = () => {
     setSearch('');
@@ -104,6 +148,11 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
     setTransferIncluded(false);
     setSelfDriveOnly(false);
     setBestSellerOnly(false);
+    setFreeCancellationOnly(false);
+    setInstantConfirmationOnly(false);
+    setDurationBucket('any');
+    setMaxPriceIdr(null);
+    setMinRating(null);
   };
 
   const hasMoreOnMobile = filteredVentures.length > MOBILE_INITIAL_CARDS;
@@ -119,6 +168,11 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
     !transferIncluded &&
     !selfDriveOnly &&
     !bestSellerOnly &&
+    !freeCancellationOnly &&
+    !instantConfirmationOnly &&
+    durationBucket === 'any' &&
+    maxPriceIdr === null &&
+    minRating === null &&
     sortBy === 'recommended';
 
   return (

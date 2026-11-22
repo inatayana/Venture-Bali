@@ -37,6 +37,12 @@ export interface ExploreUrlFilterState {
   transferIncluded: boolean;
   selfDriveOnly: boolean;
   bestSellerOnly: boolean;
+  freeCancellationOnly: boolean;
+  instantConfirmationOnly: boolean;
+  /** short | half | full (any = omitted). */
+  durationBucket: 'any' | 'short' | 'half' | 'full';
+  maxPriceIdr: number | null;
+  minRating: number | null;
 }
 
 export const DEFAULT_EXPLORE_URL_FILTERS: ExploreUrlFilterState = {
@@ -45,13 +51,22 @@ export const DEFAULT_EXPLORE_URL_FILTERS: ExploreUrlFilterState = {
   transferIncluded: false,
   selfDriveOnly: false,
   bestSellerOnly: false,
+  freeCancellationOnly: false,
+  instantConfirmationOnly: false,
+  durationBucket: 'any',
+  maxPriceIdr: null,
+  minRating: null,
 };
 
 const FLAG_PARAMS = {
   transferIncluded: 'transferIncluded',
   selfDriveOnly: 'selfDrive',
   bestSellerOnly: 'bestSeller',
+  freeCancellationOnly: 'freeCancellation',
+  instantConfirmationOnly: 'instant',
 } as const;
+
+const DURATION_BUCKETS = ['short', 'half', 'full'] as const;
 
 function isFlagOn(value: string | null): boolean {
   if (!value) return false;
@@ -85,7 +100,25 @@ export function parseExploreFilters(input: string | URLSearchParams): ExploreUrl
     transferIncluded: isFlagOn(params.get(FLAG_PARAMS.transferIncluded)),
     selfDriveOnly: isFlagOn(params.get(FLAG_PARAMS.selfDriveOnly)),
     bestSellerOnly: isFlagOn(params.get(FLAG_PARAMS.bestSellerOnly)),
+    freeCancellationOnly: isFlagOn(params.get(FLAG_PARAMS.freeCancellationOnly)),
+    instantConfirmationOnly: isFlagOn(params.get(FLAG_PARAMS.instantConfirmationOnly)),
+    durationBucket:
+      DURATION_BUCKETS.find((bucket) => bucket === params.get('duration')) ?? 'any',
+    maxPriceIdr: parseNonNegativeInt(params.get('maxPrice')),
+    minRating: parseRating(params.get('minRating')),
   };
+}
+
+function parseNonNegativeInt(value: string | null): number | null {
+  if (!value || !/^\d+$/.test(value)) return null;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function parseRating(value: string | null): number | null {
+  if (!value) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 3 && parsed <= 5 ? parsed : null;
 }
 
 /**
@@ -113,6 +146,17 @@ export function applyExploreFilters(
   setFlag(params, FLAG_PARAMS.transferIncluded, filters.transferIncluded);
   setFlag(params, FLAG_PARAMS.selfDriveOnly, filters.selfDriveOnly);
   setFlag(params, FLAG_PARAMS.bestSellerOnly, filters.bestSellerOnly);
+  setFlag(params, FLAG_PARAMS.freeCancellationOnly, filters.freeCancellationOnly);
+  setFlag(params, FLAG_PARAMS.instantConfirmationOnly, filters.instantConfirmationOnly);
+
+  if (filters.durationBucket !== 'any') params.set('duration', filters.durationBucket);
+  else params.delete('duration');
+
+  if (filters.maxPriceIdr !== null) params.set('maxPrice', String(filters.maxPriceIdr));
+  else params.delete('maxPrice');
+
+  if (filters.minRating !== null) params.set('minRating', String(filters.minRating));
+  else params.delete('minRating');
 
   return params;
 }
@@ -127,6 +171,11 @@ export function sameExploreFilters(
     a.sortBy === b.sortBy &&
     a.transferIncluded === b.transferIncluded &&
     a.selfDriveOnly === b.selfDriveOnly &&
-    a.bestSellerOnly === b.bestSellerOnly
+    a.bestSellerOnly === b.bestSellerOnly &&
+    a.freeCancellationOnly === b.freeCancellationOnly &&
+    a.instantConfirmationOnly === b.instantConfirmationOnly &&
+    a.durationBucket === b.durationBucket &&
+    a.maxPriceIdr === b.maxPriceIdr &&
+    a.minRating === b.minRating
   );
 }

@@ -31,6 +31,16 @@ export function CatalogueFilterSheet({ open, onClose, resultCount }: CatalogueFi
     setSelfDriveOnly,
     bestSellerOnly,
     setBestSellerOnly,
+    freeCancellationOnly,
+    setFreeCancellationOnly,
+    instantConfirmationOnly,
+    setInstantConfirmationOnly,
+    durationBucket,
+    setDurationBucket,
+    maxPriceIdr,
+    setMaxPriceIdr,
+    minRating,
+    setMinRating,
     selectedCategory,
     setSelectedCategory,
     setSortBy,
@@ -47,6 +57,16 @@ export function CatalogueFilterSheet({ open, onClose, resultCount }: CatalogueFi
       onSelfDriveChange={setSelfDriveOnly}
       bestSeller={bestSellerOnly}
       onBestSellerChange={setBestSellerOnly}
+      freeCancellationOnly={freeCancellationOnly}
+      onFreeCancellationChange={setFreeCancellationOnly}
+      instantConfirmationOnly={instantConfirmationOnly}
+      onInstantConfirmationChange={setInstantConfirmationOnly}
+      durationBucket={durationBucket}
+      onDurationBucketChange={setDurationBucket}
+      maxPriceIdr={maxPriceIdr}
+      onMaxPriceChange={setMaxPriceIdr}
+      minRating={minRating}
+      onMinRatingChange={setMinRating}
       selectedCategory={selectedCategory}
       onCategorySelect={setSelectedCategory}
       resultCount={resultCount ?? liveResultCount}
@@ -54,6 +74,11 @@ export function CatalogueFilterSheet({ open, onClose, resultCount }: CatalogueFi
         setTransferIncluded(false);
         setSelfDriveOnly(false);
         setBestSellerOnly(false);
+        setFreeCancellationOnly(false);
+        setInstantConfirmationOnly(false);
+        setDurationBucket('any');
+        setMaxPriceIdr(null);
+        setMinRating(null);
         setSelectedCategory(null);
         setSortBy('recommended');
       }}

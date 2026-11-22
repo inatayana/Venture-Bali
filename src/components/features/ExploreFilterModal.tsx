@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { X, Car, KeyRound, Award, Check } from 'lucide-react';
+import { X, Car, KeyRound, Award, Check, ShieldCheck, Zap, Clock, Star } from 'lucide-react';
 import { FilterTogglePill } from '@/components/features/ExploreFilterPills';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { cn } from '@/utils/cn';
@@ -15,6 +15,16 @@ export interface ExploreFilterModalProps {
   onSelfDriveChange: (value: boolean) => void;
   bestSeller: boolean;
   onBestSellerChange: (value: boolean) => void;
+  freeCancellationOnly: boolean;
+  onFreeCancellationChange: (value: boolean) => void;
+  instantConfirmationOnly: boolean;
+  onInstantConfirmationChange: (value: boolean) => void;
+  durationBucket: 'any' | 'short' | 'half' | 'full';
+  onDurationBucketChange: (value: 'any' | 'short' | 'half' | 'full') => void;
+  maxPriceIdr: number | null;
+  onMaxPriceChange: (value: number | null) => void;
+  minRating: number | null;
+  onMinRatingChange: (value: number | null) => void;
   /** Selected category short label (e.g. 'Rafting'), or null for all. */
   selectedCategory: string | null;
   onCategorySelect: (categoryShort: string | null) => void;
@@ -39,6 +49,16 @@ export function ExploreFilterModal({
   onSelfDriveChange,
   bestSeller,
   onBestSellerChange,
+  freeCancellationOnly,
+  onFreeCancellationChange,
+  instantConfirmationOnly,
+  onInstantConfirmationChange,
+  durationBucket,
+  onDurationBucketChange,
+  maxPriceIdr,
+  onMaxPriceChange,
+  minRating,
+  onMinRatingChange,
   selectedCategory,
   onCategorySelect,
   resultCount,
@@ -58,6 +78,18 @@ export function ExploreFilterModal({
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [open, onClose]);
+
+  const activeChips: Array<{ key: string; label: string; remove: () => void }> = [];
+  if (freeCancellationOnly)
+    activeChips.push({ key: 'free', label: 'Free Cancellation', remove: () => onFreeCancellationChange(false) });
+  if (instantConfirmationOnly)
+    activeChips.push({ key: 'instant', label: 'Instant Confirmation', remove: () => onInstantConfirmationChange(false) });
+  if (durationBucket !== 'any')
+    activeChips.push({ key: 'duration', label: `Duration: ${durationBucket}`, remove: () => onDurationBucketChange('any') });
+  if (maxPriceIdr !== null)
+    activeChips.push({ key: 'price', label: `≤ Rp ${maxPriceIdr.toLocaleString('id-ID')}`, remove: () => onMaxPriceChange(null) });
+  if (minRating !== null)
+    activeChips.push({ key: 'rating', label: `${minRating}+ stars`, remove: () => onMinRatingChange(null) });
 
   if (!open) return null;
 
@@ -115,6 +147,106 @@ export function ExploreFilterModal({
               </div>
             </section>
 
+            {/* Section 1b — Reassurance & time */}
+            <section aria-labelledby="filter-reassurance">
+              <h3
+                id="filter-reassurance"
+                className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400"
+              >
+                Reassurance &amp; time
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                <FilterTogglePill
+                  active={freeCancellationOnly}
+                  onClick={() => onFreeCancellationChange(!freeCancellationOnly)}
+                  icon={ShieldCheck}
+                  label="Free Cancellation"
+                />
+                <FilterTogglePill
+                  active={instantConfirmationOnly}
+                  onClick={() => onInstantConfirmationChange(!instantConfirmationOnly)}
+                  icon={Zap}
+                  label="Instant Confirmation"
+                />
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-label="Duration">
+                {(
+                  [
+                    { value: 'any', label: 'Any duration' },
+                    { value: 'short', label: '≤ 2 hours' },
+                    { value: 'half', label: 'Half day (≤ 5h)' },
+                    { value: 'full', label: 'Full day (> 5h)' },
+                  ] as const
+                ).map((bucket) => (
+                  <button
+                    key={bucket.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={durationBucket === bucket.value}
+                    onClick={() => onDurationBucketChange(bucket.value)}
+                    className={cn(
+                      'inline-flex min-h-[40px] items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors',
+                      durationBucket === bucket.value
+                        ? 'border-brand-ink bg-brand-ink text-white'
+                        : 'border-neutral-300 text-neutral-700 hover:border-brand-ink dark:border-white/20 dark:text-neutral-200'
+                    )}
+                  >
+                    <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                    {bucket.label}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* Section 1c — Price & rating */}
+            <section aria-labelledby="filter-price-rating">
+              <h3
+                id="filter-price-rating"
+                className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400"
+              >
+                Price &amp; rating
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+                  Max price / guest (IDR)
+                  <input
+                    type="number"
+                    min={0}
+                    step={10000}
+                    inputMode="numeric"
+                    value={maxPriceIdr ?? ''}
+                    placeholder="Any"
+                    onChange={(event) =>
+                      onMaxPriceChange(event.target.value === '' ? null : Number(event.target.value))
+                    }
+                    className="mt-1 min-h-[44px] w-full rounded-lg border border-neutral-300 px-3 text-sm text-neutral-900 outline-none focus:border-brand-ink dark:border-white/20 dark:bg-neutral-900 dark:text-white"
+                  />
+                </label>
+                <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+                  Minimum rating
+                  <span className="mt-1 flex gap-1">
+                    {[4, 4.5, 5].map((rating) => (
+                      <button
+                        key={rating}
+                        type="button"
+                        aria-pressed={minRating === rating}
+                        onClick={() => onMinRatingChange(minRating === rating ? null : rating)}
+                        className={cn(
+                          'inline-flex min-h-[44px] flex-1 items-center justify-center gap-1 rounded-lg border text-xs font-semibold',
+                          minRating === rating
+                            ? 'border-brand-ink bg-brand-ink text-white'
+                            : 'border-neutral-300 text-neutral-700 dark:border-white/20 dark:text-neutral-200'
+                        )}
+                      >
+                        <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+                        {rating}+
+                      </button>
+                    ))}
+                  </span>
+                </label>
+              </div>
+            </section>
+
             {/* Section 2 — Adventure Type */}
             <section aria-labelledby="filter-adventure-type">
               <h3
@@ -154,6 +286,32 @@ export function ExploreFilterModal({
                 })}
               </div>
             </section>
+
+            {/* Active filters — every chip removes just that one filter */}
+            {activeChips.length > 0 && (
+              <section aria-labelledby="filter-active">
+                <h3
+                  id="filter-active"
+                  className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400"
+                >
+                  Active filters
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {activeChips.map((chip) => (
+                    <button
+                      key={chip.key}
+                      type="button"
+                      onClick={chip.remove}
+                      aria-label={`Remove ${chip.label} filter`}
+                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-brand/20 px-3 text-xs font-semibold text-brand-ink dark:text-brand"
+                    >
+                      {chip.label}
+                      <X className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
 

@@ -52,6 +52,7 @@ describe('parseExploreFilters', () => {
 describe('applyExploreFilters', () => {
   it('writes the canonical category slug and short flags', () => {
     const params = applyExploreFilters('', {
+      ...DEFAULT_EXPLORE_URL_FILTERS,
       selectedCategory: 'ATV',
       sortBy: 'rating',
       transferIncluded: true,
@@ -76,11 +77,8 @@ describe('applyExploreFilters', () => {
 
   it('preserves search, date, guests and unrelated params', () => {
     const params = applyExploreFilters('?q=ATV&date=2027-06-15&pax=2&utm_source=newsletter', {
+      ...DEFAULT_EXPLORE_URL_FILTERS,
       selectedCategory: 'Rafting',
-      sortBy: 'recommended',
-      transferIncluded: false,
-      selfDriveOnly: false,
-      bestSellerOnly: false,
     });
 
     expect(params.get('q')).toBe('ATV');
@@ -93,11 +91,15 @@ describe('applyExploreFilters', () => {
 
   it('round-trips through parse without losing state', () => {
     const state = {
+      ...DEFAULT_EXPLORE_URL_FILTERS,
       selectedCategory: 'Snorkeling',
       sortBy: 'price-low',
       transferIncluded: true,
-      selfDriveOnly: false,
       bestSellerOnly: true,
+      freeCancellationOnly: true,
+      durationBucket: 'half' as const,
+      maxPriceIdr: 400_000,
+      minRating: 4.5,
     };
 
     expect(parseExploreFilters(applyExploreFilters('?q=Ubud', state))).toEqual(state);
