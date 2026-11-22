@@ -1,7 +1,5 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
-import type { Prisma } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
 import { CatalogueSortMenu } from '@/components/features/CatalogueSortMenu';
@@ -9,7 +7,7 @@ import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { generateExperiencesMetadata } from '@/lib/seo';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
-import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
+import { getCataloguePage } from '@/lib/catalogueQuery';
 
 export const metadata: Metadata = generateExperiencesMetadata();
 
@@ -32,44 +30,17 @@ export default async function ExperiencesPage({ searchParams }: ExperiencesPageP
   const page = Math.max(1, parseInt(params.page ?? '1', 10));
   const pageSize = 12;
 
-  // Build where clause. NOTE: the Venture model has no isActive column and
-  // the price lives on Variant/PriceTier, so price sorting happens in memory
-  // below — the catalogue is small enough for that today.
-  const where: Prisma.VentureWhereInput = {};
-  if (category) {
-    where.category = category;
-  }
-  if (query) {
-    where.OR = [
-      { title: { contains: query, mode: 'insensitive' } },
-      { shortDescription: { contains: query, mode: 'insensitive' } },
-    ];
-  }
-
-  const rows = await prisma.venture.findMany({
-    where,
-    include: ventureWithRelations(),
+  // Filtering, ordering and LIMIT/OFFSET happen in the database. Only the
+  // current page is hydrated with relations (see src/lib/catalogueQuery.ts).
+  const { items: ventureItems, total, totalPages } = await getCataloguePage({
+    category,
+    query,
+    sort,
+    page,
+    pageSize,
   });
 
   const categories = CATEGORY_REGISTRY;
-
-  // Map Prisma ventures to VentureItem view models, then sort and paginate in
-  // memory: "popular" ranks by rating, price sorts use the computed price.
-  const allItems = rows.map(toVentureItem);
-  const sorted =
-    sort === 'price-asc'
-      ? [...allItems].sort((a, b) => a.priceIdr - b.priceIdr)
-      : sort === 'price-desc'
-      ? [...allItems].sort((a, b) => b.priceIdr - a.priceIdr)
-      : sort === 'newest'
-      ? [...allItems].sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-      : [...allItems].sort((a, b) => b.rating - a.rating);
-
-  const total = allItems.length;
-  const totalPages = Math.ceil(total / pageSize);
-  const ventureItems = sorted.slice((page - 1) * pageSize, page * pageSize);
 
   // Build URL for sort links
   const buildSortUrl = (value: string) => {
