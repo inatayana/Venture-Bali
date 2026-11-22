@@ -934,3 +934,184 @@ enum VendorStatus {
   PENDING_ONBOARDING
   TERMINATED
 }
+
+// ============ GROWTH CONTENT ARCHITECTURE ============
+// Phase 3 persistence layer. Source of truth for the tables created by
+// 20261120210000_add_growth_tables. Status fields are plain strings on purpose:
+// the state machine lives in src/lib/growth/state.ts so it can evolve without a
+// migration. See docs/CONTENT_GROWTH_ARCHITECT.md.
+
+model GrowthTopic {
+  id        String   @id @default(cuid())
+  tenantId  String
+  clusterId String?
+  /// Human-readable canonical title used as the source for all variants.
+  canonicalTitle String
+  /// Search intent, e.g. INFORMATIONAL / COMMERCIAL / TRANSACTIONAL / NAVIGATIONAL.
+  intent       String
+  /// STATE MACHINE STATUS (see src/lib/growth/state.ts).
+  status       String
+  priority     Int      @default(0)
+  source       String   // GSC | YOUTUBE | TIKTOK | FACEBOOK | MANUAL
+  owner        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assets    ContentAsset[]
+  sources   FactSource[]
+  auditLogs AuditEvent[]
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([intent])
+  @@index([priority])
+}
+
+model FactSource {
+  id          String   @id @default(cuid())
+  topicId     String
+  claim       String
+  sourceUrl   String
+  /// DB | POLICY | OPERATOR | OFFICIAL | OTHER
+  sourceType  String
+  retrievedAt DateTime @default(now())
+  expiresAt   DateTime?
+
+  topic GrowthTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId])
+  @@index([sourceType])
+}
+
+model ContentVersion {
+  id            String   @id @default(cuid())
+  assetId       String
+  version       Int      @default(1)
+  contentHash   String   @unique
+  model         String
+  promptVersion String
+  body          Json
+  changeNote    String?
+  createdAt     DateTime @default(now())
+
+  asset ContentAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
+  @@index([contentHash])
+}
+
+model ContentAsset {
+  id       String @id @default(cuid())
+  topicId  String
+  tenantId String
+  format   String // CONTENT_FORMATS
+  platform String // PLATFORMS
+  /// STATE MACHINE STATUS (see src/lib/growth/state.ts).
+  status String
+  lang   String // 'en' | 'id'
+  title  String
+  payload Json // format-specific body (video script sections, social body, FAQ pairs, etc.)
+  /// Points to the ContentVersion currently holding the canonical body.
+  /// Plain scalar (no Prisma relation) to avoid a circular FK; the DB FK is
+  /// enforced in the migration.
+  currentVersionId String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  topic          GrowthTopic       @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  versions       ContentVersion[]
+  publishTargets PlatformPublish[]
+  approvals      ApprovalRequest[]
+  metrics        MetricSnapshot[]
+
+  @@index([topicId])
+  @@index([tenantId])
+  @@index([format])
+  @@index([platform])
+  @@index([status])
+  @@index([lang])
+}
+
+model PlatformPublish {
+  id          String    @id @default(cuid())
+  assetId     String
+  platform    String // PLATFORMS
+  /// DRAFT | SCHEDULED | PUBLISHED | FAILED | CANCELLED
+  status      String
+  externalId  String?
+  publicUrl   String?
+  approvalId  String?
+  publishedAt DateTime?
+  errorCode   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  asset ContentAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
+  @@index([platform])
+  @@index([status])
+  @@index([approvalId])
+}
+
+model ApprovalRequest {
+  id          String    @id @default(cuid())
+  assetId     String
+  tenantId    String
+  requestedBy String
+  /// PENDING | APPROVED | REJECTED | EXPIRED
+  status      String
+  reviewer    String?
+  reason      String
+  decidedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  asset ContentAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
+  @@index([tenantId])
+  @@index([status])
+}
+
+model MetricSnapshot {
+  id          String   @id @default(cuid())
+  assetId     String
+  platform    String // PLATFORMS
+  date        String // YYYY-MM-DD
+  impressions Int?
+  clicks      Int?
+  ctr         Float?
+  avgPosition Float?
+  retention   Float?
+  source      String // METRIC_SOURCES
+  createdAt   DateTime @default(now())
+
+  asset ContentAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
+  @@index([platform])
+  @@index([date])
+  @@index([source])
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  tenantId   String
+  entity     String // AUDIT_ENTITIES
+  entityId   String
+  action     String // TRANSITION | CREATE | PUBLISH | ...
+  actor      String
+  fromStatus String?
+  toStatus   String?
+  metadata   Json     @default("{}")
+  createdAt  DateTime @default(now())
+
+  topicId String
+  /// GrowthTopic audit logs.
+  topic GrowthTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([entity])
+  @@index([entityId])
+  @@index([createdAt])
+}
