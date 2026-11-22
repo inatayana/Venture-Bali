@@ -19,6 +19,7 @@ import {
   Building2,
   Package,
   Menu,
+  TrendingUp,
   Sun,
   Moon,
 } from 'lucide-react';
@@ -44,6 +45,7 @@ const NAV_ITEMS = [
 
   // === TIER 4: MARKETING & REPORTING ===
   { href: '/admin/reports', label: 'Revenue', icon: BarChart3 },
+  { href: '/admin/growth', label: 'Growth', icon: TrendingUp },
   { href: '/admin/content', label: 'AI Content', icon: Sparkles },
   { href: '/admin/seo', label: 'Expert SEO', icon: Globe },
   { href: '/admin/reviews/invites', label: 'Invites', icon: Ticket },

@@ -9,6 +9,7 @@ import { CurrencyProvider } from '@/components/currency/CurrencyProvider';
 import { LocaleProvider } from '@/components/locale/LocaleProvider';
 import { ThemeProvider, themeInitScript } from '@/components/theme/ThemeProvider';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
+import { AnalyticsLoader } from '@/components/analytics/AnalyticsLoader';
 import { SentryClientProvider } from '@/components/SentryClientProvider';
 import { BottomNavigation } from '@/components/layout/BottomNavigation';
 import { DesktopUtilityBar } from '@/components/layout/DesktopUtilityBar';
@@ -70,6 +71,7 @@ export default function RootLayout({
             <LocaleProvider>
               <SearchProvider>
                 <SentryClientProvider />
+                <AnalyticsLoader />
                 {children}
                 <AnalyticsPageView />
                 <PwaRegistration />
