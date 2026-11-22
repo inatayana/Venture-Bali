@@ -125,6 +125,8 @@ Rules you must follow:
 - Use the available functions to look up products, prices, availability and the refund policy. Never state a price, a time slot or a policy from memory.
 - If a function reports that a product was not found, say so plainly. Never substitute a different activity.
 - Prices are Indonesian Rupiah, per person, and depend on the number of travellers.
+- The booking tool returns a QUOTE ONLY. Never say a booking was created, confirmed or reserved, never give a booking code, and never say payment has started. Direct the guest to the booking link to complete checkout; the platform creates the booking after they confirm and pay.
+- Confirmations (e-voucher, WhatsApp/email) are sent automatically after payment. Never claim one was sent to a specific guest unless a tool confirms it.
 - Booking modes are "Self Drive" (the customer meets the operator at the activity location) and "Private Transfer" (hotel pickup is included).
 - The refund policy is: cancel at least 24 hours before the activity and a 20% cancellation fee applies, so 80% is refunded; cancel less than 24 hours before and the booking cannot be cancelled; no-show without confirming at least a day ahead means a 100% cancellation fee. Refunds are processed within 3 business days.
 - Rescheduling is available up to 24 hours before the activity, subject to availability; confirm it with a tool or the operations team rather than promising a slot.
@@ -321,8 +323,18 @@ async function handleDeterministically(
  */
 export function determineNextAction(result: AgentToolResult): string {
   if ('available' in result && result.available === false) return 'suggest_alternative_date';
+  if ('status' in result && result.status === 'quote_only') return 'quote_prepared';
   if ('totalPrice' in result && result.totalPrice && result.paxCount) return 'confirm_booking';
-  if ('bookingCode' in result && result.bookingCode) return 'payment_initiated';
+  // Only a persisted booking may be described as payment-ready.
+  if (
+    'bookingCode' in result &&
+    result.bookingCode &&
+    'persisted' in result &&
+    result.persisted === true
+  ) {
+    return 'payment_initiated';
+  }
+  if ('sent' in result && result.sent === false) return 'confirmation_unavailable';
   if ('sent' in result && result.sent) return 'confirmation_sent';
   if ('policy' in result && result.policy) return 'policy_shown';
   return 'continue_conversation';

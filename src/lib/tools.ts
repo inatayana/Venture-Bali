@@ -214,19 +214,25 @@ export async function createBooking(state: AgentState): Promise<CreateBookingOut
     booking: provisional,
     paymentLink: venture ? `/experiences/${venture.id}/${venture.slug}` : '/',
     voucherId: '',
-    bookingCode: 'PENDING',
+    // No reservation exists yet. An empty code prevents channel adapters from
+    // telling the guest a booking was created with code "PENDING".
+    bookingCode: '',
     persisted: false,
+    status: 'quote_only',
   };
 }
 
 /**
- * Send booking confirmation via WhatsApp
+ * Booking confirmations are sent by the checkout flow after payment, not by
+ * the agent. This tool exists for tool-schema compatibility and reports that
+ * nothing was sent — it must never fabricate a message id or claim delivery.
  */
 export async function sendBookingConfirmation(): Promise<SendBookingConfirmationOutput> {
   return {
-    sent: true,
-    messageId: `msg_${Date.now()}`,
+    sent: false,
+    messageId: '',
     timestamp: new Date().toISOString(),
+    reason: 'Confirmation is sent automatically by the booking flow after payment.',
   };
 }
 

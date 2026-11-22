@@ -31,10 +31,14 @@ function formatResponse(data: unknown, nextAction: string): string {
   switch (nextAction) {
     case 'confirm_booking':
       return `Harga: Rp ${Number(payload.totalPrice ?? 0).toLocaleString('id-ID')} untuk ${payload.paxCount} orang (${payload.tier}). Konfirmasi booking?`;
+    case 'quote_prepared':
+      return `Penawaran harga: Rp ${Number(payload.totalPrice ?? 0).toLocaleString('id-ID')} untuk ${payload.paxCount} orang. Belum ada booking yang dibuat — silakan lanjut ke ${payload.paymentLink ?? 'link booking'} untuk menyelesaikan pemesanan.`;
     case 'payment_initiated':
       return `Booking Anda dibuat dengan kode: ${payload.bookingCode}. Silakan lakukan pembayaran di: ${payload.paymentLink}`;
     case 'confirmation_sent':
       return 'Konfirmasi booking telah dikirim ke WhatsApp Anda!';
+    case 'confirmation_unavailable':
+      return 'Konfirmasi akan dikirim otomatis setelah pembayaran. Belum ada pesan yang dikirim.';
     case 'policy_shown':
       return typeof payload.policy === 'string'
         ? payload.policy

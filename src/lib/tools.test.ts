@@ -239,7 +239,8 @@ describe('Agent tools', () => {
       // 3-4 pax tier is Rp 420.000.
       expect(result.booking.totalPrice).toBe(1260000);
       expect(result.persisted).toBe(false);
-      expect(result.bookingCode).toBe('PENDING');
+      expect(result.status).toBe('quote_only');
+      expect(result.bookingCode).toBe('');
       expect(result.voucherId).toBe('');
     });
   });

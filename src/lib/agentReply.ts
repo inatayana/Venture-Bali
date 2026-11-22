@@ -22,10 +22,14 @@ export function formatAgentReply(result: AgentResultLike): string {
   switch (result.next_action) {
     case 'confirm_booking':
       return `Price: Rp ${Number(payload.totalPrice ?? 0).toLocaleString('id-ID')} for ${payload.paxCount} guest(s). Shall I confirm the booking?`;
+    case 'quote_prepared':
+      return `Here is your quote: Rp ${Number(payload.totalPrice ?? 0).toLocaleString('id-ID')} for ${payload.paxCount} guest(s). No booking has been made yet — open ${payload.paymentLink ?? 'the booking link'} to complete checkout.`;
     case 'payment_initiated':
       return `Your booking ${payload.bookingCode} is ready. Continue the payment here: ${payload.paymentLink}`;
     case 'confirmation_sent':
       return 'The booking confirmation has been sent.';
+    case 'confirmation_unavailable':
+      return 'Your confirmation will be sent automatically after payment. No message has been sent yet.';
     case 'policy_shown':
       return typeof payload.policy === 'string'
         ? stripMarkdown(payload.policy)

@@ -170,18 +170,24 @@ export interface CreateBookingOutput {
   booking: Booking;
   paymentLink: string;
   voucherId: string;
+  /** Empty until checkout creates a real booking. Never a fake/PENDING code. */
   bookingCode: string;
   /**
    * False while the agent is still collecting details. The booking row is
    * created by the checkout flow, never by the agent.
    */
   persisted: boolean;
+  /** Explicit marker so downstream adapters can avoid claiming payment started. */
+  status: 'quote_only' | 'initiated';
 }
 
 export interface SendBookingConfirmationOutput {
   sent: boolean;
+  /** Empty unless a provider actually accepted the message. */
   messageId: string;
   timestamp: string;
+  /** Present when sent is false — never fabricate a message id. */
+  reason?: string;
 }
 
 export interface GetRefundPolicyOutput {
