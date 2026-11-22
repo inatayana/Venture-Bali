@@ -1,97 +1,16 @@
-export type Locale = 'en' | 'id';
+/**
+ * Backwards-compatible locale shim.
+ *
+ * The translation data lives in `i18n-unified.ts` (re-exported by `i18n.ts`).
+ * This file only keeps the old `{ code, label }[]` shape for existing callers.
+ */
 
-export const LOCALES: ReadonlyArray<{ code: Locale; label: string }> = [
-  { code: 'en', label: 'EN' },
-  { code: 'id', label: 'ID' },
-];
+import { LOCALE_LABELS, translate as unifiedTranslate, type Locale } from './i18n';
 
-const MESSAGES = {
-  en: {
-    headerTagline: 'Own the wild. Adventure, booked in minutes.',
-    heroCategories: 'Bali · 9 adventure categories',
-    heroBadge: "BALI'S TRUSTED OUTDOOR & NATURE OPERATOR",
-    heroBook: "Discover Bali's Wild Beauty,",
-    heroOwn: 'Guided Safely.',
-    heroSub:
-      'From gentle river tubing and scenic ATV rides to full-day island escapes. Operated directly by our local team with safety-checked gear and seamless pickup.',
-    idrNote: 'Prices in IDR · other currencies are approximate',
-    trustInstant: 'Instant confirmation',
-    trustReschedule: 'Free reschedule ≥24h',
-    trustRefund: '80% refund ≥24h',
-    trustSecure: 'Secure checkout · VISA / QRIS',
-    reviews: 'verified reviews',
-    categories: 'adventure categories in Bali',
-    heroBest: 'Best Sellers',
-    heroCombos: 'Adrenaline Combos',
-    heroBatur: 'Mount Batur',
-    heroTubing: 'River Tubing',
-    heroWater: 'Water Adventures',
-    heroTrekking: 'Mountain Trekking',
-    licensed: 'Licensed local operators',
-    verifiedReviews: 'verified reviews',
-    searchWhere: 'Where',
-    searchWhen: 'When',
-    searchGuests: 'Guests',
-    searchAnywhere: 'Anywhere in Bali',
-    searchAnyDate: 'Any date',
-    searchGuestOne: 'guest',
-    searchGuestMany: 'guests',
-    searchButton: 'Search',
-    searchPlaceholder: 'Search destinations or adventures…',
-    searchNearby: 'Nearby & popular',
-    searchSuggested: 'Suggested adventures',
-    searchFlexible: 'Flexible dates',
-    searchDone: 'Done',
-    searchMobileWhere: 'Where to in Bali?',
-    searchAdventures: 'Search adventures',
-    bookingAlert: 'Booking alert',
-    bookingIn: 'in',
-  },
-  id: {
-    headerTagline: 'Taklukkan alam liar. Petualangan, dipesan dalam hitungan menit.',
-    heroCategories: 'Bali · 9 kategori petualangan',
-    heroBadge: 'OPERATOR OUTDOOR & ALAM TEPERCAYA DI BALI',
-    heroBook: 'Jelajah Keindahan Liar Bali,',
-    heroOwn: 'Dipandu dengan Aman.',
-    heroSub:
-      'Mulai dari tubing sungai yang tenang hingga ATV seharian. Dioperasikan langsung oleh tim lokal kami dengan peralatan ter-check dan pickup tanpa ribet.',
-    idrNote: 'Harga dalam IDR · mata uang lain hanya perkiraan',
-    trustInstant: 'Konfirmasi instan',
-    trustReschedule: 'Reschedule gratis ≥24 jam',
-    trustRefund: 'Refund 80% ≥24 jam',
-    trustSecure: 'Checkout aman · VISA / QRIS',
-    reviews: 'ulasan terverifikasi',
-    categories: 'kategori petualangan di Bali',
-    heroBest: 'Paling Dicari',
-    heroCombos: 'Kombinasi Adrenalin',
-    heroBatur: 'Gunung Batur',
-    heroTubing: 'River Tubing',
-    heroWater: 'Wisata Air',
-    heroTrekking: 'Trekking Gunung',
-    licensed: 'Operator lokal berlisensi',
-    verifiedReviews: 'ulasan terverifikasi',
-    searchWhere: 'Mau ke mana',
-    searchWhen: 'Kapan',
-    searchGuests: 'Tamu',
-    searchAnywhere: 'Di mana saja di Bali',
-    searchAnyDate: 'Tanggal bebas',
-    searchGuestOne: 'tamu',
-    searchGuestMany: 'tamu',
-    searchButton: 'Cari',
-    searchPlaceholder: 'Cari destinasi atau petualangan…',
-    searchNearby: 'Terdekat & populer',
-    searchSuggested: 'Petualangan pilihan',
-    searchFlexible: 'Tanggal fleksibel',
-    searchDone: 'Selesai',
-    searchMobileWhere: 'Mau ke mana di Bali?',
-    searchAdventures: 'Cari petualangan',
-    bookingAlert: 'Pesanan baru',
-    bookingIn: 'di',
-  },
-} as const;
+export type { Locale } from './i18n';
 
-export type MessageKey = keyof (typeof MESSAGES)['en'];
+export const LOCALES: ReadonlyArray<{ code: Locale; label: string }> = (['en', 'id'] as const).map(
+  (code) => ({ code, label: LOCALE_LABELS[code] })
+);
 
-export function translate(locale: Locale, key: MessageKey): string {
-  return MESSAGES[locale][key];
-}
+export const translate = unifiedTranslate;

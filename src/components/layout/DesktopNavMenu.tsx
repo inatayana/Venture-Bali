@@ -25,7 +25,7 @@ import {
 import { useLocale } from '@/components/locale/LocaleProvider';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { useTheme } from '@/components/theme/ThemeProvider';
-import { getNamespace } from '@/lib/i18n-unified';
+import { getNamespace } from '@/lib/i18n';
 import { useWishlist } from '@/store/wishlistStore';
 import { ACTIVE_CURRENCY_INFO, type ActiveCurrency } from '@/lib/currency';
 import { cn } from '@/utils/cn';

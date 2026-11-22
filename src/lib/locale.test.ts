@@ -6,8 +6,8 @@ describe('locale messages', () => {
   });
 
   it('translates the hero and header copy', () => {
-    expect(translate('en', 'heroBook')).toBe("Discover Bali's Wild Beauty,");
-    expect(translate('id', 'heroBook')).toBe('Jelajah Keindahan Liar Bali,');
+    expect(translate('en', 'heroBook')).toBe('Discover Bali. Book Direct.');
+    expect(translate('id', 'heroBook')).toBe('Jelajahi Bali. Pesan Langsung.');
     expect(translate('id', 'heroOwn')).toContain('Dipandu');
     expect(translate('id', 'headerTagline')).toContain('Taklukkan');
   });

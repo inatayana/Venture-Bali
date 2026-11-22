@@ -6,7 +6,7 @@ jest.mock('@/components/features/HeroVideo', () => ({
 
 import { HomeHero } from './HomeHero';
 import { LocaleProvider } from '@/components/locale/LocaleProvider';
-import { translate } from '@/lib/i18n-unified';
+import { translate } from '@/lib/i18n';
 
 describe('HomeHero', () => {
   beforeEach(() => {

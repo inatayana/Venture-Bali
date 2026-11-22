@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { type Locale, type TranslationNamespace, t, translate } from '@/lib/i18n-unified';
+import { type Locale, type TranslationNamespace, t, translate } from '@/lib/i18n';
 
 interface LocaleContextValue {
   locale: Locale;
