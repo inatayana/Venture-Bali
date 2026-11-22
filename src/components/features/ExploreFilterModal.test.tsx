@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ExploreFilterModal } from './ExploreFilterModal';
 
@@ -14,6 +14,8 @@ function renderModal(overrides: Partial<Parameters<typeof ExploreFilterModal>[0]
     onBestSellerChange: jest.fn(),
     selectedCategory: null,
     onCategorySelect: jest.fn(),
+    location: null,
+    onLocationChange: jest.fn(),
     resultCount: 42,
     onClearAll: jest.fn(),
     ...overrides,
@@ -79,8 +81,19 @@ describe('ExploreFilterModal', () => {
     expect(props.onClose).not.toHaveBeenCalled();
   });
 
+  it('renders the location input and reports trimmed values', async () => {
+    const onLocationChange = jest.fn();
+    renderModal({ location: null, onLocationChange });
+
+    const input = screen.getByLabelText('Location', { selector: 'input' });
+    expect(input).toHaveValue('');
+
+    fireEvent.change(input, { target: { value: '  Ubud  ' } });
+    expect(onLocationChange).toHaveBeenLastCalledWith('Ubud');
+  });
+
   it('renders nothing when closed', () => {
-    const { container } = render(<ExploreFilterModal open={false} onClose={jest.fn()} transferIncluded={false} onTransferIncludedChange={jest.fn()} selfDriveOnly={false} onSelfDriveChange={jest.fn()} bestSeller={false} onBestSellerChange={jest.fn()} selectedCategory={null} onCategorySelect={jest.fn()} resultCount={0} onClearAll={jest.fn()} />);
+    const { container } = render(<ExploreFilterModal open={false} onClose={jest.fn()} transferIncluded={false} onTransferIncludedChange={jest.fn()} selfDriveOnly={false} onSelfDriveChange={jest.fn()} bestSeller={false} onBestSellerChange={jest.fn()} selectedCategory={null} onCategorySelect={jest.fn()} location={null} onLocationChange={jest.fn()} resultCount={0} onClearAll={jest.fn()} />);
     expect(container).toBeEmptyDOMElement();
   });
 });

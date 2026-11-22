@@ -47,6 +47,7 @@ export function HomeCatalogue({
     setTransferIncluded,
     setSelfDriveOnly,
     setBestSellerOnly,
+    location,
   } = useExploreFilters();
 
   const filtered = useMemo(
@@ -60,8 +61,9 @@ export function HomeCatalogue({
         bestSellerOnly,
         selectedCategory,
         sortBy,
+        location,
       }),
-    [ventures, query, date, pax, transferIncluded, selfDriveOnly, bestSellerOnly, selectedCategory, sortBy]
+    [ventures, query, date, pax, transferIncluded, selfDriveOnly, bestSellerOnly, selectedCategory, sortBy, location]
   );
 
   useEffect(() => {
@@ -76,7 +78,8 @@ export function HomeCatalogue({
     selfDriveOnly ||
     bestSellerOnly ||
     selectedCategory !== null ||
-    sortBy !== 'recommended';
+    sortBy !== 'recommended' ||
+    (location !== null && location.trim() !== '');
 
   const dateLabel = date
     ? new Date(`${date}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })

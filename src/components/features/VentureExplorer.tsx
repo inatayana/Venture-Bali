@@ -68,6 +68,8 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
     sortBy,
     setSortBy,
     setResultCount,
+    location,
+    setLocation,
   } = useExploreFilters();
   const [expanded, setExpanded] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -102,8 +104,9 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
         bestSellerOnly,
         selectedCategory,
         sortBy,
+        location,
       }),
-    [ventures, search, selectedCategory, sortBy, dateFilter, paxFilter, transferIncluded, selfDriveOnly, bestSellerOnly]
+    [ventures, search, selectedCategory, sortBy, dateFilter, paxFilter, transferIncluded, selfDriveOnly, bestSellerOnly, location]
   );
 
   // Publish the live filtered count so the mobile header chrome can show
@@ -115,7 +118,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
   // A new filter or sort starts a fresh, compact mobile list.
   useEffect(() => {
     setExpanded(false);
-  }, [search, selectedCategory, sortBy, dateFilter, paxFilter, transferIncluded, selfDriveOnly, bestSellerOnly]);
+  }, [search, selectedCategory, sortBy, dateFilter, paxFilter, transferIncluded, selfDriveOnly, bestSellerOnly, location]);
 
   const resetAllFilters = () => {
     setSearch('');
@@ -126,6 +129,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
     setTransferIncluded(false);
     setSelfDriveOnly(false);
     setBestSellerOnly(false);
+    setLocation(null);
   };
 
   const hasMoreOnMobile = filteredVentures.length > MOBILE_INITIAL_CARDS;
@@ -136,6 +140,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
   const isDefaultExploreView =
     !search &&
     !selectedCategory &&
+    !location &&
     !dateFilter &&
     paxFilter === 1 &&
     !transferIncluded &&
@@ -374,12 +379,16 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
         onBestSellerChange={setBestSellerOnly}
         selectedCategory={selectedCategory}
         onCategorySelect={setSelectedCategory}
+        location={location}
+        onLocationChange={setLocation}
         resultCount={filteredVentures.length}
         onClearAll={() => {
           setTransferIncluded(false);
           setSelfDriveOnly(false);
           setBestSellerOnly(false);
           setSelectedCategory(null);
+          setSortBy('recommended');
+          setLocation(null);
         }}
       />
     </section>

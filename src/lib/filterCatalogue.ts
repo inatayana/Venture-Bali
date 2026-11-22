@@ -16,6 +16,7 @@ export interface CatalogueFilters {
   bestSellerOnly: boolean;
   selectedCategory: string | null;
   sortBy: string;
+  location: string | null;
 }
 
 export const DEFAULT_CATALOGUE_FILTERS: CatalogueFilters = {
@@ -27,6 +28,7 @@ export const DEFAULT_CATALOGUE_FILTERS: CatalogueFilters = {
   bestSellerOnly: false,
   selectedCategory: null,
   sortBy: 'recommended',
+  location: null,
 };
 
 export function filterCatalogue(ventures: VentureItem[], filters: CatalogueFilters): VentureItem[] {
@@ -39,6 +41,7 @@ export function filterCatalogue(ventures: VentureItem[], filters: CatalogueFilte
     bestSellerOnly,
     selectedCategory,
     sortBy,
+    location,
   } = filters;
 
   let result = [...ventures];
@@ -51,6 +54,11 @@ export function filterCatalogue(ventures: VentureItem[], filters: CatalogueFilte
         v.location.toLowerCase().includes(q) ||
         v.description.toLowerCase().includes(q)
     );
+  }
+
+  if (location) {
+    const loc = location.trim().toLowerCase();
+    result = result.filter((v) => v.location.toLowerCase().includes(loc));
   }
 
   if (selectedCategory) {

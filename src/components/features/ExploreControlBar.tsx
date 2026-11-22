@@ -31,6 +31,8 @@ export function ExploreControlBar({ showBack = true }: { showBack?: boolean }) {
     selectedCategory,
     setSelectedCategory,
     setSortBy,
+    location,
+    setLocation,
     resultCount,
   } = useExploreFilters();
 
@@ -45,6 +47,7 @@ export function ExploreControlBar({ showBack = true }: { showBack?: boolean }) {
     selfDriveOnly,
     bestSellerOnly,
     selectedCategory !== null,
+    location !== null && location.trim() !== '',
   ].filter(Boolean).length;
 
   return (
@@ -96,6 +99,8 @@ export function ExploreControlBar({ showBack = true }: { showBack?: boolean }) {
         onBestSellerChange={setBestSellerOnly}
         selectedCategory={selectedCategory}
         onCategorySelect={setSelectedCategory}
+        location={location}
+        onLocationChange={setLocation}
         resultCount={resultCount}
         onClearAll={() => {
           setTransferIncluded(false);
@@ -103,6 +108,7 @@ export function ExploreControlBar({ showBack = true }: { showBack?: boolean }) {
           setBestSellerOnly(false);
           setSelectedCategory(null);
           setSortBy('recommended');
+          setLocation(null);
         }}
       />
     </>

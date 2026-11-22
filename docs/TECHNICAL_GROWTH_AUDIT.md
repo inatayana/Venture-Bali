@@ -76,8 +76,10 @@ re-litigates the same investigation and no one builds something that already wor
    making API versioning mandatory (note: it exists on the `main` line).
 8. No WebP/AVIF build pipeline; no A/B or experimentation layer.
 9. No email capture / newsletter / lead magnet anywhere in the app.
-10. No location filter in the live UI (`filterCatalogue.ts`, `ExploreFilterModal.tsx`)
-    even though `SEO_TAXONOMY.md` §5 lists Location.
+10. ~~No location filter in the live UI~~ **Implemented** — `location` added to
+    `CatalogueFilters`/`filterCatalogue` and wired through
+    `ExploreFiltersProvider`, `ExploreFilterModal`, `ExploreControlBar`,
+    `VentureExplorer` and `HomeCatalogue`.
 11. No expert author schema / E-E-A-T author profiles (deferred in `SEO_STRATEGY.md` §3).
 
 ---

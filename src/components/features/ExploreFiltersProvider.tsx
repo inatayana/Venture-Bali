@@ -14,6 +14,8 @@ export interface ExploreFiltersValue {
   setSelectedCategory: (value: string | null) => void;
   sortBy: string;
   setSortBy: (value: string) => void;
+  location: string | null;
+  setLocation: (value: string | null) => void;
   /** Live count of filtered results — published by VentureExplorer. */
   resultCount: number;
   setResultCount: (value: number) => void;
@@ -31,6 +33,8 @@ const defaultValue: ExploreFiltersValue = {
   setSelectedCategory: noop,
   sortBy: 'recommended',
   setSortBy: noop,
+  location: null,
+  setLocation: noop,
   resultCount: 0,
   setResultCount: noop,
 };
@@ -48,6 +52,7 @@ export function ExploreFiltersProvider({ children }: { children: ReactNode }) {
   const [bestSellerOnly, setBestSellerOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('recommended');
+  const [location, setLocation] = useState<string | null>(null);
   const [resultCount, setResultCount] = useState(0);
 
   const value = useMemo<ExploreFiltersValue>(
@@ -62,10 +67,12 @@ export function ExploreFiltersProvider({ children }: { children: ReactNode }) {
       setSelectedCategory,
       sortBy,
       setSortBy,
+      location,
+      setLocation,
       resultCount,
       setResultCount,
     }),
-    [transferIncluded, selfDriveOnly, bestSellerOnly, selectedCategory, sortBy, resultCount]
+    [transferIncluded, selfDriveOnly, bestSellerOnly, selectedCategory, sortBy, location, resultCount]
   );
 
   return (

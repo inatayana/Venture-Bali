@@ -18,6 +18,9 @@ export interface ExploreFilterModalProps {
   /** Selected category short label (e.g. 'Rafting'), or null for all. */
   selectedCategory: string | null;
   onCategorySelect: (categoryShort: string | null) => void;
+  /** Selected location filter (e.g. 'Ubud'), or null for all. */
+  location: string | null;
+  onLocationChange: (value: string | null) => void;
   /** Live count shown on the primary CTA. */
   resultCount: number;
   /** Reset every filter (does not close the modal). */
@@ -41,6 +44,8 @@ export function ExploreFilterModal({
   onBestSellerChange,
   selectedCategory,
   onCategorySelect,
+  location,
+  onLocationChange,
   resultCount,
   onClearAll,
 }: ExploreFilterModalProps) {
@@ -153,6 +158,24 @@ export function ExploreFilterModal({
                   );
                 })}
               </div>
+            </section>
+
+            {/* Section 3 — Location */}
+            <section aria-labelledby="filter-location">
+              <h3
+                id="filter-location"
+                className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400"
+              >
+                Location
+              </h3>
+              <input
+                type="text"
+                value={location ?? ''}
+                onChange={(event) => onLocationChange(event.target.value.trim() ? event.target.value.trim() : null)}
+                placeholder="Cari lokasi, mis. Ubud"
+                aria-label="Location"
+                className="min-h-[44px] w-full rounded-2xl border border-neutral-200 bg-white px-3 py-3.5 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand dark:border-white/10 dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-500"
+              />
             </section>
           </div>
         </div>
