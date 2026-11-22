@@ -250,6 +250,7 @@ export function HomeCatalogue({
                   venture={venture}
                   href={`/experiences/${venture.id}/${venture.slug}`}
                   variant="vertical"
+                  showDateCheck
                 />
               ))}
             </div>
@@ -262,6 +263,7 @@ export function HomeCatalogue({
                   venture={venture}
                   href={`/experiences/${venture.id}/${venture.slug}`}
                   variant="horizontal"
+                  showDateCheck
                 />
               ))}
             </div>

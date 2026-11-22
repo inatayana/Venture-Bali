@@ -331,6 +331,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
                   venture={venture}
                   href={`/experiences/${venture.id}/${venture.slug}`}
                   className="hidden md:block"
+                  showDateCheck
                 />
               </li>
             ))}
@@ -356,6 +357,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
             <VentureCard
               venture={venture}
               href={`/experiences/${venture.id}/${venture.slug}`}
+              showDateCheck
             />
           </div>
         ))}

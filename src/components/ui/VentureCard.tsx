@@ -8,6 +8,7 @@ import { formatPrice } from '@/lib/i18n';
 import { PriceApprox } from '@/components/currency/PriceApprox';
 import { useWishlist, toWishlistDraft } from '@/store/wishlistStore';
 import { useState } from 'react';
+import { QuickDateCheck } from '@/components/features/QuickDateCheck';
 
 export interface VentureCardProps {
   venture: VentureItem;
@@ -15,6 +16,8 @@ export interface VentureCardProps {
   href?: string;
   className?: string;
   variant?: 'vertical' | 'horizontal';
+  /** Show a "Cek tanggal" action with an availability preview modal. */
+  showDateCheck?: boolean;
 }
 
 export function VentureCard({
@@ -23,6 +26,7 @@ export function VentureCard({
   href,
   className,
   variant = 'vertical',
+  showDateCheck = false,
 }: VentureCardProps) {
   const wishlisted = useWishlist((state) => state.items.some((item) => item.id === venture.id));
   const toggleWishlist = useWishlist((state) => state.toggle);
@@ -278,6 +282,15 @@ export function VentureCard({
   );
 
   const cardContent = variant === 'horizontal' ? horizontalContent : content;
+  const quickDateVariantId = venture.variants?.[0]?.id;
+  const dateCheck =
+    showDateCheck && quickDateVariantId ? (
+      <QuickDateCheck
+        variantId={quickDateVariantId}
+        ventureHref={href ?? `/experiences/${venture.id}/${venture.slug}`}
+        label={venture.title}
+      />
+    ) : null;
   const cardClassName = cn(
     'relative',
     variant === 'horizontal'
@@ -292,33 +305,39 @@ export function VentureCard({
     // interactive. This avoids nesting <a>/<button> inside <a>, which is
     // invalid HTML and causes React hydration mismatches.
     return (
-      <article
-        className={cardClassName}
-        aria-label={`View details for ${venture.title}`}
-        data-testid={`venture-card-${venture.id}`}
-      >
-        <a
-          href={href}
+      <div className="relative h-full">
+        <article
+          className={cardClassName}
           aria-label={`View details for ${venture.title}`}
-          className="absolute inset-0 z-10"
-        />
-        {cardContent}
-      </article>
+          data-testid={`venture-card-${venture.id}`}
+        >
+          <a
+            href={href}
+            aria-label={`View details for ${venture.title}`}
+            className="absolute inset-0 z-10"
+          />
+          {cardContent}
+        </article>
+        {dateCheck}
+      </div>
     );
   }
 
   return (
-    <article
-      className={cn(cardClassName, onSelect && 'cursor-pointer')}
-      onClick={onSelect ? handleClick : undefined}
-      onKeyDown={onSelect ? handleKeyDown : undefined}
-      role={onSelect ? 'button' : undefined}
-      tabIndex={onSelect ? 0 : undefined}
-      aria-label={`View details for ${venture.title}`}
-      data-testid={`venture-card-${venture.id}`}
-    >
-      {cardContent}
-    </article>
+    <div className="relative h-full">
+      <article
+        className={cn(cardClassName, onSelect && 'cursor-pointer')}
+        onClick={onSelect ? handleClick : undefined}
+        onKeyDown={onSelect ? handleKeyDown : undefined}
+        role={onSelect ? 'button' : undefined}
+        tabIndex={onSelect ? 0 : undefined}
+        aria-label={`View details for ${venture.title}`}
+        data-testid={`venture-card-${venture.id}`}
+      >
+        {cardContent}
+      </article>
+      {dateCheck}
+    </div>
   );
 }
 
