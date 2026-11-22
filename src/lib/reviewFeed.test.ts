@@ -1,10 +1,20 @@
+import { prisma } from '@/lib/prisma';
 import {
   histogramFromCounts,
+  latestApprovedReviews,
   parseReviewFeedParams,
   reviewFeedOrderBy,
   reviewFeedWhere,
   toReviewSummary,
 } from './reviewFeed';
+
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
+    review: {
+      findMany: jest.fn(),
+    },
+  },
+}));
 
 describe('parseReviewFeedParams', () => {
   it('uses safe defaults', () => {
@@ -134,5 +144,55 @@ describe('histogramFromCounts', () => {
     expect(histogram[0]).toEqual({ stars: 5, count: 2, percent: 50 });
     expect(histogram[1]).toEqual({ stars: 4, count: 2, percent: 50 });
     expect(histogram[4]).toEqual({ stars: 1, count: 0, percent: 0 });
+  });
+});
+
+describe('latestApprovedReviews', () => {
+  it('returns approved reviews with venture titles, newest first', async () => {
+    const findMany = prisma.review.findMany as jest.Mock;
+    findMany.mockResolvedValue([
+      {
+        id: 'r1',
+        rating: 5,
+        comment: 'The river was wild and the guide was calm.',
+        guestName: 'Made',
+        guestLocation: null,
+        bookingId: 'bk-1',
+        source: null,
+        photos: [],
+        createdAt: new Date('2026-11-01T00:00:00.000Z'),
+        customer: { name: 'Made Wijaya', countryCode: 'ID' },
+        venture: { title: 'River Rafting' },
+      },
+      {
+        id: 'r2',
+        rating: 4,
+        comment: 'ATV was dusty but fun.',
+        guestName: null,
+        guestLocation: 'Australia',
+        bookingId: null,
+        source: 'FOUNDING_GUEST',
+        photos: [],
+        createdAt: new Date('2026-10-30T00:00:00.000Z'),
+        customer: { name: 'Liam', countryCode: 'AU' },
+        venture: { title: 'ATV Off-Road' },
+      },
+    ]);
+
+    const result = await latestApprovedReviews(2);
+
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { isApproved: true }, take: 2 }));
+    expect(result).toHaveLength(2);
+    expect(result[0]).toMatchObject({ ventureTitle: 'River Rafting' });
+    expect(result[0]?.review.isVerified).toBe(true);
+  });
+
+  it('falls back to six reviews when the requested limit is not usable', async () => {
+    const findMany = prisma.review.findMany as jest.Mock;
+    findMany.mockResolvedValue([]);
+
+    await latestApprovedReviews(Number.NaN);
+
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 6 }));
   });
 });

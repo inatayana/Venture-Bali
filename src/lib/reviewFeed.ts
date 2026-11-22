@@ -1,4 +1,5 @@
 import type { Prisma } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { findCountry } from '@/lib/countries';
 import { REVIEW_SORTS, type ReviewSort } from '@/lib/reviews';
 import type { ReviewSummary } from '@/types/venture';
@@ -121,4 +122,25 @@ export function histogramFromCounts(
       percent: total > 0 ? Math.round((count / total) * 100) : 0,
     };
   });
+}
+
+export interface VentureReview {
+  review: ReviewSummary;
+  ventureTitle: string;
+}
+
+/** Latest approved reviews across the catalogue, for the homepage social-proof section. */
+export async function latestApprovedReviews(limit: number): Promise<VentureReview[]> {
+  const parsedLimit = Number.isFinite(limit) ? Math.min(20, Math.max(1, Math.floor(limit))) : 6;
+  const rows = await prisma.review.findMany({
+    where: { isApproved: true },
+    include: { venture: { select: { title: true } }, customer: { select: { name: true, countryCode: true } } },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    take: parsedLimit,
+  });
+
+  return rows.map((row) => ({
+    review: toReviewSummary(row),
+    ventureTitle: row.venture.title,
+  }));
 }

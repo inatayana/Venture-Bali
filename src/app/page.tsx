@@ -9,11 +9,14 @@ import { CuratedRows } from '@/components/features/CuratedRows';
 import { ExploreFiltersProvider } from '@/components/features/ExploreFiltersProvider';
 import { ExploreControlBar } from '@/components/features/ExploreControlBar';
 import { HomeCatalogue } from '@/components/features/HomeCatalogue';
+import { HomeReviewsSection } from '@/components/features/HomeReviewsSection';
+import { latestApprovedReviews } from '@/lib/reviewFeed';
 
 export const revalidate = 60;
 
 export default async function Home() {
   const { ventures, source } = await loadVentures();
+  const reviews = await latestApprovedReviews(3);
 
   return (
     <main className="min-h-screen bg-neutral-50">
@@ -33,6 +36,9 @@ export default async function Home() {
 
         {/* Section 3: Shared /explore chrome + guaranteed strip + All Bali Adventures grid */}
         <HomeCatalogue ventures={ventures} />
+
+        {/* Section 4: real approved guest reviews (social proof) */}
+        <HomeReviewsSection reviews={reviews} />
 
         <TrustStrip />
       </ExploreFiltersProvider>

@@ -193,8 +193,9 @@ re-litigates the same investigation and no one builds something that already wor
   sources `VERIFIED_BOOKING | FOUNDING_GUEST | IMPORTED`.
 - **`/about` did not exist in this branch at audit time.** It has since been built
   on `feat/about-local-impact` (commit `1ec9cdd`) and is **pending merge**.
-- No homepage cross-site testimonial/public review section (`reviewFeed.ts`
-  powers a modal, not a public section).
+- ~~No homepage cross-site testimonial/public review section~~ **Implemented**:
+  `src/components/features/HomeReviewsSection.tsx` renders the latest approved
+  reviews via `latestApprovedReviews()` (`src/lib/reviewFeed.ts`) on the homepage.
 
 ---
 
