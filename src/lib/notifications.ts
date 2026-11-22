@@ -326,7 +326,7 @@ async function record(
       data: {
         bookingId: booking.id,
         customerId: booking.customer.id,
-        type: channel,
+        channel,
         recipient,
         subject,
         content,
@@ -786,7 +786,7 @@ export async function notifyReviewNeedsModeration(input: {
       data: {
         bookingId: input.bookingId ?? null,
         customerId: input.customerId ?? null,
-        type: 'EMAIL',
+        channel: 'EMAIL',
         recipient: BRAND_EMAIL_SUPPORT,
         subject,
         content,

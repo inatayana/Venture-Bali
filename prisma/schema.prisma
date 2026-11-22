@@ -9,31 +9,35 @@ datasource db {
 }
 
 model Tenant {
-  id         String    @id @default(cuid())
-  domain     String    @unique
-  name       String
-  themeColor String    @default("#000000")
-  logoUrl    String?
-  isActive   Boolean   @default(true)
-  config     Json?     // Brand configuration (validated by BrandConfigSchema)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  ventures   Venture[]
-  bookings   Booking[]
-  payments   Payment[]
-  reviews    Review[]
+  id              String    @id @default(cuid())
+  domain          String    @unique
+  name            String
+  themeColor      String    @default("#000000")
+  logoUrl         String?
+  isActive        Boolean   @default(true)
+  config          Json?     // Brand configuration (validated by BrandConfigSchema)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  ventures        Venture[]
+  bookings        Booking[]
+  payments        Payment[]
+  reviews         Review[]
+  wishlists       Wishlist[]
+  conversations   Conversation[]
+  notifications   Notification[]
 }
 
 model AdminUser {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  name         String
-  passwordHash String
-  role         AdminRole @default(EDITOR)
-  isActive     Boolean   @default(true)
-  lastLoginAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                     String    @id @default(cuid())
+  email                  String    @unique
+  name                   String
+  passwordHash           String
+  role                   AdminRole @default(EDITOR)
+  isActive               Boolean   @default(true)
+  lastLoginAt            DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  conversationParticipant ConversationParticipant[]
 }
 
 model Location {
@@ -126,10 +130,11 @@ model Vendor {
   tags               String[]
 
   // Relations
-  contracts          VendorContract[]
-  payouts            VendorPayout[]
-  incidents          VendorIncident[]
-  performanceLogs    VendorPerformanceLog[]
+  contracts                VendorContract[]
+  payouts                  VendorPayout[]
+  incidents                VendorIncident[]
+  performanceLogs          VendorPerformanceLog[]
+  conversationParticipant  ConversationParticipant[]
 
   @@index([code])
   @@index([activityType])
@@ -276,14 +281,166 @@ model Customer {
   name          String
   countryCode   String
   whatsapp      String
+  // Auth & identity (magic-link first, password optional)
+  passwordHash  String?
+  emailVerified DateTime?
+  phoneVerified DateTime?
+  avatarUrl     String?
+  locale        String    @default("id")
+  currency      String    @default("IDR")
+  timezone      String    @default("Asia/Makassar")
+  marketingOptIn Boolean  @default(false)
+  lastLoginAt   DateTime?
   totalBookings Int       @default(0)
+  lifetimeValue Int       @default(0)
+  metadata      Json      @default("{}")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   bookings      Booking[]
   reviews       Review[]
+  wishlists     Wishlist[]
+  conversations ConversationParticipant[]
+  notifications Notification[]
+  authAttempts  AuthAttempt[]
 
   @@index([email])
   @@index([name])
+  @@index([lastLoginAt])
+}
+
+model Wishlist {
+  id          String   @id @default(cuid())
+  customerId  String
+  tenantId    String
+  name        String   @default("My Adventures")
+  isPublic    Boolean  @default(false)
+  shareToken  String?  @unique
+  items       WishlistItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([customerId])
+  @@index([tenantId])
+  @@index([shareToken])
+}
+
+model WishlistItem {
+  id          String   @id @default(cuid())
+  wishlistId  String
+  ventureId   String
+  variantId   String?
+  notes       String?
+  priority    Int      @default(0)
+  createdAt   DateTime @default(now())
+  wishlist    Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, ventureId, variantId])
+  @@index([wishlistId])
+}
+
+model Conversation {
+  id          String   @id @default(cuid())
+  tenantId    String
+  type        ConversationType @default(CUSTOMER_ADMIN)
+  subject     String?
+  status      ConversationStatus @default(OPEN)
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  closedAt    DateTime?
+  participants ConversationParticipant[]
+  messages    Message[]
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, status])
+  @@index([tenantId, type])
+  @@index([updatedAt])
+}
+
+model ConversationParticipant {
+  id             String         @id @default(cuid())
+  conversationId String
+  customerId     String?
+  adminUserId    String?
+  vendorId       String?
+  role           ParticipantRole @default(MEMBER)
+  joinedAt       DateTime       @default(now())
+  leftAt         DateTime?
+  lastReadAt     DateTime?
+  notificationPreferences Json @default("{}")
+  conversation   Conversation   @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  customer       Customer?      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  adminUser      AdminUser?     @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+  vendor         Vendor?        @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, customerId])
+  @@unique([conversationId, adminUserId])
+  @@unique([conversationId, vendorId])
+  @@index([conversationId])
+  @@index([customerId])
+  @@index([adminUserId])
+  @@index([vendorId])
+}
+
+model Message {
+  id             String        @id @default(cuid())
+  conversationId String
+  senderType     MessageSender @default(CUSTOMER)
+  customerId     String?
+  adminUserId    String?
+  vendorId       String?
+  type           MessageType   @default(TEXT)
+  content        String
+  attachments    Json          @default("[]")
+  metadata       Json          @default("{}")
+  status         MessageStatus @default(SENT)
+  readAt         DateTime?
+  createdAt      DateTime      @default(now())
+  conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderType, customerId])
+  @@index([senderType, adminUserId])
+  @@index([senderType, vendorId])
+}
+
+model Notification {
+  id          String            @id @default(cuid())
+  tenantId    String
+  customerId  String
+  type        NotificationType
+  title       String
+  body        String
+  channels    NotificationChannel[]
+  status      NotificationStatus @default(PENDING)
+  data        Json              @default("{}")
+  sentAt      DateTime?
+  readAt      DateTime?
+  createdAt   DateTime          @default(now())
+  customer    Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, customerId, status, createdAt])
+  @@index([tenantId, type, status])
+}
+
+model AuthAttempt {
+  id          String   @id @default(cuid())
+  customerId  String?
+  email       String
+  type        AuthAttemptType
+  success     Boolean
+  ipAddress   String?
+  userAgent   String?
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([customerId])
+  @@index([email])
+  @@index([createdAt])
 }
 
 model Venture {
@@ -724,7 +881,7 @@ model NotificationLog {
   id           String             @id @default(cuid())
   bookingId    String?
   customerId   String?
-  type         NotificationType
+  channel      NotificationChannel
   recipient    String
   subject      String?
   content      String
@@ -735,7 +892,7 @@ model NotificationLog {
 
   @@index([bookingId])
   @@index([customerId])
-  @@index([type])
+  @@index([channel])
   @@index([status])
 }
 
@@ -826,16 +983,34 @@ enum AdminRole {
   VIEWER
 }
 
-enum NotificationType {
+enum NotificationChannel {
   EMAIL
   WHATSAPP
   SMS
+  PUSH
+  IN_APP
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMED
+  PAYMENT_RECEIVED
+  BOOKING_REMINDER_24H
+  BOOKING_REMINDER_2H
+  REVIEW_REQUEST
+  MESSAGE_RECEIVED
+  PROMO
+  SYSTEM
+  VOUCHER_READY
+  REFUND_PROCESSED
+  BOOKING_CANCELLED
+  BOOKING_RESCHEDULED
 }
 
 enum NotificationStatus {
   PENDING
   SENT
   FAILED
+  READ
 }
 
 enum RefundStatus {
@@ -1114,4 +1289,58 @@ model AuditEvent {
   @@index([entity])
   @@index([entityId])
   @@index([createdAt])
+}
+
+// ============ CUSTOMER ACCOUNT & MESSAGING ============
+
+enum ConversationType {
+  CUSTOMER_ADMIN
+  CUSTOMER_VENDOR
+  CUSTOMER_CUSTOMER
+  BOOKING_THREAD
+}
+
+enum ConversationStatus {
+  OPEN
+  PENDING
+  RESOLVED
+  CLOSED
+  ARCHIVED
+}
+
+enum ParticipantRole {
+  OWNER
+  MEMBER
+  OBSERVER
+}
+
+enum MessageSender {
+  CUSTOMER
+  ADMIN
+  VENDOR
+  SYSTEM
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  BOOKING_ACTION
+  SYSTEM_NOTE
+  REVIEW_REQUEST
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum AuthAttemptType {
+  MAGIC_LINK_REQUEST
+  MAGIC_LINK_VERIFY
+  PASSWORD_LOGIN
+  PASSWORD_RESET
+  LOGOUT
 }
