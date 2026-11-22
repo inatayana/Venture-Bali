@@ -276,32 +276,40 @@ model VehicleClass {
 }
 
 model Customer {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String
-  countryCode   String
-  whatsapp      String
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  name                  String
+  countryCode           String
+  whatsapp              String
   // Auth & identity (magic-link first, password optional)
-  passwordHash  String?
-  emailVerified DateTime?
-  phoneVerified DateTime?
-  avatarUrl     String?
-  locale        String    @default("id")
-  currency      String    @default("IDR")
-  timezone      String    @default("Asia/Makassar")
-  marketingOptIn Boolean  @default(false)
-  lastLoginAt   DateTime?
-  totalBookings Int       @default(0)
-  lifetimeValue Int       @default(0)
-  metadata      Json      @default("{}")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  bookings      Booking[]
-  reviews       Review[]
-  wishlists     Wishlist[]
-  conversations ConversationParticipant[]
-  notifications Notification[]
-  authAttempts  AuthAttempt[]
+  passwordHash          String?
+  emailVerified         DateTime?
+  phoneVerified         DateTime?
+  avatarUrl             String?
+  locale                String    @default("id")
+  currency              String    @default("IDR")
+  timezone              String    @default("Asia/Makassar")
+  marketingOptIn        Boolean   @default(false)
+  lastLoginAt           DateTime?
+  totalBookings         Int       @default(0)
+  lifetimeValue         Int       @default(0)
+  metadata              Json      @default("{}")
+  // Magic link auth (single-use, hashed)
+  magicLinkToken        String?
+  magicLinkExpires      DateTime?
+  magicLinkJti          String?
+  // Session management
+  sessionToken          String?
+  sessionExpires        DateTime?
+  sessionJti            String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  bookings              Booking[]
+  reviews               Review[]
+  wishlists             Wishlist[]
+  conversations         ConversationParticipant[]
+  notifications         Notification[]
+  authAttempts          AuthAttempt[]
 
   @@index([email])
   @@index([name])
