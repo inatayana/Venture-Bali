@@ -460,7 +460,8 @@ export function generateCategoryMetadata(categorySlug: string): Metadata {
  */
 export function generateCategoryStructuredData(
   category: CategoryDef | null,
-  baseUrl: string = getBaseUrl()
+  baseUrl: string = getBaseUrl(),
+  items: readonly Pick<VentureItem, 'id' | 'title' | 'slug'>[] = []
 ): Record<string, unknown> {
   if (!category) {
     return { '@context': 'https://schema.org', '@type': 'ItemList', itemListElement: [] };
@@ -472,7 +473,12 @@ export function generateCategoryStructuredData(
     name: `${category.canonical} Adventures in Bali`,
     description: category.description || `Curated ${category.canonical.toLowerCase()} experiences in Bali.`,
     url: `${baseUrl}/activities/${category.slug}`,
-    numberOfItems: 0, // Will be overridden by the page with actual count
-    itemListElement: [],
+    numberOfItems: items.length,
+    itemListElement: items.map((venture, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: venture.title,
+      url: `${baseUrl}/experiences/${venture.id}/${venture.slug}`,
+    })),
   };
 }

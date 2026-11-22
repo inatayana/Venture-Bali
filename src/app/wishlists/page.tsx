@@ -6,7 +6,9 @@ import { useState, useEffect } from 'react';
 import { Heart, Trash2 } from 'lucide-react';
 import { useWishlist } from '@/store/wishlistStore';
 import { formatPrice } from '@/lib/i18n';
-import { Star } from 'lucide-react';
+import { Star, MessageCircle } from 'lucide-react';
+import { buildWishlistEnquiryUrl } from '@/lib/growthMessages';
+import { getBaseUrl } from '@/lib/seo';
 
 /**
  * Wishlist page — the guest's saved adventures (persisted in localStorage,
@@ -123,12 +125,28 @@ export default function WishlistsPage() {
                         {formatPrice(item.priceFromIdr)}
                       </span>
                     </div>
-                    <Link
-                      href={`/experiences/${item.id}/${item.slug}`}
-                      className="inline-flex min-h-[40px] items-center justify-center rounded-lg bg-brand-ink px-4 text-sm font-semibold text-white transition-colors hover:bg-neutral-900"
-                    >
-                      Book now
-                    </Link>
+                    <div className="flex flex-col items-end gap-2">
+                      <Link
+                        href={`/experiences/${item.id}/${item.slug}`}
+                        className="inline-flex min-h-[40px] items-center justify-center rounded-lg bg-brand-ink px-4 text-sm font-semibold text-white transition-colors hover:bg-neutral-900"
+                      >
+                        Book now
+                      </Link>
+                      <a
+                        href={buildWishlistEnquiryUrl({
+                          title: item.title,
+                          id: item.id,
+                          slug: item.slug,
+                          baseUrl: getBaseUrl(),
+                        })}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-[36px] items-center gap-1 text-xs font-semibold text-brand-ink hover:underline dark:text-brand"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                        Ask on WhatsApp
+                      </a>
+                    </div>
                   </div>
                 </div>
               </li>

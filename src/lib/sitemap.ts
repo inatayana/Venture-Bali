@@ -1,5 +1,13 @@
 import { prisma } from '@/lib/prisma';
 import { mockExperiences } from '@/data/mockExperiences';
+import { MEGA_CATEGORY_SLUGS, resolveCategory } from '@/lib/taxonomy';
+import {
+  DESTINATIONS,
+  buildEditorialIntro,
+  buildPageSlug,
+  buildPageTitle,
+  passesQualityGate,
+} from '@/lib/programmaticPages';
 
 export interface SitemapEntry {
   url: string;
@@ -117,12 +125,11 @@ async function getArticles(baseUrl: string): Promise<SitemapEntry[]> {
   }
 }
 
-export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
-  const [experiences, articles] = await Promise.all([
-    getExperiences(baseUrl),
-    getArticles(baseUrl),
-  ]);
-
+/**
+ * Static, indexable routes. Kept pure so the hub coverage is unit-testable
+ * without a database connection.
+ */
+export function buildStaticSitemapEntries(baseUrl: string): SitemapEntry[] {
   return [
     {
       url: baseUrl,
@@ -150,7 +157,92 @@ export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry
       changeFrequency: 'monthly',
       priority: 0.3,
     },
-    ...experiences,
-    ...articles,
+    {
+      url: `${baseUrl}/faq`,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    // robots.txt allows the listing and the 9 taxonomy hubs. Omitting them
+    // kept them invisible in Search Console despite being indexable.
+    {
+      url: `${baseUrl}/explore`,
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    ...MEGA_CATEGORY_SLUGS.map((slug) => ({
+      url: `${baseUrl}/activities/${slug}`,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    })),
   ];
+}
+
+/**
+ * Only pages that pass the RFC quality gate reach the sitemap — never thin or
+ * unsupported activity x destination combinations.
+ */
+async function getProgrammaticEntries(baseUrl: string): Promise<SitemapEntry[]> {
+  const entries: SitemapEntry[] = [];
+
+  for (const destination of DESTINATIONS) {
+    for (const activitySlug of destination.activities) {
+      const category = resolveCategory(activitySlug);
+      if (!category) continue;
+
+      try {
+        const ventureIds = await prisma.venture.findMany({
+          where: {
+            category: category.short,
+            OR: [
+              { location: { name: { contains: destination.name, mode: 'insensitive' } } },
+              { title: { contains: destination.name, mode: 'insensitive' } },
+            ],
+          },
+          select: { id: true },
+        });
+        if (ventureIds.length === 0) continue;
+
+        const approvedReviews = await prisma.review.count({
+          where: { isApproved: true, ventureId: { in: ventureIds.map((item) => item.id) } },
+        });
+
+        const title = buildPageTitle(category.canonical, destination.name);
+        const intro = buildEditorialIntro(
+          { activitySlug, activityName: category.canonical, destination },
+          ventureIds.length
+        );
+
+        if (
+          !passesQualityGate({
+            productCount: ventureIds.length,
+            approvedReviewCount: approvedReviews,
+            intro,
+            title,
+          })
+        ) {
+          continue;
+        }
+
+        entries.push({
+          url: `${baseUrl}/adventures/${buildPageSlug(activitySlug, destination.slug)}`,
+          changeFrequency: 'weekly',
+          priority: 0.7,
+        });
+      } catch (error) {
+        console.error(`Sitemap: could not evaluate ${activitySlug}-in-${destination.slug}:`, error);
+      }
+    }
+  }
+
+  return entries;
+}
+
+export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
+  const [experiences, articles, programmatic] = await Promise.all([
+    getExperiences(baseUrl),
+    getArticles(baseUrl),
+    getProgrammaticEntries(baseUrl),
+  ]);
+
+  return [...buildStaticSitemapEntries(baseUrl), ...experiences, ...articles, ...programmatic];
 }

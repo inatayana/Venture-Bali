@@ -100,9 +100,13 @@ describe('validateGeneratedArticle', () => {
 });
 
 describe('addInternalLinks', () => {
-  it('links every mention of a product title', () => {
+  it('links every mention of a product title using the real /experiences/[id]/[slug] route', () => {
     const ventures = [
-      { title: 'Ubud ATV Jungle Ride through Rice Terraces and Waterfalls', slug: 'ubud-atv-jungle-ride' },
+      {
+        id: 'vtr-001',
+        title: 'Ubud ATV Jungle Ride through Rice Terraces and Waterfalls',
+        slug: 'ubud-atv-jungle-ride',
+      },
     ];
 
     const result = addInternalLinks(
@@ -111,34 +115,36 @@ describe('addInternalLinks', () => {
     );
 
     expect(result).toContain(
-      '[Ubud ATV Jungle Ride through Rice Terraces and Waterfalls](/experiences/ubud-atv-jungle-ride)'
+      '[Ubud ATV Jungle Ride through Rice Terraces and Waterfalls](/experiences/vtr-001/ubud-atv-jungle-ride)'
     );
+    expect(result).not.toContain('(/experiences/ubud-atv-jungle-ride)');
   });
 
   it('leaves the content alone when nothing matches', () => {
     const content = 'A paragraph about Bali.';
-    expect(addInternalLinks(content, [{ title: 'Other Product', slug: 'other' }])).toBe(content);
+    expect(addInternalLinks(content, [{ id: 'vtr-001', title: 'Other Product', slug: 'other' }])).toBe(content);
   });
 
-  it('ignores entries without a title or slug', () => {
+  it('ignores entries without an id, title or slug', () => {
     const content = 'A paragraph about Bali.';
     expect(
       addInternalLinks(content, [
-        { title: '', slug: 'x' },
-        { title: 'Something', slug: '' },
+        { id: 'vtr-001', title: '', slug: 'x' },
+        { id: 'vtr-002', title: 'Something', slug: '' },
+        { id: '', title: 'No Id', slug: 'no-id' },
       ])
     ).toBe(content);
   });
 
   it('links several products', () => {
     const ventures = [
-      { title: 'Product One', slug: 'product-one' },
-      { title: 'Product Two', slug: 'product-two' },
+      { id: 'vtr-001', title: 'Product One', slug: 'product-one' },
+      { id: 'vtr-002', title: 'Product Two', slug: 'product-two' },
     ];
 
     const result = addInternalLinks('Product One and Product Two are great.', ventures);
 
-    expect(result).toContain('(/experiences/product-one)');
-    expect(result).toContain('(/experiences/product-two)');
+    expect(result).toContain('(/experiences/vtr-001/product-one)');
+    expect(result).toContain('(/experiences/vtr-002/product-two)');
   });
 });

@@ -1,5 +1,6 @@
 import {
   generateArticleStructuredData,
+  generateCategoryStructuredData,
   generateVentureMetadata,
   generateVentureStructuredData,
   generateWebsiteStructuredData,
@@ -189,5 +190,62 @@ describe('generateArticleStructuredData', () => {
       '@id': 'https://baliwild.com/blog/bali-rafting-guide',
     });
     expect(data['@graph'][1]['@type']).toBe('BreadcrumbList');
+  });
+});
+
+describe('generateCategoryStructuredData', () => {
+  it('emits a populated ItemList with real catalogue URLs', () => {
+    const category = {
+      slug: 'tubing',
+      canonical: 'River Tubing',
+      short: 'Tubing',
+      emoji: '🛶',
+      aliases: [],
+      description: 'River tubing experiences in Bali.',
+    } as Parameters<typeof generateCategoryStructuredData>[0];
+
+    const data = generateCategoryStructuredData(
+      category,
+      'https://baliwild.com',
+      [
+        { id: 'vtr-001', slug: 'ubud-river-tubing', title: 'Ubud River Tubing Adventure' },
+        { id: 'vtr-002', slug: 'cave-tubing', title: 'Cave Tubing Expedition' },
+      ]
+    ) as Record<string, unknown>;
+
+    expect(data['@type']).toBe('ItemList');
+    expect(data.numberOfItems).toBe(2);
+    expect(data.itemListElement).toEqual([
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Ubud River Tubing Adventure',
+        url: 'https://baliwild.com/experiences/vtr-001/ubud-river-tubing',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Cave Tubing Expedition',
+        url: 'https://baliwild.com/experiences/vtr-002/cave-tubing',
+      },
+    ]);
+  });
+
+  it('reports zero items for an empty category instead of a stale count', () => {
+    const category = {
+      slug: 'atv',
+      canonical: 'ATV & Off-Road',
+      short: 'ATV',
+      emoji: '🏍️',
+      aliases: [],
+      description: 'ATV experiences in Bali.',
+    } as Parameters<typeof generateCategoryStructuredData>[0];
+
+    const data = generateCategoryStructuredData(category, 'https://baliwild.com') as Record<
+      string,
+      unknown
+    >;
+    expect(data.numberOfItems).toBe(0);
+    expect(data.itemListElement).toEqual([]);
   });
 });
