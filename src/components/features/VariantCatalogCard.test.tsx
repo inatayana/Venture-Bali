@@ -50,6 +50,15 @@ describe('VariantCatalogCard', () => {
     expect(screen.getByText(/Minimum Rp\s?1\.200\.000 to book/)).toBeInTheDocument();
   });
 
+  it('toggles comparison without opening the package details', async () => {
+    const user = userEvent.setup();
+    const props = renderCard({ compareChecked: false, onCompareToggle: jest.fn() });
+
+    await user.click(screen.getByRole('button', { name: /compare river tubing with private transfer/i }));
+    expect(props.onCompareToggle).toHaveBeenCalledWith(true);
+    expect(props.onOpenDetails).not.toHaveBeenCalled();
+  });
+
   it('shows the promo price with the list price struck through', () => {
     renderCard();
 

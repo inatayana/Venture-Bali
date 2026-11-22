@@ -26,6 +26,7 @@ import {
   type BookingConfig,
 } from '@/components/features/ExperienceBookingWidget';
 import { VariantCatalogCard } from '@/components/features/VariantCatalogCard';
+import { VariantCompare, MAX_COMPARE } from './VariantCompare';
 import { VariantDetailModal } from '@/components/features/VariantDetailModal';
 import { CategoryQuickMenu } from '@/components/features/CategoryQuickMenu';
 import { SiteFooter } from '@/components/layout/SiteFooter';
@@ -117,6 +118,7 @@ export function ExperienceDetailClient({
   const [isBooking, setIsBooking] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [detailVariantId, setDetailVariantId] = useState<string | null>(null);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [mobileSlideIndex, setMobileSlideIndex] = useState(0);
   const [activeSection, setActiveSection] = useState<string>('packages');
@@ -262,6 +264,13 @@ export function ExperienceDetailClient({
       variant_id: item.id,
       variant_title: item.title,
       category: venture.category,
+    });
+  };
+
+  const toggleCompare = (id: string, checked: boolean) => {
+    setCompareIds((current) => {
+      if (checked) return current.includes(id) ? current : [...current, id].slice(-MAX_COMPARE);
+      return current.filter((item) => item !== id);
     });
   };
 
@@ -669,6 +678,8 @@ export function ExperienceDetailClient({
                   onShowDates={() => handleShowDates(item.id)}
                   onOpenDetails={() => openVariantDetails(item)}
                   fallbackImageUrl={venture.imageUrl}
+                  compareChecked={compareIds.includes(item.id)}
+                  onCompareToggle={(checked) => toggleCompare(item.id, checked)}
                 />
               ))}
             </div>
@@ -1151,6 +1162,17 @@ export function ExperienceDetailClient({
         title={venture.title}
         onClose={() => setLightboxIndex(null)}
         onChange={setLightboxIndex}
+      />
+
+      <VariantCompare
+        variants={venture.variants.filter((item) => compareIds.includes(item.id))}
+        onRemove={(id) => toggleCompare(id, false)}
+        onClear={() => setCompareIds([])}
+        onSelect={(id) => {
+          const item = venture.variants.find((variant) => variant.id === id);
+          if (item) selectVariant(item);
+          setCompareIds([]);
+        }}
       />
     </main>
   );
