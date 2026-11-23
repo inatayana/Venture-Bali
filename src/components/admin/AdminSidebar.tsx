@@ -22,11 +22,14 @@ import {
   TrendingUp,
   Sun,
   Moon,
+  ShieldCheck,
+  LockKeyhole,
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import type { AdminRole } from '@/lib/adminSession';
 
 type NavGroup = 'Daily operations' | 'Customer & revenue' | 'Setup' | 'Marketing & reporting';
 
@@ -35,25 +38,45 @@ interface NavItem {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   group: NavGroup;
+  /** All operator pages currently require at least EDITOR at the API layer. */
+  minRole: AdminRole;
 }
 
+const ROLE_RANK: Record<AdminRole, number> = {
+  VIEWER: 1,
+  EDITOR: 2,
+  ADMIN: 3,
+  SUPER_ADMIN: 4,
+};
+
+function canAccess(role: AdminRole, required: AdminRole): boolean {
+  return ROLE_RANK[role] >= ROLE_RANK[required];
+}
+
+const ROLE_LABEL: Record<AdminRole, string> = {
+  VIEWER: 'Viewer',
+  EDITOR: 'Editor',
+  ADMIN: 'Admin',
+  SUPER_ADMIN: 'Super admin',
+};
+
 const NAV_ITEMS: NavItem[] = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, group: 'Daily operations' },
-  { href: '/admin/ventures', label: 'Products', icon: Package, group: 'Daily operations' },
-  { href: '/admin/bookings', label: 'Bookings', icon: CalendarCheck, group: 'Daily operations' },
-  { href: '/admin/operations', label: 'Operations', icon: ClipboardList, group: 'Daily operations' },
+  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, group: 'Daily operations', minRole: 'EDITOR' },
+  { href: '/admin/ventures', label: 'Products', icon: Package, group: 'Daily operations', minRole: 'EDITOR' },
+  { href: '/admin/bookings', label: 'Bookings', icon: CalendarCheck, group: 'Daily operations', minRole: 'EDITOR' },
+  { href: '/admin/operations', label: 'Operations', icon: ClipboardList, group: 'Daily operations', minRole: 'EDITOR' },
 
-  { href: '/admin/refunds', label: 'Refunds', icon: RotateCcw, group: 'Customer & revenue' },
-  { href: '/admin/reviews', label: 'Reviews', icon: MessageSquareQuote, group: 'Customer & revenue' },
+  { href: '/admin/refunds', label: 'Refunds', icon: RotateCcw, group: 'Customer & revenue', minRole: 'EDITOR' },
+  { href: '/admin/reviews', label: 'Reviews', icon: MessageSquareQuote, group: 'Customer & revenue', minRole: 'EDITOR' },
 
-  { href: '/admin/vendors', label: 'Vendors', icon: Building2, group: 'Setup' },
-  { href: '/admin/zones', label: 'Pickup Zones', icon: MapPin, group: 'Setup' },
+  { href: '/admin/vendors', label: 'Vendors', icon: Building2, group: 'Setup', minRole: 'EDITOR' },
+  { href: '/admin/zones', label: 'Pickup Zones', icon: MapPin, group: 'Setup', minRole: 'EDITOR' },
 
-  { href: '/admin/reports', label: 'Revenue', icon: BarChart3, group: 'Marketing & reporting' },
-  { href: '/admin/growth', label: 'Growth', icon: TrendingUp, group: 'Marketing & reporting' },
-  { href: '/admin/content', label: 'AI Content', icon: Sparkles, group: 'Marketing & reporting' },
-  { href: '/admin/seo', label: 'Expert SEO', icon: Globe, group: 'Marketing & reporting' },
-  { href: '/admin/reviews/invites', label: 'Invites', icon: Ticket, group: 'Marketing & reporting' },
+  { href: '/admin/reports', label: 'Revenue', icon: BarChart3, group: 'Marketing & reporting', minRole: 'EDITOR' },
+  { href: '/admin/growth', label: 'Growth', icon: TrendingUp, group: 'Marketing & reporting', minRole: 'EDITOR' },
+  { href: '/admin/content', label: 'AI Content', icon: Sparkles, group: 'Marketing & reporting', minRole: 'EDITOR' },
+  { href: '/admin/seo', label: 'Expert SEO', icon: Globe, group: 'Marketing & reporting', minRole: 'EDITOR' },
+  { href: '/admin/reviews/invites', label: 'Invites', icon: Ticket, group: 'Marketing & reporting', minRole: 'EDITOR' },
 ];
 
 function isActive(href: string, pathname: string): boolean {
@@ -64,18 +87,33 @@ function isActive(href: string, pathname: string): boolean {
 /** Shared nav list so mobile drawer and desktop sidebar can never drift apart. */
 function AdminNavItems({
   pathname,
+  role,
   onNavigate,
   showGroups = false,
 }: {
   pathname: string;
+  role: AdminRole;
   onNavigate?: () => void;
   showGroups?: boolean;
 }) {
   let previousGroup: NavGroup | null = null;
+  const visible = NAV_ITEMS.filter((item) => canAccess(role, item.minRole));
+
+  if (visible.length === 0) {
+    return (
+      <div className="flex-1 p-5 text-sm leading-relaxed text-muted-foreground">
+        <LockKeyhole className="mb-3 h-6 w-6" aria-hidden="true" />
+        <p className="font-semibold text-foreground">Read-only role</p>
+        <p className="mt-1">
+          Operator pages require Editor access or higher. Ask an administrator to upgrade your role.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <nav className="flex-1 space-y-1 overflow-y-auto p-3" aria-label="Admin navigation">
-      {NAV_ITEMS.map(({ href, label, icon: Icon, group }) => {
+      {visible.map(({ href, label, icon: Icon, group }) => {
         const startsGroup = showGroups && group !== previousGroup;
         previousGroup = group;
         const active = isActive(href, pathname);
@@ -142,7 +180,33 @@ function AdminNavFooter({
   );
 }
 
-export function AdminSidebar() {
+function RoleBadge({ role }: { role: AdminRole }) {
+  return (
+    <span className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-white/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
+      <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+      {ROLE_LABEL[role]}
+    </span>
+  );
+}
+
+/** Operator-only identity block — deliberately not the guest-facing header. */
+function AdminBrand({ role, email }: { role: AdminRole; email?: string }) {
+  return (
+    <div className="border-b border-slate-800 bg-slate-950 p-5 text-white">
+      <div className="flex items-center gap-2">
+        <LockKeyhole className="h-4 w-4 text-indigo-400" aria-hidden="true" />
+        <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-300">
+          Operator console
+        </span>
+      </div>
+      <BrandWordmark className="mt-2 text-xl" />
+      <RoleBadge role={role} />
+      {email ? <p className="mt-2 truncate text-xs text-white/50">{email}</p> : null}
+    </div>
+  );
+}
+
+export function AdminSidebar({ role, email }: { role: AdminRole; email?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -180,13 +244,11 @@ export function AdminSidebar() {
         </SheetTrigger>
         <SheetContent
           side="left"
-          className="h-screen w-screen max-w-none overflow-hidden p-0 sm:w-80 sm:max-w-[320px]"
+          data-admin-sheet="true"
+          className="h-screen w-screen max-w-none overflow-hidden bg-slate-950 p-0 text-white sm:w-80 sm:max-w-[320px]"
         >
           <div className="flex h-full flex-col">
-            <div className="border-b border-gray-800 bg-brand-ink p-5 text-white">
-              <BrandWordmark className="text-xl" />
-              <p className="mt-1 text-xs text-white/50">Operator Panel</p>
-            </div>
+            <AdminBrand role={role} email={email} />
 
             {/* Kept here: when the drawer is open this is the only visible control. */}
             <div className="border-b border-gray-200 p-3 dark:border-gray-800">
@@ -203,6 +265,7 @@ export function AdminSidebar() {
 
             <AdminNavItems
               pathname={pathname}
+              role={role}
               showGroups
               onNavigate={() => setIsMobileOpen(false)}
             />
@@ -216,13 +279,10 @@ export function AdminSidebar() {
       </Sheet>
 
       {/* Desktop: no theme toggle here — the dashboard already has one. */}
-      <aside className="hidden w-56 shrink-0 flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 lg:flex lg:min-h-screen">
-        <div className="border-b border-gray-200 bg-brand-ink p-5 text-white dark:border-gray-800">
-          <BrandWordmark className="text-xl" />
-          <p className="mt-1 text-xs text-white/50">Operator Panel</p>
-        </div>
+      <aside className="hidden w-60 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 lg:flex lg:min-h-screen">
+        <AdminBrand role={role} email={email} />
 
-        <AdminNavItems pathname={pathname} />
+        <AdminNavItems pathname={pathname} role={role} />
 
         <AdminNavFooter onSignOut={handleSignOut} isSigningOut={isSigningOut} />
       </aside>

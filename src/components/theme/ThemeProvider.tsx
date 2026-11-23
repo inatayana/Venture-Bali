@@ -19,37 +19,47 @@ const ThemeContext = createContext<ThemeContextValue>({
 const THEME_KEY = 'baliwild_theme';
 
 /** Runs before paint; keep in sync with ThemeProvider. */
-export const themeInitScript = `
+export function createThemeInitScript(storageKey: string = THEME_KEY): string {
+  return `
   (function () {
     try {
-      var stored = localStorage.getItem('${THEME_KEY}');
+      var stored = localStorage.getItem('${storageKey}');
       if (stored === 'dark') document.documentElement.classList.add('dark');
       document.documentElement.style.colorScheme = stored === 'dark' ? 'dark' : 'light';
     } catch (e) {}
   })();
 `;
+}
+
+export const themeInitScript = createThemeInitScript();
 
 function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle('dark', theme === 'dark');
   document.documentElement.style.colorScheme = theme;
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({
+  children,
+  storageKey = THEME_KEY,
+}: {
+  children: React.ReactNode;
+  storageKey?: string;
+}) {
   // Light is the product default. Dark is opt-in (toggle or stored preference),
   // matching themeInitScript which only adds `.dark` when 'dark' is stored.
   const [theme, setThemeState] = useState<Theme>('light');
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(THEME_KEY);
+    const stored = window.localStorage.getItem(storageKey);
     const initial: Theme = stored === 'dark' ? 'dark' : 'light';
     setThemeState(initial);
     applyTheme(initial);
-  }, []);
+  }, [storageKey]);
 
   const value = useMemo(() => {
     const setTheme = (next: Theme) => {
       setThemeState(next);
-      window.localStorage.setItem(THEME_KEY, next);
+      window.localStorage.setItem(storageKey, next);
       applyTheme(next);
     };
     return {
@@ -57,7 +67,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setTheme,
       toggleTheme: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
     };
-  }, [theme]);
+  }, [theme, storageKey]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

@@ -30,7 +30,7 @@ beforeEach(() => {
 
 describe('AdminSidebar', () => {
   it('removes the duplicate theme toggle from the desktop sidebar', () => {
-    const { container } = render(<AdminSidebar />);
+    const { container } = render(<AdminSidebar role="SUPER_ADMIN" email="ops@baliwild.com" />);
     const aside = container.querySelector('aside');
     expect(aside).not.toBeNull();
     expect(within(aside as HTMLElement).queryByLabelText('Switch to light mode')).toBeNull();
@@ -39,7 +39,7 @@ describe('AdminSidebar', () => {
   });
 
   it('shows the full set of admin links in both variants', () => {
-    const { container } = render(<AdminSidebar />);
+    const { container } = render(<AdminSidebar role="SUPER_ADMIN" email="ops@baliwild.com" />);
     const aside = container.querySelector('aside') as HTMLElement;
     const desktopNav = within(aside).getByRole('navigation');
     const mobileSheet = screen.getByTestId('mobile-sheet');
@@ -52,7 +52,7 @@ describe('AdminSidebar', () => {
   });
 
   it('uses a full-screen drawer on mobile and groups its links', () => {
-    render(<AdminSidebar />);
+    render(<AdminSidebar role="SUPER_ADMIN" email="ops@baliwild.com" />);
     const sheet = screen.getByTestId('mobile-sheet');
     expect(sheet.className).toContain('w-screen');
     expect(sheet.className).toContain('h-screen');
@@ -62,18 +62,33 @@ describe('AdminSidebar', () => {
   });
 
   it('marks the current section as active', () => {
-    const { container } = render(<AdminSidebar />);
+    const { container } = render(<AdminSidebar role="SUPER_ADMIN" email="ops@baliwild.com" />);
     const aside = container.querySelector('aside') as HTMLElement;
     const growth = within(aside).getByText('Growth').closest('a');
     expect(growth?.getAttribute('aria-current')).toBe('page');
   });
 
   it('signs out through the admin endpoint', async () => {
-    render(<AdminSidebar />);
+    render(<AdminSidebar role="SUPER_ADMIN" email="ops@baliwild.com" />);
     const buttons = screen.getAllByRole('button', { name: 'Sign out' });
     fireEvent.click(buttons[buttons.length - 1]);
     await waitFor(() => expect(mockFetch).toHaveBeenCalledWith('/api/admin/logout', {
       method: 'POST',
     }));
+  });
+
+  it('shows an operator-only identity with the current role and email', () => {
+    render(<AdminSidebar role="ADMIN" email="ops@baliwild.com" />);
+    expect(screen.getAllByText('Operator console').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Admin').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('ops@baliwild.com').length).toBeGreaterThan(0);
+  });
+
+  it('hides operator pages from a VIEWER instead of showing broken links', () => {
+    const { container } = render(<AdminSidebar role="VIEWER" />);
+    const aside = container.querySelector('aside') as HTMLElement;
+    expect(within(aside).queryByRole('navigation')).toBeNull();
+    expect(within(aside).getByText('Read-only role')).toBeTruthy();
+    expect(within(aside).getByText(/require Editor access/)).toBeTruthy();
   });
 });

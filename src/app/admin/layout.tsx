@@ -28,9 +28,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <AdminThemeProvider>
-      <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
-        <AdminSidebar />
-        <main className="min-w-0 flex-1 p-4 lg:p-8">{children}</main>
+      <div data-admin="true" className="flex min-h-screen bg-background text-foreground">
+        <AdminSidebar role={session.role} email={session.email} />
+        <main className="min-w-0 flex-1 p-4 pt-16 lg:p-8">{children}</main>
       </div>
     </AdminThemeProvider>
   );

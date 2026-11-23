@@ -21,7 +21,7 @@ const SheetContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500',
+        'fixed z-50 gap-4 bg-white p-6 text-neutral-900 shadow-2xl transition ease-in-out dark:bg-slate-900 dark:text-white data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500',
         {
           'w-3/4 max-w-sm': true,
           'right-0 top-0 h-full': side === 'right',
@@ -33,7 +33,7 @@ const SheetContent = React.forwardRef<
       )}
       {...props}
     >
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm text-neutral-500 opacity-80 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:pointer-events-none dark:text-neutral-300">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
           <path d="M18 6 6 18" />
           <path d="m6 6 12 12" />

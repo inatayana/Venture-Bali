@@ -17,6 +17,24 @@
     --brand: 255 238 0;
     --brand-ink: 0 0 0;
 
+    /* Semantic surface tokens (operator panel + shared primitives). */
+    --background: 255 255 255;
+    --foreground: 24 24 27;
+    --card: 255 255 255;
+    --card-foreground: 24 24 27;
+    --popover: 255 255 255;
+    --popover-foreground: 24 24 27;
+    --muted: 244 244 245;
+    --muted-foreground: 113 113 122;
+    --accent: 244 244 245;
+    --accent-foreground: 24 24 27;
+    --border: 228 228 231;
+    --input: 228 228 231;
+    --ring: 255 238 0;
+
+    /* Operator identity — indigo instead of the guest-facing yellow. */
+    --admin-accent: 79 70 229;
+
     /* Z-Index CSS Variables — matches src/lib/zIndex.ts */
     --z-toast: 80;
     --z-modal: 70;
@@ -465,4 +483,67 @@ html.dark .border-green-200 {
 /* Itinerary number badge ring follows the dark page surface. */
 html.dark .ring-white {
   --tw-ring-color: #212121 !important;
+}
+
+/* ---------------------------------------------------------------------------
+ * OPERATOR PANEL IDENTITY
+ * Scoped to the admin shell: indigo + slate instead of the guest-facing yellow.
+ * The portal-rendered Sheet is styled explicitly in sheet.tsx because portals
+ * escape this DOM subtree.
+ * ------------------------------------------------------------------------- */
+[data-admin='true'] {
+  --brand: 79 70 229;          /* indigo-600 */
+  --brand-ink: 255 255 255;    /* white text on indigo */
+  --background: 248 250 252;   /* slate-50 */
+  --foreground: 15 23 42;      /* slate-900 */
+  --card: 255 255 255;
+  --card-foreground: 15 23 42;
+  --popover: 255 255 255;
+  --popover-foreground: 15 23 42;
+  --muted: 241 245 249;
+  --muted-foreground: 100 116 139;
+  --accent: 238 242 255;
+  --accent-foreground: 49 46 129;
+  --border: 226 232 240;
+  --input: 226 232 240;
+  --ring: 79 70 229;
+}
+
+html.dark [data-admin='true'] {
+  --background: 15 23 42;
+  --foreground: 241 245 249;
+  --card: 30 41 59;
+  --card-foreground: 241 245 249;
+  --popover: 30 41 59;
+  --popover-foreground: 241 245 249;
+  --muted: 51 65 85;
+  --muted-foreground: 148 163 184;
+  --accent: 49 46 129;
+  --accent-foreground: 224 231 255;
+  --border: 51 65 85;
+  --input: 51 65 85;
+}
+
+/* The mobile drawer is portaled to <body>, outside [data-admin]. Give it the
+   same operator palette explicitly. */
+[data-admin-sheet='true'] {
+  --brand: 99 102 241;         /* indigo-500 */
+  --brand-ink: 255 255 255;
+  --background: 15 23 42;
+  --foreground: 241 245 249;
+  --muted: 51 65 85;
+  --muted-foreground: 148 163 184;
+  --border: 51 65 85;
+}
+
+/* Admin nav/active states must not inherit the public yellow opacity hacks. */
+[data-admin='true'] .bg-brand\/10,
+[data-admin='true'] .bg-brand\/20,
+[data-admin='true'] .bg-brand\/30 {
+  background-color: rgb(79 70 229 / 0.12) !important;
+}
+html.dark [data-admin='true'] .bg-brand\/10,
+html.dark [data-admin='true'] .bg-brand\/20,
+html.dark [data-admin='true'] .bg-brand\/30 {
+  background-color: rgb(99 102 241 / 0.20) !important;
 }

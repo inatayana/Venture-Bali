@@ -26,6 +26,33 @@ module.exports = {
          */
         brand: 'rgb(var(--brand) / <alpha-value>)',
         'brand-ink': 'rgb(var(--brand-ink) / <alpha-value>)',
+
+        /**
+         * Semantic surface tokens used by the operator panel and shared
+         * primitives (Sheet, dialogs). Without these, utilities such as
+         * `bg-background` / `text-muted-foreground` silently produce no colour.
+         */
+        background: 'rgb(var(--background) / <alpha-value>)',
+        foreground: 'rgb(var(--foreground) / <alpha-value>)',
+        card: {
+          DEFAULT: 'rgb(var(--card) / <alpha-value>)',
+          foreground: 'rgb(var(--card-foreground) / <alpha-value>)',
+        },
+        popover: {
+          DEFAULT: 'rgb(var(--popover) / <alpha-value>)',
+          foreground: 'rgb(var(--popover-foreground) / <alpha-value>)',
+        },
+        muted: {
+          DEFAULT: 'rgb(var(--muted) / <alpha-value>)',
+          foreground: 'rgb(var(--muted-foreground) / <alpha-value>)',
+        },
+        accent: {
+          DEFAULT: 'rgb(var(--accent) / <alpha-value>)',
+          foreground: 'rgb(var(--accent-foreground) / <alpha-value>)',
+        },
+        border: 'rgb(var(--border) / <alpha-value>)',
+        input: 'rgb(var(--input) / <alpha-value>)',
+        ring: 'rgb(var(--ring) / <alpha-value>)',
       },
       keyframes: {
         'slide-up': {
