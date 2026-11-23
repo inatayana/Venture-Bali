@@ -2,9 +2,10 @@
  * BaliWild — deploy smoke check.
  *
  * The failure mode this guards against: the app LOOKS alive while the database
- * is empty, the catalogue is empty, or admin auth is broken (e.g. after an
- * empty-database deploy). It asserts the two pages that define "live":
- * `/` shows real seeded catalogue content and `/admin/login` renders.
+ * is empty, the catalogue is empty, admin auth is broken, or a catalogue route
+ * (sorting / pagination / category) regressed after a deploy. It checks the
+ * public pages that define "live" across the customer, SEO, content, legal and
+ * admin surfaces.
  *
  * Usage:
  *   npm run smoke                       # http://localhost:3002
@@ -20,13 +21,49 @@ const checks = [
     name: 'customer home page',
     path: '/',
     expectText: 'BaliWild',
-    note: 'must render the catalogue, not an empty/mock fallback',
+    note: 'must render the brand and seeded catalogue, not an empty/mock fallback',
   },
   {
     name: 'admin sign-in page',
     path: '/admin/login',
     expectText: 'Sign in',
     note: 'login page must render (content check is case-insensitised)',
+  },
+  {
+    name: 'experiences catalogue',
+    path: '/experiences',
+    expectText: 'All Adventures in Bali',
+    note: 'canonical SEO catalogue must render',
+  },
+  {
+    name: 'price-sorted catalogue (T6 regression)',
+    path: '/experiences?sort=price-asc',
+    expectText: 'All Adventures in Bali',
+    note: 'database-side price sorting must not break the page',
+  },
+  {
+    name: 'paginated catalogue (T6 regression)',
+    path: '/experiences?page=2',
+    expectText: 'All Adventures in Bali',
+    note: 'database-side LIMIT/OFFSET must not break the page',
+  },
+  {
+    name: 'category landing page',
+    path: '/activities/atv',
+    expectText: 'ATV',
+    note: '9-category SEO landing page must render',
+  },
+  {
+    name: 'blog archive',
+    path: '/blog',
+    expectText: 'Bali',
+    note: 'AI content surface must render',
+  },
+  {
+    name: 'public refund policy',
+    path: '/refund',
+    expectText: 'Refund',
+    note: 'legal/trust surface must render',
   },
 ];
 
@@ -45,7 +82,7 @@ async function fetchWithRetry(url) {
   throw lastError;
 }
 
-let failed = false;
+let failed = 0;
 for (const check of checks) {
   const url = `${baseUrl}${check.path}`;
   try {
@@ -54,19 +91,27 @@ for (const check of checks) {
     if (ok) {
       console.log(`✓ ${check.name}: ${res.status} ${url}`);
     } else {
-      // Distinguish empty-database/mock fallback from a dead server.
-      const reason = !res.ok ? `HTTP ${res.status}` : `missing "${check.expectText}" marker (${check.note})`;
+      const reason = !res.ok
+        ? `HTTP ${res.status}`
+        : `missing "${check.expectText}" marker (${check.note})`;
       console.error(`✗ ${check.name}: ${reason} — ${url}`);
-      failed = true;
+      failed += 1;
     }
   } catch (error) {
-    console.error(`✗ ${check.name}: unreachable — ${url} (${error instanceof Error ? error.message : String(error)})`);
-    failed = true;
+    console.error(
+      `✗ ${check.name}: unreachable — ${url} (${error instanceof Error ? error.message : String(error)})`
+    );
+    failed += 1;
   }
 }
 
-if (failed) {
-  console.error('\nSmoke check FAILED. Run docs/RUNBOOK_DEPLOY.md §5 (empty database / broken login) before sign-off.');
-  process.exit(1);
+if (failed > 0) {
+  console.error(
+    `\nSmoke check FAILED (${failed}/${checks.length}). Run docs/RUNBOOK_DEPLOY.md §5 (empty database / broken login) before sign-off.`
+  );
+  // Use exitCode (not process.exit) so open fetch sockets can close cleanly —
+  // process.exit() can abort libuv on Windows and return a non-1 exit status.
+  process.exitCode = 1;
+} else {
+  console.log(`\nSmoke check PASSED (${checks.length}/${checks.length}).`);
 }
-console.log('\nSmoke check PASSED.');
