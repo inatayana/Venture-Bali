@@ -1,4 +1,4 @@
-﻿-- Add the operational states used by the arrival check-in flow.
+-- Add the operational states used by the arrival check-in flow.
 -- Additive only: existing rows are unaffected.
 ALTER TYPE "BookingLifecycle" ADD VALUE IF NOT EXISTS 'DRIVER_ASSIGNED';
 ALTER TYPE "BookingLifecycle" ADD VALUE IF NOT EXISTS 'CHECKED_IN';
