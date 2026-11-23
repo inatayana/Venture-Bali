@@ -101,7 +101,7 @@ describe('ExploreFilterModal', () => {
     expect(screen.getByText(/reassurance & time/i)).toBeInTheDocument();
     expect(screen.getByText(/price & rating/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /remove free cancellation filter/i }));
+    await user.click(screen.getByRole('button', { name: /remove 80% refund.*filter/i }));
     expect(onFreeCancellationChange).toHaveBeenCalledWith(false);
 
     await user.click(screen.getByRole('button', { name: /remove 4\.5\+ stars filter/i }));

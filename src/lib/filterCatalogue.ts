@@ -49,7 +49,6 @@ export function filterCatalogue(ventures: VentureItem[], filters: CatalogueFilte
     transferIncluded,
     selfDriveOnly,
     bestSellerOnly,
-    freeCancellationOnly,
     instantConfirmationOnly,
     durationBucket,
     maxPriceIdr,
@@ -80,10 +79,6 @@ export function filterCatalogue(ventures: VentureItem[], filters: CatalogueFilte
 
   if (bestSellerOnly) {
     result = result.filter((venture) => venture.badge === 'Best Seller');
-  }
-
-  if (freeCancellationOnly) {
-    result = result.filter((venture) => venture.badge === 'Free Cancellation');
   }
 
   if (instantConfirmationOnly) {

@@ -51,7 +51,6 @@ export const BENEFIT_PHRASES: readonly string[] = [
   'with breakfast',
   'breakfast included',
   'small group',
-  'free cancellation',
 ];
 
 /**

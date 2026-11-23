@@ -134,7 +134,7 @@ const translations = {
     bookNow: { en: 'Book Now', id: 'Pesan Sekarang' },
     showDates: { en: 'Show Dates', id: 'Lihat Jadwal' },
     instantConfirmation: { en: 'Instant Confirmation', id: 'Konfirmasi Instan' },
-    freeCancellation: { en: 'Free Cancellation', id: 'Pembatalan Gratis' },
+    freeCancellation: { en: 'Refundable ≥24h (80% refund)', id: 'Refund ≥24 jam (refund 80%)' },
     hotelPickupAvailable: { en: 'Hotel Pickup Available', id: 'Jemput Hotel Tersedia' },
     selectDate: { en: 'Select Date', id: 'Pilih Tanggal' },
     selectTime: { en: 'Select Time', id: 'Pilih Jam' },

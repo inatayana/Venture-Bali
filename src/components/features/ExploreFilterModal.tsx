@@ -81,7 +81,7 @@ export function ExploreFilterModal({
 
   const activeChips: Array<{ key: string; label: string; remove: () => void }> = [];
   if (freeCancellationOnly)
-    activeChips.push({ key: 'free', label: 'Free Cancellation', remove: () => onFreeCancellationChange(false) });
+    activeChips.push({ key: 'free', label: '80% Refund ≥24h', remove: () => onFreeCancellationChange(false) });
   if (instantConfirmationOnly)
     activeChips.push({ key: 'instant', label: 'Instant Confirmation', remove: () => onInstantConfirmationChange(false) });
   if (durationBucket !== 'any')
@@ -160,7 +160,7 @@ export function ExploreFilterModal({
                   active={freeCancellationOnly}
                   onClick={() => onFreeCancellationChange(!freeCancellationOnly)}
                   icon={ShieldCheck}
-                  label="Free Cancellation"
+                  label="80% Refund ≥24h"
                 />
                 <FilterTogglePill
                   active={instantConfirmationOnly}

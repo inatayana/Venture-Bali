@@ -13,7 +13,7 @@
 |---|---|---|---|
 | S1 | `staging` berisi UI redesign + T1–T5 + T6 pagination + T7 i18n | Agent | ✅ |
 | S2 | Semua branch task di-push ke `origin` | Agent | ✅ |
-| S3 | Gate lokal hijau: lint, typecheck, test (869), build | Agent | ✅ |
+| S3 | Gate lokal hijau: lint, typecheck, test (880), build | Agent | ✅ |
 | S4 | Env preview production diisi owner | Owner | ☐ |
 | S5 | DB preview ter-seed, smoke otomatis lulus | Owner + Agent | ☐ |
 | S6 | QA manual 8 sektor lulus | Owner + Agent | ☐ |

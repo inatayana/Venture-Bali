@@ -1,3 +1,18 @@
+> ⚠️ **ARCHITECTURE NOTICE — SUPERSEDED SPECIFICATIONS**
+>
+> The hosting and database specifications in this document (Hostinger
+> Business Web Hosting, Linux, Node.js, MySQL/MariaDB, Cron Job) are
+> **SUPERSEDED** and no longer reflect the deployed architecture.
+> The approved stack is **Next.js SSR on Vercel + Supabase PostgreSQL**.
+>
+> Authoritative sources:
+> - `docs/TECH_DECISION_LOG.md` — approved tech stack (Vercel + Supabase)
+> - `docs/BOOKING_ARCHITECTURE.md` — booking modes, data flow and voucher logic
+>
+> Where this file conflicts with the documents above, those documents win
+> (see `AGENTS.md` §1). Product scope, personas and KPIs below remain valid
+> as original product intent.
+
 # Product Requirements Document (PRD) & Product Planning Specification (PPS)
 **Project Name:** BaliWild  
 **Platform:** Web App & Mobile PWA (Progressive Web App)  

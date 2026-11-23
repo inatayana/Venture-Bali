@@ -367,13 +367,13 @@ export function generateExperiencesMetadata(): Metadata {
   return {
     metadataBase: new URL(baseUrl),
     title: 'All Adventures in Bali | BaliWild',
-    description: 'Discover 100+ curated Bali adventures — ATV, rafting, tubing, jungle swings, cruises. Instant booking, free cancellation, mobile-first.',
+    description: 'Discover 100+ curated Bali adventures — ATV, rafting, tubing, jungle swings, cruises. Instant booking, flexible cancellation — 80% refund if cancelled ≥24h, mobile-first.',
     alternates: {
       canonical: `${baseUrl}/experiences`,
     },
     openGraph: {
       title: 'All Adventures in Bali | BaliWild',
-      description: 'Discover 100+ curated Bali adventures — ATV, rafting, tubing, jungle swings, cruises. Instant booking, free cancellation.',
+      description: 'Discover 100+ curated Bali adventures — ATV, rafting, tubing, jungle swings, cruises. Instant booking, flexible cancellation — 80% refund if cancelled ≥24h.',
       url: `${baseUrl}/experiences`,
       siteName: BRAND_NAME,
       type: 'website',
@@ -416,7 +416,7 @@ export function generateCategoryMetadata(categorySlug: string): Metadata {
   }
 
   const title = `${category.canonical} Adventures in Bali | BaliWild`;
-  const description = category.description || `Discover ${category.canonical.toLowerCase()} adventures in Bali. Curated experiences with instant booking and free cancellation.`;
+  const description = category.description || `Discover ${category.canonical.toLowerCase()} adventures in Bali. Curated experiences with instant booking and flexible cancellation — 80% refund if cancelled ≥24h.`;
 
   return {
     metadataBase: new URL(baseUrl),

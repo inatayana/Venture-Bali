@@ -95,7 +95,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               </h1>
             </div>
             <p className="text-brand/80 max-w-2xl">
-              {cat.description || `Discover ${total} curated ${cat.canonical.toLowerCase()} experiences in Bali. Instant booking, free cancellation, mobile-first.`}
+              {cat.description || `Discover ${total} curated ${cat.canonical.toLowerCase()} experiences in Bali. Instant booking, flexible cancellation — 80% refund if cancelled ≥24h, mobile-first.`}
             </p>
           </div>
         </section>

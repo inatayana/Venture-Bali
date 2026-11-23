@@ -41,7 +41,6 @@ const SHORT_FREE = venture({
   id: 'short-free',
   slug: 'short-free',
   title: 'Quick Tubing',
-  badge: 'Free Cancellation',
   durationHours: 2,
   priceIdr: 150_000,
   rating: 4.6,
@@ -64,10 +63,9 @@ describe('filterCatalogue extended filters', () => {
     expect(filterCatalogue(ALL, DEFAULT_CATALOGUE_FILTERS)).toHaveLength(2);
   });
 
-  it('filters by free cancellation and instant confirmation badges', () => {
-    expect(
-      filterCatalogue(ALL, { ...DEFAULT_CATALOGUE_FILTERS, freeCancellationOnly: true }).map((v) => v.id)
-    ).toEqual(['short-free']);
+  it('filters by instant confirmation badges', () => {
+    // Refund policy v2: every product is refundable at 80% ≥24h, so the
+    // retired "Free Cancellation" filter was removed from the catalogue.
     expect(
       filterCatalogue(ALL, { ...DEFAULT_CATALOGUE_FILTERS, instantConfirmationOnly: true }).map((v) => v.id)
     ).toEqual(['full-instant']);

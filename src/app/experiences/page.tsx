@@ -77,7 +77,7 @@ export default async function ExperiencesPage({ searchParams }: ExperiencesPageP
           </h1>
           <p className="text-brand/80 max-w-2xl">
             Discover {total} curated activities — from sunrise ATV rides to river tubing,
-            jungle swings to sunset cruises. Book instantly with free cancellation.
+            jungle swings to sunset cruises. Book instantly with flexible cancellation — 80% refund if cancelled ≥24h.
           </p>
         </div>
       </section>
