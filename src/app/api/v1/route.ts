@@ -6,8 +6,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { getTenantContext } from '@/lib/tenant';
+import { bookingSchema } from '@/lib/bookingSchema';
+import { BookingServiceError, createPersistedBooking } from '@/lib/bookingService';
+import { clientIp, rateLimit } from '@/lib/rateLimit';
 
 /**
  * Health check endpoint
@@ -181,132 +185,44 @@ export async function GET_venture_by_id(
 
 /**
  * Create booking
+ *
+ * Public API v1: persists through the shared booking service so pricing,
+ * promos, coupons, holds and cut-offs behave identically to the internal flow.
  */
 export async function POST_bookings(request: NextRequest) {
+  const limit = rateLimit(`api-v1-booking:${clientIp(request)}`, 5, 60_000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { success: false, error: { code: 'RATE_LIMITED', message: 'Too many booking attempts. Try again shortly.' } },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSeconds) } }
+    );
+  }
+
   try {
-    const tenant = await getTenantContext();
-    const body = await request.json();
+    const booking = await createPersistedBooking(bookingSchema.parse(await request.json()));
 
-    // Validate required fields
-    const requiredFields = ['variantId', 'bookingDate', 'slotTimeId', 'fulfillmentMode', 'paxCount', 'customer'];
-    for (const field of requiredFields) {
-      if (!body[field]) {
-        return NextResponse.json(
-          { success: false, error: { code: 'VALIDATION_ERROR', message: `Missing required field: ${field}` } },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Verify variant exists and belongs to tenant
-    const variant = await prisma.variant.findFirst({
-      where: { id: body.variantId, venture: { tenantId: tenant.id } },
-      include: { priceTiers: true, slotTimes: true },
-    });
-
-    if (!variant) {
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          booking,
+          redirectUrl: `/checkout/${booking.id}`,
+        },
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: { code: 'NOT_FOUND', message: 'Variant not found' } },
-        { status: 404 }
-      );
-    }
-
-    // Verify slot exists and is available
-    const slot = variant.slotTimes.find(s => s.id === body.slotTimeId && s.isAvailable);
-    if (!slot) {
-      return NextResponse.json(
-        { success: false, error: { code: 'SLOT_UNAVAILABLE', message: 'Selected time slot is not available' } },
-        { status: 409 }
-      );
-    }
-
-    // Check capacity
-    if (slot.currentBookings + body.paxCount > slot.maxCapacity) {
-      return NextResponse.json(
-        { success: false, error: { code: 'CAPACITY_EXCEEDED', message: 'Not enough capacity for this booking' } },
-        { status: 409 }
-      );
-    }
-
-    // Calculate price
-    const priceTier = variant.priceTiers.find(t => t.minPax <= body.paxCount && t.maxPax >= body.paxCount);
-    if (!priceTier) {
-      return NextResponse.json(
-        { success: false, error: { code: 'PRICE_TIER_NOT_FOUND', message: 'No pricing tier matches the passenger count' } },
+        { success: false, error: { code: 'VALIDATION_ERROR', message: error.errors[0].message } },
         { status: 400 }
       );
     }
-
-    const basePrice = variant.promoPriceIdr && variant.promoPriceIdr < priceTier.pricePerPax
-      ? variant.promoPriceIdr
-      : priceTier.pricePerPax;
-    const totalPrice = basePrice * body.paxCount;
-
-    // Create or find customer
-    let customer = await prisma.customer.findFirst({
-      where: { email: body.customer.email, bookings: { some: { variant: { venture: { tenantId: tenant.id } } } } },
-    });
-
-    if (!customer) {
-      customer = await prisma.customer.create({
-        data: {
-          ...body.customer,
-          tenantId: tenant.id,
-        },
-      });
+    if (error instanceof BookingServiceError) {
+      const status = error.code === 'NOT_FOUND' ? 404 : error.code === 'UNAVAILABLE' ? 409 : 400;
+      return NextResponse.json({ success: false, error: { code: error.code, message: error.message } }, { status });
     }
 
-    // Generate booking code
-    const bookingCode = `BW-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
-
-    // Create booking
-    const booking = await prisma.booking.create({
-      data: {
-        bookingCode,
-        variantId: body.variantId,
-        customerId: customer.id,
-        bookingDate: body.bookingDate,
-        slotTimeId: body.slotTimeId,
-        fulfillmentMode: body.fulfillmentMode,
-        pickupZoneId: body.pickupZoneId,
-        vehicleClassId: body.vehicleClassId,
-        hotelAddress: body.hotelAddress,
-        paxCount: body.paxCount,
-        adultsCount: body.adultsCount || body.paxCount,
-        kidsCount: body.kidsCount || 0,
-        youthCount: body.youthCount || 0,
-        totalPrice,
-        discountIdr: 0,
-        paymentStatus: 'PENDING',
-        lifecycleStatus: 'AWAITING_PAYMENT',
-        expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 min hold
-        tenantId: tenant.id,
-        selectedAddons: body.selectedAddons || [],
-      },
-    });
-
-    // Increment slot bookings
-    await prisma.slotTime.update({
-      where: { id: body.slotTimeId },
-      data: { currentBookings: { increment: body.paxCount } },
-    });
-
-    // Create payment
-    const payment = await prisma.payment.create({
-      data: {
-        bookingId: booking.id,
-        midtransOrderId: `ORDER-${booking.id}-${Date.now()}`,
-        grossAmount: totalPrice,
-        status: 'PENDING',
-        tenantId: tenant.id,
-      },
-    });
-
-    return NextResponse.json({
-      success: true,
-      data: { booking, payment },
-    }, { status: 201 });
-  } catch (error) {
     console.error('POST /api/v1/bookings error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create booking' } },
