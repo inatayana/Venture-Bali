@@ -101,6 +101,7 @@ All secrets managed via deployment platform (Vercel/VPS), never committed. `.env
 | `TELEGRAM_BOT_TOKEN` | — | Server-only | Vercel/VPS |
 | `WHATSAPP_*` | — | Server-only | Vercel/VPS |
 | `EXCHANGERATE_API_KEY` | — | Server-only | Vercel/VPS |
+| `BALIWILD_PUBLIC_API_KEYS` | — | **Server-only** | Vercel/VPS |
 
 ### Security Rules
 - **Never** prefix server-only secrets with `NEXT_PUBLIC_`
