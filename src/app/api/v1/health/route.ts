@@ -1,3 +1,15 @@
-import { GET_health } from '@/app/api/v1/route';
+import { NextResponse } from 'next/server';
 
-export const GET = GET_health;
+/**
+ * Health check endpoint
+ */
+export async function GET() {
+  return NextResponse.json({
+    success: true,
+    data: {
+      status: 'healthy',
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+    },
+  });
+}
