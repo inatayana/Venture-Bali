@@ -277,7 +277,7 @@ function normalisePhone(value: string): string {
   return digits.startsWith('0') ? `62${digits.slice(1)}` : digits;
 }
 
-async function sendEmail(
+export async function sendEmail(
   to: string,
   subject: string,
   html: string,

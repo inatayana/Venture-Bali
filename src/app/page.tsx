@@ -11,6 +11,7 @@ import { ExploreControlBar } from '@/components/features/ExploreControlBar';
 import { HomeCatalogue } from '@/components/features/HomeCatalogue';
 import { HomeReviewsSection } from '@/components/features/HomeReviewsSection';
 import { latestApprovedReviews } from '@/lib/reviewFeed';
+import { EmailCaptureSection } from '@/components/features/EmailCaptureSection';
 
 export const revalidate = 60;
 
@@ -39,6 +40,9 @@ export default async function Home() {
 
         {/* Section 4: real approved guest reviews (social proof) */}
         <HomeReviewsSection reviews={reviews} />
+
+        {/* Section 5: newsletter / lead capture */}
+        <EmailCaptureSection />
 
         <TrustStrip />
       </ExploreFiltersProvider>

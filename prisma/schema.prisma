@@ -286,6 +286,17 @@ model Customer {
   @@index([name])
 }
 
+/// Public email capture — newsletter / lead-magnet subscribers from the site.
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("HOMEPAGE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([source])
+}
+
 model Venture {
   id                  String         @id @default(cuid())
   slug                String         @unique

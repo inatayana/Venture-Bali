@@ -75,7 +75,11 @@ re-litigates the same investigation and no one builds something that already wor
 7. **`/api/v1/*` is absent on this branch** despite `PLATFORM_CONSTITUTION.md` §2
    making API versioning mandatory (note: it exists on the `main` line).
 8. No WebP/AVIF build pipeline; no A/B or experimentation layer.
-9. No email capture / newsletter / lead magnet anywhere in the app.
+9. ~~No email capture / newsletter / lead magnet anywhere in the app.~~
+   **Implemented** — `POST /api/subscribe` (zod + per-IP rate limit) upserts a
+   `Subscriber` row (migration `20261123090000_add_subscriber`) and sends a
+   best-effort welcome note; `EmailCaptureSection` renders the homepage form
+   (`src/app/page.tsx` §5).
 10. ~~No location filter in the live UI~~ **Implemented** — `location` added to
     `CatalogueFilters`/`filterCatalogue` and wired through
     `ExploreFiltersProvider`, `ExploreFilterModal`, `ExploreControlBar`,
