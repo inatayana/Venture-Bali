@@ -22,7 +22,7 @@ const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models
  * environment with the `GEMINI_MODEL` variable when a different model is
  * wanted.
  */
-export const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash';
+export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
 
 /** Abort a Gemini request after this many milliseconds. */
 const REQUEST_TIMEOUT_MS = 30_000;
