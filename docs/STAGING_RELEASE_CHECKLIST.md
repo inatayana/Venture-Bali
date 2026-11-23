@@ -58,11 +58,11 @@ DATABASE_URL=<preview-pooler> DIRECT_URL=<preview-direct> npm run db:seed
 BASE_URL=https://<preview-url> npm run smoke
 ```
 
-Yang dicek (8 rute): `/`, `/admin/login`, `/experiences`,
+Yang dicek (11 rute): `/`, `/admin/login`, `/experiences`,
 `/experiences?sort=price-asc`, `/experiences?page=2`, `/activities/atv`,
-`/blog`, `/refund`.
+`/blog`, `/refund`, `/help`, `/notifications`, `/reviews/mine`.
 
-**Done when:** `Smoke check PASSED (8/8)`.
+**Done when:** `Smoke check PASSED (11/11)`.
 
 **Jika gagal:** baca baris `✗`, perbaiki rute tersebut, ulangi dari langkah 2 jika itu masalah DB/seed.
 
@@ -143,7 +143,7 @@ https://github.com/inatayana/Venture-Bali/pull/new/staging   (base: main)
 BASE_URL=https://baliwild.com npm run smoke
 ```
 
-- [ ] Smoke produksi 8/8 lulus.
+- [ ] Smoke produksi 11/11 lulus.
 - [ ] Cek manual satu transaksi sandbox di produksi (atau verifikasi webhook terakhir).
 - [ ] Cek GA4 realtime menerima event setelah consent.
 - [ ] Verifikasi cron produksi jalan sesuai `vercel.json` (05:00 UTC untuk konten).

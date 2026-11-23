@@ -65,6 +65,24 @@ const checks = [
     expectText: 'Refund',
     note: 'legal/trust surface must render',
   },
+  {
+    name: 'help center',
+    path: '/help',
+    expectText: 'How can we help',
+    note: 'desktop menu link must not be broken',
+  },
+  {
+    name: 'notifications inbox',
+    path: '/notifications',
+    expectText: 'No new notifications',
+    note: 'desktop menu link must not be broken',
+  },
+  {
+    name: 'my reviews',
+    path: '/reviews/mine',
+    expectText: 'Reviews live with your trips',
+    note: 'profile link must not be broken',
+  },
 ];
 
 async function fetchWithRetry(url) {
