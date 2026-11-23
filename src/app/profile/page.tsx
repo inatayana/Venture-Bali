@@ -19,6 +19,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { BottomSheet } from '@/components/ui';
+import { AppShellHeader } from '@/components/layout/AppShellHeader';
 import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
@@ -175,6 +176,7 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen bg-neutral-50">
+      <AppShellHeader title="Profile" />
       <div className="container mx-auto max-w-7xl px-4 py-8">
         <h1 className="font-heading text-3xl font-bold text-neutral-900 dark:text-white">Profile</h1>
       </div>

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { ExploreFiltersProvider } from '@/components/features/ExploreFiltersProvider';
 import { ExploreSearchCard } from '@/components/features/ExploreSearchCard';
+import { AppShellHeader } from '@/components/layout/AppShellHeader';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
 import type { VentureItem } from '@/types/venture';
@@ -41,6 +42,7 @@ export default async function ExplorePage() {
 
   return (
     <main className="min-h-screen bg-neutral-50 pb-24">
+      <AppShellHeader title="Explore" />
       <ExploreFiltersProvider syncUrl>
       {/* Desktop search card — mobile uses the in-page top bar (State 1) instead */}
       <div className="hidden md:block">

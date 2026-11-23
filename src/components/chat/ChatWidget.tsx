@@ -60,7 +60,8 @@ export function ChatWidget() {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages, sending]);
 
-  if (pathname.startsWith('/admin')) return null;
+  // The dedicated /messages page already hosts the full conversation UI.
+  if (pathname.startsWith('/admin') || pathname.startsWith('/messages')) return null;
 
   const send = async (textArg?: string) => {
     const text = (textArg ?? input).trim();
