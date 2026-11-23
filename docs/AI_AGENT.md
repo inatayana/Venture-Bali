@@ -116,13 +116,13 @@ Customer (WhatsApp / Telegram / Web)
 ```bash
 # .env
 GEMINI_API_KEY="..."           # dari Google AI Studio
-GEMINI_MODEL="gemini-3.8-flash"   # opsional, default sama
+GEMINI_MODEL="gemini-2.5-flash"   # opsional, default sama
 ```
 
 > ⚠️ **Model retirement:** Google sudah me-retire identifier
 > `gemini-2.0-flash` dan API membalas 404 dengan "This model is no longer
 > available". Default di `src/lib/gemini.ts` sudah diarahkan ke
-> `gemini-3.8-flash`. Kalau model berubah lagi, perbarui
+> `gemini-2.5-flash`. Kalau model berubah lagi, perbarui
 > `DEFAULT_GEMINI_MODEL` **dan** `GEMINI_MODEL` di `.env.example`.
 
 - Tanpa `GEMINI_API_KEY`, agent otomatis memakai jalur deterministik
