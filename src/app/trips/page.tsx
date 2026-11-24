@@ -201,8 +201,10 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
 /** Tokenless visit (nav entry, typed URL): explain how to open the hub. */
 function TripsGuide() {
   return (
-    <main className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
-      <header className="bg-brand-ink text-white px-4 py-10">
+    <>
+      <GlobalDesktopHeader />
+      <main className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
+      <header className="md:hidden bg-brand-ink text-white px-4 py-10">
         <div className="container mx-auto">
           <Link href="/" aria-label="BaliWild home" className="mb-6 inline-block">
             <BrandWordmark className="text-2xl" />
@@ -215,6 +217,9 @@ function TripsGuide() {
       </header>
 
       <div className="container mx-auto max-w-2xl px-4 py-8">
+        <h1 className="mb-6 hidden font-heading text-3xl font-bold text-neutral-900 dark:text-white md:block">
+          Trips
+        </h1>
         <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-neutral-200 dark:bg-neutral-900 dark:ring-white/10">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
             <CalendarDays className="h-6 w-6 text-neutral-700 dark:text-neutral-300" aria-hidden="true" />
@@ -261,14 +266,17 @@ function TripsGuide() {
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       </div>
-    </main>
+      </main>
+    </>
   );
 }
 
 /** Invalid or expired magic link on /trips. */
 function InvalidTokenNotice() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
+    <>
+      <GlobalDesktopHeader />
+      <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
       <div className="max-w-sm text-center">
         <AlertCircle className="mx-auto mb-4 h-10 w-10 text-amber-500" />
         <h1 className="text-xl font-bold text-neutral-900">This link is invalid or expired</h1>
@@ -280,6 +288,7 @@ function InvalidTokenNotice() {
           Browse adventures
         </Link>
       </div>
-    </main>
+      </main>
+    </>
   );
 }
