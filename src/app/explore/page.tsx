@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
+import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
+import { ExploreDesktopControls } from '@/components/features/ExploreDesktopControls';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { ExploreFiltersProvider } from '@/components/features/ExploreFiltersProvider';
-import { ExploreSearchCard } from '@/components/features/ExploreSearchCard';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
 import type { VentureItem } from '@/types/venture';
@@ -41,11 +42,9 @@ export default async function ExplorePage() {
 
   return (
     <main className="min-h-screen bg-white dark:bg-neutral-950 pb-24">
+      <GlobalDesktopHeader />
       <ExploreFiltersProvider syncUrl>
-      {/* Desktop search card — mobile uses the in-page top bar (State 1) instead */}
-      <div className="hidden md:block">
-        <ExploreSearchCard />
-      </div>
+      <ExploreDesktopControls ventures={ventures} />
 
       {/* Page Title */}
       <div className="container mx-auto px-4 pb-2 pt-2 md:py-6">

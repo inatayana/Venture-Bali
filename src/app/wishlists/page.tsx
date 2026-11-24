@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { Heart, Trash2 } from 'lucide-react';
 import { useWishlist } from '@/store/wishlistStore';
 import { formatPrice } from '@/lib/i18n';
+import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
 import { Star } from 'lucide-react';
 
 /**
@@ -26,7 +27,8 @@ export default function WishlistsPage() {
   const saved = [...items].sort((a, b) => b.savedAt - a.savedAt);
 
   return (
-    <main className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
+    <main className="min-h-screen bg-white dark:bg-neutral-950 pb-24 md:pb-12">
+      <GlobalDesktopHeader />
       <div className="container mx-auto px-4 py-8">
         <h1 className="font-heading text-3xl font-bold text-neutral-900 dark:text-white">Wishlists</h1>
         {!mounted ? (
