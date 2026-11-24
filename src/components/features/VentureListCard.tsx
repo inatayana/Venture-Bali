@@ -33,14 +33,9 @@ export function VentureListCard({ venture, href, className }: VentureListCardPro
   };
 
   return (
-    <article
-      className={cn(
-        'flex gap-3 rounded-2xl bg-white p-2 shadow-sm ring-1 ring-neutral-100 transition-shadow hover:shadow-md dark:bg-neutral-900 dark:ring-white/10',
-        className
-      )}
-    >
-      {/* Image — ~40% */}
-      <div className="relative w-[40%] max-w-[160px] shrink-0">
+    <article className={cn('flex flex-row items-start gap-3.5', className)}>
+      {/* Image — 1:1 square, frameless (spec) */}
+      <div className="relative w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] shrink-0 rounded-2xl overflow-hidden">
         <a
           href={destination}
           aria-label={`View details for ${venture.title}`}
@@ -51,7 +46,7 @@ export function VentureListCard({ venture, href, className }: VentureListCardPro
               src={venture.imageUrl}
               alt={venture.title}
               fill
-              sizes="40vw"
+              sizes="120px"
               className="object-cover"
             />
             {!venture.isAvailable ? (
@@ -79,43 +74,49 @@ export function VentureListCard({ venture, href, className }: VentureListCardPro
         </button>
       </div>
 
-      {/* Content — ~60% */}
-      <a href={destination} className="flex min-w-0 flex-1 flex-col justify-center py-1">
+      {/* Content — flex column (spec) */}
+      <a href={destination} className="flex flex-col flex-1 min-w-0 gap-4 py-1">
         {/* Row 1 — title */}
-        <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug text-foreground">
+        <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug text-neutral-900 dark:text-white">
           {venture.title}
         </h3>
 
         {/* Row 2 — category & duration */}
-        <p className="mt-0.5 text-xs text-muted-foreground dark:text-neutral-400">
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">
           {venture.category} · {venture.durationHours} hours
         </p>
 
-        {/* Row 3 — rating & reviews */}
-        <p className="mt-1 flex items-center gap-1 text-xs text-foreground/90 dark:text-neutral-200">
+        {/* Row 3 — rating */}
+        <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 mt-0.5 flex items-center gap-1">
           <Star className="h-3 w-3 fill-brand text-brand-ink dark:text-brand" aria-hidden="true" />
-          <span className="font-semibold">{venture.rating.toFixed(1)}</span>
-          <span aria-hidden="true">·</span>
-          <span>{venture.reviewCount} reviews</span>
+          {venture.reviewCount > 0 ? (
+            <>
+              <span>{venture.rating.toFixed(1)}</span>
+              <span aria-hidden="true">·</span>
+              <span>{venture.reviewCount} reviews</span>
+            </>
+          ) : (
+            <span>★ New</span>
+          )}
         </p>
 
         {/* Row 4 — price */}
-        <p className="mt-1.5 text-xs leading-relaxed">
+        <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-relaxed">
           From{' '}
           {hasPromo && (
-            <span className="mr-1 tabular-nums text-muted-foreground line-through dark:text-neutral-400">
+            <span className="mr-1 tabular-nums text-neutral-400 line-through">
               {formatPrice(venture.listPriceIdr)}
             </span>
           )}
-          <span className="font-semibold tabular-nums text-foreground dark:text-white">
+          <span className="font-semibold tabular-nums text-neutral-900 dark:text-white">
             {formatPrice(venture.priceIdr)}
           </span>
-          <span className="text-muted-foreground dark:text-neutral-400"> / guest</span>
+          <span> / guest</span>
         </p>
 
-        {/* Row 5 — value pill (optional) */}
-        <span className="mt-1.5 inline-flex w-fit items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
-          <ValueIcon className="h-3 w-3" aria-hidden="true" />
+        {/* Row 5 — value pill */}
+        <span className="inline-block w-fit mt-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+          <ValueIcon className="h-3 w-3 inline-block mr-1" aria-hidden="true" />
           {valueTag}
         </span>
       </a>

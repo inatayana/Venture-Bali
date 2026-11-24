@@ -40,7 +40,7 @@ export default async function ExplorePage() {
   const categories = CATEGORY_REGISTRY;
 
   return (
-    <main className="min-h-screen bg-neutral-50 pb-24">
+    <main className="min-h-screen bg-white dark:bg-neutral-950 pb-24">
       <ExploreFiltersProvider syncUrl>
       {/* Desktop search card — mobile uses the in-page top bar (State 1) instead */}
       <div className="hidden md:block">
