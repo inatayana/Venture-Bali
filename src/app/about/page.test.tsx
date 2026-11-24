@@ -2,6 +2,12 @@ import { render, screen, within } from '@testing-library/react';
 import AboutPage from './page';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 
+// The shared desktop header owns router/search contexts; this page test only
+// asserts the About content, so render a neutral stub in its place.
+jest.mock('@/components/layout/GlobalDesktopHeader', () => ({
+  GlobalDesktopHeader: () => <div />,
+}));
+
 describe('AboutPage — Our Local Story & Impact', () => {
   it('renders the hero headline and local-ownership subheadline', () => {
     render(<AboutPage />);
