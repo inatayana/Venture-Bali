@@ -3,10 +3,18 @@
 import { Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { useWishlist, type WishlistItem } from '@/store/wishlistStore';
 import { AppShellHeader } from '@/components/layout/AppShellHeader';
 import { WishlistList } from '@/components/ui/WishlistList';
 import { Toast } from '@/components/ui/Toast';
+=======
+import { Heart, Trash2 } from 'lucide-react';
+import { useWishlist } from '@/store/wishlistStore';
+import { formatPrice } from '@/lib/i18n';
+import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
+import { Star } from 'lucide-react';
+>>>>>>> origin/main
 
 /**
  * Wishlist page — the guest's saved adventures (persisted in localStorage,
@@ -34,8 +42,8 @@ export default function WishlistsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-neutral-50 pb-24">
-      <AppShellHeader />
+    <main className="min-h-screen bg-white dark:bg-neutral-950 pb-24 md:pb-12">
+      <GlobalDesktopHeader />
       <div className="container mx-auto px-4 py-8">
         <h1 className="font-heading text-3xl font-bold text-neutral-900 dark:text-white">Wishlists</h1>
         {!mounted ? (

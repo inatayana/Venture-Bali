@@ -167,6 +167,13 @@ export function HomeCatalogue({
             <span className="text-white/60">
               {' '}— Empowering Local Guides · Safety-Checked Equipment · 24/7 Personal Concierge
             </span>
+            {' '}
+            <Link
+              href="/about"
+              className="text-brand-ink/95 font-semibold underline underline-offset-2 transition-colors hover:text-brand-ink"
+            >
+              Learn about our local impact →
+            </Link>
           </p>
         </div>
 

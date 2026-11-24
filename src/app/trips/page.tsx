@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyCustomerLinkToken, createBookingViewToken, createReviewToken } from '@/lib/customerLink';
 import { canReviewBooking } from '@/lib/reviewSchema';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
+import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
 import { BRAND_EMAIL_SUPPORT } from '@/lib/brand';
 import { TripCard } from './TripCard';
 import { Calendar, CalendarDays, Compass, Mail, QrCode, AlertCircle, ArrowRight } from 'lucide-react';
@@ -102,29 +103,8 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-neutral-50">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-neutral-200 dark:border-white/10 dark:bg-neutral-950/95">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <Link href="/" aria-label="BaliWild home" className="text-brand-ink">
-              <BrandWordmark className="text-xl" />
-            </Link>
-            <div className="flex items-center gap-3">
-              <span className="hidden sm:block text-sm text-neutral-600 dark:text-neutral-400">
-                Welcome back, {customer.name.split(' ')[0]}
-              </span>
-              <Link
-                href="/explore"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-brand-ink px-4 text-sm font-semibold text-white hover:bg-brand/90 transition-colors"
-              >
-                <span className="hidden sm:inline">Explore</span>
-                <span className="sm:hidden">+</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+    <main className="min-h-screen bg-white dark:bg-neutral-950">
+      <GlobalDesktopHeader />
 
       <div className="container mx-auto px-4 py-8 pb-24">
         {/* Page Title */}

@@ -218,12 +218,12 @@ export function VentureCard({
 
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
         {/* Line 1 — title (theme-aware so it stays visible on dark mode) */}
-        <h3 className="mb-1 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground">
+        <h3 className="mb-1 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-neutral-900 dark:text-white">
           {venture.title}
         </h3>
 
         {/* Line 2 — category & duration */}
-        <div className="flex items-center gap-1 text-xs text-muted-foreground dark:text-neutral-400">
+        <div className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
           <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           <span className="line-clamp-1">
             {venture.category} · {venture.durationHours}h
@@ -252,11 +252,11 @@ export function VentureCard({
             <Star className="h-3.5 w-3.5 fill-brand text-brand-ink dark:text-brand" aria-hidden="true" />
             {venture.reviewCount > 0 ? (
               <>
-                <span className="text-xs font-medium text-gray-900">{venture.rating.toFixed(1)}</span>
-                <span className="text-xs text-gray-500">({venture.reviewCount})</span>
+                <span className="text-xs font-medium text-neutral-800 dark:text-neutral-200">{venture.rating.toFixed(1)}</span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-400">({venture.reviewCount})</span>
               </>
             ) : (
-              <span className="text-xs font-medium text-gray-500">New</span>
+              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">New</span>
             )}
           </div>
         </div>

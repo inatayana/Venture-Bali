@@ -77,6 +77,14 @@ function renderCatalogue() {
   return screen.getByRole('button', { name: /^filters/i });
 }
 
+describe('HomeCatalogue guarantee strip', () => {
+  it('links "Learn about our local impact" to /about', () => {
+    renderCatalogue();
+    const link = screen.getByRole('link', { name: /learn about our local impact/i });
+    expect(link).toHaveAttribute('href', '/about');
+  });
+});
+
 describe('HomeCatalogue filter entry', () => {
   it('places Filters before sort and View all, and keeps View all pointing at /explore', () => {
     const filters = renderCatalogue();
