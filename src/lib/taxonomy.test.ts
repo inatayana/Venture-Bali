@@ -34,7 +34,7 @@ describe('Taxonomy (9 adventure mega categories)', () => {
       'Trekking',
       'Water Sports',
       'Snorkeling',
-      'Extreme',
+      'Canyoning',
       'Combo',
     ]);
   });

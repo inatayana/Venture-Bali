@@ -36,7 +36,7 @@ export const MEGA_CATEGORY_SHORT_LABELS = [
   'Trekking',
   'Water Sports',
   'Snorkeling',
-  'Extreme',
+  'Canyoning',
   'Combo',
 ] as const;
 
@@ -136,7 +136,7 @@ export const CATEGORY_REGISTRY: readonly CategoryDescriptor[] = [
   },
   {
     canonical: 'Extreme Adventures',
-    short: 'Extreme',
+    short: 'Canyoning',
     emoji: '⚡',
     slug: 'extreme',
     aliases: ['extreme', 'canyoning', 'zipline', 'paragliding', 'cliff jumping'],
@@ -202,7 +202,7 @@ export const CATEGORY_ICONS: Readonly<Record<string, string>> = {
   Trekking: '🥾',
   'Water Sports': '🏄',
   Snorkeling: '🤿',
-  Extreme: '⚡',
+  Canyoning: '⚡',
   Combo: '🎯',
 };
 
