@@ -155,7 +155,7 @@
     animation: slideDown 0.25s ease-out forwards;
   }
   .animate-slide-up {
-    animation: slideUp 0.2s ease-in forwards;
+    animation: slideUp 0.2s ease-out;
   }
 }
 
@@ -172,12 +172,12 @@
 
 @keyframes slideUp {
   from {
-    opacity: 1;
-    transform: translateY(0);
+    opacity: 0;
+    transform: translateY(10px);
   }
   to {
-    opacity: 0;
-    transform: translateY(-10px);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
