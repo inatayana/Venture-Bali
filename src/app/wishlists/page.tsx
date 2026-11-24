@@ -35,7 +35,7 @@ export default function WishlistsPage() {
 
   return (
     <main className="min-h-screen bg-neutral-50 pb-24">
-      <AppShellHeader title="Wishlists" />
+      <AppShellHeader />
       <div className="container mx-auto px-4 py-8">
         <h1 className="font-heading text-3xl font-bold text-neutral-900 dark:text-white">Wishlists</h1>
         {!mounted ? (

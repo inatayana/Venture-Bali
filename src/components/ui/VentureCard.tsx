@@ -217,13 +217,13 @@ export function VentureCard({
       </div>
 
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
-        {/* Line 1 — title */}
-        <h3 className="mb-1 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-gray-900">
+        {/* Line 1 — title (theme-aware so it stays visible on dark mode) */}
+        <h3 className="mb-1 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground">
           {venture.title}
         </h3>
 
         {/* Line 2 — category & duration */}
-        <div className="flex items-center gap-1 text-xs text-gray-500">
+        <div className="flex items-center gap-1 text-xs text-muted-foreground dark:text-neutral-400">
           <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           <span className="line-clamp-1">
             {venture.category} · {venture.durationHours}h

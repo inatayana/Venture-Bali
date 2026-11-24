@@ -73,7 +73,7 @@ Yang dicek (11 rute): `/`, `/admin/login`, `/experiences`,
 Smoke check PASSED.
 ```
 
-Status route checks: `/wishlists` → 404, `/sitemap.xml` → 200, `/robots.txt` → 200, `/api/cron/content` (tanpa auth) → 404. Kode `src/app/wishlists/page.tsx` dan `src/app/api/cron/content/route.ts` sudah terverifikasi ada di `origin/staging` via `ls-tree`; terlihat demikian preview `baliwild-adv.vercel.app` tampaknya belum update — lakukan redeploy manual pada project `baliwild-adv` atau konfirmasi ke owner.
+Status route checks: `/wishlists` → 404, `/sitemap.xml` → 200, `/robots.txt` → 200, `/api/cron/content` (tanpa auth) → 404. Kode `src/app/wishlists/page.tsx` dan `src/app/api/cron/content/route.ts` sudah terverifikasi ada di `origin/staging` via `ls-tree`. **Diagnosis:** route set pada `baliwild-adv.vercel.app` identik dengan `origin/main` (punya `/api/cron/reminders` → 401, tidak punya `/api/cron/content` maupun `/wishlists`) — domain ini kemungkinan besar menyajikan build `main`/produksi, bukan build `staging`. Tindakan: cek URL preview asli branch `staging` di Vercel → project `baliwild-adv` (prj_HYsHAnjsPYNo8kFO2K82cWRimqOu) → Deployments, lalu jalankan smoke + route checks ke URL itu (atau alias-kan domain preview staging).
 
 **Jika gagal:** baca baris `✗`, perbaiki rute tersebut, ulangi dari langkah 2 jika itu masalah DB/seed.
 

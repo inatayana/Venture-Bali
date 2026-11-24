@@ -12,7 +12,7 @@ import { Z_INDEX } from '@/lib/zIndex';
  * Profile, Messages). These pages have no marketing header, so desktop users
  * otherwise had no way back to the catalogue or home.
  */
-export function AppShellHeader({ title }: { title: string }) {
+export function AppShellHeader({ title }: { title?: string }) {
   const router = useRouter();
 
   return (
@@ -44,9 +44,11 @@ export function AppShellHeader({ title }: { title: string }) {
           <BrandWordmark className="text-lg" />
         </Link>
 
-        <h2 className="ml-1 truncate font-heading text-base font-bold text-neutral-900 dark:text-white sm:text-lg">
-          {title}
-        </h2>
+        {title ? (
+          <h2 className="ml-1 truncate font-heading text-base font-bold text-neutral-900 dark:text-white sm:text-lg">
+            {title}
+          </h2>
+        ) : null}
 
         <div className="ml-auto hidden lg:block">
           <DesktopNavMenu variant="light" />
