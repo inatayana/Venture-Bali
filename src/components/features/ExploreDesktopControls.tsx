@@ -47,6 +47,11 @@ export function ExploreDesktopControls({ ventures }: { ventures: VentureItem[] }
         selfDriveOnly,
         bestSellerOnly,
         selectedCategory,
+        freeCancellationOnly: false,
+        instantConfirmationOnly: false,
+        durationBucket: 'any',
+        maxPriceIdr: null,
+        minRating: null,
         sortBy,
       }).length,
     [ventures, query, date, pax, transferIncluded, selfDriveOnly, bestSellerOnly, selectedCategory, sortBy]

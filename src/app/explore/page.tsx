@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
-import { ExploreDesktopControls } from '@/components/features/ExploreDesktopControls';
+import { ExploreSpecControls } from '@/components/features/ExploreSpecControls';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { ExploreFiltersProvider } from '@/components/features/ExploreFiltersProvider';
 import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
@@ -44,7 +44,7 @@ export default async function ExplorePage() {
     <main className="min-h-screen bg-white dark:bg-neutral-950 pb-24">
       <GlobalDesktopHeader />
       <ExploreFiltersProvider syncUrl>
-      <ExploreDesktopControls ventures={ventures} />
+      <ExploreSpecControls />
 
       {/* Page Title */}
       <div className="container mx-auto px-4 pb-2 pt-2 md:py-6">

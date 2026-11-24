@@ -3,11 +3,10 @@
 import { Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Heart, Trash2 } from 'lucide-react';
-import { useWishlist } from '@/store/wishlistStore';
-import { formatPrice } from '@/lib/i18n';
+import { useWishlist, type WishlistItem } from '@/store/wishlistStore';
 import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
-import { Star } from 'lucide-react';
+import { WishlistList } from '@/components/ui/WishlistList';
+import { Toast } from '@/components/ui/Toast';
 
 /**
  * Wishlist page — the guest's saved adventures (persisted in localStorage,

@@ -13,6 +13,7 @@ import {
   X,
 } from 'lucide-react';
 import { BRAND_EMAIL_SUPPORT } from '@/lib/brand';
+import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
 
 export const metadata: Metadata = {
   title: 'Our Local Story & Impact | BaliWild',
@@ -64,7 +65,9 @@ const COMPARISONS = [
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-neutral-50 text-foreground dark:bg-neutral-950">
+    <>
+      <GlobalDesktopHeader />
+      <main className="min-h-screen bg-neutral-50 text-foreground dark:bg-neutral-950">
       {/* Hero */}
       <section className="relative isolate overflow-hidden bg-brand-ink text-white dark:bg-neutral-900">
         <div
@@ -191,6 +194,7 @@ export default function AboutPage() {
           <MessageCircle className="ml-1 inline h-3.5 w-3.5" aria-hidden="true" />
         </p>
       </section>
-    </main>
+      </main>
+    </>
   );
 }

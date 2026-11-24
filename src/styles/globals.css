@@ -157,6 +157,13 @@
   .animate-slide-up {
     animation: slideUp 0.2s ease-out;
   }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @keyframes slideDown {

@@ -2,27 +2,27 @@ import { cn } from '@/utils/cn';
 
 interface BrandWordmarkProps {
   className?: string;
+  /** Full yellow block with even padding and identical colours in light and dark mode. */
+  solid?: boolean;
 }
 
 /**
- * BaliWild wordmark: BALI + WILD in a solid accent block. The block is the
- * brand's signature, so it is the only place the accent is used as a text
- * background. Colour is inherited for "Bali" and fixed black for "Wild".
- * 
- * The yellow block has equal padding on all sides for a proportional box
- * with vertically centered "WILD" text in both light and dark modes.
- * "Wild" text is always black (brand-ink) for contrast on yellow background.
+ * BaliWild wordmark: BALI + WILD in a solid accent block. The default keeps
+ * the classic two-tone mark; `solid` is used by the shared desktop header.
  */
-export function BrandWordmark({ className }: BrandWordmarkProps) {
+export function BrandWordmark({ className, solid = false }: BrandWordmarkProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center font-heading font-bold uppercase leading-none tracking-wider text-brand-ink dark:text-white',
+        'inline-flex items-center font-heading font-bold uppercase leading-none tracking-wider',
+        solid
+          ? 'gap-1 rounded-lg bg-brand p-2.5 text-brand-ink'
+          : 'text-brand-ink dark:text-white',
         className
       )}
     >
       Bali
-      <span className="bg-brand px-1.5 py-0.5 text-brand-ink leading-none">
+      <span className={solid ? undefined : 'bg-brand px-1.5 py-0.5 text-brand-ink leading-none'}>
         Wild
       </span>
     </span>

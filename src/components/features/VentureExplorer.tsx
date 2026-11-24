@@ -244,9 +244,9 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
           </div>
         )}
 
-        {/* Desktop pill strip: homepage heading row owns its own Filters entry,
-            /explore uses the strip's Filters button. Hidden on mobile, where
-            the sticky control bar above provides the same controls. */}
+        {/* Desktop pill strip — homepage only. /explore owns one sticky control
+            row directly below the shared header. */}
+        {mode !== 'explore' && (
         <div className="hidden items-center gap-2 md:flex">
           <ExploreFilterPills
             className="min-w-0 flex-1"
@@ -262,6 +262,7 @@ export function VentureExplorer({ ventures, mode = 'default' }: VentureExplorerP
           />
           <SortMenu className="ml-3 shrink-0" value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
         </div>
+        )}
       </div>
 
       {/* Results */}

@@ -166,7 +166,7 @@ export function HeaderSearchPill() {
         />
       )}
 
-      <div className="relative z-[41] flex h-12 items-center rounded-full border border-neutral-200 bg-neutral-100 p-1 shadow-sm dark:border-white/10 dark:bg-neutral-800">
+      <div className="relative z-[41] flex h-12 items-center rounded-full border border-neutral-200 bg-neutral-100 p-1 shadow-sm dark:border-white/15 dark:bg-neutral-800">
         {/* Where */}
         <div className="relative">
           {segmentButton('where', 'Where', whereLabel)}
@@ -296,7 +296,7 @@ export function HeaderSearchPill() {
           onClick={executeSearch}
           aria-label="Search adventures"
           className={cn(
-            'ml-1 flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full bg-brand-ink text-sm font-semibold text-white transition-all duration-200 hover:bg-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand',
+            'ml-1 flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full bg-brand text-sm font-semibold text-brand-ink transition-all duration-200 hover:bg-brand/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand',
             openSegment ? 'px-4' : 'w-10'
           )}
         >
