@@ -19,11 +19,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { BottomSheet } from '@/components/ui';
-<<<<<<< HEAD
-import { AppShellHeader } from '@/components/layout/AppShellHeader';
-=======
 import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
->>>>>>> origin/main
 import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';

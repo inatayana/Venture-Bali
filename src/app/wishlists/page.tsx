@@ -3,18 +3,11 @@
 import { Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-<<<<<<< HEAD
-import { useWishlist, type WishlistItem } from '@/store/wishlistStore';
-import { AppShellHeader } from '@/components/layout/AppShellHeader';
-import { WishlistList } from '@/components/ui/WishlistList';
-import { Toast } from '@/components/ui/Toast';
-=======
 import { Heart, Trash2 } from 'lucide-react';
 import { useWishlist } from '@/store/wishlistStore';
 import { formatPrice } from '@/lib/i18n';
 import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
 import { Star } from 'lucide-react';
->>>>>>> origin/main
 
 /**
  * Wishlist page — the guest's saved adventures (persisted in localStorage,
