@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyInviteToken } from '@/lib/reviewInvite';
-import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 import {
   ReviewPhotoError,
+  isReviewPhotoUploadEnabled,
   REVIEW_PHOTO_MAX_BYTES,
   uploadReviewPhoto,
   validateReviewPhoto,
@@ -14,7 +15,20 @@ export const dynamic = 'force-dynamic';
 
 /** Upload one photo for a founding-guest review invite. */
 export async function POST(request: NextRequest) {
-  const limit = rateLimit(`review-invite-photo:${clientIp(request)}`, 20, 60_000);
+  if (!isReviewPhotoUploadEnabled()) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: 'PHOTO_UPLOADS_DISABLED',
+          message: 'Review photos are disabled for this product.',
+        },
+      },
+      { status: 400 },
+    );
+  }
+
+  const limit = await rateLimit(`review-invite-photo:${clientIp(request)}`, 20, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       {

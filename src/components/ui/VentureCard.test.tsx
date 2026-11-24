@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { VentureCard } from './VentureCard';
+import { useWishlist } from '@/store/wishlistStore';
 import type { VentureItem } from '@/types/venture';
 
 const mockVenture: VentureItem = {
@@ -44,6 +45,10 @@ const mockVenture: VentureItem = {
 };
 
 describe('VentureCard Component', () => {
+  beforeEach(() => {
+    useWishlist.setState({ items: [] });
+  });
+
   it('renders venture title and trust badge', () => {
     render(<VentureCard venture={mockVenture} />);
     expect(screen.getByText(mockVenture.title)).toBeInTheDocument();
@@ -55,9 +60,9 @@ describe('VentureCard Component', () => {
     expect(screen.getByText(/Rp 450\.000|IDR 450\.000/)).toBeInTheDocument();
   });
 
-  it('displays location with map pin icon', () => {
+  it('displays category and duration on line 2', () => {
     render(<VentureCard venture={mockVenture} />);
-    expect(screen.getByText(mockVenture.location)).toBeInTheDocument();
+    expect(screen.getByText(/culture · 5h/)).toBeInTheDocument();
   });
 
   it('displays duration and max participants', () => {
@@ -72,16 +77,46 @@ describe('VentureCard Component', () => {
     expect(screen.getByText('(1284)')).toBeInTheDocument();
   });
 
-  it('renders the category badge', () => {
+  it('renders the category on line 2, not as an image badge', () => {
     render(<VentureCard venture={mockVenture} />);
-    const badge = screen.getByText('culture');
-    expect(badge).toBeInTheDocument();
+    const line = screen.getByText(/culture · 5h/);
+    expect(line).toBeInTheDocument();
+    expect(line).not.toHaveClass('uppercase');
   });
 
   it('shows Sold Out badge when isAvailable is false', () => {
     const unavailableVenture = { ...mockVenture, isAvailable: false };
     render(<VentureCard venture={unavailableVenture} />);
     expect(screen.getByText('Sold Out')).toBeInTheDocument();
+  });
+
+  it('renders the venture badge as a top-left pill when set', () => {
+    const badged = { ...mockVenture, badge: 'Trending' };
+    render(<VentureCard venture={badged} />);
+    expect(screen.getByText('Trending')).toBeInTheDocument();
+  });
+
+  it('maps aggressive badges to warmer labels', () => {
+    render(<VentureCard venture={{ ...mockVenture, badge: 'ADRENALINE' }} />);
+    expect(screen.getByText('Best Seller')).toBeInTheDocument();
+    expect(screen.queryByText('ADRENALINE')).not.toBeInTheDocument();
+  });
+
+  it('maps EXTREME badges to Guided Adventure', () => {
+    render(<VentureCard venture={{ ...mockVenture, badge: 'EXTREME' }} />);
+    expect(screen.getByText('Guided Adventure')).toBeInTheDocument();
+  });
+
+  it('shows Beginner Friendly in the value tags', () => {
+    render(<VentureCard venture={mockVenture} />);
+    expect(screen.getByText('Beginner Friendly')).toBeInTheDocument();
+  });
+
+  it('shows Sold Out instead of the badge when isAvailable is false', () => {
+    const unavailable = { ...mockVenture, badge: 'Trending', isAvailable: false };
+    render(<VentureCard venture={unavailable} />);
+    expect(screen.getByText('Sold Out')).toBeInTheDocument();
+    expect(screen.queryByText('Trending')).not.toBeInTheDocument();
   });
 
   it('does not show Sold Out badge when isAvailable is true', () => {
@@ -136,5 +171,53 @@ describe('VentureCard Component', () => {
     render(<VentureCard venture={mockVenture} />);
     const image = screen.getByAltText(mockVenture.title);
     expect(image).toBeInTheDocument();
+  });
+
+  // Regression: nesting <a>/<button> inside an outer <a> is invalid HTML and
+  // caused the browser to restructure the DOM, producing a React hydration
+  // mismatch ("Expected server HTML to contain a matching <div> in <a>").
+  it.each(['vertical', 'horizontal'] as const)(
+    'renders exactly one link with no nested interactive elements when href is set (%s variant)',
+    (variant) => {
+      render(
+        <VentureCard
+          venture={mockVenture}
+          href="/experiences/vtr-001/ubud-rice-terrace-sunrise-tour"
+          variant={variant}
+        />
+      );
+
+      const card = screen.getByTestId('venture-card-vtr-001');
+      const links = card.querySelectorAll('a');
+      expect(links).toHaveLength(1);
+      expect(links[0]).toHaveAttribute(
+        'href',
+        '/experiences/vtr-001/ubud-rice-terrace-sunrise-tour'
+      );
+      // The stretched link must not wrap any other <a> or <button>.
+      expect(links[0].querySelector('a, button')).toBeNull();
+    }
+  );
+
+  it('keeps the wishlist button interactive outside the link when href is set', async () => {
+    const user = userEvent.setup();
+    render(
+      <VentureCard
+        venture={mockVenture}
+        href="/experiences/vtr-001/ubud-rice-terrace-sunrise-tour"
+      />
+    );
+
+    const card = screen.getByTestId('venture-card-vtr-001');
+    const link = card.querySelector('a') as HTMLAnchorElement;
+    const wishlist = screen.getByRole('button', {
+      name: /save ubud rice terrace sunrise tour to wishlists/i,
+    });
+
+    // The wishlist button is a sibling of the link, not a descendant.
+    expect(link.contains(wishlist)).toBe(false);
+
+    await user.click(wishlist);
+    expect(useWishlist.getState().items.some((item) => item.id === 'vtr-001')).toBe(true);
   });
 });

@@ -97,7 +97,7 @@ export function FoundingGuestReviewForm({
   if (done) {
     return (
       <div className="rounded-2xl border border-green-200 bg-green-50 p-6 text-center">
-        <CheckCircle className="mx-auto h-8 w-8 text-green-600" aria-hidden="true" />
+        <CheckCircle className="mx-auto h-8 w-8 text-[#cdff00]" aria-hidden="true" />
         <h2 className="mt-2 font-heading text-lg font-bold text-green-900">Thank you!</h2>
         <p className="mt-1 text-sm text-green-800">
           Your review is now live on {ventureTitle}.

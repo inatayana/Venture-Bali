@@ -70,7 +70,12 @@ export function SortMenu({ value, options, onChange, className }: SortMenuProps)
         <div
           role="listbox"
           aria-label="Sort adventures"
-          className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-xl"
+          className={cn(
+            'absolute z-50 mt-2 w-56 overflow-hidden rounded-xl border border-neutral-200 bg-white py-1 shadow-xl',
+            'dark:border-white/10 dark:bg-neutral-800',
+            'sm:absolute sm:right-0 sm:w-56',
+            'absolute left-2 right-2 sm:absolute sm:left-auto sm:right-0 sm:w-56 sm:left-auto'
+          )}
         >
           <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-gray-600">
             Sort by

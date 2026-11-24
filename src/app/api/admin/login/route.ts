@@ -8,7 +8,7 @@ import {
   type AdminRole,
 } from '@/lib/adminSession';
 import { verifyPassword } from '@/lib/adminAuth';
-import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +21,7 @@ const loginSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  const limit = rateLimit(`admin-login:${clientIp(request)}`, 5, 15 * 60_000);
+  const limit = await rateLimit(`admin-login:${clientIp(request)}`, 5, 15 * 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       { success: false, error: { code: 'RATE_LIMITED', message: 'Too many sign-in attempts. Try again in 15 minutes.' } },

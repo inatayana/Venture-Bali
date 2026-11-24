@@ -30,9 +30,13 @@ export default function TermsPage() {
           ))}
         </div>
 
-        <p className="mt-10 text-xs text-neutral-600">
-          This page is a draft prepared for launch and is pending final legal review.
-        </p>
+        <div className="mt-10 space-y-1 text-xs text-neutral-600">
+          <p>Last updated: {TERMS_VERSION}</p>
+          <p>
+            Bookings accept the version shown on this page at the time of booking; your accepted
+            version is stored on your booking for audit purposes.
+          </p>
+        </div>
       </article>
     </main>
   );

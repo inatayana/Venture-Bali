@@ -1,9 +1,20 @@
+import sharp from 'sharp';
 import {
   isProductMediaConfigured,
+  ProductMediaError,
   PRODUCT_PHOTO_MAX_BYTES,
   uploadProductPhoto,
   validateProductPhoto,
 } from './productMedia';
+
+/** A real decodable photo, so the sharp normaliser runs exactly as in production. */
+async function realWebp(width = 1200, height = 800): Promise<Buffer> {
+  return sharp({
+    create: { width, height, channels: 3, background: { r: 12, g: 110, b: 84 } },
+  })
+    .webp({ quality: 82 })
+    .toBuffer();
+}
 
 describe('product media rules', () => {
   const ORIGINAL_FETCH = global.fetch;
@@ -47,12 +58,12 @@ describe('product media rules', () => {
     expect(isProductMediaConfigured()).toBe(true);
   });
 
-  it('uploads to the venture-assets bucket with a content-hash path and upsert', async () => {
+  it('uploads a normalised WebP master to venture-assets with a content-hash path and upsert', async () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://demo.supabase.co';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key';
     process.env.SUPABASE_ASSETS_BUCKET = 'venture-assets';
 
-    const webp = Buffer.from('fake-webp-bytes');
+    const webp = await realWebp();
     const file = {
       size: webp.length,
       type: 'image/webp',
@@ -76,11 +87,37 @@ describe('product media rules', () => {
       'x-upsert': 'true',
       'cache-control': '31536000',
     });
+    // Stored bytes are re-encoded WebP inside the byte budget, never the raw upload.
+    const stored = init.body as Buffer;
+    expect(stored.subarray(0, 4).toString()).toBe('RIFF');
+    expect(stored.subarray(8, 12).toString()).toBe('WEBP');
+    expect(stored.length).toBeLessThanOrEqual(PRODUCT_PHOTO_MAX_BYTES);
     expect(url).toMatch(/\/storage\/v1\/object\/public\/venture-assets\/products\//);
 
     // The same photo maps to the same path: no duplicates on re-upload.
     await uploadProductPhoto(file);
     const secondUrl = fetchMock.mock.calls[1]?.[0] as string;
     expect(secondUrl).toBe(requestUrl);
+  });
+
+  it('rejects a file that is not a decodable photo, even when labelled image/webp', async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://demo.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key';
+
+    const fake = Buffer.from('not really a photo');
+    const file = {
+      size: fake.length,
+      type: 'image/webp',
+      arrayBuffer: async () => fake,
+    } as unknown as File;
+
+    const fetchMock = jest.fn();
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    await expect(uploadProductPhoto(file)).rejects.toMatchObject({
+      name: ProductMediaError.name,
+      code: 'INVALID_FILE',
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

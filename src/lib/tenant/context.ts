@@ -185,18 +185,18 @@ function extractSubdomain(host: string): string | null {
 
 /**
  * Get tenant ID from admin session cookie
+ * Note: Currently single-operator mode — always returns null to use default tenant.
+ * Multi-tenancy is scaffolded but not enabled; admin panel has no tenant switching.
  */
 async function getSessionTenantId(): Promise<string | null> {
   try {
     const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('admin_session');
+    // Cookie name is 'vb_admin_session' (see adminSession.ts ADMIN_SESSION_COOKIE)
+    const sessionCookie = cookieStore.get('vb_admin_session');
     
     if (!sessionCookie?.value) return null;
 
-    // Verify session and extract tenantId
-    // This would typically decode a JWT or lookup in session store
-    // For now, return null to use default tenant
-    // TODO: Implement proper session validation
+    // Multi-tenant session validation not implemented — single-operator mode
     return null;
   } catch {
     return null;
@@ -216,11 +216,12 @@ export function clearTenantCache(tenantId?: string): void {
 
 /**
  * Create a Prisma client with tenant-scoped queries
- * Usage: const tenantPrisma = getTenantPrisma(tenantId);
+ * Usage: const tenantPrisma = getTenantPrisma();
  * All queries will automatically include tenantId filter
- * 
- * TODO: Implement proper tenant scoping via Prisma middleware
- * Currently returns base client - tenant filtering handled by application layer
+ *
+ * Currently returns base client — tenant filtering handled by application layer.
+ * Multi-tenancy is scaffolded for future; not enabled in single-operator mode.
  */
-// TODO: Implement proper tenant scoping via Prisma middleware when needed
-// For now, tenant filtering is enforced at the application layer
+export function getTenantPrisma() {
+  return prisma;
+}

@@ -139,26 +139,33 @@ Vercel **Hobby** only allows cron jobs that run **at most once per day**
 is rejected **before the build starts**, so every deployment fails with
 `Hobby accounts are limited to daily cron jobs`.
 
-`vercel.json` therefore keeps all three jobs on daily schedules:
+`vercel.json` defines **four** jobs, all on daily schedules (required by the
+Vercel **Hobby** plan — minute-level expressions fail deployment):
 
 | Path | Schedule | Purpose |
 |------|----------|---------|
 | `/api/cron/reminders` | `0 1 * * *` | Morning trip reminders |
 | `/api/cron/review-requests` | `0 2 * * *` | Review invitations |
 | `/api/cron/reap-holds` | `0 3 * * *` | Expired booking holds (safety net) |
+| `/api/cron/reconcile-payments` | `0 4 * * *` | Payment reconciliation with Midtrans (safety net) |
 
-**Expired holds must be reaped every ~10 minutes** (`BOOKING_HOLD_MINUTES`),
-so the daily run is only a safety net. Trigger the endpoint externally, for
-example with cron-job.org (free, 1-minute granularity):
+Note: Vercel Hobby invokes daily crons any time within the scheduled hour
+(±59 min) and only in UTC.
+
+**Expired holds must be reaped every ~10 minutes** (`BOOKING_HOLD_MINUTES`)
+and payments reconciled quickly after webhook events, so daily runs are only
+a safety net. Trigger the endpoints externally, for example with cron-job.org
+(free, 1-minute granularity):
 
 ```
 POST https://baliwild.com/api/cron/reap-holds
+POST https://baliwild.com/api/cron/reconcile-payments
 Authorization: Bearer <CRON_SECRET>
 ```
 
 Keep `CRON_SECRET` in Vercel and in the external scheduler. On Vercel Pro,
-restore `"schedule": "*/10 * * * *"` in `vercel.json` and remove the external
-job.
+switch both back to `"*/10 * * * *"` and `"*/15 * * * *"` in `vercel.json`
+and remove the external jobs.
 
 ### 2.6 Domain Configuration
 

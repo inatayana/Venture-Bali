@@ -38,7 +38,7 @@ export async function POST(
       if (booking.paymentStatus !== 'PAID') {
         return { kind: 'invalid' as const, message: 'Only paid bookings can be closed' };
       }
-      if (booking.lifecycleStatus !== 'CONFIRMED') {
+      if (!['CONFIRMED', 'DRIVER_ASSIGNED', 'CHECKED_IN'].includes(booking.lifecycleStatus)) {
         return { kind: 'invalid' as const, message: 'This job order is already closed' };
       }
 

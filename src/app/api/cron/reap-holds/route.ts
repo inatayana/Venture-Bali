@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendHoldExpired } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +22,16 @@ export async function GET(request: NextRequest) {
 
   try {
     const now = new Date();
+
+    // First, find the bookings to reap (so we can notify them)
+    const toReap = await prisma.booking.findMany({
+      where: {
+        paymentStatus: 'PENDING',
+        expiresAt: { lt: now },
+      },
+      select: { id: true },
+    });
+
     const result = await prisma.booking.updateMany({
       where: {
         paymentStatus: 'PENDING',
@@ -31,6 +42,13 @@ export async function GET(request: NextRequest) {
         lifecycleStatus: 'CANCELLED',
       },
     });
+
+    // Send hold expired notifications (non-blocking, fire-and-forget)
+    for (const booking of toReap) {
+      sendHoldExpired(booking.id).catch((err) =>
+        console.error(`Hold expired notification failed for ${booking.id}:`, err)
+      );
+    }
 
     return NextResponse.json({
       success: true,

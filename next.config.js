@@ -1,6 +1,41 @@
 const { PHASE_DEVELOPMENT_SERVER } = require('next/constants');
 
 /**
+ * Report-only CSP.
+ *
+ * It starts in report-only mode so payment channels and Snap.js can be
+ * observed without breaking checkout. The allowlist covers the app itself,
+ * Supabase Storage and the Midtrans Snap surfaces. `unsafe-eval` is only added
+ * for the dev server.
+ *
+ * There is no report endpoint yet: violations surface in the browser console.
+ * Add `report-to` when telemetry lands, then rename the header to
+ * `Content-Security-Policy` after a clean release cycle.
+ */
+function buildContentSecurityPolicy(phase) {
+  const scriptSrc = ["'self'", "'unsafe-inline'"];
+  if (phase === PHASE_DEVELOPMENT_SERVER) scriptSrc.push("'unsafe-eval'");
+  scriptSrc.push('https://app.midtrans.com', 'https://app.sandbox.midtrans.com');
+
+  return [
+    "default-src 'self'",
+    `script-src ${scriptSrc.join(' ')}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https://*.supabase.co",
+    "font-src 'self' data:",
+    "media-src 'self'",
+    "connect-src 'self' https://*.supabase.co https://api.midtrans.com https://app.midtrans.com https://app.sandbox.midtrans.com",
+    "frame-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self' https://app.midtrans.com https://app.sandbox.midtrans.com",
+    "manifest-src 'self'",
+    "worker-src 'self' blob:",
+  ].join('; ');
+}
+
+/**
  * Dev output goes to `.next-dev`, production output stays in `.next`.
  *
  * `next dev` and `next start` both write to `.next` by default, so running the
@@ -38,9 +73,21 @@ const nextConfig = phase => ({
   distDir: phase === PHASE_DEVELOPMENT_SERVER ? '.next-dev' : '.next',
   reactStrictMode: true,
   images: {
-    // Allow local SVG placeholders through the next/image optimizer (demo mode)
+    /*
+     * Local SVG placeholders are the only SVG source and no remotePatterns are
+     * configured, so the optimizer never fetches a user-supplied SVG. Remove
+     * this flag once the catalogue moves to raster photography.
+     */
     dangerouslyAllowSVG: true,
     contentDispositionType: 'inline',
+    /*
+     * WebP only. AVIF output is deliberately NOT enabled: Next 14.2.35 is still
+     * affected by GHSA-2xp9-vwfh-vxw4 (RCE in the Image Optimization API when
+     * AVIF is used — see TECH_DECISION_LOG §12). Revisit after the Next major
+     * upgrade. sharp still powers the WebP encoder (faster than squoosh) and
+     * the server-side normaliser in src/lib/imageNormalize.ts.
+     */
+    formats: ['image/webp'],
     remotePatterns: supabaseImagePatterns(),
   },
   async headers() {
@@ -51,6 +98,13 @@ const nextConfig = phase => ({
       {
         key: 'Permissions-Policy',
         value: 'camera=(), microphone=(), geolocation=(self), payment=(self)',
+      },
+      { key: 'X-DNS-Prefetch-Control', value: 'on' },
+      // Keep the Midtrans Snap popup working while still isolating the opener.
+      { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
+      {
+        key: 'Content-Security-Policy-Report-Only',
+        value: buildContentSecurityPolicy(phase),
       },
     ];
     if (process.env.NODE_ENV === 'production') {

@@ -35,7 +35,10 @@ export default function VoucherPage({ params }: VoucherPageProps) {
     const fetchBooking = async () => {
       try {
         const { bookingId } = await params;
-        const response = await fetch(`/api/booking/${bookingId}`);
+        const accessKey = new URLSearchParams(window.location.search).get('access');
+        const response = await fetch(`/api/booking/${bookingId}`, {
+          headers: accessKey ? { 'X-Booking-Access': accessKey } : undefined,
+        });
         if (!response.ok) throw new Error('Booking not found');
         const data = await response.json();
         if (data.success) {
@@ -226,7 +229,7 @@ export default function VoucherPage({ params }: VoucherPageProps) {
               </div>
               <p className="text-xs text-gray-500 mt-3">
                 Payment status:{' '}
-                <span className={`font-medium ${isPaid ? 'text-green-600' : 'text-amber-600'}`}>
+                <span className={`font-medium ${isPaid ? 'text-[#cdff00]' : 'text-amber-600'}`}>
                   {STATUS_LABEL[booking.paymentStatus]}
                 </span>
               </p>

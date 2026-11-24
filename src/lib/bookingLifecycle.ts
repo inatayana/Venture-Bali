@@ -48,6 +48,8 @@ export function lifecycleForPaymentStatus(status: PaymentStatus): BookingLifecyc
 export const LIFECYCLE_LABELS: Record<BookingLifecycle, string> = {
   AWAITING_PAYMENT: 'Awaiting payment',
   CONFIRMED: 'Confirmed',
+  DRIVER_ASSIGNED: 'Driver assigned',
+  CHECKED_IN: 'Checked in',
   COMPLETED: 'Completed',
   NO_SHOW: 'No-show',
   CANCELLED: 'Cancelled',

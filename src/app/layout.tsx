@@ -9,6 +9,10 @@ import { CurrencyProvider } from '@/components/currency/CurrencyProvider';
 import { LocaleProvider } from '@/components/locale/LocaleProvider';
 import { ThemeProvider, themeInitScript } from '@/components/theme/ThemeProvider';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
+import { SentryClientProvider } from '@/components/SentryClientProvider';
+import { BottomNavigation } from '@/components/layout/BottomNavigation';
+import { DesktopUtilityBar } from '@/components/layout/DesktopUtilityBar';
+import { SearchProvider } from '@/components/search/SearchProvider';
 import {
   BRAND_NAME,
   BRAND_SHORT_DESCRIPTION,
@@ -59,17 +63,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${barlowCondensed.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
-      <body className="font-sans">
+      <body className="font-sans md:pb-11">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <ThemeProvider>
           <CurrencyProvider>
             <LocaleProvider>
-              {children}
-              <AnalyticsPageView />
-              <PwaRegistration />
-              <InstallPrompt />
-              <CookieConsent />
-              <ChatWidget />
+              <SearchProvider>
+                <SentryClientProvider />
+                {children}
+                <AnalyticsPageView />
+                <PwaRegistration />
+                <InstallPrompt />
+                <BottomNavigation />
+                <DesktopUtilityBar />
+                <CookieConsent />
+                <ChatWidget />
+              </SearchProvider>
             </LocaleProvider>
           </CurrencyProvider>
         </ThemeProvider>

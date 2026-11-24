@@ -23,12 +23,14 @@ describe('next.config', () => {
     expect(nextConfig(PHASE_PRODUCTION_SERVER).distDir).toBe('.next');
   });
 
-  it('keeps the SVG image optimizer settings', () => {
+  it('keeps the SVG image optimizer settings and WebP-only output', () => {
     // next/jest loads the local .env, so make the baseline hermetic.
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     expect(nextConfig(PHASE_PRODUCTION_SERVER).images).toEqual({
       dangerouslyAllowSVG: true,
       contentDispositionType: 'inline',
+      // AVIF stays off until the Next upgrade clears GHSA-2xp9-vwfh-vxw4.
+      formats: ['image/webp'],
       remotePatterns: [],
     });
   });
@@ -47,5 +49,28 @@ describe('next.config', () => {
   it('ignores an invalid Supabase URL', () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'not-a-url';
     expect(nextConfig(PHASE_PRODUCTION_SERVER).images.remotePatterns).toEqual([]);
+  });
+
+  it('ships report-only CSP and popup-safe headers', async () => {
+    const headersFn = nextConfig(PHASE_PRODUCTION_SERVER).headers;
+    if (!headersFn) throw new Error('headers() is not configured');
+
+    const [entry] = await headersFn();
+    const headers = Object.fromEntries(
+      (entry?.headers ?? []).map((header: { key: string; value: string }) => [
+        header.key,
+        header.value,
+      ]),
+    );
+
+    expect(headers['Content-Security-Policy-Report-Only']).toContain(
+      "default-src 'self'",
+    );
+    expect(headers['Content-Security-Policy-Report-Only']).not.toContain(
+      "'unsafe-eval'",
+    );
+    expect(headers['Content-Security-Policy']).toBeUndefined();
+    expect(headers['Cross-Origin-Opener-Policy']).toBe('same-origin-allow-popups');
+    expect(headers['X-DNS-Prefetch-Control']).toBe('on');
   });
 });

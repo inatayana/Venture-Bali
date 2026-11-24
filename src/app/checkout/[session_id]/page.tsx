@@ -9,7 +9,6 @@ import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import { PriceApprox } from '@/components/currency/PriceApprox';
 import { formatPrice } from '@/lib/i18n';
-import { track } from '@/lib/analytics';
 import type { Booking } from '@/types/venture';
 
 interface CheckoutPageProps {
@@ -60,12 +59,23 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const [holdExpired, setHoldExpired] = useState(false);
   const [holdExpiresAt, setHoldExpiresAt] = useState<Date | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  // Booking-scoped access key appended by POST /api/booking to the redirect URL.
+  const [accessKey, setAccessKey] = useState<string | null>(null);
+  const [accessResolved, setAccessResolved] = useState(false);
+
+  useEffect(() => {
+    setAccessKey(new URLSearchParams(window.location.search).get('access'));
+    setAccessResolved(true);
+  }, []);
 
   useEffect(() => {
     const fetchBooking = async () => {
+      if (!accessResolved) return;
       try {
         const { session_id } = await params;
-        const response = await fetch(`/api/booking/${session_id}`);
+        const response = await fetch(`/api/booking/${session_id}`, {
+          headers: accessKey ? { 'X-Booking-Access': accessKey } : undefined,
+        });
         if (!response.ok) {
           throw new Error('Booking not found');
         }
@@ -90,7 +100,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
       }
     };
     fetchBooking();
-  }, [params]);
+  }, [params, accessKey, accessResolved]);
 
   // Live hold countdown: the booking keeps its slot for a few minutes only.
   useEffect(() => {
@@ -117,14 +127,11 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const holdIsUrgent = holdRemainingMs !== null && holdRemainingMs <= 120_000;
 
   const handlePaymentResult = useCallback(() => {
-    track('purchase', {
-      booking_id: booking?.id,
-      value: booking?.totalPrice,
-      currency: 'IDR',
-      items: booking?.paxCount,
-    });
-    window.location.href = `/voucher/${booking?.id}`;
-  }, [booking]);
+    // Purchase event is now fired server-side on webhook settlement (src/lib/paymentService.ts)
+    // to avoid premature/inflated conversion data.
+    const accessQuery = accessKey ? `?access=${encodeURIComponent(accessKey)}` : '';
+    window.location.href = `/voucher/${booking?.id}${accessQuery}`;
+  }, [booking, accessKey]);
 
   const handlePayWithMidtrans = async () => {
     if (!booking || paying) return;
@@ -134,7 +141,10 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     try {
       const response = await fetch('/api/payment/midtrans', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessKey ? { 'X-Booking-Access': accessKey } : {}),
+        },
         body: JSON.stringify({ bookingId: booking.id }),
       });
 

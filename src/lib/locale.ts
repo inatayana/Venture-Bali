@@ -9,11 +9,11 @@ const MESSAGES = {
   en: {
     headerTagline: 'Own the wild. Adventure, booked in minutes.',
     heroCategories: 'Bali · 9 adventure categories',
-    heroBadge: "Bali's #1 Outdoor & Adventure OTA",
-    heroBook: 'Book the',
-    heroOwn: 'Own the wild!',
+    heroBadge: "BALI'S TRUSTED OUTDOOR & NATURE OPERATOR",
+    heroBook: "Discover Bali's Wild Beauty,",
+    heroOwn: 'Guided Safely.',
     heroSub:
-      'Rafting, ATV, tubing & trekking across Bali. Instant confirmation, free reschedule, and 100% locally operated.',
+      'From gentle river tubing and scenic ATV rides to full-day island escapes. Operated directly by our local team with safety-checked gear and seamless pickup.',
     idrNote: 'Prices in IDR · other currencies are approximate',
     trustInstant: 'Instant confirmation',
     trustReschedule: 'Free reschedule ≥24h',
@@ -50,11 +50,11 @@ const MESSAGES = {
   id: {
     headerTagline: 'Taklukkan alam liar. Petualangan, dipesan dalam hitungan menit.',
     heroCategories: 'Bali · 9 kategori petualangan',
-    heroBadge: 'OTA Petualangan & Aktivitas Outdoor #1 di Bali',
-    heroBook: 'Pesan',
-    heroOwn: 'Taklukkan alam liar!',
+    heroBadge: 'OPERATOR OUTDOOR & ALAM TEPERCAYA DI BALI',
+    heroBook: 'Jelajah Keindahan Liar Bali,',
+    heroOwn: 'Dipandu dengan Aman.',
     heroSub:
-      'Rafting, ATV, tubing & trekking di seluruh Bali. Konfirmasi instan, reschedule gratis, dan 100% dijalankan operator lokal.',
+      'Mulai dari tubing sungai yang tenang hingga ATV seharian. Dioperasikan langsung oleh tim lokal kami dengan peralatan ter-check dan pickup tanpa ribet.',
     idrNote: 'Harga dalam IDR · mata uang lain hanya perkiraan',
     trustInstant: 'Konfirmasi instan',
     trustReschedule: 'Reschedule gratis ≥24 jam',

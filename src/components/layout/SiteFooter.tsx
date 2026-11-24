@@ -24,7 +24,7 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-brand-ink text-white">
+    <footer className="bg-brand-ink text-white dark">
       <div className="mx-auto max-w-7xl px-4 py-10">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -87,7 +87,7 @@ export function SiteFooter() {
             </div>
             <div className="mt-3 flex items-center gap-2 text-white/70 [&_button:hover]:bg-white/10">
               <LanguageSwitcher />
-              <CurrencySelector />
+              <CurrencySelector dropUp />
               <ThemeSwitcher />
             </div>
           </div>
@@ -129,6 +129,11 @@ export function SiteFooter() {
               <li>
                 <Link href="/terms" className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand">
                   Booking terms
+                </Link>
+              </li>
+              <li>
+                <Link href="/refund" className="inline-flex min-h-[44px] items-center text-white/70 transition-colors hover:text-brand">
+                  Refund &amp; reschedule
                 </Link>
               </li>
               <li>

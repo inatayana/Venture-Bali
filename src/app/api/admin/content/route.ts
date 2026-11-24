@@ -7,6 +7,7 @@ import {
   saveArticle,
 } from '@/lib/aiContent';
 import { prisma } from '@/lib/prisma';
+import { requireAdminRole } from '@/lib/adminGuard';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +22,13 @@ const generateSchema = z.object({
 });
 
 export async function GET() {
+  try {
+    await requireAdminRole('EDITOR');
+  } catch (e) {
+    const res = e as NextResponse;
+    return res;
+  }
+
   try {
     const articles = await prisma.article.findMany({
       orderBy: { createdAt: 'desc' },
@@ -54,6 +62,13 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  try {
+    await requireAdminRole('EDITOR');
+  } catch (e) {
+    const res = e as NextResponse;
+    return res;
+  }
+
   let body: unknown;
 
   try {

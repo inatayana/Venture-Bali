@@ -7,13 +7,20 @@ import { PaymentServiceError } from '@/lib/paymentService';
 import type { PaymentStatus } from '@prisma/client';
 import { billingAddressSchema } from '@/lib/bookingSchema';
 import { buildSnapItems, toSnapBillingAddress } from '@/lib/snapBilling';
+import { verifyBookingReadAccess } from '@/lib/customerLink';
 
 const paymentSchema = z.object({
   bookingId: z.string().min(1, 'Booking ID is required'),
+  /**
+   * Booking-scoped read token issued by POST /api/booking either in the body
+   * (legacy checkout flow) or in the X-Booking-Access header.
+   */
+  accessToken: z.string().min(1).optional(),
 });
 
 interface BookingWithCustomer {
   id: string;
+  customerId: string;
   bookingCode: string;
   totalPrice: number;
   paymentStatus: PaymentStatus;
@@ -39,7 +46,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { bookingId } = paymentSchema.parse(rawBody);
+    const parsed = paymentSchema.parse(rawBody);
+    const { bookingId } = parsed;
+    const presentedToken =
+      request.headers.get('X-Booking-Access') ?? parsed.accessToken ?? null;
 
     const booking = (await prisma.booking.findUnique({
       where: { id: bookingId },
@@ -60,6 +70,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: { code: 'ALREADY_PAID', message: 'Booking is already paid' } },
         { status: 409 },
+      );
+    }
+
+    // Payment initiation returns live payment material — lock it to the holder
+    // of the booking-scoped token, exactly like the booking detail endpoint.
+    if (!verifyBookingReadAccess(presentedToken, booking)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'UNAUTHENTICATED',
+            message: 'This booking link is missing or has expired its access key.',
+          },
+        },
+        { status: 401 },
       );
     }
 

@@ -62,7 +62,9 @@ Theme surfaces (v3.6.5):
 | Theme | Page | Header | Cards | Text |
 |---|---|---|---|---|
 | Light | `#FAFAFA` | `#FFFFFF` | `#FFFFFF` | black |
-| Dark | `#212121` | `#191919` | `#191919` | white |
+| Dark | `#525252` | `#191919` | `#191919` | white |
+
+> Koreksi (2026-11-19): halaman dark adalah `#525252` (`globals.css`), bukan `#212121`. Header/cards tetap `#191919`.
 
 Brand surfaces (hero, footer, yellow CTA) keep their own contrast and are not
 flattened by the theme toggle.
@@ -90,6 +92,23 @@ Avoid:
 - Invented reviews, ratings, reviewer names, locations or urgency.
 - Vendor/partner names.
 - Generic OTA filler (“book your dream adventure today!”).
+
+### 5.1 Local-impact & price claims (MUST FOLLOW)
+
+Misi kedaulatan ekonomi lokal ada di `docs/BUSINESS_BLUEPRINT.md §1.4`. Aturan klaim:
+
+**Boleh dikatakan:**
+- “100% Bali-owned & operated” **hanya setelah owner mengonfirmasi status legal entity**.
+- “No foreign OTA commission — you pay the local operator directly.”
+- “Your booking supports Balinese guides, drivers and nature conservation.”
+- “Direct price: Rp200.000 (coret Rp250.000)” — angka harus sesuai `listPriceIdr` / `priceIdr` di katalog.
+
+**Dilarang:**
+- “Zero foreign vendors” — pembayaran & infrastruktur tetap memakai vendor; yang benar adalah **tanpa komisi OTA asing**.
+- “No middleman at all” — BaliWild sendiri adalah operator yang mengambil **margin operasional** (bukan komisi). Jangan menyangkal margin ini.
+- Sebutkan angka komisi OTA sebagai “perkiraan” — datafirst-hand owner: **GYG 30%, Klook 30%, Viator 25%, Airbnb 20%**.
+- Klaim umur seragam “6–65”. Aturan: Kids 5–11 didampingi dewasa; Youth 12–15 mandiri di lapangan tapi **tidak boleh booking atas nama sendiri**; Adult 16–75 boleh booking. `minAge` per produk ada di `src/data/catalogue.ts`.
+- Kata “Cheapest” / “Best price” / “Free” — pakai “direct price”, “transparent pricing”, “no OTA commission”.
 
 ## 6. Email addresses
 

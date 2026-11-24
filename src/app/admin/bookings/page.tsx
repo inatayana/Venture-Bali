@@ -167,7 +167,7 @@ export default async function AdminBookingsPage({ searchParams }: AdminBookingsP
                       <td className="px-4 py-3 tabular-nums text-gray-800 dark:text-gray-200">
                         {formatPrice(booking.totalPrice)}
                         {booking.discountIdr > 0 && (
-                          <p className="text-xs text-green-600 dark:text-green-400">−{formatPrice(booking.discountIdr)}</p>
+                          <p className="text-xs text-[#cdff00]">−{formatPrice(booking.discountIdr)}</p>
                         )}
                       </td>
                       <td className="px-4 py-3">

@@ -215,7 +215,7 @@ export function ReviewModal({
                   key={index}
                   className={cn(
                     'h-4 w-4',
-                    index < Math.round(average) ? 'fill-brand text-brand' : 'text-neutral-200'
+                    index < Math.round(average) ? 'fill-brand text-brand-ink dark:text-brand' : 'text-neutral-200'
                   )}
                 />
               ))}

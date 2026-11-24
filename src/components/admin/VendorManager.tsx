@@ -1,7 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Loader2, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Building2, Shield, DollarSign as DollarSignIcon, AlertTriangle as AlertTriangleIcon, FileText, TrendingUp } from 'lucide-react';
+import { cn } from '@/utils/cn';
+import { formatPrice } from '@/lib/i18n';
+
+import { StatCard } from './VendorStatCard';
+import { OverviewTab } from './VendorOverviewTab';
+import { ContractsTab } from './VendorContractsTab';
+import { PerformanceTab } from './VendorPerformanceTab';
+import { PayoutsTab } from './VendorPayoutsTab';
+import { IncidentsTab } from './VendorIncidentsTab';
+import { VendorFormModal } from './VendorFormModal';
 
 interface Vendor {
   id: string;
@@ -11,25 +21,76 @@ interface Vendor {
   meetingPoint: string | null;
   mapsUrl: string | null;
   isActive: boolean;
+  contractType: string | null;
+  fixedFeePerPax: number | null;
+  revenueSharePct: number | null;
+  paymentTerms: string | null;
+  contractStartDate: string | null;
+  contractEndDate: string | null;
+  commissionType: string | null;
+  commissionValue: number | null;
+  totalBookings: number;
+  completedBookings: number;
+  cancelledBookings: number;
+  noShowBookings: number;
+  avgRating: number | null;
+  totalRatingCount: number;
+  onTimeRate: number | null;
+  cancellationRate: number | null;
+  totalIncidents: number;
+  safetyIncidents: number;
+  lastIncidentDate: string | null;
+  totalRevenue: number;
+  totalCommission: number;
+  pendingPayout: number;
+  lastPayoutDate: string | null;
+  lastPayoutAmount: number | null;
+  status: string;
+  notes: string | null;
+  tags: string[];
+  _count?: {
+    variants: number;
+    contracts: number;
+    incidents: number;
+    payouts: number;
+  };
 }
+
+type TabType = 'overview' | 'contracts' | 'performance' | 'payouts' | 'incidents';
 
 export function VendorManager() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ code: '', name: '', activityType: '', meetingPoint: '', mapsUrl: '' });
+  const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
+
+  const [form, setForm] = useState({
+    code: '',
+    name: '',
+    activityType: '',
+    meetingPoint: '',
+    mapsUrl: '',
+    contractType: 'FIXED_FEE',
+    fixedFeePerPax: '',
+    revenueSharePct: '',
+    paymentTerms: 'NET_14',
+    contractStartDate: '',
+    contractEndDate: '',
+    commissionType: 'PERCENTAGE',
+    commissionValue: '',
+    status: 'ACTIVE',
+  });
+
   const [saving, setSaving] = useState(false);
 
   const loadVendors = async () => {
-    setIsLoading(true);
     try {
       const res = await fetch('/api/admin/vendors', { cache: 'no-store', credentials: 'include' });
       const json = await res.json();
       if (json.success) setVendors(json.data);
     } catch {
       console.error('Failed to load vendors');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -48,7 +109,13 @@ export function VendorManager() {
       });
       const json = await res.json();
       if (json.success) {
-        setForm({ code: '', name: '', activityType: '', meetingPoint: '', mapsUrl: '' });
+        setForm({
+          code: '', name: '', activityType: '', meetingPoint: '', mapsUrl: '',
+          contractType: 'FIXED_FEE', fixedFeePerPax: '', revenueSharePct: '',
+          paymentTerms: 'NET_14', contractStartDate: '', contractEndDate: '',
+          commissionType: 'PERCENTAGE', commissionValue: '',
+          status: 'ACTIVE',
+        });
         setShowForm(false);
         await loadVendors();
       } else {
@@ -61,8 +128,96 @@ export function VendorManager() {
     }
   };
 
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingVendor) return;
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/vendors', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editingVendor.id, ...form }),
+        cache: 'no-store',
+        credentials: 'include',
+      });
+      const json = await res.json();
+      if (json.success) {
+        setShowForm(false);
+        setEditingVendor(null);
+        await loadVendors();
+      } else {
+        alert(json.error || 'Failed to save vendor');
+      }
+    } catch {
+      console.error('Failed to update vendor');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEdit = (vendor: Vendor) => {
+    setEditingVendor(vendor);
+    setForm({
+      code: vendor.code,
+      name: vendor.name,
+      activityType: vendor.activityType,
+      meetingPoint: vendor.meetingPoint || '',
+      mapsUrl: vendor.mapsUrl || '',
+      contractType: vendor.contractType || 'FIXED_FEE',
+      fixedFeePerPax: vendor.fixedFeePerPax?.toString() || '',
+      revenueSharePct: vendor.revenueSharePct?.toString() || '',
+      paymentTerms: vendor.paymentTerms || 'NET_14',
+      contractStartDate: vendor.contractStartDate ? vendor.contractStartDate.split('T')[0] : '',
+      contractEndDate: vendor.contractEndDate ? vendor.contractEndDate.split('T')[0] : '',
+      commissionType: vendor.commissionType || 'PERCENTAGE',
+      commissionValue: vendor.commissionValue?.toString() || '',
+      status: vendor.status || 'ACTIVE',
+    });
+    setShowForm(true);
+    setEditingVendor(vendor);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this vendor?')) return;
+    try {
+      const res = await fetch(`/api/admin/vendors?id=${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const json = await res.json();
+      if (json.success) {
+        await loadVendors();
+      } else {
+        alert(json.error || 'Failed to delete vendor');
+      }
+    } catch {
+      console.error('Failed to delete vendor');
+    }
+  };
+
+  const handleSelectVendor = (vendor: Vendor) => {
+    setSelectedVendor(selectedVendor?.id === vendor.id ? null : vendor);
+  };
+
+  // Summary stats
+  const totalVendors = vendors.length;
+  const activeVendors = vendors.filter(v => v.status === 'ACTIVE').length;
+  const totalRevenue = vendors.reduce((sum, v) => sum + v.totalRevenue, 0);
+  const totalPendingPayout = vendors.reduce((sum, v) => sum + v.pendingPayout, 0);
+  const totalIncidents = vendors.reduce((sum, v) => sum + v.totalIncidents, 0);
+
   return (
     <div className="space-y-6">
+      {/* Header with Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <StatCard title="Total Vendors" value={totalVendors} icon={<Building2 className="h-5 w-5" />} />
+        <StatCard title="Active" value={activeVendors} icon={<Shield className="h-5 w-5" />} color="green" />
+        <StatCard title="Total Revenue" value={formatPrice(totalRevenue)} icon={<DollarSignIcon className="h-5 w-5" />} color="blue" />
+        <StatCard title="Pending Payout" value={formatPrice(totalPendingPayout)} icon={<DollarSignIcon className="h-5 w-5" />} color="amber" />
+        <StatCard title="Incidents" value={totalIncidents} icon={<AlertTriangleIcon className="h-5 w-5" />} color={totalIncidents > 0 ? 'red' : 'green'} />
+      </div>
+
+      {/* Header */}
       <header className="flex items-center justify-between">
         <div>
           <h1 className="font-heading text-2xl font-bold text-gray-900 dark:text-white">Vendor / Partner Management</h1>
@@ -71,114 +226,59 @@ export function VendorManager() {
           </p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => { setEditingVendor(null); setShowForm(true); }}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-ink text-white font-medium text-sm"
         >
           <Plus className="w-4 h-4" /> Add Vendor
         </button>
       </header>
 
-      {showForm && (
-        <form onSubmit={handleCreate} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vendor Code (unique)</label>
-              <input
-                required
-                value={form.code}
-                onChange={(e) => setForm({ ...form, code: e.target.value })}
-                placeholder="VND-ATV-001"
-                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vendor Name</label>
-              <input
-                required
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Ubud ATV Adventure Co."
-                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Activity Type</label>
-              <input
-                required
-                value={form.activityType}
-                onChange={(e) => setForm({ ...form, activityType: e.target.value })}
-                placeholder="ATV"
-                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Meeting Point</label>
-              <input
-                value={form.meetingPoint}
-                onChange={(e) => setForm({ ...form, meetingPoint: e.target.value })}
-                placeholder="Ubud ATV Base Camp"
-                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Maps URL</label>
-              <input
-                type="url"
-                value={form.mapsUrl}
-                onChange={(e) => setForm({ ...form, mapsUrl: e.target.value })}
-                placeholder="https://maps.google.com/..."
-                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg text-sm outline-none focus:border-brand-ink"
-              />
-            </div>
-          </div>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-ink text-white font-medium text-sm disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            Save Vendor
-          </button>
-        </form>
-      )}
+      {/* Tabs */}
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <nav className="flex gap-1 px-1" aria-label="Vendor tabs">
+          {([
+            { id: 'overview', label: 'Overview', icon: <Building2 className="h-4 w-4" /> },
+            { id: 'contracts', label: 'Contracts', icon: <FileText className="h-4 w-4" /> },
+            { id: 'performance', label: 'Performance', icon: <TrendingUp className="h-4 w-4" /> },
+            { id: 'payouts', label: 'Payouts', icon: <DollarSignIcon className="h-4 w-4" /> },
+            { id: 'incidents', label: 'Incidents', icon: <AlertTriangleIcon className="h-4 w-4" /> },
+          ] as const).map(({ id, label, icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id as TabType)}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors',
+                activeTab === id
+                  ? 'bg-brand-ink text-white border-b-2 border-brand-ink -mb-px'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+              )}
+            >
+              <span className="flex items-center gap-2">{icon} {label}</span>
+            </button>
+          ))}
+        </nav>
+      </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center p-12 text-gray-500 dark:text-gray-400">
-          <Loader2 className="w-6 h-6 animate-spin" />
-        </div>
-      ) : vendors.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-12 text-center text-gray-500 dark:text-gray-400">
-          No vendors yet. Add your first vendor above.
-        </div>
-      ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700">
-              <tr>
-                <th className="px-6 py-3 font-semibold text-gray-900 dark:text-white">Code</th>
-                <th className="px-6 py-3 font-semibold text-gray-900 dark:text-white">Name</th>
-                <th className="px-6 py-3 font-semibold text-gray-900 dark:text-white">Activity</th>
-                <th className="px-6 py-3 font-semibold text-gray-900 dark:text-white">Meeting Point</th>
-                <th className="px-6 py-3 font-semibold text-gray-900 dark:text-white">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-              {vendors.map((v) => (
-                <tr key={v.id}>
-                  <td className="px-6 py-4 font-mono text-xs">{v.code}</td>
-                  <td className="px-6 py-4 font-medium">{v.name}</td>
-                  <td className="px-6 py-4">{v.activityType}</td>
-                  <td className="px-6 py-4 text-gray-600 dark:text-gray-400 text-xs">{v.meetingPoint || '—'}</td>
-                  <td className="px-6 py-4">
-                    <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${v.isActive ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'}`}>
-                      {v.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* Tab Content */}
+      <div className="mt-6">
+        {activeTab === 'overview' && <OverviewTab vendors={vendors} onEdit={handleEdit} onDelete={handleDelete} onSelect={handleSelectVendor} />}
+        {activeTab === 'contracts' && <ContractsTab vendors={vendors} />}
+        {activeTab === 'performance' && <PerformanceTab vendors={vendors} />}
+        {activeTab === 'payouts' && <PayoutsTab vendors={vendors} />}
+        {activeTab === 'incidents' && <IncidentsTab vendors={vendors} />}
+      </div>
+
+      {/* Vendor Form Modal */}
+      {(showForm || editingVendor) && (
+        <VendorFormModal
+          show={showForm || !!editingVendor}
+          onClose={() => { setShowForm(false); setEditingVendor(null); }}
+          onSubmit={editingVendor ? handleUpdate : handleCreate}
+          editingVendor={editingVendor}
+          form={form}
+          setForm={setForm}
+          saving={saving}
+        />
       )}
     </div>
   );

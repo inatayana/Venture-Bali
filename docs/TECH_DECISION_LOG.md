@@ -266,7 +266,56 @@ to that time).
 
 ---
 
-## 12. Related Documents
+## 12. Dependency Security Patch — November 2026
+
+### Decision
+- Pin `next` and `eslint-config-next` to **14.2.35** (latest 14.x) and
+  `postcss` to **8.5.31**.
+- Keep the major upgrade (Next 15/16, React 19, Tailwind 4, Prisma 7) in the
+  dedicated upgrade sprint. It is not part of this patch.
+
+### Rationale
+- 14.2.5 was affected by CVE-2025-29927 (middleware authorization bypass) and
+  the wider set of 14.x advisories.
+- 14.2.35 closes the 14.x backports that are available on that branch,
+  including the middleware bypass. It is a strict improvement over 14.2.5 and
+  can ship while the major upgrade is planned, but it does not clear every
+  advisory on the EOL branch.
+
+### Residual risk (tracked)
+- Next 14.x is end-of-life. `npm audit` still reports package-level
+  critical/high advisories that are only patched in Next 15.5.28 / 16.4.1.
+  The retained criticals that matter to this app are:
+  - `GHSA-2464-fhr4-w9xw` — RCE in the Image Optimization API when SVG is used.
+  - `GHSA-2xp9-vwfh-vxw4` — RCE in the Image Optimization API when AVIF is used.
+  - `GHSA-p293-qw3h-jr36` — RCE on Windows-hosted servers (not applicable to
+    Vercel Linux, but relevant to local Windows dev).
+  `CVE-2025-29927` (middleware bypass) is fixed in 14.2.35.
+- Mitigations in place today:
+  - Production runs on Vercel (Linux) with the platform image optimizer.
+  - No `remotePatterns` are configured, so the Image Optimizer cannot fetch
+    external images.
+  - `dangerouslyAllowSVG` is limited to local placeholder assets; the app has no
+    user-supplied SVG upload path.
+- **Gate:** do not migrate to the Hostinger VPS until the upgrade PR re-runs
+  `npm audit` with zero critical/high and the money-path e2e suite exists.
+  `>=15.5.28` / `>=16.4.1` are the current advisory bounds, not a permanent
+  guarantee.
+- `zod` 3.x has no non-breaking fix. Public arrays and their string items are
+  bounded in `bookingSchema` and `experiences` as a compensating control.
+- `npm audit fix` applied patch-level transitive bumps only (`source-map-js`,
+  `postcss-selector-parser`, `brace-expansion`, `js-yaml`, `nanoid`,
+  `ansi-regex`); no new packages were added.
+
+### Enforcement
+- `npm run audit:check` compares the audit report with
+  `scripts/audit-baseline.json` advisory by advisory. It fails on a new
+  high/critical package, a severity increase, or a new high/critical advisory.
+- CI runs `npm run audit:check` before `npm run build` on every PR to `main`.
+
+---
+
+## 13. Related Documents
 
 | Document | Location |
 |----------|----------|
@@ -310,6 +359,76 @@ seeded rows (admins could not add new areas).
 **Consequences.** New desa rows have no coordinates until enriched; the dataset
 file must be updated manually when Bali adds/renames areas; SEO keyword
 synthesis continues to read `Location.name`, which stays stable in format.
+
+---
+
+## 14. Decision — Dependency Audit Baseline Extension (@sentry/nextjs, rollup)
+
+**Date:** 2026-11-13 · **Status:** Approved · **Owner:** Engineering
+
+**Decision.** Adopting the `hotfix/security-next-14-2-35` security hardening
+(Next.js 14.2.35, report-only CSP, audit gate) onto the platform-hardening
+branch added two production dependencies the original baseline did not know:
+`@sentry/nextjs` (8.0.0 → 8.55.2, installed with `npm audit fix`) and
+`rollup` 3.29.5 (transitive of `@sentry/nextjs`). Both stay flagged high;
+the only fix path is the `@sentry/nextjs` 11.x major upgrade, which is
+scheduled together with the Next 15/16 upgrade.
+
+**Rationale.** The audit gate fails closed on unknown high/critical
+advisories. Rather than weakening the gate, both packages are recorded in
+`scripts/audit-baseline.json` with severity `high` (`@sentry/nextjs` with an
+empty direct-advisory list because it is flagged through the rollup chain).
+No deviation from the accepted-residual policy is introduced.
+
+**Alternatives rejected.** Upgrading to `@sentry/nextjs` 11.x now (major
+rewrite of instrumentation, out of scope for a patch-level hardening);
+removing Sentry (loses production observability); leaving the gate red
+(defeats the security hardening itself).
+
+**Consequences.** CI passes with the extended baseline; when the Next 15/16
+upgrade PR lands, regenerate the baseline and prune `next`, `postcss`, `zod`,
+`@sentry/nextjs` and `rollup` together.
+
+---
+
+## 15. Decision — sharp for server-side image normalisation (WebP)
+
+**Date:** 2026-11-20 · **Status:** Approved by owner · **Owner:** Engineering
+
+**Decision.** Add `sharp` as a production dependency and use it for two jobs:
+
+1. **Normalise every admin product upload** (`src/lib/imageNormalize.ts`, called
+   from `uploadProductPhoto`): decode the uploaded bytes, apply EXIF
+   orientation, strip all metadata, resize to a 1600 px longest edge and
+   re-encode a single WebP master ≤ 300 KB. Files that do not decode are
+   rejected with `INVALID_FILE`, even when `Content-Type: image/webp` was sent.
+2. **Power the production image optimizer** on `next start` (VPS phase), where
+   Next previously fell back to the slower squoosh/WASM encoder.
+
+Browser compression in the admin form stays the first layer (the editor sees
+the final size/dimensions before saving); the server is the second layer that
+guarantees the stored invariant.
+
+**Rationale.** The media memo previously stored whatever bytes the browser
+sent and trusted the `Content-Type` header. With an admin session or a scripted
+call that header is trivially spoofed; sharp makes "stored media is always a
+decodable WebP master under budget" enforceable, and removes GPS/device EXIF
+that the browser pipeline could miss if it is ever bypassed. It also unblocks
+the VPS deployment that the memo flagged as requiring sharp.
+
+**AVIF deferred.** `images.formats` stays `['image/webp']`. Enabling AVIF output
+would exercise the code path in `GHSA-2xp9-vwfh-vxw4` (see §12) and Next 14.2.35
+carries that advisory. AVIF is revisited in the Next 15/16 upgrade sprint, not
+before.
+
+**Alternatives rejected.** Trusting browser output (no server invariant,
+spoofable header); Supabase Image Transform (paid plan, rejected in the media
+memo); converting on the CDN (no CDN transform available on the current plan).
+
+**Consequences.** Admin uploads cost ~100–300 ms of CPU per photo (rate-limited
+to 40/minute, editor-only). `npm run audit:check` must accept the sharp
+transitives; if the gate flags a new high/critical advisory, record it in
+`scripts/audit-baseline.json` rather than weakening the gate.
 
 ---
 

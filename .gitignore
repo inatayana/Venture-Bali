@@ -52,3 +52,9 @@ dev.err.txt
 
 # Local test output
 .test-out.txt
+
+# Admin debugging artifacts — never commit
+check-admin.js
+test-login.js
+verify-password.js
+dev.log

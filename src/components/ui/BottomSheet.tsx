@@ -162,7 +162,7 @@ export function BottomSheet({
               type="button"
               onPointerDown={(event) => event.stopPropagation()}
               onClick={onClose}
-              className="p-2 -mr-1 rounded-full hover:bg-neutral-100 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-2 -mr-1 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label="Close"
             >
               <X className="w-5 h-5 text-neutral-500" />

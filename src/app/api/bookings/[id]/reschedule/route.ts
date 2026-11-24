@@ -5,7 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { verifyCustomerLinkToken } from '@/lib/customerLink';
 import { isDateAvailable, isSlotBookable } from '@/lib/pricing';
 import { hoursBeforeActivity } from '@/lib/refundUtils';
-import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { sendRescheduleConfirmation } from '@/lib/notifications';
+import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date');
 const rescheduleSchema = z.object({
@@ -38,7 +39,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const limit = rateLimit(`reschedule-get:${clientIp(request)}`, 30, 60_000);
+  const limit = await rateLimit(`reschedule-get:${clientIp(request)}`, 30, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       { success: false, error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again shortly.' } },
@@ -121,7 +122,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const limit = rateLimit(`reschedule:${clientIp(request)}`, 10, 60_000);
+  const limit = await rateLimit(`reschedule:${clientIp(request)}`, 10, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       { success: false, error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again shortly.' } },
@@ -213,6 +214,15 @@ export async function POST(
     if (result.kind === 'invalid') {
       return NextResponse.json({ success: false, error: { code: 'UNAVAILABLE', message: result.message } }, { status: 409 });
     }
+
+    // Send reschedule confirmation (non-blocking)
+    sendRescheduleConfirmation(
+      booking.id,
+      booking.bookingDate,
+      booking.slotTime?.time ?? null,
+      parsed.data.date,
+      result.slotTime
+    ).catch((err) => console.error('Reschedule notification failed:', err));
 
     revalidatePath('/my/bookings');
     revalidatePath('/admin/bookings');

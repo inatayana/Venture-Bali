@@ -32,7 +32,7 @@ export const CATALOGUE_CATEGORIES = [
   'Trekking',
   'Water Sports',
   'Snorkeling',
-  'Extreme',
+  'Canyoning',
   'Combo',
 ] as const;
 

@@ -6,6 +6,7 @@ import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
 import { isAllowedCategory } from '@/lib/taxonomy';
 import { validateVentureTitle } from '@/lib/titleValidator';
 import { requireAdminRole } from '@/lib/adminGuard';
+import { hasRole } from '@/lib/adminSession';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,16 +25,16 @@ const createVentureSchema = z.object({
   category: z.string().trim().min(1),
   subcategory: z.string().trim().max(60).optional(),
   primaryKeyword: z.string().trim().max(80).optional(),
-  secondaryKeywords: z.array(z.string().trim().min(1)).max(10).default([]),
-  searchTags: z.array(z.string().trim().min(1)).max(15).default([]),
-  highlights: z.array(z.string().trim().min(1)).max(10).default([]),
-  inclusions: z.array(z.string().trim().min(1)).max(10).default([]),
-  exclusions: z.array(z.string().trim().min(1)).max(10).default([]),
+  secondaryKeywords: z.array(z.string().trim().min(1).max(80)).max(10).default([]),
+  searchTags: z.array(z.string().trim().min(1).max(60)).max(15).default([]),
+  highlights: z.array(z.string().trim().min(1).max(90)).max(10).default([]),
+  inclusions: z.array(z.string().trim().min(1).max(120)).max(10).default([]),
+  exclusions: z.array(z.string().trim().min(1).max(120)).max(10).default([]),
   languages: z.array(z.string().trim().min(2).max(5)).max(6).default(['en', 'id']),
   suitableFor: z.array(z.enum(['KIDS', 'COUPLE', 'FAMILY', 'SOLO', 'GROUP'])).max(5).default([]),
   difficulty: z.enum(['EASY', 'MODERATE', 'CHALLENGING']).default('EASY'),
-  imageUrl: z.string().trim().min(1, 'An image URL is required'),
-  gallery: z.array(z.string().trim().min(1)).max(20).default([]),
+  imageUrl: z.string().trim().min(1, 'An image URL is required').max(500),
+  gallery: z.array(z.string().trim().min(1).max(500)).max(20).default([]),
   rating: z.number().min(0).max(5).default(5),
   locationId: z.string().trim().min(1).optional(),
   /**
@@ -42,18 +43,28 @@ const createVentureSchema = z.object({
    */
   tenantId: z.string().trim().min(1).optional(),
   itinerary: z
-    .array(z.object({ time: z.string().trim().min(1), activity: z.string().trim().min(1) }))
+    .array(
+      z.object({
+        time: z.string().trim().min(1).max(40),
+        activity: z.string().trim().min(1).max(200),
+      }),
+    )
     .max(20)
     .default([]),
   essentialInfo: z
     .object({
-      perfectFor: z.array(z.string()).default([]),
-      whatToBring: z.array(z.string()).default([]),
-      knowBeforeYouGo: z.array(z.string()).default([]),
+      perfectFor: z.array(z.string().trim().min(1).max(120)).max(20).default([]),
+      whatToBring: z.array(z.string().trim().min(1).max(120)).max(20).default([]),
+      knowBeforeYouGo: z.array(z.string().trim().min(1).max(200)).max(20).default([]),
     })
     .default({ perfectFor: [], whatToBring: [], knowBeforeYouGo: [] }),
   faqs: z
-    .array(z.object({ question: z.string().trim().min(1), answer: z.string().trim().min(1) }))
+    .array(
+      z.object({
+        question: z.string().trim().min(1).max(200),
+        answer: z.string().trim().min(1).max(2000),
+      }),
+    )
     .max(20)
     .default([]),
 });
@@ -95,11 +106,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Creating catalogue content is an operator action. The middleware only
+  // protects /api/admin, so this route enforces the session itself.
   const session = await requireAdminRole('EDITOR');
   if (!session) {
     return NextResponse.json(
-      { success: false, error: { code: 'FORBIDDEN', message: 'Editor access required' } },
-      { status: 403 }
+      { success: false, error: { code: 'UNAUTHORIZED', message: 'Operator sign-in required' } },
+      { status: 401 }
     );
   }
 
@@ -131,6 +144,14 @@ export async function POST(request: NextRequest) {
   }
 
   const data = parsed.data;
+
+  // Editors create in the default tenant; only admins may target another one.
+  if (data.tenantId && !hasRole(session, 'ADMIN')) {
+    return NextResponse.json(
+      { success: false, error: { code: 'FORBIDDEN', message: 'Only admins can target another tenant' } },
+      { status: 403 }
+    );
+  }
 
   // ---- Product guardrails (AGENTS.md §9) ----
   if (!isAllowedCategory(data.category)) {

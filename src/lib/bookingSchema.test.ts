@@ -91,6 +91,14 @@ describe('bookingSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('bounds the public add-on collection', () => {
+    const twenty = Array.from({ length: 20 }, (_, index) => `addon-${index}`);
+    expect(bookingSchema.safeParse({ ...baseBooking, selectedAddons: twenty }).success).toBe(true);
+
+    const twentyOne = [...twenty, 'addon-21'];
+    expect(bookingSchema.safeParse({ ...baseBooking, selectedAddons: twentyOne }).success).toBe(false);
+  });
+
   it('normalises coupon codes to uppercase', () => {
     const result = bookingSchema.parse({ ...baseBooking, couponCode: ' trybali2026 ' });
     expect(result.couponCode).toBe('TRYBALI2026');

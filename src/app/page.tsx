@@ -1,39 +1,44 @@
-import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { HomeHero } from '@/components/features/HomeHero';
 import { TrustStrip } from '@/components/features/TrustStrip';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { HomeHeader } from '@/components/layout/HomeHeader';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { SearchProvider } from '@/components/search/SearchProvider';
 import { loadVentures } from '@/lib/ventureService';
 import { generateWebsiteStructuredData, getBaseUrl } from '@/lib/seo';
+import { CuratedRows } from '@/components/features/CuratedRows';
+import { ExploreFiltersProvider } from '@/components/features/ExploreFiltersProvider';
+import { ExploreControlBar } from '@/components/features/ExploreControlBar';
+import { HomeCatalogue } from '@/components/features/HomeCatalogue';
 
 export const revalidate = 60;
 
-/** Popular pickup hubs offered by the hero destination picker. */
-const HUBS = ['Ubud', 'Seminyak', 'Canggu', 'Nusa Dua', 'Sanur', 'Denpasar', 'Kuta', 'Uluwatu'];
-
 export default async function Home() {
   const { ventures, source } = await loadVentures();
-  const suggestions = ventures.slice(0, 5).map((venture) => ({
-    title: venture.title,
-    href: `/experiences/${venture.id}/${venture.slug}`,
-  }));
 
   return (
     <main className="min-h-screen bg-neutral-50">
       <JsonLd data={generateWebsiteStructuredData(getBaseUrl())} />
-      <HomeHeader />
+      <ExploreFiltersProvider>
+        <HomeHeader />
+        <ExploreControlBar showBack={false} />
 
-      <SearchProvider>
-        <HomeHero hubs={HUBS} suggestions={suggestions} />
-        <VentureExplorer ventures={ventures} />
-      </SearchProvider>
+        <HomeHero />
 
-      <TrustStrip />
+        {/* Section 1 & 2: Curated horizontal rows */}
+        <section className="px-4 sm:px-6 lg:px-10 pt-4 md:pt-7 pb-0">
+          <div className="max-w-[1440px] mx-auto">
+            <CuratedRows ventures={ventures} source={source} referenceDate={source === 'fallback' ? '2026-01-01' : new Date().toISOString().split('T')[0]} />
+          </div>
+        </section>
+
+        {/* Section 3: Shared /explore chrome + guaranteed strip + All Bali Adventures grid */}
+        <HomeCatalogue ventures={ventures} />
+
+        <TrustStrip />
+      </ExploreFiltersProvider>
 
       {source === 'fallback' && (
-        <p className="container mx-auto px-4 pb-8 text-xs text-gray-600 text-center">
+        <p className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 pb-8 text-xs text-gray-600 text-center">
           Showing the offline catalogue. Connect a database to browse the full inventory.
         </p>
       )}

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/i18n';
 import { LIFECYCLE_LABELS } from '@/lib/bookingLifecycle';
 import { OperationActions } from '@/components/admin/OperationActions';
+import { DriverAssign } from '@/components/admin/DriverAssign';
 import { CalendarDays, ChevronLeft, ChevronRight, MapPin, Phone, Users } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -180,10 +181,18 @@ export default async function OperationsPage({ searchParams }: OperationsPagePro
                       </div>
 
                       <div className="flex items-start justify-end">
-                        <OperationActions
-                          bookingId={booking.id}
-                          lifecycleStatus={booking.lifecycleStatus}
-                        />
+                        <div className="flex flex-col items-end gap-2">
+                          <DriverAssign
+                            bookingId={booking.id}
+                            fulfillmentMode={booking.fulfillmentMode}
+                            lifecycleStatus={booking.lifecycleStatus}
+                            driverInfo={booking.driverInfo}
+                          />
+                          <OperationActions
+                            bookingId={booking.id}
+                            lifecycleStatus={booking.lifecycleStatus}
+                          />
+                        </div>
                       </div>
                     </div>
                   );

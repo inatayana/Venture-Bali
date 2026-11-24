@@ -1,6 +1,6 @@
 # BaliWild — UI/UX Design System & Flow
 
-> **Version:** 3.9.0
+> **Version:** 3.10.0
 > **Status:** MUST FOLLOW. Single source of truth untuk semua UI/UX decisions.
 > **Reference:** Master blueprint (VENTURE_PRD_MASTER.md §6, §O), user flow Fase 1–10, Klook-style PDP pattern
 > **Changelog v3.0.0:** PDP direfactor ke pola Klook — Inline Package Options Configurator (desktop), full-height bottom sheet konfigurasi (mobile), Sticky Anchor Nav Bar, dependent transfer + combo add-ons, real-time multi-pax pricing.
@@ -30,6 +30,8 @@
 > **Changelog v3.7.2:** Real-review collection — `Review.source` labels verified bookings vs founding guests vs imported reviews, guest photos (max 3, compressed WebP, 4:3) render in review cards and the admin queue, comments cap at 500 characters, and the admin gets per-product coverage (target 10), source/status/product filters, bulk approve/delete and photo removal.
 > **Changelog v3.8.0:** Founding-guest invites — `/admin/reviews/invites` creates up to 10 single-use links/QR per product, signed `ri1` tokens can be regenerated from the invite id, guests submit without an account, and every founding-guest review is labelled **Founding guest** and waits for moderation. Invite coverage is tracked alongside published reviews.
 > **Changelog v3.9.0:** Product Manager — `/admin/ventures/new` and `/admin/ventures/[id]/edit` create/edit core product fields, validate titles/categories/slugs, manage a hero plus up to 8 gallery photos with drag & drop upload, browse, reorder, delete and “Set hero”, and redirect to the package editor after creation. `POST /api/experiences` is now admin-only.
+> **Changelog v3.9.1 (2026-11-19):** Koreksi tema dark — halaman `#525252`, header/card/input `#191919` (`globals.css`). Entrada v3.6.6 (`#212121`) sudah tidak berlaku. Homepage: 3 section (2 carousel 6-kolom + grid), header desktop tanpa tagline, sticky header hilang saat scroll aktif & muncul saat scroll berhenti.
+> **Changelog v3.10.0 (2026-11-20):** Filter katalog `/explore` tersimpan di URL (`category`, `sort`, `transferIncluded`, `selfDrive`, `bestSeller`) dengan `replaceState`, sehingga tautan bisa dibagikan, tahan reload, dan pulih lewat Back/Forward. Strip filter + Sort kini juga tampil di desktop `/explore`; homepage tetap tidak menulis URL. Placeholder SVG diberi prolog XML agar lolos deteksi image optimizer.
 
 ## 1. Design Principles
 
@@ -325,6 +327,20 @@ SATU bottom sheet dengan dua langkah di dalamnya (bukan sheet terpisah):
   - Mobile: pil ringkas yang membuka **bottom sheet** berisi destinasi, kalender, dan stepper tamu + CTA "Search adventures".
   - State dibagi lewat `SearchProvider`; parameter `?q=&date=&pax=` ditulis ke URL saat submit dan dibaca kembali saat load.
 - Tidak ada lagi blok pencarian terpisah di bawah hero.
+
+### URL Filter State (v3.8.0)
+- Filter katalog yang bisa dibagikan, mengikuti pola OTA (Booking/Klook):
+  `?category=<slug>&sort=<nilai>&transferIncluded=1&selfDrive=1&bestSeller=1`
+  digabung dengan `?q=&date=&pax=` milik `SearchProvider`.
+- `/explore` menulis setiap perubahan filter ke URL dengan `history.replaceState`
+  (bukan `router.replace`): tidak ada server round-trip dan tidak ada entri
+  history baru per toggle. Reload, share, dan Back/Forward memulihkan state.
+- Homepage sengaja **tidak** menulis URL; `?category=` di sana hanya deep link
+  masuk dari breadcrumb PDP/footer/menu.
+- Nilai default dihapus dari URL agar tautan tetap pendek; slug kategori selalu
+  yang kanonik (`atv`, `water-sports`, …), bukan label UI.
+- Aturan parse/serialise murni ada di `src/lib/exploreFiltersUrl.ts` dan
+  diuji tanpa DOM; provider hanya menjembatani ke React state.
 
 ### Filter Chips (Horizontal Scrollable)
 ```

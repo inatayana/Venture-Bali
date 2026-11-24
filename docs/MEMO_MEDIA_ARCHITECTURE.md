@@ -29,6 +29,24 @@
    yang di-reuse dari 7 foto produk (bukan upload baru); tanpa cover →
    fallback ke main cover produk.
 
+## Pembaruan 2026-11-20 — sharp disetujui owner
+
+Owner menyetujui dependency `sharp` (AGENTS.md §4). Konsekuensi untuk alur ini:
+
+- **Normalisasi di server:** `POST /api/admin/product-media` men-decode ulang
+  setiap upload lewat `src/lib/imageNormalize.ts` sebelum disimpan — orientasi
+  EXIF diterapkan, seluruh metadata (GPS/perangkat/waktu) dibuang, sisi
+  terpanjang maksimal 1600 px, dan hasil akhirnya tetap **satu WebP ≤ 300 KB**.
+  File yang tidak bisa di-decode ditolak `INVALID_FILE` walau header
+  `Content-Type: image/webp` dikirim. Jadi kompresi browser adalah lapis
+  pertama (admin melihat hasil sebelum save), server adalah lapis kedua yang
+  menjamin invariant.
+- **Optimizer:** pada `next start` (fase VPS) encoder WebP kini memakai sharp,
+  bukan squoosh/WASM.
+- **AVIF ditunda:** `images.formats` tetap `['image/webp']` karena Next 14.2.35
+  masih terdampak `GHSA-2xp9-vwfh-vxw4` (lihat `TECH_DECISION_LOG.md` §12/§15).
+  AVIF diaktifkan bersama upgrade Next 15/16.
+
 ## Prinsip
 
 - Simpan **satu** file WebP master per foto di Supabase Storage.
@@ -198,15 +216,21 @@ Setelah lolos, UI menampilkan hasil final sebelum save:
 11. [ ] Aset Jambe: re-upload 5 foto via admin (Opsi A memo lama, tetap
         berlaku — tanpa dependency baru), lalu hapus JPG besar dari
         `public/images/` setelah referensi berganti
+12. [x] `sharp` + `src/lib/imageNormalize.ts` (2026-11-20): normalisasi server
+        (EXIF, metadata, 1600px, WebP ≤ 300 KB) + test unit
+13. [ ] Placeholder SVG → WebP lalu matikan `dangerouslyAllowSVG`
+        (butuh rewrite URL di DB — tunggu backup owner)
 
 ## Risiko & catatan
 
 - **Kuota Vercel image optimization** (Hobby ±1.000 gambar sumber unik/bulan)
   — cukup untuk katalog saat ini; pantau di Vercel Analytics → Usage.
-- **Phase 2 (VPS):** optimizer `next start` butuh `sharp` di server —
-  keputusan dependency saat itu, perlu persetujuan owner (AGENTS.md §4).
-- **Tanpa encoder server:** browser adalah satu-satunya encoder (tidak
-  menambah `sharp` ke app). Endpoint non-browser/API harus ditolak.
+- **Phase 2 (VPS):** sudah tidak menjadi blocker — `sharp` terpasang
+  (2026-11-20) sehingga optimizer `next start` berjalan native.
+- **Encoder server:** sejak 2026-11-20 server juga menormalkan upload produk
+  dengan `sharp` (`src/lib/imageNormalize.ts`). Endpoint non-browser tetap
+  ditolak karena hanya `image/webp` ≤ 300 KB yang lolos validasi awal dan
+  file yang tidak bisa di-decode gagal di normalisasi.
 - **PNG transparan** menjadi WebP lossy — alpha dipertahankan, kualitas
   alpha bisa turun sedikit; verifikasi hasil pada uji manual.
 - **LCP:** hero pakai `priority` (sudah berlaku); optimizer menambah latensi
@@ -231,6 +255,8 @@ Setelah lolos, UI menampilkan hasil final sebelum save:
 - [ ] Mobile (390px) memuat hero ≤ ±80 KB via optimizer, bukan master 300 KB
 - [ ] Slot display seragam (rasio tetap, `object-cover`)
 - [ ] Server menolak non-WebP / > 300 KB
+- [x] Server men-decode ulang setiap upload dan menyimpan hasil normalisasi
+      (WebP, metadata bersih, ≤ 1600 px, ≤ 300 KB)
 - [ ] 6 foto gallery + main cover (7 total), reorder, set hero, delete
       tetap berfungsi
 - [ ] Varian tanpa gallery; cover varian hanya bisa di-reuse dari 7 foto

@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import { createReviewToken, verifyCustomerLinkToken } from '@/lib/customerLink';
+import { createBookingViewToken, createReviewToken, verifyCustomerLinkToken } from '@/lib/customerLink';
 import { formatPrice } from '@/lib/i18n';
 import { LIFECYCLE_LABELS } from '@/lib/bookingLifecycle';
 import { canReviewBooking } from '@/lib/reviewSchema';
@@ -178,7 +178,7 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
                     )}
                     {booking.paymentStatus === 'PAID' && !booking.cancelledAt ? (
                       <Link
-                        href={`/voucher/${booking.id}`}
+                        href={`/voucher/${booking.id}?access=${encodeURIComponent(createBookingViewToken(booking.id) ?? '')}`}
                         className="inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-neutral-900"
                       >
                         View voucher <ArrowRight className="h-4 w-4" />

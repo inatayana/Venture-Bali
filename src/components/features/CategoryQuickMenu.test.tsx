@@ -28,7 +28,7 @@ describe('CategoryQuickMenu', () => {
       '🥾Trekking',
       '🏄Water Sports',
       '🤿Snorkeling',
-      '⚡Extreme',
+      '⚡Canyoning',
       '🎯Combo',
     ]);
 

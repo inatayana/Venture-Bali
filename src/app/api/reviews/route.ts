@@ -5,7 +5,7 @@ import { verifyReviewAccess } from '@/lib/customerLink';
 import { canReviewBooking, reviewBlockedReason, reviewInputSchema } from '@/lib/reviewSchema';
 import { assessReviewForPublishing } from '@/lib/reviewModeration';
 import { isAllowedReviewPhotoUrl } from '@/lib/reviewPhotos';
-import { clientIp, rateLimit } from '@/lib/rateLimit';
+import { clientIp, rateLimit } from '@/lib/rateLimit.distributed';
 
 /**
  * Submit a review for a paid, finished trip.
@@ -14,7 +14,7 @@ import { clientIp, rateLimit } from '@/lib/rateLimit';
  * Reviews are published immediately; the admin panel can delete a bad row.
  */
 export async function POST(request: NextRequest) {
-  const limit = rateLimit(`review:${clientIp(request)}`, 5, 60_000);
+  const limit = await rateLimit(`review:${clientIp(request)}`, 5, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       { success: false, error: { code: 'RATE_LIMITED', message: 'Too many review submissions. Try again shortly.' } },

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { ADMIN_SESSION_COOKIE, hasRole, verifySessionToken } from '@/lib/adminSession';
 import { refundMidtransTransaction } from '@/lib/midtrans';
+import { sendRefundProcessed } from '@/lib/notifications';
 
 const bodySchema = z.object({
   method: z.enum(['MIDTRANS', 'MANUAL']),
@@ -84,6 +85,14 @@ export async function POST(
       },
     }),
   ]);
+
+  // Send refund processed notification (non-blocking)
+  sendRefundProcessed(
+    refund.bookingId,
+    refund.amountIdr,
+    parsed.data.method,
+    providerRef ?? undefined
+  ).catch((err) => console.error('Refund notification failed:', err));
 
   revalidatePath('/admin/refunds');
   revalidatePath('/admin/bookings');

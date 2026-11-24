@@ -1,7 +1,21 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { VentureExplorer } from './VentureExplorer';
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ back: jest.fn(), push: jest.fn() }),
+}));
 import { SearchProvider } from '@/components/search/SearchProvider';
+import { ExploreFiltersProvider } from '@/components/features/ExploreFiltersProvider';
 import type { VentureItem, Variant } from '@/types/venture';
+
+function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <ExploreFiltersProvider>
+      <SearchProvider>{children}</SearchProvider>
+    </ExploreFiltersProvider>
+  );
+}
 
 function buildVenture(overrides: Partial<VentureItem>): VentureItem {
   return {
@@ -82,6 +96,13 @@ const withAvailability = buildVenture({
   variants: [buildVariant()],
 });
 
+const transferOnly = buildVenture({
+  id: 'vtr-transfer',
+  title: 'Hotel Pickup Combo',
+  category: 'Combo',
+  variants: [buildVariant({ id: 'var-transfer', fulfillmentMode: 'PRIVATE_TRANSFER' })],
+});
+
 const blackedOut = buildVenture({
   id: 'vtr-closed',
   title: 'Closed Adventure',
@@ -126,7 +147,7 @@ describe('VentureExplorer date and pax filter', () => {
 
     render(
       <VentureExplorer ventures={[withAvailability, blackedOut, fullyBooked, smallGroup]} />,
-      { wrapper: SearchProvider }
+      { wrapper: Providers }
     );
 
     expect(screen.getByText(withAvailability.title)).toBeInTheDocument();
@@ -137,7 +158,7 @@ describe('VentureExplorer date and pax filter', () => {
   it('hides ventures that cannot host the group size', () => {
     window.history.pushState({}, '', '/?pax=4');
 
-    render(<VentureExplorer ventures={[withAvailability, smallGroup]} />, { wrapper: SearchProvider });
+    render(<VentureExplorer ventures={[withAvailability, smallGroup]} />, { wrapper: Providers });
 
     expect(screen.getByText(withAvailability.title)).toBeInTheDocument();
     expect(screen.queryByText(smallGroup.title)).not.toBeInTheDocument();
@@ -147,12 +168,115 @@ describe('VentureExplorer date and pax filter', () => {
     window.history.pushState({}, '', `/?date=${FUTURE_DATE}&pax=2`);
 
     render(<VentureExplorer ventures={[withAvailability, smallGroup]} />, {
-      wrapper: SearchProvider,
+      wrapper: Providers,
     });
 
     expect(screen.getByText('15 Jun')).toBeInTheDocument();
     expect(screen.getByText('Date:')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
+  });
+});
+
+describe('VentureExplorer explore-mode filter pills', () => {
+  afterEach(() => {
+    window.history.pushState({}, '', '/');
+  });
+
+  // Both viewports render the strip (one is CSS-hidden), so the shared state is
+  // driven by either instance. Tests act on the first, like a screen reader on
+  // the visible one.
+  const selfDrivePill = () => screen.getAllByRole('button', { name: /self-drive/i })[0];
+  const transferPill = () => screen.getAllByRole('button', { name: /transfer included/i })[0];
+
+  it('opens the filters dialog from the mobile control bar slider button', async () => {
+    const user = userEvent.setup();
+    render(<VentureExplorer ventures={[rafting]} mode="explore" />, { wrapper: Providers });
+
+    expect(screen.queryByRole('dialog', { name: 'Filters' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /open filters/i }));
+
+    expect(screen.getByRole('dialog', { name: 'Filters' })).toBeInTheDocument();
+  });
+
+  it('shows the pill strip and opens the full-screen filter modal from the Filters pill', async () => {
+    const user = userEvent.setup();
+    render(<VentureExplorer ventures={[rafting]} mode="explore" />, { wrapper: Providers });
+
+    expect(screen.getAllByRole('button', { name: /transfer included/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: /self-drive/i }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole('dialog', { name: 'Filters' })).not.toBeInTheDocument();
+
+    // Exactly one filter entry per viewport: the strip pill is desktop-only,
+    // mobile uses the top bar slider button.
+    const filterTriggers = screen.getAllByRole('button', { name: /^filters/i });
+    expect(filterTriggers.length).toBeGreaterThan(0);
+    for (const trigger of filterTriggers) {
+      expect(trigger).toHaveClass('hidden', 'md:inline-flex');
+    }
+
+    await user.click(filterTriggers[0]);
+    expect(screen.getByRole('dialog', { name: 'Filters' })).toBeInTheDocument();
+  });
+
+  it('Self-Drive pill hides transfer-only ventures and vice versa', async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(
+      <VentureExplorer ventures={[withAvailability, transferOnly]} mode="explore" />,
+      { wrapper: Providers }
+    );
+
+    await user.click(selfDrivePill());
+    expect(screen.getAllByText(withAvailability.title).length).toBeGreaterThan(0);
+    expect(screen.queryByText(transferOnly.title)).not.toBeInTheDocument();
+
+    unmount();
+
+    render(<VentureExplorer ventures={[withAvailability, transferOnly]} mode="explore" />, {
+      wrapper: Providers,
+    });
+    await user.click(transferPill());
+    expect(screen.getAllByText(transferOnly.title).length).toBeGreaterThan(0);
+    expect(screen.queryByText(withAvailability.title)).not.toBeInTheDocument();
+  });
+
+  it('category pill filters the catalogue', async () => {
+    const user = userEvent.setup();
+    render(<VentureExplorer ventures={[rafting, tubing]} mode="explore" />, {
+      wrapper: Providers,
+    });
+
+    await user.click(screen.getAllByRole('radio', { name: /^rafting/i })[0]);
+    expect(screen.getAllByText(rafting.title).length).toBeGreaterThan(0);
+    expect(screen.queryByText(tubing.title)).not.toBeInTheDocument();
+  });
+
+  it('shows the State 4 list header with live count and a reset control', async () => {
+    const user = userEvent.setup();
+    render(<VentureExplorer ventures={[withAvailability]} mode="explore" />, {
+      wrapper: Providers,
+    });
+
+    await user.click(selfDrivePill());
+    expect(screen.getByRole('heading', { name: /explore 1 adventure/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^reset$/i }));
+    expect(
+      screen.queryByRole('heading', { name: /explore 1 adventure/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it('Reset Filters restores ventures hidden by the pill filters', async () => {
+    const user = userEvent.setup();
+    render(<VentureExplorer ventures={[transferOnly]} mode="explore" />, {
+      wrapper: Providers,
+    });
+
+    await user.click(selfDrivePill());
+    expect(screen.queryByText(transferOnly.title)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /reset filters/i }));
+    expect(screen.getAllByText(transferOnly.title).length).toBeGreaterThan(0);
   });
 });
 
@@ -164,7 +288,7 @@ describe('VentureExplorer category deep link', () => {
   it('filters the catalogue from the ?category= query string', () => {
     window.history.pushState({}, '', '/?category=tubing');
 
-    render(<VentureExplorer ventures={[rafting, tubing]} />, { wrapper: SearchProvider });
+    render(<VentureExplorer ventures={[rafting, tubing]} />, { wrapper: Providers });
 
     expect(screen.getByText(tubing.title)).toBeInTheDocument();
     expect(screen.queryByText(rafting.title)).not.toBeInTheDocument();
@@ -173,9 +297,9 @@ describe('VentureExplorer category deep link', () => {
   it('shows the full catalogue for an unknown category slug', () => {
     window.history.pushState({}, '', '/?category=hotels');
 
-    render(<VentureExplorer ventures={[rafting, tubing]} />, { wrapper: SearchProvider });
+    render(<VentureExplorer ventures={[rafting, tubing]} />, { wrapper: Providers });
 
-    expect(screen.getByText(tubing.title)).toBeInTheDocument();
-    expect(screen.getByText(rafting.title)).toBeInTheDocument();
+    expect(screen.getAllByText(tubing.title).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(rafting.title).length).toBeGreaterThan(0);
   });
 });

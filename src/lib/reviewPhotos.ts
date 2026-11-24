@@ -17,9 +17,17 @@ export const REVIEW_PHOTO_MAX_BYTES = 5 * 1024 * 1024;
  * The upload code, bucket and DB field stay in place so the feature can be
  * turned back on with `REVIEW_PHOTOS_ENABLED=true` — no code change, no
  * migration. Existing photo URLs (if any) keep rendering on the site.
+ *
+ * Turn the feature on only with an admin present: approve pending photos via
+ * `/admin/reviews`.
  */
 export function isReviewPhotoUploadEnabled(): boolean {
   return (process.env.REVIEW_PHOTOS_ENABLED ?? '').trim().toLowerCase() === 'true';
+}
+
+/** The product actually offers guest photo uploads when flag + storage are both ready. */
+export function reviewPhotosEnabled(): boolean {
+  return isReviewPhotoUploadEnabled() && isReviewPhotoStorageConfigured();
 }
 
 const MIME_EXTENSIONS: Record<string, string> = {

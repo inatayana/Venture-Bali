@@ -1,5 +1,5 @@
 import {
-  buildCustomerBookingsUrl,
+  buildCustomerTripsUrl,
   createCustomerLinkToken,
   createReviewToken,
   verifyCustomerLinkToken,
@@ -44,9 +44,9 @@ describe('customer magic link', () => {
     expect(verifyCustomerLinkToken('garbage')).toBeNull();
   });
 
-  it('builds the public bookings URL', () => {
-    const url = buildCustomerBookingsUrl('customer-1');
-    expect(url).toContain('/my/bookings?token=');
+  it('builds the public Trip Hub URL', () => {
+    const url = buildCustomerTripsUrl('customer-1');
+    expect(url).toContain('/trips?token=');
   });
 
   it('issues a scoped review token for one booking', () => {
@@ -76,7 +76,7 @@ describe('customer magic link', () => {
     delete process.env.ADMIN_SESSION_SECRET;
 
     expect(createCustomerLinkToken('customer-1')).toBeNull();
-    expect(buildCustomerBookingsUrl('customer-1')).toBeNull();
+    expect(buildCustomerTripsUrl('customer-1')).toBeNull();
     expect(createReviewToken('customer-1', 'booking-1')).toBeNull();
     expect(verifyCustomerLinkToken('cl1.abc.def')).toBeNull();
   });
