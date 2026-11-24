@@ -64,6 +64,17 @@ Yang dicek (11 rute): `/`, `/admin/login`, `/experiences`,
 
 **Done when:** `Smoke check PASSED (11/11)`.
 
+**Smoke result on `https://baliwild-adv.vercel.app` (2026-11-24):**
+
+```
+✓ customer home page: 200 https://baliwild-adv.vercel.app/
+✓ admin sign-in page: 200 https://baliwild-adv.vercel.app/admin/login
+
+Smoke check PASSED.
+```
+
+Status route checks: `/wishlists` → 404, `/sitemap.xml` → 200, `/robots.txt` → 200, `/api/cron/content` (tanpa auth) → 404. Kode `src/app/wishlists/page.tsx` dan `src/app/api/cron/content/route.ts` sudah terverifikasi ada di `origin/staging` via `ls-tree`; terlihat demikian preview `baliwild-adv.vercel.app` tampaknya belum update — lakukan redeploy manual pada project `baliwild-adv` atau konfirmasi ke owner.
+
 **Jika gagal:** baca baris `✗`, perbaiki rute tersebut, ulangi dari langkah 2 jika itu masalah DB/seed.
 
 ---
