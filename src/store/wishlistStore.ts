@@ -19,6 +19,10 @@ export interface WishlistItem {
   priceFromIdr: number;
   /** Unix ms when the guest saved the item (newest first in the UI). */
   savedAt: number;
+  /** Optional pill badge text shown on the card (e.g. "Trending"). */
+  badge?: string;
+  /** Number of verified reviews, when the catalogue provides it. */
+  reviewCount?: number;
 }
 
 export type WishlistDraft = Omit<WishlistItem, 'savedAt'>;
@@ -70,6 +74,8 @@ export function toWishlistDraft(venture: {
   duration: string;
   rating: number;
   priceIdr: number;
+  badge?: string;
+  reviewCount?: number;
 }): WishlistDraft {
   return {
     id: venture.id,
@@ -80,5 +86,7 @@ export function toWishlistDraft(venture: {
     duration: venture.duration,
     rating: venture.rating,
     priceFromIdr: venture.priceIdr,
+    badge: venture.badge,
+    reviewCount: venture.reviewCount,
   };
 }
