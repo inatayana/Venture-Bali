@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Mail, SlidersHorizontal, Globe, DollarSign, Sun, Moon, ChevronDown, ChevronRight, X } from 'lucide-react';
+import { Mail, SlidersHorizontal, Globe, DollarSign, Sun, Moon, ChevronDown, ChevronRight, X, LogIn } from 'lucide-react';
 import { useLocale } from '@/components/locale/LocaleProvider';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { useTheme } from '@/components/theme/ThemeProvider';
-import { useWishlist } from '@/store/wishlistStore';
+import { useCustomerSession } from '@/hooks/useCustomerSession';
 import { BRAND_EMAIL_HELLO } from '@/lib/brand';
 import { ACTIVE_CURRENCY_INFO, type ActiveCurrency } from '@/lib/currency';
 import { cn } from '@/utils/cn';
@@ -21,7 +21,7 @@ export function MobileNavDropdown() {
   const { currency, setCurrency } = useCurrency();
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
-  const clearWishlist = useWishlist((state) => state.clear);
+  const { user } = useCustomerSession();
   
   const [open, setOpen] = useState(false);
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
@@ -52,10 +52,15 @@ export function MobileNavDropdown() {
     closeMenu();
   };
 
-  const handleSignOut = () => {
-    clearWishlist();
+  async function handleSignOut(): Promise<void> {
     closeMenu();
-  };
+    try {
+      await fetch('/api/account/logout', { method: 'POST' });
+    } catch {
+      // Navigation keeps the UI consistent even if the request fails.
+    }
+    window.location.assign('/');
+  }
 
   // Close on outside click and Escape
   useEffect(() => {
@@ -192,18 +197,31 @@ export function MobileNavDropdown() {
           </div>
         </a>
 
-        {/* Sign Out */}
+        {/* Customer session: sign in or sign out. Wishlist data is preserved. */}
         <div className="pt-2 border-t border-neutral-200 dark:border-white/10" />
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="w-full flex min-h-[48px] items-center justify-between px-4 py-3 rounded-xl text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10 transition-colors font-medium"
-        >
-          <div className="flex items-center gap-3">
-            <X className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
-            <span className="text-base font-medium">Log out</span>
-          </div>
-        </button>
+        {user ? (
+          <button
+            type="button"
+            onClick={() => void handleSignOut()}
+            className="w-full flex min-h-[48px] items-center justify-between px-4 py-3 rounded-xl text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10 transition-colors font-medium"
+          >
+            <div className="flex items-center gap-3">
+              <X className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
+              <span className="text-base font-medium">Log out</span>
+            </div>
+          </button>
+        ) : (
+          <a
+            href="/login?next=/profile"
+            onClick={closeMenu}
+            className="w-full flex min-h-[48px] items-center justify-between px-4 py-3 rounded-xl text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10 transition-colors font-medium"
+          >
+            <div className="flex items-center gap-3">
+              <LogIn className="h-5 w-5 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
+              <span className="text-base font-medium">Sign in</span>
+            </div>
+          </a>
+        )}
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useWishlist, type WishlistItem } from '@/store/wishlistStore';
+import { useCustomerSession } from '@/hooks/useCustomerSession';
 import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
 import { DesktopBreadcrumb } from '@/components/layout/DesktopBreadcrumb';
 import { WishlistList } from '@/components/ui/WishlistList';
@@ -17,15 +18,19 @@ import { Toast } from '@/components/ui/Toast';
  */
 export default function WishlistsPage() {
   const items = useWishlist((state) => state.items);
+  const remoteStatus = useWishlist((state) => state.remoteStatus);
+  const { loading: sessionLoading } = useCustomerSession();
   const [mounted, setMounted] = useState(false);
   const [removedItem, setRemovedItem] = useState<WishlistItem | null>(null);
   const toggleWishlist = useWishlist((state) => state.toggle);
 
-  // localStorage hydration happens client-side only; render the empty shell
-  // on the server and after hydration to avoid a mismatch.
+  // Wait for localStorage hydration and for the guest→account wishlist merge
+  // so signed-in visitors never see a stale local list flash first.
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const waiting = !mounted || sessionLoading || remoteStatus === 'syncing';
 
   const handleUndo = () => {
     if (removedItem) {
@@ -40,7 +45,7 @@ export default function WishlistsPage() {
       <DesktopBreadcrumb label="Wishlists" />
       <div className="container mx-auto px-4 py-8">
         <h1 className="font-heading text-3xl font-bold text-neutral-900 dark:text-white">Wishlists</h1>
-        {!mounted ? (
+        {waiting ? (
           <div className="mt-6 grid gap-4 sm:grid-cols-2" aria-hidden="true">
             {[0, 1].map((i) => (
               <div key={i} className="h-28 animate-pulse rounded-2xl bg-neutral-200 dark:bg-neutral-800" />
