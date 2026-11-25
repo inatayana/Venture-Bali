@@ -30,6 +30,9 @@ const user = {
   tenantId: 'tenant-001',
   status: 'ACTIVE' as const,
   joinedAt: '2026-11-01T00:00:00.000Z',
+  whatsapp: '6281234567890',
+  countryCode: 'ID',
+  hasPassword: false,
 };
 
 describe('ProfilePage', () => {
@@ -57,5 +60,6 @@ describe('ProfilePage', () => {
     expect(screen.getByRole('link', { name: /my trips/i })).toHaveAttribute('href', '/trips');
     expect(screen.getByRole('link', { name: /wishlists/i })).toHaveAttribute('href', '/wishlists');
     expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /add password/i })).toBeInTheDocument();
   });
 });

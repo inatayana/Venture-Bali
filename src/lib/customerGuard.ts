@@ -33,6 +33,8 @@ export interface CustomerSessionUser {
   joinedAt: string;
   whatsapp: string;
   countryCode: string;
+  /** True when the customer has opted into password sign-in (Phase 4). */
+  hasPassword: boolean;
 }
 
 /** Create a revocable session row and return the signed cookie value. */
@@ -99,6 +101,7 @@ export async function getCustomerSession(): Promise<CustomerSessionUser | null> 
       joinedAt: row.account.createdAt.toISOString(),
       whatsapp: row.account.customer.whatsapp,
       countryCode: row.account.customer.countryCode,
+      hasPassword: row.account.passwordHash !== null,
     };
   } catch {
     // Fail closed: a database problem must never authenticate a visitor.
@@ -110,6 +113,22 @@ export async function getCustomerSession(): Promise<CustomerSessionUser | null> 
 /** Alias used by route handlers and Server Actions that require a customer. */
 export async function requireCustomer(): Promise<CustomerSessionUser | null> {
   return getCustomerSession();
+}
+
+/** Revoke every other session for this account after a credential change. */
+export async function revokeOtherCustomerSessions(accountId: string): Promise<void> {
+  const cookie = cookies().get(getCustomerSessionCookieName())?.value;
+  const sessionId = await verifyCustomerSessionToken(cookie);
+  const currentHash = sessionId ? await hashSessionId(sessionId) : null;
+
+  await prisma.customerSession.updateMany({
+    where: {
+      accountId,
+      revokedAt: null,
+      ...(currentHash ? { sessionHash: { not: currentHash } } : {}),
+    },
+    data: { revokedAt: new Date() },
+  });
 }
 
 /** Revoke the current session in the database (not just in the browser). */

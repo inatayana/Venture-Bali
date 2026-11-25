@@ -13,6 +13,7 @@ export interface CustomerSessionUser {
   joinedAt: string;
   whatsapp: string;
   countryCode: string;
+  hasPassword: boolean;
 }
 
 /** One merge attempt per account per page load (StrictMode-safe). */

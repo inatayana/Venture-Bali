@@ -37,6 +37,10 @@ export function ProfileDashboard({ user: initialUser }: { user: CustomerSessionU
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordBusy, setPasswordBusy] = useState(false);
 
   async function saveProfile(event: FormEvent): Promise<void> {
     event.preventDefault();
@@ -68,6 +72,39 @@ export function ProfileDashboard({ user: initialUser }: { user: CustomerSessionU
       setError('Could not save your profile. Please try again.');
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function savePassword(event: FormEvent): Promise<void> {
+    event.preventDefault();
+    setPasswordBusy(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const response = await fetch('/api/account/password', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(
+          user.hasPassword ? { currentPassword, newPassword } : { newPassword },
+        ),
+      });
+      const payload = (await response.json()) as { error?: { message?: string } };
+
+      if (!response.ok) {
+        setError(payload.error?.message ?? 'Could not save your password');
+        return;
+      }
+
+      setUser((current) => ({ ...current, hasPassword: true }));
+      setShowPasswordForm(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setMessage('Password saved. Other devices have been signed out.');
+    } catch {
+      setError('Could not save your password. Please try again.');
+    } finally {
+      setPasswordBusy(false);
     }
   }
 
@@ -174,6 +211,39 @@ export function ProfileDashboard({ user: initialUser }: { user: CustomerSessionU
             </Link>
           ))}
         </div>
+      </section>
+
+      <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-neutral-200 dark:bg-neutral-900 dark:ring-white/10" aria-labelledby="password-heading">
+        <h2 id="password-heading" className="font-heading text-xl font-bold text-neutral-900 dark:text-white">Password</h2>
+        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+          {user.hasPassword
+            ? 'You can sign in with your password or with an email code.'
+            : 'Password sign-in is optional. Email codes already keep your account safe.'}
+        </p>
+        <div className="mt-4">
+          <Button variant="outline" onClick={() => setShowPasswordForm((current) => !current)}>
+            {showPasswordForm ? 'Cancel' : user.hasPassword ? 'Change password' : 'Add password'}
+          </Button>
+        </div>
+
+        {showPasswordForm && (
+          <form onSubmit={savePassword} className="mt-5 grid gap-4 border-t border-neutral-200 pt-5 dark:border-white/10 sm:grid-cols-2">
+            {user.hasPassword && (
+              <div className="sm:col-span-2">
+                <label htmlFor="current-password" className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Current password</label>
+                <input id="current-password" required type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} className={inputClass} autoComplete="current-password" />
+              </div>
+            )}
+            <div className="sm:col-span-2">
+              <label htmlFor="new-password" className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">New password</label>
+              <input id="new-password" required minLength={8} type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} className={inputClass} autoComplete="new-password" />
+              <p className="mt-1 text-xs text-neutral-500">At least 8 characters. A password is optional; email codes always work.</p>
+            </div>
+            <div className="sm:col-span-2">
+              <Button type="submit" isLoading={passwordBusy}>Save password</Button>
+            </div>
+          </form>
+        )}
       </section>
 
       <section className="mt-8 flex flex-col gap-3 border-t border-neutral-200 pt-6 dark:border-white/10 sm:flex-row" aria-label="Account actions">

@@ -59,3 +59,16 @@ export function otpExpiresAt(now: Date = new Date()): Date {
 export function normaliseEmail(email: string): string {
   return email.trim().toLowerCase();
 }
+
+/** A small blocklist; OWASP recommends screening common/breached passwords. */
+const BLOCKED_PASSWORDS = new Set([
+  'password', 'password123', '12345678', '123456789', 'qwerty123', 'qwertyuiop',
+  'baliwild', 'baliwild123', 'letmein', 'welcome123', 'admin123', 'iloveyou',
+]);
+
+export function validatePassword(password: string): string | null {
+  if (password.length < 8) return 'Use at least 8 characters';
+  if (password.length > 1024) return 'Password is too long';
+  if (BLOCKED_PASSWORDS.has(password.toLowerCase())) return 'Choose a less common password';
+  return null;
+}

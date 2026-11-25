@@ -37,6 +37,8 @@ export function LoginForm() {
   const [whatsapp, setWhatsapp] = useState('');
   const [countryCode, setCountryCode] = useState('ID');
   const [code, setCode] = useState('');
+  const [usePassword, setUsePassword] = useState(false);
+  const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -100,10 +102,35 @@ export function LoginForm() {
     }
   }
 
+  async function signInWithPassword(event: FormEvent): Promise<void> {
+    event.preventDefault();
+    setBusy(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/account/password/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) {
+        setError(await readError(response));
+        return;
+      }
+      router.replace(next);
+      router.refresh();
+    } catch {
+      setError('Could not sign in. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function switchMode(nextMode: Mode): void {
     setMode(nextMode);
     setStep('details');
     setCode('');
+    setUsePassword(false);
     setError(null);
     setNotice(null);
   }
@@ -131,7 +158,7 @@ export function LoginForm() {
       {notice && <p className="mt-4 text-sm text-green-700 dark:text-green-400">{notice}</p>}
 
       {step === 'details' ? (
-        <form onSubmit={sendCode} className="mt-6 space-y-4">
+        <form onSubmit={usePassword && mode === 'signin' ? signInWithPassword : sendCode} className="mt-6 space-y-4">
           {mode === 'signup' && (
             <>
               <div>
@@ -156,10 +183,48 @@ export function LoginForm() {
             <input id="email" required type="email" className={inputClass} value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" />
           </div>
 
-          <Button type="submit" size="lg" fullWidth isLoading={busy}>
-            <Mail className="mr-2 h-4 w-4" aria-hidden="true" />
-            {mode === 'signup' ? 'Send activation code' : 'Send sign-in code'}
-          </Button>
+          {usePassword && mode === 'signin' ? (
+            <>
+              <div>
+                <label htmlFor="password" className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Password</label>
+                <input
+                  id="password"
+                  required
+                  type="password"
+                  className={inputClass}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete="current-password"
+                />
+              </div>
+              <Button type="submit" size="lg" fullWidth isLoading={busy}>
+                Sign in with password
+              </Button>
+              <button
+                type="button"
+                onClick={() => { setUsePassword(false); setError(null); }}
+                className="w-full text-center text-sm font-semibold text-brand-ink hover:underline dark:text-brand"
+              >
+                Use a one-time code instead
+              </button>
+            </>
+          ) : (
+            <>
+              <Button type="submit" size="lg" fullWidth isLoading={busy}>
+                <Mail className="mr-2 h-4 w-4" aria-hidden="true" />
+                {mode === 'signup' ? 'Send activation code' : 'Send sign-in code'}
+              </Button>
+              {mode === 'signin' && (
+                <button
+                  type="button"
+                  onClick={() => { setUsePassword(true); setError(null); }}
+                  className="w-full text-center text-sm font-semibold text-brand-ink hover:underline dark:text-brand"
+                >
+                  Use a password instead
+                </button>
+              )}
+            </>
+          )}
         </form>
       ) : (
         <form onSubmit={verifyCode} className="mt-6 space-y-4">

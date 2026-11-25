@@ -3,6 +3,7 @@ import {
   hashOtpCode,
   normaliseEmail,
   otpExpiresAt,
+  validatePassword,
   verifyOtpCode,
 } from './customerAuth';
 
@@ -66,5 +67,12 @@ describe('customer OTP helpers', () => {
 
   it('normalises email addresses', () => {
     expect(normaliseEmail('  Guest@Example.COM ')).toBe('guest@example.com');
+  });
+
+  it('validates optional passwords against a minimum length and blocklist', () => {
+    expect(validatePassword('GoodPassword123')).toBeNull();
+    expect(validatePassword('short')).toMatch(/at least 8/);
+    expect(validatePassword('password123')).toMatch(/less common/);
+    expect(validatePassword('baliwild')).toMatch(/less common/);
   });
 });

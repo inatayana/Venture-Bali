@@ -70,6 +70,25 @@ describe('LoginPage', () => {
     });
   });
 
+  it('supports optional password sign-in without revealing account state', async () => {
+    render(<LoginPage />);
+
+    await userEvent.click(screen.getByRole('button', { name: /use a password instead/i }));
+    await userEvent.type(screen.getByLabelText(/email address/i), 'guest@example.com');
+    await userEvent.type(screen.getByLabelText(/^password$/i), 'GoodPassword123');
+    await userEvent.click(screen.getByRole('button', { name: /sign in with password/i }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/account/password/login',
+        expect.objectContaining({
+          body: JSON.stringify({ email: 'guest@example.com', password: 'GoodPassword123' }),
+        }),
+      );
+      expect(replace).toHaveBeenCalledWith('/profile');
+    });
+  });
+
   it('shows a server error instead of navigating when the code is rejected', async () => {
     global.fetch = jest
       .fn()
