@@ -8,7 +8,6 @@ import { formatPrice } from '@/lib/i18n';
 import { PriceApprox } from '@/components/currency/PriceApprox';
 import { useWishlist, toWishlistDraft } from '@/store/wishlistStore';
 import { useState } from 'react';
-import { QuickDateCheck } from '@/components/features/QuickDateCheck';
 
 export interface VentureCardProps {
   venture: VentureItem;
@@ -16,8 +15,6 @@ export interface VentureCardProps {
   href?: string;
   className?: string;
   variant?: 'vertical' | 'horizontal';
-  /** Show a "Cek tanggal" action with an availability preview modal. */
-  showDateCheck?: boolean;
 }
 
 export function VentureCard({
@@ -26,7 +23,6 @@ export function VentureCard({
   href,
   className,
   variant = 'vertical',
-  showDateCheck = false,
 }: VentureCardProps) {
   const wishlisted = useWishlist((state) => state.items.some((item) => item.id === venture.id));
   const toggleWishlist = useWishlist((state) => state.toggle);
@@ -282,15 +278,6 @@ export function VentureCard({
   );
 
   const cardContent = variant === 'horizontal' ? horizontalContent : content;
-  const quickDateVariantId = venture.variants?.[0]?.id;
-  const dateCheck =
-    showDateCheck && quickDateVariantId ? (
-      <QuickDateCheck
-        variantId={quickDateVariantId}
-        ventureHref={href ?? `/experiences/${venture.id}/${venture.slug}`}
-        label={venture.title}
-      />
-    ) : null;
   const cardClassName = cn(
     'relative',
     variant === 'horizontal'
@@ -318,7 +305,6 @@ export function VentureCard({
           />
           {cardContent}
         </article>
-        {dateCheck}
       </div>
     );
   }
@@ -336,7 +322,6 @@ export function VentureCard({
       >
         {cardContent}
       </article>
-      {dateCheck}
     </div>
   );
 }

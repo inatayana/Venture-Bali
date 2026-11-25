@@ -173,27 +173,6 @@ describe('VentureCard Component', () => {
     expect(image).toBeInTheDocument();
   });
 
-  it('offers an optional date check outside the card link', () => {
-    const withVariant = {
-      ...mockVenture,
-      variants: [
-        {
-          id: 'variant-1',
-          ventureId: mockVenture.id,
-          title: 'Morning trip',
-          shortDescription: 'Morning departure',
-          fulfillmentMode: 'SELF_DRIVE',
-        },
-      ],
-    } as VentureItem;
-    render(<VentureCard venture={withVariant} href="/experiences/vtr-001/slug" showDateCheck />);
-
-    const button = screen.getByRole('button', { name: /cek tanggal/i });
-    const card = screen.getByTestId('venture-card-vtr-001');
-    // It must not be nested in the stretched link, or it would be unclickable.
-    expect(card.contains(button)).toBe(false);
-  });
-
   // Regression: nesting <a>/<button> inside an outer <a> is invalid HTML and
   // caused the browser to restructure the DOM, producing a React hydration
   // mismatch ("Expected server HTML to contain a matching <div> in <a>").
