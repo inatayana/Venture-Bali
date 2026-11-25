@@ -215,7 +215,7 @@ Sebelum rilis: `npm run db:seed` pada DB kosong + `npm run smoke`.
 
 | Phase | Isi | Status |
 |---|---|---|
-| 1 | Schema + secret + DAL + OTP endpoints + logout + `useCustomerSession` | **dikerjakan** |
+| 1 | Schema + secret + DAL + OTP endpoints + logout + `useCustomerSession` | **selesai** (`a53d040`) |
 | 2 | `/profile` nyata (data akun, edit, preferensi, sign out) | belum |
 | 3 | Wishlist sync + `/trips` session access | belum |
 | 4 | Password opsional, Argon2id (butuh approval), passkey, Next 15, VPS | belum |
