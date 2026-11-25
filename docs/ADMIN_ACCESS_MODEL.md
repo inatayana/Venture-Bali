@@ -26,7 +26,7 @@
 
 ### B. Customer account (Phase 1 fondasi selesai)
 - **Rencana:** login OTP email 6 digit (passwordless), melihat trip sendiri, review, invoice, waivers, riwayat pembayaran, wishlist tersinkron.
-- **Status hari ini:** auth fondasi aktif (`CustomerAccount`, OTP, session, `/api/account/me`); halaman `/profile` masih mock dan akan diganti di Phase 2. **Tidak boleh** membaca session admin.
+- **Status hari ini:** auth fondasi + `/profile` nyata + `/login` aktif; guest di-redirect ke `/login?next=/profile`, sign out me-revoke session. **Tidak boleh** membaca session admin.
 - Identitas: cookie `__Host-bw_customer` (produksi) / `bw_customer` (lokal), secret `CUSTOMER_SESSION_SECRET`, DAL `requireCustomer()`. Tidak ada kode admin yang boleh memakai cookie ini.
 - **Jangan** menaruh tautan fitur customer di sidebar admin.
 

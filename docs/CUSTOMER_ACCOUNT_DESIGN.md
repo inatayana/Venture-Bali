@@ -167,9 +167,11 @@ Email dikirim lewat helper Resend yang sudah ada (`src/lib/notifications.ts` pat
 
 | Endpoint | Method | Fungsi |
 |---|---|---|
-| `/api/account/me` | GET | Session terverifikasi → `{ id, name, email, status }` atau `401`. Dipakai `useCustomerSession()` |
+| `/api/account/me` | GET | Session terverifikasi → `{ accountId, customerId, name, email, whatsapp, countryCode, joinedAt, status }` atau `401`. Dipakai `useCustomerSession()` |
 | `/api/account/otp/request` | POST | Kirim OTP (atau balas generik jika email tidak ada) |
+| `/api/account/signup` | POST | Daftar eksplisit: buat `Customer` + `CustomerAccount=PENDING`, lalu kirim OTP |
 | `/api/account/otp/verify` | POST | Konsumsi OTP sekali pakai → ACTIVE + session cookie + (Phase 3) wishlist merge hook |
+| `/api/account/profile` | PATCH | Edit nama/WhatsApp/country code (email read-only, butuh verifikasi) |
 | `/api/account/logout` | POST | Revoke session di DB + hapus cookie |
 
 Semua body/query divalidasi `zod`; error generik untuk menghindari enumerasi user.
@@ -181,6 +183,7 @@ Semua body/query divalidasi `zod`; error generik untuk menghindari enumerasi use
 | Route | Guest | Customer ACTIVE |
 |---|---|---|
 | `/profile` | Redirect `/login?next=/profile` | Dashboard akun (nama, email terverifikasi, WA, preferensi, tautan fitur, Keluar) |
+| `/login` | Form **Masuk** (OTP) + **Daftar** (OTP aktivasi) | Bisa dibuka, tetapi tidak perlu; `?next=` dibatasi path lokal |
 | `/wishlists` | `localStorage` | `localStorage` di-merge ke DB saat login, lalu sinkron |
 | `/trips` | Magic link `cl1`/`bl1` (30 hari) | Tanpa token → semua booking `customerId` akun; token lama tetap diterima |
 | `/reviews/mine` | Redirect `/trips` | Review berdasarkan `customerId` |
@@ -216,6 +219,6 @@ Sebelum rilis: `npm run db:seed` pada DB kosong + `npm run smoke`.
 | Phase | Isi | Status |
 |---|---|---|
 | 1 | Schema + secret + DAL + OTP endpoints + logout + `useCustomerSession` | **selesai** (`a53d040`) |
-| 2 | `/profile` nyata (data akun, edit, preferensi, sign out) | belum |
+| 2 | `/profile` nyata, `/login` (OTP + daftar), edit profil, sign in/out di nav | **selesai** (`7227054`) |
 | 3 | Wishlist sync + `/trips` session access | belum |
 | 4 | Password opsional, Argon2id (butuh approval), passkey, Next 15, VPS | belum |
