@@ -41,7 +41,7 @@ export function HomeHero() {
         className="pointer-events-none absolute -bottom-40 left-1/3 h-80 w-80 rounded-full bg-brand/10 blur-3xl"
       />
 
-      <div className="container relative mx-auto px-4 pb-6 pt-8 sm:pt-10 lg:pb-10 lg:pt-14">
+      <div className="container relative mx-auto px-4 pb-6 pt-8 sm:pt-10 lg:pb-10 lg:pt-14 text-left">
         <div className="max-w-3xl">
           <p className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand">
             {t('heroBadge')}
