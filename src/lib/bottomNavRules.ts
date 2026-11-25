@@ -17,10 +17,8 @@ export interface BottomNavRouteRule {
  * Bottom nav is replaced by contextual sticky CTA or flow-specific controls.
  */
 export const HIDDEN_ROUTES: BottomNavRouteRule[] = [
-  // Activity Detail & Review
-  { pattern: /^\/experiences\/[^/]+\/[^/]+$/, type: 'HIDDEN', description: 'Activity Detail (PDP)' },
-  { pattern: /^\/experiences\/[^/]+\/[^/]+\/review/, type: 'HIDDEN', description: 'Review Flow' },
-
+  // Product detail (PDP) and its review flow are browsing surfaces: the mobile
+  // bottom navigation stays visible there — it is the primary mobile navigation.
   // Transactional
   { pattern: /^\/checkout\//, type: 'HIDDEN', description: 'Checkout Flow' },
   { pattern: /^\/booking\//, type: 'HIDDEN', description: 'Booking Legacy' },

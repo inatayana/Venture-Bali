@@ -29,7 +29,7 @@ export const BOTTOM_NAV_ITEMS = [
     icon: null,
     activeIcon: null,
     badge: null,
-    hideOnMatch: (pathname: string) => pathname.startsWith('/checkout') || pathname.startsWith('/booking') || pathname.startsWith('/experiences/'),
+    hideOnMatch: (pathname: string) => pathname.startsWith('/checkout') || pathname.startsWith('/booking'),
   },
   {
     key: 'wishlists',
@@ -39,7 +39,7 @@ export const BOTTOM_NAV_ITEMS = [
     icon: null,
     activeIcon: null,
     badge: null,
-    hideOnMatch: (pathname: string) => pathname.startsWith('/checkout') || pathname.startsWith('/booking') || pathname.startsWith('/experiences/'),
+    hideOnMatch: (pathname: string) => pathname.startsWith('/checkout') || pathname.startsWith('/booking'),
   },
   {
     key: 'trips',
@@ -49,7 +49,7 @@ export const BOTTOM_NAV_ITEMS = [
     icon: null,
     activeIcon: null,
     badge: null,
-    hideOnMatch: (pathname: string) => pathname.startsWith('/checkout') || pathname.startsWith('/booking') || pathname.startsWith('/experiences/'),
+    hideOnMatch: (pathname: string) => pathname.startsWith('/checkout') || pathname.startsWith('/booking'),
   },
   {
     key: 'profile',
@@ -59,7 +59,7 @@ export const BOTTOM_NAV_ITEMS = [
     icon: null,
     activeIcon: null,
     badge: null,
-    hideOnMatch: (pathname: string) => pathname.startsWith('/checkout') || pathname.startsWith('/booking') || pathname.startsWith('/experiences/'),
+    hideOnMatch: (pathname: string) => pathname.startsWith('/checkout') || pathname.startsWith('/booking'),
   },
 ] as const;
 

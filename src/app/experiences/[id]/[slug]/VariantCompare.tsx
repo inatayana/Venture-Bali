@@ -42,6 +42,7 @@ export function VariantCompare({ variants, onRemove, onClear, onSelect }: Varian
       role="region"
       aria-label="Compare packages"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 shadow-[0_-12px_40px_-20px_rgba(0,0,0,0.5)] backdrop-blur dark:border-white/10 dark:bg-neutral-900/95"
+      style={{ bottom: 'calc(var(--cookie-consent-height, 0px) + 4rem)' }}
     >
       <div className="mx-auto max-w-[1440px] px-4 py-3 sm:px-6 lg:px-10">
         <div className="mb-2 flex items-center justify-between gap-3">

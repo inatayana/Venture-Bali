@@ -1103,7 +1103,7 @@ export function ExperienceDetailClient({
       {/* Mobile sticky CTA — the only price/CTA source on phones. */}
       <div
         className="fixed inset-x-0 z-40 border-t border-neutral-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden"
-        style={{ bottom: 'var(--cookie-consent-height, 0px)' }}
+        style={{ bottom: 'calc(var(--cookie-consent-height, 0px) + 4rem)' }}
       >
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">

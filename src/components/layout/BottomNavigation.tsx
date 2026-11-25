@@ -38,6 +38,9 @@ export function BottomNavigation() {
         'transform translate-y-0'
       )}
       style={{
+        // Sit above the cookie bar (which has a higher z-index) instead of
+        // being covered by it on first visit.
+        bottom: 'var(--cookie-consent-height, 0px)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         zIndex: Z_INDEX.bottomNav,
       } as React.CSSProperties}
