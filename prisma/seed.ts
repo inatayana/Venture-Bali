@@ -16,9 +16,9 @@
  *       docs/BOOKING_ARCHITECTURE.md, docs/PRODUCT_TITLE_CONSTITUTION.md
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/prisma';
 import { hashPassword } from '../src/lib/adminAuth.ts';
-import type { Prisma } from '@prisma/client';
+import type { Prisma } from '../src/generated/prisma';
 import { validateVentureTitle, isVentureSlugValid } from '../src/lib/titleValidator.ts';
 import { isAllowedCategory } from '../src/lib/taxonomy.ts';
 import {

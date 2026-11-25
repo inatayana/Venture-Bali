@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import type { Prisma } from '@prisma/client';
+import type { Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';
 import { VariantOperationsEditor } from '@/components/admin/VariantOperationsEditor';
 import { VariantPackageEditor } from '@/components/admin/VariantPackageEditor';

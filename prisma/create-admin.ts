@@ -8,7 +8,7 @@
  * written to disk or logged.
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/prisma';
 import { hashPassword } from '../src/lib/adminAuth.ts';
 const prisma = new PrismaClient();
 

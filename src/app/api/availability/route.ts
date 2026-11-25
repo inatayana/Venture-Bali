@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { isSlotBookable } from '@/lib/pricing';
 import { hoursBeforeActivity } from '@/lib/refundUtils';
 import { buildAvailabilityDays, parseAvailabilityRange } from '@/lib/availabilityRange';
-import type { FulfillmentMode } from '@prisma/client';
+import type { FulfillmentMode } from '@/generated/prisma';
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const dateField = z.string().regex(DATE_REGEX, 'Invalid date format (YYYY-MM-DD)');

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { createSnapTransaction, MidtransConfigError, type SnapTransactionRequest } from '@/lib/midtrans';
 import { getHoldMinutes, isHoldActive } from '@/lib/bookingLifecycle';
 import { PaymentServiceError } from '@/lib/paymentService';
-import type { PaymentStatus } from '@prisma/client';
+import type { PaymentStatus } from '@/generated/prisma';
 import { billingAddressSchema } from '@/lib/bookingSchema';
 import { buildSnapItems, toSnapBillingAddress } from '@/lib/snapBilling';
 import { verifyBookingReadAccess } from '@/lib/customerLink';

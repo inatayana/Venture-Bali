@@ -1,6 +1,6 @@
 import { processMidtransWebhook, PaymentServiceError } from '@/lib/paymentService';
 import { prisma } from '@/lib/prisma';
-import type { Payment, Booking } from '@prisma/client';
+import type { Payment, Booking } from '@/generated/prisma';
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {

@@ -1,4 +1,4 @@
-import { Prisma, type Payment } from '@prisma/client';
+import { Prisma, type Payment } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';
 import {
   mapTransactionStatus,

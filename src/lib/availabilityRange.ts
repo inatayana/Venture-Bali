@@ -2,7 +2,7 @@ import { eachDayOfInterval, format, parseISO } from 'date-fns';
 import { computeQuote, isSlotBookable } from '@/lib/pricing';
 import { hoursBeforeActivity } from '@/lib/refundUtils';
 import type { PriceTier } from '@/types/venture';
-import type { FulfillmentMode } from '@prisma/client';
+import type { FulfillmentMode } from '@/generated/prisma';
 
 /**
  * Month-range availability for the PDP calendar.

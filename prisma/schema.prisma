@@ -1,5 +1,8 @@
 generator client {
   provider = "prisma-client-js"
+  // ADR-003 §2.4: keep the generated client inside this worktree so parallel
+  // worktrees never race on a shared node_modules/.prisma client/DLL.
+  output   = "../src/generated/prisma"
 }
 
 datasource db {

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getTransactionStatus, mapTransactionStatus } from '@/lib/midtrans';
 import { lifecycleForPaymentStatus } from '@/lib/bookingLifecycle';
 import { notifyBookingPaid } from '@/lib/notifications';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@/generated/prisma';
 
 export const dynamic = 'force-dynamic';
 

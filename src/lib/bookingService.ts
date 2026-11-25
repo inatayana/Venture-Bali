@@ -1,4 +1,4 @@
-import { Prisma, type Booking as PrismaBooking } from '@prisma/client';
+import { Prisma, type Booking as PrismaBooking } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';
 import type { BookingInput } from '@/lib/bookingSchema';
 import type { Addon, VehicleClass } from '@/types/venture';

@@ -23,7 +23,7 @@
  * Docs: docs/PRODUCT_DETAIL_SPEC.md, docs/BOOKING_ARCHITECTURE.md
  */
 
-import type { Prisma } from '@prisma/client';
+import type { Prisma } from '@/generated/prisma';
 import { toReviewSummary } from '@/lib/reviewFeed';
 import type {
   EssentialInfo,

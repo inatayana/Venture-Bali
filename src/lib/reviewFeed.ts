@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client';
+import type { Prisma } from '@/generated/prisma';
 import { findCountry } from '@/lib/countries';
 import { REVIEW_SORTS, type ReviewSort } from '@/lib/reviews';
 import type { ReviewSummary } from '@/types/venture';

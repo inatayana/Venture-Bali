@@ -14,7 +14,7 @@
     "react-hooks/exhaustive-deps": "warn",
     "react/jsx-key": "error"
   },
-  "ignorePatterns": ["node_modules/", ".next/", "out/"],
+  "ignorePatterns": ["node_modules/", ".next/", ".next-dev/", "out/", "src/generated/"],
   "overrides": [
     {
       "files": ["**/*.test.ts", "**/*.test.tsx"],

@@ -10,6 +10,8 @@ out
 
 # Prisma
 .prisma
+# Generated client (ADR-003 §2.4) — regenerate per worktree with npm run db:generate
+src/generated/
 
 # Environment variables
 .env
