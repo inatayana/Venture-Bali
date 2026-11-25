@@ -27,6 +27,8 @@ model Tenant {
   reviews    Review[]
   customerAccounts  CustomerAccount[]
   customerWishlists CustomerWishlist[]
+  bookingParticipants BookingParticipant[]
+  fieldOpsUsers       FieldOpsUser[]
 }
 
 model AdminUser {
@@ -626,12 +628,16 @@ model Booking {
   driverInfo              Json?
   tenantId                String
   tenant                  Tenant           @relation(fields: [tenantId], references: [id])
+  /// Field Ops assignment for the check-in manifest (never exposes supplier data).
+  fieldOpsUserId          String?
+  fieldOpsUser            FieldOpsUser?    @relation("AssignedFieldOps", fields: [fieldOpsUserId], references: [id])
   customer                Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
   pickupZone              PickupZone?      @relation(fields: [pickupZoneId], references: [id])
   slotTime                SlotTime?        @relation(fields: [slotTimeId], references: [id])
   variant                 Variant          @relation(fields: [variantId], references: [id], onDelete: Cascade)
   vehicleClass            VehicleClass?    @relation(fields: [vehicleClassId], references: [id])
   changes                 BookingChange[]
+  participants            BookingParticipant[]
   payment                 Payment?
   refund                  Refund?
   review                  Review?          @relation("BookingToReview")
@@ -648,6 +654,78 @@ model Booking {
   @@index([bookingDate, lifecycleStatus])
   @@index([paymentStatus, expiresAt])
   @@index([tenantId])
+  @@index([fieldOpsUserId])
+}
+
+/// One row per attending guest. Replaces the single booking-level waiver blob
+/// so every pax signs individually and minors carry guardian consent.
+model BookingParticipant {
+  id                     String          @id @default(cuid())
+  bookingId              String
+  booking                Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  tenantId               String
+  tenant                 Tenant          @relation(fields: [tenantId], references: [id])
+  fullName               String
+  participantType        ParticipantType
+  dateOfBirth            DateTime?
+  email                  String?
+  whatsapp               String?
+  waiverVersion          String?
+  waiverSignedAt         DateTime?
+  waiverDigitalSignature String?
+  waiverSignatureMethod  String?
+  /// Captured at signing; never logged in application logs (PII rule).
+  waiverIpAddress        String?
+  emergencyContactName   String?
+  emergencyContactPhone  String?
+  dietaryNotes           String?
+  medicalNotes           String?
+  /// Required for KID and INFANT participants.
+  guardianName           String?
+  guardianRelationship   String?
+  guardianConsentAt      DateTime?
+  checkedInAt            DateTime?
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  @@index([bookingId])
+  @@index([tenantId])
+  @@index([waiverSignedAt])
+}
+
+/// Field Ops actor account. Provisioned by Admin — no public sign-up.
+model FieldOpsUser {
+  id           String            @id @default(cuid())
+  email        String            @unique
+  name         String
+  passwordHash String
+  role         FieldOpsRole      @default(DRIVER)
+  tenantId     String
+  tenant       Tenant            @relation(fields: [tenantId], references: [id])
+  isActive     Boolean           @default(true)
+  lastLoginAt  DateTime?
+  sessions     FieldOpsSession[]
+  assignments  Booking[]         @relation("AssignedFieldOps")
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([tenantId])
+  @@index([role])
+}
+
+/// Revocable server-side session; cookie carries only an opaque signed id.
+model FieldOpsSession {
+  id          String       @id @default(cuid())
+  userId      String
+  user        FieldOpsUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionHash String       @unique
+  expiresAt   DateTime
+  lastSeenAt  DateTime     @default(now())
+  revokedAt   DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Payment {
@@ -911,6 +989,20 @@ enum CustomerAccountStatus {
   PENDING
   ACTIVE
   SUSPENDED
+}
+
+enum ParticipantType {
+  ADULT
+  YOUTH
+  KID
+  INFANT
+}
+
+/// Field Ops actor roles. Never grants Admin or supplier-finance access.
+enum FieldOpsRole {
+  DRIVER
+  GUIDE
+  SUPERVISOR
 }
 
 /// Purpose of a single-use, expiring authentication token.

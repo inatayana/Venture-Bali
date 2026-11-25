@@ -1,5 +1,6 @@
 import { Prisma, type Booking as PrismaBooking } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';
+import { generateBookingCode } from '@/lib/bookingCode';
 import type { BookingInput } from '@/lib/bookingSchema';
 import type { Addon, VehicleClass } from '@/types/venture';
 import {
@@ -23,12 +24,18 @@ export class BookingServiceError extends Error {
   }
 }
 
-function generateBookingCode(): string {
-  const timestamp = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).slice(2, 8).toUpperCase();
-  return `BK-${timestamp}-${random}`;
+/** Allocate a unique BW code inside the booking transaction. */
+async function allocateBookingCode(tx: Prisma.TransactionClient): Promise<string> {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const code = generateBookingCode();
+    const existing = await tx.booking.findUnique({
+      where: { bookingCode: code },
+      select: { id: true },
+    });
+    if (!existing) return code;
+  }
+  throw new BookingServiceError('VALIDATION_ERROR', 'Unable to allocate a booking code');
 }
-
 
 export async function createPersistedBooking(input: BookingInput): Promise<PrismaBooking> {
   for (let attempt = 0; attempt < SERIALIZATION_RETRY_LIMIT; attempt += 1) {
@@ -192,7 +199,7 @@ async function createBookingInTransaction(
 
   return tx.booking.create({
     data: {
-      bookingCode: generateBookingCode(),
+      bookingCode: await allocateBookingCode(tx),
       variantId: variant.id,
       customerId: customer.id,
       bookingDate: input.bookingDate,

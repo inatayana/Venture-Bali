@@ -76,6 +76,7 @@ const booking: Booking = {
   createdAt: new Date(),
   updatedAt: new Date(),
   tenantId: 'tenant-001',
+  fieldOpsUserId: null,
 };
 
 const payment: Payment & { booking: Booking } = {
