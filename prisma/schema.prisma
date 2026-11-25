@@ -22,6 +22,8 @@ model Tenant {
   bookings   Booking[]
   payments   Payment[]
   reviews    Review[]
+  customerAccounts  CustomerAccount[]
+  customerWishlists CustomerWishlist[]
 }
 
 model AdminUser {
@@ -281,9 +283,83 @@ model Customer {
   updatedAt     DateTime  @updatedAt
   bookings      Booking[]
   reviews       Review[]
+  /// Optional login identity for this customer (actor: Customer). A customer can stay a guest.
+  account       CustomerAccount?
 
   @@index([email])
   @@index([name])
+}
+
+/// Login identity for the Customer actor. Created as PENDING at checkout and
+/// activated only after a verified one-time email code. Never an admin identity.
+model CustomerAccount {
+  id               String                @id @default(cuid())
+  customerId       String                @unique
+  customer         Customer              @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tenantId         String
+  tenant           Tenant                @relation(fields: [tenantId], references: [id])
+  email            String                @unique
+  status           CustomerAccountStatus @default(PENDING)
+  /// Null while the account is passwordless (Phase 1). Optional in Phase 4.
+  passwordHash     String?
+  emailVerifiedAt  DateTime?
+  lastLoginAt      DateTime?
+  failedLoginCount Int                   @default(0)
+  lockedUntil      DateTime?
+  sessions         CustomerSession[]
+  authTokens       AuthToken[]
+  wishlists        CustomerWishlist[]
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+}
+
+/// Server-side revocable session. The cookie carries only an opaque random id;
+/// only its SHA-256 hash is stored here.
+model CustomerSession {
+  id          String          @id @default(cuid())
+  accountId   String
+  account     CustomerAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  sessionHash String          @unique
+  expiresAt   DateTime
+  lastSeenAt  DateTime        @default(now())
+  revokedAt   DateTime?
+  createdAt   DateTime        @default(now())
+
+  @@index([accountId])
+  @@index([expiresAt])
+}
+
+/// Single-use, expiring token (email OTP in Phase 1). The raw code is never stored.
+model AuthToken {
+  id         String           @id @default(cuid())
+  accountId  String
+  account    CustomerAccount  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  tokenHash  String           @unique
+  purpose    AuthTokenPurpose
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime         @default(now())
+
+  @@index([accountId, purpose])
+  @@index([expiresAt])
+}
+
+/// Server-side wishlist for signed-in customers. Guests keep localStorage.
+model CustomerWishlist {
+  id        String          @id @default(cuid())
+  accountId String
+  account   CustomerAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  tenantId  String
+  tenant    Tenant          @relation(fields: [tenantId], references: [id])
+  ventureId String
+  venture   Venture         @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  savedAt   DateTime        @default(now())
+
+  @@unique([accountId, ventureId])
+  @@index([tenantId])
 }
 
 model Venture {
@@ -332,6 +408,7 @@ model Venture {
   mediaAssets         MediaAsset[]   @relation("VentureToMediaAsset")
   reviews             Review[]       @relation("VentureToReview")
   reviewInvites       ReviewInvite[] @relation("VentureToReviewInvite")
+  wishlistedBy        CustomerWishlist[]
   variants            Variant[]      @relation("VentureToVariant")
   location            Location?      @relation(fields: [locationId], references: [id])
   tenant              Tenant         @relation(fields: [tenantId], references: [id])
@@ -824,6 +901,20 @@ enum AdminRole {
   ADMIN
   EDITOR
   VIEWER
+}
+
+/// Customer account lifecycle. PENDING = created from checkout, not yet verified.
+enum CustomerAccountStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+/// Purpose of a single-use, expiring authentication token.
+enum AuthTokenPurpose {
+  ACTIVATE
+  SIGN_IN
+  RESET_PASSWORD
 }
 
 enum NotificationType {
