@@ -12,6 +12,7 @@ import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
 import { DesktopBreadcrumb } from '@/components/layout/DesktopBreadcrumb';
 import { BRAND_EMAIL_SUPPORT } from '@/lib/brand';
 import { TripCard } from './TripCard';
+import { TripExtras } from './TripExtras';
 import { Calendar, CalendarDays, Compass, Mail, QrCode, AlertCircle, ArrowRight } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -149,14 +150,22 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
                 </div>
                 <div className="space-y-4">
                   {upcomingBookings.map((booking) => (
-                    <TripCard
-                      key={booking.id}
-                      booking={booking}
-                      token={accessToken}
-                      voucherToken={createBookingViewToken(booking.id) ?? ''}
-                      isUpcoming={true}
-                      countdown={getCountdown(booking.bookingDate, booking.slotTime?.time)}
-                    />
+                    <div key={booking.id} className="space-y-3">
+                      <TripCard
+                        booking={booking}
+                        token={accessToken}
+                        voucherToken={createBookingViewToken(booking.id) ?? ''}
+                        isUpcoming={true}
+                        countdown={getCountdown(booking.bookingDate, booking.slotTime?.time)}
+                      />
+                      {accessToken && (
+                        <TripExtras
+                          bookingId={booking.id}
+                          token={accessToken}
+                          bookingCode={booking.bookingCode}
+                        />
+                      )}
+                    </div>
                   ))}
                 </div>
               </section>
