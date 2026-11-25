@@ -1,6 +1,6 @@
 # BaliWild — Access & Identity Model
 
-> **Version:** 1.0.0 · **Last updated:** 2026-11-23
+> **Version:** 1.1.0 · **Last updated:** 2026-11-25
 > **Purpose:** memisahkan secara tegas tiga dunia yang sebelumnya tercampur: **guest**, **customer account**, dan **operator/admin**.
 
 ---
@@ -13,7 +13,7 @@
 | Tema admin | Memakai `baliwild_theme` yang sama dengan situs customer, palet kuning yang sama | Storage key terpisah `baliwild_admin_theme`, palet **indigo/slate** scoped `[data-admin='true']` |
 | Identitas visual | Sidebar memakai wordmark publik + label "Operator Panel" | Header khusus: **"Operator console"**, badge role, email operator, ikon kunci |
 | Role | `VIEWER/EDITOR/ADMIN/SUPER_ADMIN` ada di session, tapi tidak dipakai UI | Nav difilter oleh `role`; `VIEWER` melihat pesan read-only |
-| Customer account | `useCustomerSession` masih placeholder; tamu pakai magic link | **Belum diimplementasikan** — jangan mengklaim sudah ada |
+| Customer account | `useCustomerSession` masih placeholder; tamu pakai magic link | **Phase 1 sedang dibangun** di `feature/customer-account` — lihat [CUSTOMER_ACCOUNT_DESIGN.md](./CUSTOMER_ACCOUNT_DESIGN.md). Session customer terpisah dari `vb_admin_session` |
 
 ---
 
@@ -24,9 +24,10 @@
 - **Tidak bisa:** melihat data tamu lain, mengelola produk, mengubah harga/status booking.
 - Identitas: header publik, palet **kuning/hitam**, tagline *Own the wild.*
 
-### B. Customer account (belum tersedia)
-- **Rencana:** login dengan email, melihat trip sendiri, review, invoice, waivers, riwayat pembayaran.
-- **Status hari ini:** tidak ada login customer. `useCustomerSession()` selalu mengembalikan `null` dan **tidak boleh** membaca session admin (comment di kode sudah menegaskan ini).
+### B. Customer account (Phase 1 — dalam pengerjaan)
+- **Rencana:** login OTP email 6 digit (passwordless), melihat trip sendiri, review, invoice, waivers, riwayat pembayaran, wishlist tersinkron.
+- **Status hari ini:** `useCustomerSession()` masih placeholder dan akan diganti membaca `/api/account/me` (session terverifikasi server). **Tidak boleh** membaca session admin.
+- Identitas: cookie `__Host-bw_customer` (produksi) / `bw_customer` (lokal), secret `CUSTOMER_SESSION_SECRET`, DAL `requireCustomer()`. Tidak ada kode admin yang boleh memakai cookie ini.
 - **Jangan** menaruh tautan fitur customer di sidebar admin.
 
 ### C. Operator / Admin
@@ -66,7 +67,7 @@ Semua endpoint API admin saat ini memakai `requireAdminRole()` dengan minimum `E
 
 ## 4. Urutan kerja ke depan
 
-1. **Selesaikan auth customer** (login email + session cookie terpisah) sebelum menambahkan menu "akun saya" di sisi publik.
+1. **Selesaikan auth customer** (OTP email + session cookie terpisah) sebelum menambahkan menu "akun saya" di sisi publik — sedang dikerjakan di `feature/customer-account`, lihat [CUSTOMER_ACCOUNT_DESIGN.md](./CUSTOMER_ACCOUNT_DESIGN.md).
 2. **Tambah halaman User Management** (hanya `SUPER_ADMIN`) untuk mengubah role operator.
 3. **Role-based API yang halus**: GET boleh `VIEWER`, POST/PUT/DELETE minimal `EDITOR`/`ADMIN`.
 4. **Audit log**: setiap perubahan harga/status dicatat dengan `adminId`.
