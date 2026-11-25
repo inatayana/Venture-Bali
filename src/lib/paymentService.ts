@@ -8,6 +8,7 @@ import {
 import { generateQRCodeData } from '@/lib/voucher';
 import { notifyBookingPaid } from '@/lib/notifications';
 import { lifecycleForPaymentStatus } from '@/lib/bookingLifecycle';
+import { sendAccountActivationOtp } from '@/lib/accountActivation';
 
 /**
  * Server-side analytics event for proper purchase tracking.
@@ -161,6 +162,14 @@ export async function processMidtransWebhook(
         await notifyBookingPaid(payment.bookingId);
       } catch (error) {
         console.error('Booking confirmation notification failed:', error);
+      }
+
+      // Phase 1: email a one-time activation code for accounts created at
+      // checkout. Retries are deduplicated inside the activation service.
+      try {
+        await sendAccountActivationOtp(payment.bookingId);
+      } catch (error) {
+        console.error('Account activation email failed:', error);
       }
 
       // Fire server-side purchase event for accurate conversion tracking.

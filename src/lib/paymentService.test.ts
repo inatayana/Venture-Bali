@@ -17,6 +17,10 @@ jest.mock('@/lib/midtrans', () => ({
   mapTransactionStatus: jest.requireActual('@/lib/midtrans').mapTransactionStatus,
 }));
 
+jest.mock('@/lib/accountActivation', () => ({
+  sendAccountActivationOtp: jest.fn().mockResolvedValue(undefined),
+}));
+
 import { verifyWebhookSignature } from '@/lib/midtrans';
 
 const mockedFindFirst = prisma.payment.findFirst as jest.Mock;

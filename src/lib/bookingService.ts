@@ -177,6 +177,19 @@ async function createBookingInTransaction(
     },
   });
 
+  // Phase 1: checkout provisions an account, but it stays PENDING until the
+  // email code is verified. No session is issued here — no auto-login.
+  await tx.customerAccount.upsert({
+    where: { customerId: customer.id },
+    create: {
+      customerId: customer.id,
+      tenantId: venture.tenantId,
+      email: customer.email,
+      status: 'PENDING',
+    },
+    update: {},
+  });
+
   return tx.booking.create({
     data: {
       bookingCode: generateBookingCode(),

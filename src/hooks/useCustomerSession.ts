@@ -3,40 +3,45 @@
 import { useEffect, useState } from 'react';
 
 export interface CustomerSessionUser {
+  accountId: string;
+  customerId: string;
   name: string;
   email: string;
+  tenantId: string;
+  status: 'PENDING' | 'ACTIVE' | 'SUSPENDED';
 }
 
-const CUSTOMER_SESSION_COOKIE = 'baliwild-customer';
-
 /**
- * Placeholder-ready customer session probe.
- *
- * BaliWild customers authenticate via magic links (URL tokens), not an
- * account session, so today every visitor is a guest and this returns
- * `{ user: null }`. When customer auth ships, the middleware/route handler
- * sets the `baliwild-customer` cookie and this hook picks it up — no
- * component changes required.
+ * Customer session probe — reads the server-verified session from
+ * `/api/account/me`. The old implementation base64-decoded a client cookie,
+ * which was unsigned and contained PII; it must never be used for auth.
  *
  * NOTE: never fall back to the admin session here — admin identity must
  * never leak into the public header.
  */
-export function useCustomerSession(): { user: CustomerSessionUser | null } {
+export function useCustomerSession(): { user: CustomerSessionUser | null; loading: boolean } {
   const [user, setUser] = useState<CustomerSessionUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const match = document.cookie.split('; ').find((row) => row.startsWith(`${CUSTOMER_SESSION_COOKIE}=`));
-    if (!match) return;
-    try {
-      const payload = decodeURIComponent(match.split('=')[1] ?? '');
-      const parsed = JSON.parse(atob(payload)) as Partial<CustomerSessionUser>;
-      if (parsed.email) {
-        setUser({ name: parsed.name ?? parsed.email, email: parsed.email });
-      }
-    } catch {
-      // Malformed cookie — treat as guest.
-    }
+    const controller = new AbortController();
+
+    fetch('/api/account/me', {
+      signal: controller.signal,
+      credentials: 'same-origin',
+      cache: 'no-store',
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { success?: boolean; data?: CustomerSessionUser } | null) => {
+        if (!payload?.success || !payload.data) return null;
+        return payload.data;
+      })
+      .then((session) => setUser(session))
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
+
+    return () => controller.abort();
   }, []);
 
-  return { user };
+  return { user, loading };
 }
