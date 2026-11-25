@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
+import { DesktopBreadcrumb } from '@/components/layout/DesktopBreadcrumb';
 import { ExploreSpecControls } from '@/components/features/ExploreSpecControls';
 import { VentureExplorer } from '@/components/features/VentureExplorer';
 import { ExploreFiltersProvider } from '@/components/features/ExploreFiltersProvider';
@@ -43,6 +44,7 @@ export default async function ExplorePage() {
   return (
     <main className="min-h-screen bg-white dark:bg-neutral-950 pb-24">
       <GlobalDesktopHeader />
+      <DesktopBreadcrumb label="Explore" />
       <ExploreFiltersProvider syncUrl>
       <ExploreSpecControls />
 

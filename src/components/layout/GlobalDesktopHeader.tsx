@@ -12,9 +12,9 @@ import { cn } from '@/utils/cn';
  * The ONE desktop (md+) header shared by every public page.
  *
  * DOM, classes, height and content are intentionally identical everywhere:
- * logo · 3-segment search pill · theme toggle · burger menu. Page titles live
- * in <main>, never in this header. Mobile (<md) chrome stays owned by each
- * page and is untouched — this header renders nothing below md.
+ * logo · 3-segment search pill · theme toggle · burger menu. Page titles and
+ * back/home navigation live in <main> (DesktopBreadcrumb), never in this
+ * header. Mobile (<md) chrome stays owned by each page.
  */
 export function GlobalDesktopHeader() {
   const hidden = useHideOnScroll(80, 150);

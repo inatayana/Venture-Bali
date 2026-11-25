@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { BottomSheet } from '@/components/ui';
 import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
+import { DesktopBreadcrumb } from '@/components/layout/DesktopBreadcrumb';
 import { LanguageSwitcher } from '@/components/locale/LanguageSwitcher';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
@@ -177,6 +178,7 @@ export default function ProfilePage() {
   return (
     <main className="min-h-screen bg-white dark:bg-neutral-950">
       <GlobalDesktopHeader />
+      <DesktopBreadcrumb label="Profile" />
       <div className="container mx-auto px-4 py-8">
         <h1 className="font-heading text-3xl font-bold text-neutral-900 dark:text-white">Profile</h1>
       </div>

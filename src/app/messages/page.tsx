@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { MessageCircle, Send, LifeBuoy, MessageSquare, Mail } from 'lucide-react';
 import { AppShellHeader } from '@/components/layout/AppShellHeader';
+import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
+import { DesktopBreadcrumb } from '@/components/layout/DesktopBreadcrumb';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -112,7 +114,9 @@ export default function MessagesPage() {
 
   return (
     <main className="min-h-screen bg-neutral-50 pb-24">
-      <AppShellHeader title="Messages" />
+      <GlobalDesktopHeader />
+      <DesktopBreadcrumb label="Messages" />
+      <AppShellHeader title="Messages" mobileOnly />
       <div className="container mx-auto grid max-w-6xl gap-6 px-4 py-8 lg:grid-cols-[1fr_280px]">
         <section className="flex h-[70vh] min-h-[480px] flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-neutral-200 dark:bg-neutral-900 dark:ring-white/10">
           <div className="flex items-center gap-3 border-b border-neutral-100 px-5 py-4 dark:border-white/10">

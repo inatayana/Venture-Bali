@@ -6,18 +6,29 @@ import { ArrowLeft, House } from 'lucide-react';
 import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { Z_INDEX } from '@/lib/zIndex';
+import { cn } from '@/utils/cn';
 
 /**
  * Compact navigation bar for the App Shell pages (Explore, Wishlists, Trips,
  * Profile, Messages). These pages have no marketing header, so desktop users
  * otherwise had no way back to the catalogue or home.
  */
-export function AppShellHeader({ title }: { title?: string }) {
+export function AppShellHeader({
+  title,
+  mobileOnly = false,
+}: {
+  title?: string;
+  /** Hide on md+ where the shared GlobalDesktopHeader takes over. */
+  mobileOnly?: boolean;
+}) {
   const router = useRouter();
 
   return (
     <header
-      className="sticky top-0 border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-neutral-900/90"
+      className={cn(
+        'sticky top-0 border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-neutral-900/90',
+        mobileOnly && 'md:hidden'
+      )}
       style={{ zIndex: Z_INDEX.header }}
     >
       <div className="container mx-auto flex h-14 items-center gap-2 px-4 sm:gap-3">

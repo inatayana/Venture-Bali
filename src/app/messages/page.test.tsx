@@ -5,6 +5,10 @@ jest.mock('@/components/layout/AppShellHeader', () => ({
   AppShellHeader: ({ title }: { title: string }) => <header>{title}</header>,
 }));
 
+jest.mock('@/components/layout/GlobalDesktopHeader', () => ({
+  GlobalDesktopHeader: () => <div />,
+}));
+
 const mockFetch = jest.fn();
 
 beforeEach(() => {

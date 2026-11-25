@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyCustomerLinkToken, createBookingViewToken, createReviewToken } from '@/lib/customerLink';
 import { canReviewBooking } from '@/lib/reviewSchema';
 import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
+import { DesktopBreadcrumb } from '@/components/layout/DesktopBreadcrumb';
 import { BRAND_EMAIL_SUPPORT } from '@/lib/brand';
 import { TripCard } from './TripCard';
 import { Calendar, CalendarDays, Compass, Mail, QrCode, AlertCircle, ArrowRight } from 'lucide-react';
@@ -104,6 +105,7 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
   return (
     <main className="min-h-screen bg-white dark:bg-neutral-950">
       <GlobalDesktopHeader />
+      <DesktopBreadcrumb label="Trips" />
 
       <div className="container mx-auto px-4 py-8 pb-24">
         {/* Page Title */}
@@ -203,6 +205,7 @@ function TripsGuide() {
     <>
       <GlobalDesktopHeader />
       <main className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
+        <DesktopBreadcrumb label="Trips" />
       <div className="container mx-auto max-w-2xl px-4 py-8">
         <h1 className="mb-6 font-heading text-3xl font-bold text-neutral-900 dark:text-white">
           Trips
@@ -264,6 +267,7 @@ function InvalidTokenNotice() {
     <>
       <GlobalDesktopHeader />
       <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
+        <DesktopBreadcrumb label="Trips" />
       <div className="max-w-sm text-center">
         <AlertCircle className="mx-auto mb-4 h-10 w-10 text-amber-500" />
         <h1 className="text-xl font-bold text-neutral-900">This link is invalid or expired</h1>

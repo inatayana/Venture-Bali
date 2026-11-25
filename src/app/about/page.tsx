@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { BRAND_EMAIL_SUPPORT } from '@/lib/brand';
 import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
+import { DesktopBreadcrumb } from '@/components/layout/DesktopBreadcrumb';
 
 export const metadata: Metadata = {
   title: 'Our Local Story & Impact | BaliWild',
@@ -68,6 +69,7 @@ export default function AboutPage() {
     <>
       <GlobalDesktopHeader />
       <main className="min-h-screen bg-neutral-50 text-foreground dark:bg-neutral-950">
+        <DesktopBreadcrumb label="About" />
       {/* Hero */}
       <section className="relative isolate overflow-hidden bg-brand-ink text-white dark:bg-neutral-900">
         <div

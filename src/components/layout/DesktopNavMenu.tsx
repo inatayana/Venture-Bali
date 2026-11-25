@@ -152,136 +152,6 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
         <Menu className="h-5 w-5 text-brand-ink dark:text-brand" aria-hidden="true" />
       </button>
 
-      {open ? (
-        <div
-          id="desktop-nav-menu"
-          role="menu"
-          aria-label="Primary navigation"
-          className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-neutral-200 bg-white py-2 shadow-lg dark:border-white/10 dark:bg-neutral-900"
-        >
-          {MENU_GROUPS.map((group, groupIndex) => (
-            <React.Fragment key={groupIndex}>
-              {group.items.map((item) => {
-                const label = labels[item.labelKey as keyof typeof labels] ?? item.labelKey;
-                const isActive = 'href' in item && item.href === activeHref && !('isAction' in item) && !('isModalTrigger' in item) && !('isSettings' in item);
-
-                if ('isAction' in item && item.isAction) {
-                  return (
-                    <button
-                      key={item.labelKey}
-                      type="button"
-                      role="menuitem"
-                      onClick={handleSignOut}
-                      className="flex min-h-[44px] w-full items-center gap-3 px-4 text-sm font-semibold text-brand-ink dark:text-white transition-colors hover:bg-brand/10 dark:hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-                    >
-                      <item.icon className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
-                      {label}
-                    </button>
-                  );
-                }
-
-                if ('isSettings' in item && item.isSettings) {
-                  return (
-                    <div key={item.labelKey} className="px-4 py-2 space-y-1">
-                      {/* Language Row */}
-                      <button
-                        type="button"
-                        onClick={handleLocaleToggle}
-                        className={cn(
-                          'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
-                          'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
-                          'transition-colors'
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Globe className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
-                          <span className="text-sm font-medium">{locale === 'en' ? 'Language' : 'Bahasa'}</span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-sm font-semibold tabular-nums">{locale.toUpperCase()}</span>
-                        </div>
-                      </button>
-
-                      {/* Currency Row */}
-                      <CurrencyRow
-                        selectedCurrency={currency}
-                        onCurrencyChange={handleCurrencySelect}
-                        locale={locale}
-                        closeMenu={() => setOpen(false)}
-                      />
-
-                      {/* Theme Row */}
-                      <button
-                        type="button"
-                        onClick={handleThemeToggle}
-                        className={cn(
-                          'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
-                          'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
-                          'transition-colors'
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          {isDark ? (
-                            <Sun className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
-                          ) : (
-                            <Moon className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
-                          )}
-                          <span className="text-sm font-medium">{isDark ? 'Dark Mode' : 'Light Mode'}</span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-sm font-semibold capitalize">{theme}</span>
-                        </div>
-                      </button>
-
-                      {/* Email Row */}
-                      <a
-                        href="mailto:hello@baliwild.com"
-                        onClick={() => setOpen(false)}
-                        className={cn(
-                          'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
-                          'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
-                          'transition-colors'
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Mail className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
-                          <span className="text-sm font-medium">{locale === 'en' ? 'Contact' : 'Kontak'}</span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0 truncate">
-                          <span className="text-sm font-medium text-brand-ink/70 dark:text-brand/70">hello@baliwild.com</span>
-                        </div>
-                      </a>
-                    </div>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    role="menuitem"
-                    aria-current={isActive ? 'page' : undefined}
-                    aria-label={label}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      'flex min-h-[44px] items-center gap-3 px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand',
-                      isActive
-                        ? 'bg-brand/10 text-brand-ink dark:bg-white/10 dark:text-white'
-                        : 'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10'
-                    )}
-                  >
-                    <item.icon className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
-                    {label}
-                  </Link>
-                );
-              })}
-              {groupIndex < MENU_GROUPS.length - 1 && (
-                <div className="my-2 border-t border-neutral-200 dark:border-white/10" />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      ) : null}
 
       {open && createPortal(
         <div
@@ -289,8 +159,8 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
           role="menu"
           aria-label="Primary navigation"
           ref={dropdownRef}
-          className={cn('fixed right-4 top-16 w-64 overflow-hidden rounded-2xl border border-neutral-200 bg-white py-2 shadow-lg dark:border-white/10 dark:bg-neutral-900', `z-[${Z_INDEX.popover}]`)}
-          style={{ right: '1.5rem' }}
+          className="fixed right-4 top-16 w-[300px] min-w-[290px] max-w-[320px] overflow-hidden rounded-2xl border border-neutral-200 bg-white py-2 shadow-xl dark:border-neutral-800 dark:bg-neutral-900"
+          style={{ right: '1.5rem', zIndex: Z_INDEX.popover }}
         >
           {MENU_GROUPS.map((group, groupIndex) => (
             <React.Fragment key={groupIndex}>
@@ -305,7 +175,7 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                       type="button"
                       role="menuitem"
                       onClick={handleSignOut}
-                      className="flex min-h-[44px] w-full items-center gap-3 px-4 text-sm font-semibold text-brand-ink dark:text-white transition-colors hover:bg-brand/10 dark:hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+                      className="flex min-h-[44px] w-full items-center gap-3.5 px-4 py-2.5 text-sm font-semibold text-brand-ink dark:text-white transition-colors hover:bg-brand/10 dark:hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                     >
                       <item.icon className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                       {label}
@@ -315,18 +185,18 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
 
                 if ('isSettings' in item && item.isSettings) {
                   return (
-                    <div key={item.labelKey} className="px-4 py-2 space-y-1">
+                    <div key={item.labelKey} className="px-5 py-2 space-y-1.5">
                       {/* Language Row */}
                       <button
                         type="button"
                         onClick={handleLocaleToggle}
                         className={cn(
-                          'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
+                          'w-full flex min-h-[44px] items-center justify-between px-4 py-2.5 rounded-lg',
                           'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
                           'transition-colors'
                         )}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3.5">
                           <Globe className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                           <span className="text-sm font-medium">{locale === 'en' ? 'Language' : 'Bahasa'}</span>
                         </div>
@@ -348,12 +218,12 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                         type="button"
                         onClick={handleThemeToggle}
                         className={cn(
-                          'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
+                          'w-full flex min-h-[44px] items-center justify-between px-4 py-2.5 rounded-lg',
                           'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
                           'transition-colors'
                         )}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3.5">
                           {isDark ? (
                             <Sun className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                           ) : (
@@ -371,17 +241,17 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                         href="mailto:hello@baliwild.com"
                         onClick={() => setOpen(false)}
                         className={cn(
-                          'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
+                          'w-full flex min-h-[44px] items-center justify-between px-4 py-2.5 rounded-lg',
                           'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
                           'transition-colors'
                         )}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3.5">
                           <Mail className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
                           <span className="text-sm font-medium">{locale === 'en' ? 'Contact' : 'Kontak'}</span>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0 truncate">
-                          <span className="text-sm font-medium text-brand-ink/70 dark:text-brand/70">hello@baliwild.com</span>
+                        <div className="flex min-w-0 items-center justify-between gap-4 shrink-0">
+                          <span className="truncate text-xs text-neutral-500 dark:text-neutral-400">hello@baliwild.com</span>
                         </div>
                       </a>
                     </div>
@@ -397,7 +267,7 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
                     aria-label={label}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      'flex min-h-[44px] items-center gap-3 px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand',
+                      'flex min-h-[44px] items-center gap-3.5 px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand',
                       isActive
                         ? 'bg-brand/10 text-brand-ink dark:bg-white/10 dark:text-white'
                         : 'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10'
@@ -454,18 +324,18 @@ function CurrencyRow({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'w-full flex min-h-[44px] items-center justify-between px-3 py-2 rounded-lg',
+          'w-full flex min-h-[44px] items-center justify-between px-4 py-2.5 rounded-lg',
           'text-brand-ink dark:text-white hover:bg-brand/10 dark:hover:bg-white/10',
           'transition-colors'
         )}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3.5">
           <DollarSign className="h-4 w-4 shrink-0 text-brand-ink dark:text-brand" aria-hidden="true" />
           <span className="text-sm font-medium">{label}</span>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           <span className="flex items-center gap-1.5 text-sm font-semibold">
             {selected?.flag} {selected?.code}
           </span>
