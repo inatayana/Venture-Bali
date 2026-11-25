@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { verifyCustomerLinkToken, createBookingViewToken, createReviewToken } from '@/lib/customerLink';
 import { canReviewBooking } from '@/lib/reviewSchema';
-import { BrandWordmark } from '@/components/layout/BrandWordmark';
 import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
 import { BRAND_EMAIL_SUPPORT } from '@/lib/brand';
 import { TripCard } from './TripCard';
@@ -204,20 +203,8 @@ function TripsGuide() {
     <>
       <GlobalDesktopHeader />
       <main className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
-      <header className="md:hidden bg-brand-ink text-white px-4 py-10">
-        <div className="container mx-auto">
-          <Link href="/" aria-label="BaliWild home" className="mb-6 inline-block">
-            <BrandWordmark className="text-2xl" />
-          </Link>
-          <h1 className="font-heading text-3xl font-bold">Trips</h1>
-          <p className="mt-2 max-w-2xl text-brand/80 text-sm">
-            Your bookings, vouchers and cancellations — no password needed.
-          </p>
-        </div>
-      </header>
-
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <h1 className="mb-6 hidden font-heading text-3xl font-bold text-neutral-900 dark:text-white md:block">
+        <h1 className="mb-6 font-heading text-3xl font-bold text-neutral-900 dark:text-white">
           Trips
         </h1>
         <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-neutral-200 dark:bg-neutral-900 dark:ring-white/10">
