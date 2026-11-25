@@ -13,6 +13,7 @@ import {
   Globe,
   Heart,
   HelpCircle,
+  LogIn,
   LogOut,
   Mail,
   Menu,
@@ -26,7 +27,7 @@ import { useLocale } from '@/components/locale/LocaleProvider';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import { getNamespace } from '@/lib/i18n';
-import { useWishlist } from '@/store/wishlistStore';
+import { useCustomerSession } from '@/hooks/useCustomerSession';
 import { ACTIVE_CURRENCY_INFO, type ActiveCurrency } from '@/lib/currency';
 import { cn } from '@/utils/cn';
 
@@ -57,7 +58,6 @@ const MENU_GROUPS: readonly MenuGroup[] = [
   {
     items: [
       { href: '/help', labelKey: 'helpCenter', icon: HelpCircle },
-      { labelKey: 'logOut', icon: LogOut, isAction: true },
     ],
   },
 ];
@@ -73,7 +73,7 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
   const labels = getNamespace(locale, 'nav');
-  const clearWishlist = useWishlist((state) => state.clear);
+  const { user } = useCustomerSession();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -109,10 +109,15 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
     return null;
   })();
 
-  const handleSignOut = () => {
-    clearWishlist();
+  async function handleSignOut(): Promise<void> {
     setOpen(false);
-  };
+    try {
+      await fetch('/api/account/logout', { method: 'POST' });
+    } catch {
+      // Even if the request fails, navigating away keeps the UI consistent.
+    }
+    window.location.assign('/');
+  }
 
   const handleLocaleToggle = () => {
     setLocale(locale === 'en' ? 'id' : 'en');
@@ -128,6 +133,17 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
     setCurrency(code);
     setOpen(false);
   };
+
+  const accountItem: MenuItem = user
+    ? { labelKey: 'logOut', icon: LogOut, isAction: true }
+    : {
+        href: `/login?next=${encodeURIComponent(pathname)}`,
+        labelKey: 'signIn',
+        icon: LogIn,
+      };
+  const menuGroups = MENU_GROUPS.map((group, index) =>
+    index === MENU_GROUPS.length - 1 ? { items: [...group.items, accountItem] } : group
+  );
 
   return (
     <div className="relative hidden md:block" ref={menuRef}>
@@ -162,7 +178,7 @@ export function DesktopNavMenu({ variant = 'light' }: DesktopNavMenuProps) {
           className="fixed right-4 top-16 w-[300px] min-w-[290px] max-w-[320px] overflow-hidden rounded-2xl border border-neutral-200 bg-white py-2 shadow-xl dark:border-neutral-800 dark:bg-neutral-900"
           style={{ right: '1.5rem', zIndex: Z_INDEX.popover }}
         >
-          {MENU_GROUPS.map((group, groupIndex) => (
+          {menuGroups.map((group, groupIndex) => (
             <React.Fragment key={groupIndex}>
               {group.items.map((item) => {
                 const label = labels[item.labelKey as keyof typeof labels] ?? item.labelKey;

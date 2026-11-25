@@ -9,6 +9,9 @@ export interface CustomerSessionUser {
   email: string;
   tenantId: string;
   status: 'PENDING' | 'ACTIVE' | 'SUSPENDED';
+  joinedAt: string;
+  whatsapp: string;
+  countryCode: string;
 }
 
 /**

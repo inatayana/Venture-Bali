@@ -30,6 +30,9 @@ export interface CustomerSessionUser {
   email: string;
   tenantId: string;
   status: 'PENDING' | 'ACTIVE' | 'SUSPENDED';
+  joinedAt: string;
+  whatsapp: string;
+  countryCode: string;
 }
 
 /** Create a revocable session row and return the signed cookie value. */
@@ -60,7 +63,7 @@ export async function getCustomerSession(): Promise<CustomerSessionUser | null> 
       where: { sessionHash },
       include: {
         account: {
-          include: { customer: { select: { name: true } } },
+          include: { customer: { select: { name: true, whatsapp: true, countryCode: true } } },
         },
       },
     });
@@ -93,6 +96,9 @@ export async function getCustomerSession(): Promise<CustomerSessionUser | null> 
       email: row.account.email,
       tenantId: row.account.tenantId,
       status: row.account.status,
+      joinedAt: row.account.createdAt.toISOString(),
+      whatsapp: row.account.customer.whatsapp,
+      countryCode: row.account.customer.countryCode,
     };
   } catch {
     // Fail closed: a database problem must never authenticate a visitor.
