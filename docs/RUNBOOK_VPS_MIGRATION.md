@@ -1,22 +1,18 @@
 # BaliWild — VPS Migration Runbook (owner-executed)
 
-> **Version:** 1.0.0 · **Date:** 2026-11-25 · **Status:** PREPARED — not executed by agents  
+> **Version:** 1.1.0 · **Date:** 2026-11-25 · **Status:** PREPARED — not executed by agents  
 > **Related:** [RUNBOOK_DEPLOY.md](./RUNBOOK_DEPLOY.md), [DEPLOYMENT_STRATEGY.md](./DEPLOYMENT_STRATEGY.md), [SECURITY_PROTOCOL.md](./SECURITY_PROTOCOL.md)  
 > **Rule:** agents prepare artifacts only. Actual deployment requires owner credentials and owner sign-off.
 
 ---
 
-## 0. Gate status (read first)
+## 0. Gate status (read first) — APPROVED
 
-`SECURITY_PROTOCOL.md §6` blocks VPS until Next.js is `>=15.5.28` or `>=16.4.1`.
+**CTO & Owner decision, 2026-11-25:** the security baseline is **Next.js `>=15.5.27`**. This supersedes the former `>=15.5.28`/`>=16.4.1` wording, which referenced versions not published on npm at that date. Phase 4 upgraded `14.2.35 → 15.5.27` (latest stable 15.x) and `npm run audit:check` passes, so the **Next.js gate is satisfied**.
 
-**Registry reality check (2026-11-25):** the published stable line ends at **15.5.27** and **16.3.8**; neither `15.5.28` nor `16.4.1` exists on npm. Phase 4 upgrades `14.2.35 → 15.5.27`, which removes the EOL 14.x line but does **not** literally satisfy the written version gate.
+**VPS execution is nevertheless DEFERRED** until `v1.2.0` is live and stable on Vercel. Do **not** provision servers, move DNS, or re-point webhooks until the Owner issues a separate go-ahead. This document is a prepared runbook only.
 
-**Owner decision required before any VPS cutover:** either
-1. amend `SECURITY_PROTOCOL.md` to accept `15.5.27` as the minimum, or
-2. wait until `>=16.4.1` is published and re-run the full gate.
-
-Do not deploy while this is unresolved.
+**Also deferred to `v1.3.0`:** Argon2id and passkeys. Keep scrypt (N=2^17) with zero new dependencies until that release.
 
 ---
 

@@ -1,6 +1,6 @@
 # BaliWild — Security Protocol
 
-> **Version:** 1.0.0
+> **Version:** 1.1.0 (2026-11-25 — Next.js baseline `>=15.5.27`)
 > **Status:** MUST FOLLOW for all agents and developers
 
 ## 1. Secrets Management
@@ -56,14 +56,18 @@
   severity increase, or a new high/critical advisory.
 - Run `npm audit` weekly; report new high/critical findings to the owner and
   open a fix branch within 7 days.
-- Next.js was upgraded from EOL `14.2.35` to `15.5.27` on 2026-11-25 (Phase 4).
-  The previously written gate (`>=15.5.28` or `>=16.4.1`) does not match any
-  version published on npm at that date (stable lines ended at `15.5.27` and
-  `16.3.8`). **VPS migration remains blocked until the owner amends this gate to
-  accept 15.5.27 or waits for `>=16.4.1`** — see `docs/RUNBOOK_VPS_MIGRATION.md §0`.
+- **Approved security baseline (CTO & Owner, 2026-11-25): Next.js `>=15.5.27`.**
+  Next.js was upgraded from EOL `14.2.35` to `15.5.27` in Phase 4; it is the
+  latest stable 15.x release on npm and passes `npm run audit:check`.
+  The former gate (`>=15.5.28` or `>=16.4.1`) referenced versions that are not
+  published on npm and is superseded by this baseline.
+- VPS migration is a **separate, deferred decision**: do not provision or cut
+  over to VPS until `v1.2.0` is live and stable on Vercel. See
+  `docs/RUNBOOK_VPS_MIGRATION.md`.
 - Customer passwords (optional, Phase 4) use the shared scrypt implementation
-  with OWASP parameters (N=2^17, r=8, p=1); Argon2id and passkeys need an
-  explicit new-dependency approval and are deliberately deferred.
+  with OWASP parameters (N=2^17, r=8, p=1) and **zero new dependencies**.
+  Argon2id and passkeys are deferred to `v1.3.0` and require explicit approval
+  before any dependency is added.
 - The Image Optimizer only accepts local assets: no `remotePatterns` and no
   user-supplied SVG. Remove `dangerouslyAllowSVG` once raster photography lands.
 - CSP is report-only and has no report endpoint yet; violations appear in the
