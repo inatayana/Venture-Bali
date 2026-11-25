@@ -155,7 +155,16 @@ Rules:
 
 ---
 
-## 9. Out of scope
+## 9. Implementation status (Phase 2)
+
+- [x] Prisma migration `20261125110000_four_actor_multi_pax_waiver`
+- [x] `BW-<YYYY>-<XXXX>` generator with legacy `BK-...` acceptance
+- [x] Signed `ci1` QR tokens (`QR_SIGNING_SECRET`) with expiry + idempotent transitions
+- [x] `DigitalWaiverModal` + `/api/bookings/[id]/participants` with guardian validation
+- [x] `vb_ops_session` (`OPS_SESSION_SECRET`), `/ops` manifest + scanner, allowlisted DTOs
+- [x] Unit tests: QR tamper/expiry, RBAC isolation, guardian rules, transition idempotency, DTO allowlist
+
+## 10. Out of scope
 
 - Argon2id/passkeys (`v1.3.0`), supplier marketplace payouts, public vendor directory, any change to Midtrans settlement logic.
 - VPS provisioning (deferred until `v1.2.0` stable on Vercel).

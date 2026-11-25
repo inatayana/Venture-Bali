@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import QRCode from 'qrcode';
 import { authorizeBookingRead } from '@/lib/bookingAccess';
 import { createCheckInToken } from '@/lib/checkInToken';
 import { prisma } from '@/lib/prisma';
@@ -51,11 +52,13 @@ export async function GET(
       Number.isNaN(departure.getTime()) ? Date.now() + 12 * 60 * 60_000 : departure.getTime() + 12 * 60 * 60_000,
     );
     const token = createCheckInToken({ bookingId: booking.id, expiresAt });
-
+    // Raster generated in Node; the browser only receives an image data URL.
+    const dataUrl = token ? await QRCode.toDataURL(token, { width: 240, margin: 1 }) : null;
     return NextResponse.json({
       success: true,
       data: {
         token,
+        dataUrl,
         bookingCode: booking.bookingCode,
         expiresAt: expiresAt.toISOString(),
         lifecycleStatus: booking.lifecycleStatus,

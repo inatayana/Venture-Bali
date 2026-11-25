@@ -46,7 +46,7 @@ export function TripExtras({ bookingId, token, bookingCode }: Props) {
         };
         const qrBody = (await qrResponse.json()) as {
           success?: boolean;
-          data?: { token?: string | null; expiresAt?: string };
+          data?: { token?: string | null; dataUrl?: string | null; expiresAt?: string };
         };
         if (cancelled) return;
 
@@ -60,9 +60,7 @@ export function TripExtras({ bookingId, token, bookingCode }: Props) {
         if (qrResponse.ok && qrBody.data?.token) {
           setQrToken(qrBody.data.token);
           setExpiresAt(qrBody.data.expiresAt ?? null);
-          const { default: QRCode } = await import('qrcode');
-          const image = await QRCode.toDataURL(qrBody.data.token, { width: 240, margin: 1 });
-          if (!cancelled) setQrImage(image);
+          setQrImage(qrBody.data.dataUrl ?? null);
         }
       } catch {
         if (!cancelled) setError('Boarding pass is temporarily unavailable.');
