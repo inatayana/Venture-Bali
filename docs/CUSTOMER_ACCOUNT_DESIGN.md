@@ -172,6 +172,8 @@ Email dikirim lewat helper Resend yang sudah ada (`src/lib/notifications.ts` pat
 | `/api/account/signup` | POST | Daftar eksplisit: buat `Customer` + `CustomerAccount=PENDING`, lalu kirim OTP |
 | `/api/account/otp/verify` | POST | Konsumsi OTP sekali pakai → ACTIVE + session cookie + (Phase 3) wishlist merge hook |
 | `/api/account/profile` | PATCH | Edit nama/WhatsApp/country code (email read-only, butuh verifikasi) |
+| `/api/account/wishlist` | GET / POST | Baca daftar DB / merge item localStorage (tenant-scoped) |
+| `/api/account/wishlist/toggle` | POST | Tambah/hapus satu item untuk akun yang login |
 | `/api/account/logout` | POST | Revoke session di DB + hapus cookie |
 
 Semua body/query divalidasi `zod`; error generik untuk menghindari enumerasi user.
@@ -184,8 +186,8 @@ Semua body/query divalidasi `zod`; error generik untuk menghindari enumerasi use
 |---|---|---|
 | `/profile` | Redirect `/login?next=/profile` | Dashboard akun (nama, email terverifikasi, WA, preferensi, tautan fitur, Keluar) |
 | `/login` | Form **Masuk** (OTP) + **Daftar** (OTP aktivasi) | Bisa dibuka, tetapi tidak perlu; `?next=` dibatasi path lokal |
-| `/wishlists` | `localStorage` | `localStorage` di-merge ke DB saat login, lalu sinkron |
-| `/trips` | Magic link `cl1`/`bl1` (30 hari) | Tanpa token → semua booking `customerId` akun; token lama tetap diterima |
+| `/wishlists` | `localStorage` | Guest localStorage di-merge ke `CustomerWishlist` saat login; toggle/remove tersimpan di DB |
+| `/trips` | Magic link `cl1`/`bl1` (30 hari) | Tanpa token → semua booking `customerId` akun; token `cl1` segar diterbitkan untuk aksi trip; magic link guest tetap diterima |
 | `/reviews/mine` | Redirect `/trips` | Review berdasarkan `customerId` |
 | `/messages`, `/notifications` | AI chat boleh; notifikasi minta login | Inbox akun |
 | `/checkout` | Guest + terms/waiver wajib | Pre-fill data, password tidak diwajibkan |
@@ -195,15 +197,16 @@ Semua body/query divalidasi `zod`; error generik untuk menghindari enumerasi use
 
 ## 9. Wishlist sync policy
 
-1. Saat verifikasi OTP berhasil, baca `baliwild-wishlist` dari client dan kirim ke endpoint sync (Phase 3).
-2. Server `upsert` ke `CustomerWishlist` berdasarkan `ventureId` (unique per akun).
-3. **Hapus lokal hanya setelah server mengonfirmasi** semua item tersimpan. Jika gagal, localStorage tetap utuh dan di-retry saat login berikutnya.
+1. Saat sesi customer terdeteksi, hook `useCustomerSession()` mengirim seluruh item `baliwild-wishlist` ke `POST /api/account/wishlist`.
+2. Server memfilter `ventureId` yang valid untuk `tenantId` akun, lalu `createMany({ skipDuplicates: true })` ke `CustomerWishlist` dan mengembalikan daftar lengkap dari DB.
+3. Client mengganti state lokal dengan daftar server **hanya setelah server mengonfirmasi**; item lokal tidak dihapus lebih awal. Jika gagal, localStorage tetap utuh dan di-retry saat login berikutnya.
+4. Toggle/remove setelah login melalui `POST /api/account/wishlist/toggle`, sehingga DB menjadi source of truth; guest tetap memakai localStorage.
 
 ---
 
 ## 10. Co-existence magic link
 
-`verifyCustomerLinkToken` (`cl1`) dan `verifyBookingViewToken` (`bl1`) tidak diubah. `/trips` menerima dua sumber:a. token URL (guest), b. session customer (DAL). Jika keduanya ada dan berbeda customer, **session yang menang** untuk daftar booking, token hanya untuk akses booking spesifik yang scoped.
+`verifyCustomerLinkToken` (`cl1`) dan `verifyBookingViewToken` (`bl1`) tidak diubah. `/trips` menerima dua sumber: a. token URL (guest), b. session customer (DAL). Jika keduanya ada, **session yang menang** — token URL diabaikan dan token `cl1` baru diterbitkan untuk customer session agar tautan voucher/waiver/invoice tetap berfungsi. Guest tetap memakai magic link 30 hari.
 
 ---
 
@@ -220,5 +223,5 @@ Sebelum rilis: `npm run db:seed` pada DB kosong + `npm run smoke`.
 |---|---|---|
 | 1 | Schema + secret + DAL + OTP endpoints + logout + `useCustomerSession` | **selesai** (`a53d040`) |
 | 2 | `/profile` nyata, `/login` (OTP + daftar), edit profil, sign in/out di nav | **selesai** (`7227054`) |
-| 3 | Wishlist sync + `/trips` session access | belum |
+| 3 | Wishlist sync + `/trips` session access | **selesai** (`6e8266e`) |
 | 4 | Password opsional, Argon2id (butuh approval), passkey, Next 15, VPS | belum |
