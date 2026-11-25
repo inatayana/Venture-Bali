@@ -129,7 +129,7 @@ export function HomeCatalogue({
     // with VentureExplorer's `id="results"` on /explore and /experiences.
     <section
       id="results"
-      className="px-4 pb-16 pt-5 md:pb-20 md:pt-7 sm:px-6 lg:px-10"
+      className="px-6 lg:px-10 pb-16 pt-5 md:pb-20 md:pt-7"
     >
       <div className="mx-auto max-w-[1440px] space-y-5 md:space-y-7">
         {(date || pax > 1) && (
