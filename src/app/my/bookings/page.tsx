@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 interface MyBookingsPageProps {
-  searchParams: { token?: string };
+  searchParams: Promise<{ token?: string }>;
 }
 
 /**
@@ -27,7 +27,8 @@ interface MyBookingsPageProps {
  * so the guest can always find the voucher without creating an account.
  */
 export default async function MyBookingsPage({ searchParams }: MyBookingsPageProps) {
-  const payload = verifyCustomerLinkToken(searchParams.token);
+  const { token } = await searchParams;
+  const payload = verifyCustomerLinkToken(token);
 
   if (!payload) {
     return (
@@ -205,7 +206,7 @@ export default async function MyBookingsPage({ searchParams }: MyBookingsPagePro
                 {actionable && (
                   <BookingActions
                     bookingId={booking.id}
-                    token={searchParams.token ?? ''}
+                    token={token ?? ''}
                     canCancel={quote.eligible}
                     canReschedule={quote.hoursBefore >= 24}
                     refundAmount={quote.refundAmount}

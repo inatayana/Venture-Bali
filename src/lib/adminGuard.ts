@@ -13,7 +13,8 @@ import {
  * which the middleware deliberately does not do.
  */
 export async function requireAdminRole(role: AdminRole = 'EDITOR'): Promise<AdminSession | null> {
-  const session = await verifySessionToken(cookies().get(ADMIN_SESSION_COOKIE)?.value);
+  const cookieStore = await cookies();
+  const session = await verifySessionToken(cookieStore.get(ADMIN_SESSION_COOKIE)?.value);
   if (!session || !hasRole(session, role)) return null;
   return session;
 }

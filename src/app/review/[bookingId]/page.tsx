@@ -11,12 +11,14 @@ import { BrandWordmark } from '@/components/layout/BrandWordmark';
 export const dynamic = 'force-dynamic';
 
 interface ReviewPageProps {
-  params: { bookingId: string };
-  searchParams: { token?: string };
+  params: Promise<{ bookingId: string }>;
+  searchParams: Promise<{ token?: string }>;
 }
 
 export default async function ReviewPage({ params, searchParams }: ReviewPageProps) {
-  const session = verifyReviewAccess(searchParams.token, params.bookingId);
+  const { bookingId } = await params;
+  const { token } = await searchParams;
+  const session = verifyReviewAccess(token, bookingId);
   if (!session) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
@@ -38,7 +40,7 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
   }
 
   const booking = await prisma.booking.findUnique({
-    where: { id: params.bookingId },
+    where: { id: bookingId },
     select: {
       id: true,
       customerId: true,
@@ -66,7 +68,7 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
     <main className="min-h-screen bg-neutral-50 px-4 py-10">
       <div className="mx-auto max-w-xl">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <Link href={`/my/bookings?token=${searchParams.token ?? ''}`} className="inline-flex min-h-[44px] items-center text-sm text-neutral-600 hover:text-neutral-900">
+          <Link href={`/my/bookings?token=${token ?? ''}`} className="inline-flex min-h-[44px] items-center text-sm text-neutral-600 hover:text-neutral-900">
             ← My bookings
           </Link>
           <Link href="/" aria-label="BaliWild home" className="inline-flex min-h-[44px] items-center text-brand-ink">
@@ -84,7 +86,7 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
             <div className="rounded-2xl border border-neutral-200 bg-white p-6">
               <p className="text-sm text-neutral-700">{blocked ?? 'This trip cannot be reviewed.'}</p>
               <Link
-                href={`/my/bookings?token=${searchParams.token ?? ''}`}
+                href={`/my/bookings?token=${token ?? ''}`}
                 className="mt-4 inline-flex min-h-[44px] items-center text-sm font-semibold text-neutral-900 underline"
               >
                 Back to my bookings
@@ -93,7 +95,7 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
           ) : (
             <ReviewForm
               bookingId={booking.id}
-              token={searchParams.token ?? ''}
+              token={token ?? ''}
               ventureTitle={ventureTitle}
               defaultName={booking.customer.name}
               defaultLocation={findCountry(booking.customer.countryCode).name}

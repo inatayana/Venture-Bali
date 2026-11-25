@@ -18,7 +18,8 @@ export const dynamic = 'force-dynamic';
  * this very page, which used to create an infinite redirect loop.
  */
 export default async function AdminLoginPage() {
-  const token = cookies().get(ADMIN_SESSION_COOKIE)?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
   const session = await verifySessionToken(token);
 
   if (session) {

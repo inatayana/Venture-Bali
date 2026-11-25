@@ -58,14 +58,15 @@ export const viewport: Viewport = {
   themeColor: '#000000',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   // Set the document language on the server from the locale cookie so crawlers
   // and screen readers see the right value before hydration.
-  const storedLocale = cookies().get('baliwild-locale')?.value;
+  const cookieStore = await cookies();
+  const storedLocale = cookieStore.get('baliwild-locale')?.value;
   const lang = storedLocale === 'id' || storedLocale === 'en' ? storedLocale : 'en';
 
   return (

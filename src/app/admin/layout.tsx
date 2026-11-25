@@ -19,7 +19,8 @@ export const dynamic = 'force-dynamic';
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   // The middleware already blocks anonymous requests, but the layout repeats
   // the check so a page can never be rendered without a valid session.
-  const token = cookies().get(ADMIN_SESSION_COOKIE)?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
   const session = await verifySessionToken(token);
 
   if (!session) {

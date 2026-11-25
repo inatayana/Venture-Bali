@@ -26,7 +26,7 @@ const manifestInclude = {
 type ManifestBookingRow = Prisma.BookingGetPayload<{ include: typeof manifestInclude }>;
 
 interface OperationsPageProps {
-  searchParams: { date?: string };
+  searchParams: Promise<{ date?: string }>;
 }
 
 function witaTodayKey(): string {
@@ -48,7 +48,8 @@ function waLink(whatsapp: string): string {
 }
 
 export default async function OperationsPage({ searchParams }: OperationsPageProps) {
-  const date = isValidDateKey(searchParams.date) ? searchParams.date : witaTodayKey();
+  const { date: requestedDate } = await searchParams;
+  const date = isValidDateKey(requestedDate) ? requestedDate : witaTodayKey();
 
   let bookings: ManifestBookingRow[] = [];
 

@@ -8,10 +8,10 @@ const REVIEW_TARGET_PER_PRODUCT = 10;
 const STATUSES = ['published', 'all'] as const;
 
 interface AdminReviewsPageProps {
-  searchParams: {
+  searchParams: Promise<{
     status?: string;
     venture?: string;
-  };
+  }>;
 }
 
 function parsePhotos(value: unknown): string[] {
@@ -22,10 +22,11 @@ function parsePhotos(value: unknown): string[] {
 }
 
 export default async function AdminReviewsPage({ searchParams }: AdminReviewsPageProps) {
-  const status = STATUSES.includes(searchParams.status as (typeof STATUSES)[number])
-    ? (searchParams.status as (typeof STATUSES)[number])
+  const query = await searchParams;
+  const status = STATUSES.includes(query.status as (typeof STATUSES)[number])
+    ? (query.status as (typeof STATUSES)[number])
     : 'published';
-  const ventureId = searchParams.venture?.trim() || null;
+  const ventureId = query.venture?.trim() || null;
 
   const where: Prisma.ReviewWhereInput = {};
   if (status === 'published') where.isApproved = true;

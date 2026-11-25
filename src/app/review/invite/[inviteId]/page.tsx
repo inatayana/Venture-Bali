@@ -8,8 +8,8 @@ import { BrandWordmark } from '@/components/layout/BrandWordmark';
 export const dynamic = 'force-dynamic';
 
 interface InvitePageProps {
-  params: { inviteId: string };
-  searchParams: { token?: string };
+  params: Promise<{ inviteId: string }>;
+  searchParams: Promise<{ token?: string }>;
 }
 
 function Unavailable({ title, message }: { title: string; message: string }) {
@@ -30,7 +30,9 @@ function Unavailable({ title, message }: { title: string; message: string }) {
 }
 
 export default async function FoundingGuestReviewPage({ params, searchParams }: InvitePageProps) {
-  if (!verifyInviteToken(params.inviteId, searchParams.token)) {
+  const { inviteId } = await params;
+  const { token } = await searchParams;
+  if (!verifyInviteToken(inviteId, token)) {
     return (
       <Unavailable
         title="Link invalid or expired"
@@ -40,7 +42,7 @@ export default async function FoundingGuestReviewPage({ params, searchParams }: 
   }
 
   const invite = await prisma.reviewInvite.findUnique({
-    where: { id: params.inviteId },
+    where: { id: inviteId },
     select: {
       id: true,
       status: true,
@@ -83,7 +85,7 @@ export default async function FoundingGuestReviewPage({ params, searchParams }: 
         <div className="mt-6">
           <FoundingGuestReviewForm
             inviteId={invite.id}
-            token={searchParams.token ?? ''}
+            token={token ?? ''}
             ventureTitle={invite.venture.title}
             defaultName={invite.guestName ?? ''}
             defaultCountryCode={invite.guestCountryCode ?? 'ID'}

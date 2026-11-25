@@ -23,7 +23,7 @@ const bookingInclude = {
 type AdminBookingRow = Prisma.BookingGetPayload<{ include: typeof bookingInclude }>;
 
 interface AdminBookingsPageProps {
-  searchParams: { date?: string };
+  searchParams: Promise<{ date?: string }>;
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -50,7 +50,8 @@ function witaDateKey(daysAhead = 0): string {
 }
 
 export default async function AdminBookingsPage({ searchParams }: AdminBookingsPageProps) {
-  const dateFilter = isValidDateKey(searchParams.date) ? searchParams.date : null;
+  const { date } = await searchParams;
+  const dateFilter = isValidDateKey(date) ? date : null;
 
   let bookings: AdminBookingRow[] = [];
 

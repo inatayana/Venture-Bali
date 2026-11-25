@@ -19,13 +19,14 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const { page, pageSize, query, sort } = parseReviewFeedParams(request.nextUrl.searchParams);
 
   try {
     const venture = await prisma.venture.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { id: true },
     });
     if (!venture) {
@@ -35,10 +36,10 @@ export async function GET(
       );
     }
 
-    const where = reviewFeedWhere(params.id, query);
+    const where = reviewFeedWhere(id, query);
 
     const [total, filteredTotal, rows, grouped, aggregate] = await Promise.all([
-      prisma.review.count({ where: { ventureId: params.id, isApproved: true } }),
+      prisma.review.count({ where: { ventureId: id, isApproved: true } }),
       prisma.review.count({ where }),
       prisma.review.findMany({
         where,
@@ -49,11 +50,11 @@ export async function GET(
       }),
       prisma.review.groupBy({
         by: ['rating'],
-        where: { ventureId: params.id, isApproved: true },
+        where: { ventureId: id, isApproved: true },
         _count: { _all: true },
       }),
       prisma.review.aggregate({
-        where: { ventureId: params.id, isApproved: true },
+        where: { ventureId: id, isApproved: true },
         _avg: { rating: true },
       }),
     ]);

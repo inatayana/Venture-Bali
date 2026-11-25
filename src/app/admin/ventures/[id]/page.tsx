@@ -8,8 +8,8 @@ import { VariantPackageEditor } from '@/components/admin/VariantPackageEditor';
 export const dynamic = 'force-dynamic';
 
 interface AdminVentureDetailPageProps {
-  params: { id: string };
-  searchParams: { created?: string; saved?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ created?: string; saved?: string }>;
 }
 
 function asStringArray(value: Prisma.JsonValue): string[] {
@@ -20,9 +20,11 @@ export default async function AdminVentureDetailPage({
   params,
   searchParams,
 }: AdminVentureDetailPageProps) {
+  const { id } = await params;
+  const flags = await searchParams;
   const [venture, zones] = await Promise.all([
     prisma.venture.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         variants: {
           orderBy: { sortOrder: 'asc' },
@@ -87,12 +89,12 @@ export default async function AdminVentureDetailPage({
         </div>
       </header>
 
-      {searchParams.created === '1' && (
+      {flags.created === '1' && (
         <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
           Product created. Add its first package below so it can be booked.
         </div>
       )}
-      {searchParams.saved === '1' && (
+      {flags.saved === '1' && (
         <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
           Product details saved.
         </div>

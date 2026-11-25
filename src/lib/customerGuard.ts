@@ -55,7 +55,8 @@ export async function issueCustomerSession(accountId: string): Promise<string> {
 
 /** Verify the current request's customer session, or return null (guest). */
 export async function getCustomerSession(): Promise<CustomerSessionUser | null> {
-  const cookie = cookies().get(getCustomerSessionCookieName())?.value;
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(getCustomerSessionCookieName())?.value;
   const sessionId = await verifyCustomerSessionToken(cookie);
   if (!sessionId) return null;
 
@@ -117,7 +118,8 @@ export async function requireCustomer(): Promise<CustomerSessionUser | null> {
 
 /** Revoke every other session for this account after a credential change. */
 export async function revokeOtherCustomerSessions(accountId: string): Promise<void> {
-  const cookie = cookies().get(getCustomerSessionCookieName())?.value;
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(getCustomerSessionCookieName())?.value;
   const sessionId = await verifyCustomerSessionToken(cookie);
   const currentHash = sessionId ? await hashSessionId(sessionId) : null;
 
@@ -133,7 +135,8 @@ export async function revokeOtherCustomerSessions(accountId: string): Promise<vo
 
 /** Revoke the current session in the database (not just in the browser). */
 export async function revokeCurrentCustomerSession(): Promise<void> {
-  const cookie = cookies().get(getCustomerSessionCookieName())?.value;
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(getCustomerSessionCookieName())?.value;
   const sessionId = await verifyCustomerSessionToken(cookie);
   if (!sessionId) return;
 

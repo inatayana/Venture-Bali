@@ -12,7 +12,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 interface AdminEditVenturePageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function asStringArray(value: unknown): string[] {
@@ -57,8 +57,9 @@ function asFaqs(value: unknown): VentureFormInitial['faqs'] {
 
 
 export default async function AdminEditVenturePage({ params }: AdminEditVenturePageProps) {
+  const { id } = await params;
   const [venture, locations] = await Promise.all([
-    prisma.venture.findUnique({ where: { id: params.id } }),
+    prisma.venture.findUnique({ where: { id } }),
     prisma.location.findMany({
       orderBy: [{ region: 'asc' }, { name: 'asc' }],
       select: { id: true, name: true, region: true, desa: true, kecamatan: true, kabupaten: true, provinsi: true },

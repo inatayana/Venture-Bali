@@ -18,7 +18,7 @@ import { getMonthlyGuestCounts } from '@/lib/ventureService';
 import type { PickupZone, VehicleClass, VentureItem } from '@/types/venture';
 
 interface PageProps {
-  params: { id: string; slug: string };
+  params: Promise<{ id: string; slug: string }>;
 }
 
 interface BookingOptions {
@@ -105,7 +105,8 @@ async function getRelated(venture: VentureItem, take = 3): Promise<VentureItem[]
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const venture = await getExperience(params.id, params.slug);
+  const { id, slug } = await params;
+  const venture = await getExperience(id, slug);
 
   if (!venture) {
     return {
@@ -118,8 +119,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ExperienceDetailPage({ params }: PageProps) {
+  const { id, slug } = await params;
   const [venture, bookingOptions] = await Promise.all([
-    getExperience(params.id, params.slug),
+    getExperience(id, slug),
     getBookingOptions(),
   ]);
 

@@ -113,7 +113,7 @@ export async function POST(
         waiverPhotoId: payload.photoId,
         waiverSignedAt: new Date(),
         waiverSignedBy: payload.signedBy,
-        waiverIpAddress: request.headers.get('x-forwarded-for') || request.ip,
+        waiverIpAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || null,
         waiverUserAgent: request.headers.get('user-agent'),
       },
     });

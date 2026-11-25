@@ -20,7 +20,8 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await verifySessionToken(cookies().get(ADMIN_SESSION_COOKIE)?.value);
+  const cookieStore = await cookies();
+  const session = await verifySessionToken(cookieStore.get(ADMIN_SESSION_COOKIE)?.value);
   if (!session || !hasRole(session, 'ADMIN')) {
     return NextResponse.json(
       { success: false, error: { code: 'FORBIDDEN', message: 'Operator access required' } },

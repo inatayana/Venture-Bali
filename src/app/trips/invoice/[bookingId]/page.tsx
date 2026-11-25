@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 };
 
 interface InvoicePageProps {
-  params: { bookingId: string };
-  searchParams: { token?: string };
+  params: Promise<{ bookingId: string }>;
+  searchParams: Promise<{ token?: string }>;
 }
 
 function formatDisplayDate(value: string | Date): string {
@@ -29,7 +29,9 @@ function formatDisplayDate(value: string | Date): string {
 }
 
 export default async function InvoicePage({ params, searchParams }: InvoicePageProps) {
-  const payload = verifyCustomerLinkToken(searchParams.token);
+  const { bookingId } = await params;
+  const { token } = await searchParams;
+  const payload = verifyCustomerLinkToken(token);
   if (!payload) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
@@ -50,7 +52,7 @@ export default async function InvoicePage({ params, searchParams }: InvoicePageP
   }
 
   const booking = await prisma.booking.findFirst({
-    where: { id: params.bookingId, customerId: payload.customerId },
+    where: { id: bookingId, customerId: payload.customerId },
     include: {
       customer: { select: { name: true, email: true } },
       variant: {

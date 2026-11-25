@@ -42,7 +42,7 @@ describe('TripsPage', () => {
   });
 
   it('shows the link guide when opened without a token or session', async () => {
-    render(await TripsPage({ searchParams: {} }));
+    render(await TripsPage({ searchParams: Promise.resolve({}) }));
     expect(screen.getByText('Open your private trips link')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /sign in to see every trip without a link/i })).toHaveAttribute(
       'href',
@@ -53,7 +53,7 @@ describe('TripsPage', () => {
   });
 
   it('shows the invalid-link notice when the token is invalid or expired', async () => {
-    render(await TripsPage({ searchParams: { token: 'cl1.bad.token' } }));
+    render(await TripsPage({ searchParams: Promise.resolve({ token: 'cl1.bad.token' }) }));
     expect(screen.getByText('This link is invalid or expired')).toBeInTheDocument();
     expect(screen.queryByText('Open your private trips link')).not.toBeInTheDocument();
   });
@@ -61,7 +61,7 @@ describe('TripsPage', () => {
   it('uses the customer session without a token and keeps guest magic links working', async () => {
     mockRequire.mockResolvedValue(sessionUser);
 
-    render(await TripsPage({ searchParams: {} }));
+    render(await TripsPage({ searchParams: Promise.resolve({}) }));
 
     expect(mockCreateLink).toHaveBeenCalledWith('customer-1');
     expect(screen.getByRole('heading', { name: /no trips yet/i })).toBeInTheDocument();
@@ -71,7 +71,7 @@ describe('TripsPage', () => {
   it('lets the session win over a stale magic link', async () => {
     mockRequire.mockResolvedValue(sessionUser);
 
-    render(await TripsPage({ searchParams: { token: 'cl1.bad.token' } }));
+    render(await TripsPage({ searchParams: Promise.resolve({ token: 'cl1.bad.token' }) }));
 
     expect(mockCreateLink).toHaveBeenCalledWith('customer-1');
     expect(screen.getByRole('heading', { name: /no trips yet/i })).toBeInTheDocument();

@@ -34,14 +34,16 @@ const tenantCache = new Map<string, { tenant: TenantContext; expires: number }>(
  * Priority: Header > Subdomain > Custom Domain > Session > Default
  */
 export async function getTenantContext(): Promise<TenantContext> {
+  const requestHeaders = await headers();
+
   // 1. Check header (for API clients)
-  const headerTenantId = headers().get('x-tenant-id');
+  const headerTenantId = requestHeaders.get('x-tenant-id');
   if (headerTenantId) {
     return getTenantById(headerTenantId);
   }
 
   // 2. Check subdomain from host header
-  const host = headers().get('host') || '';
+  const host = requestHeaders.get('host') || '';
   const subdomain = extractSubdomain(host);
   if (subdomain && subdomain !== 'www' && subdomain !== 'api') {
     const tenant = await getTenantByDomain(subdomain);

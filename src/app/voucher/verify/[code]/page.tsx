@@ -7,7 +7,7 @@ import { ADMIN_SESSION_COOKIE, hasRole, verifySessionToken } from '@/lib/adminSe
 import { CheckInButton } from './CheckInButton';
 
 interface VerifyPageProps {
-  params: { code: string };
+  params: Promise<{ code: string }>;
 }
 
 export const metadata: Metadata = {
@@ -22,7 +22,8 @@ export const metadata: Metadata = {
  */
 export default async function VoucherVerifyPage({ params }: VerifyPageProps) {
   const { code } = await params;
-  const session = await verifySessionToken(cookies().get(ADMIN_SESSION_COOKIE)?.value);
+  const cookieStore = await cookies();
+  const session = await verifySessionToken(cookieStore.get(ADMIN_SESSION_COOKIE)?.value);
   const isAdmin = Boolean(session && hasRole(session, 'ADMIN'));
 
   const booking = await prisma.booking.findUnique({

@@ -17,7 +17,7 @@ import { Calendar, CalendarDays, Compass, Mail, QrCode, AlertCircle, ArrowRight 
 export const dynamic = 'force-dynamic';
 
 interface TripsPageProps {
-  searchParams: { token?: string };
+  searchParams: Promise<{ token?: string }>;
 }
 
 /**
@@ -28,13 +28,15 @@ interface TripsPageProps {
  * status timeline, and integrated reschedule/cancel actions.
  */
 export default async function TripsPage({ searchParams }: TripsPageProps) {
+  const { token } = await searchParams;
+
   // Two supported entries: a signed-in session (no URL token needed) and the
   // permanent guest magic link. When both exist, the session wins.
   const sessionUser = await requireCustomer();
-  const payload = verifyCustomerLinkToken(searchParams.token);
+  const payload = verifyCustomerLinkToken(token);
 
   if (!sessionUser && !payload) {
-    if (!searchParams.token) {
+    if (!token) {
       // Tokenless entry point (nav link, typed URL): show both options.
       return <TripsGuide />;
     }
@@ -48,7 +50,7 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
   // users so vouchers, waivers and invoices keep working exactly as before.
   const accessToken = sessionUser
     ? createCustomerLinkToken(customerId) ?? undefined
-    : searchParams.token;
+    : token;
 
   const customer = await prisma.customer.findUnique({
     where: { id: customerId },
