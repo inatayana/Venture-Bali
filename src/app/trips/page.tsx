@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import { verifyCustomerLinkToken, createBookingViewToken, createReviewToken } from '@/lib/customerLink';
+import { requireCustomer } from '@/lib/customerGuard';
+import {
+  verifyCustomerLinkToken,
+  createCustomerLinkToken,
+  createBookingViewToken,
+  createReviewToken,
+} from '@/lib/customerLink';
 import { canReviewBooking } from '@/lib/reviewSchema';
 import { GlobalDesktopHeader } from '@/components/layout/GlobalDesktopHeader';
 import { DesktopBreadcrumb } from '@/components/layout/DesktopBreadcrumb';
@@ -22,18 +28,30 @@ interface TripsPageProps {
  * status timeline, and integrated reschedule/cancel actions.
  */
 export default async function TripsPage({ searchParams }: TripsPageProps) {
+  // Two supported entries: a signed-in session (no URL token needed) and the
+  // permanent guest magic link. When both exist, the session wins.
+  const sessionUser = await requireCustomer();
   const payload = verifyCustomerLinkToken(searchParams.token);
 
-  if (!payload) {
+  if (!sessionUser && !payload) {
     if (!searchParams.token) {
-      // Tokenless entry point (nav link, typed URL): show how to open trips.
+      // Tokenless entry point (nav link, typed URL): show both options.
       return <TripsGuide />;
     }
     return <InvalidTokenNotice />;
   }
 
+  const customerId = sessionUser?.customerId ?? payload?.customerId;
+  if (!customerId) return <InvalidTokenNotice />;
+
+  // TripCard links are token-based; issue a customer-scoped token for session
+  // users so vouchers, waivers and invoices keep working exactly as before.
+  const accessToken = sessionUser
+    ? createCustomerLinkToken(customerId) ?? undefined
+    : searchParams.token;
+
   const customer = await prisma.customer.findUnique({
-    where: { id: payload.customerId },
+    where: { id: customerId },
     include: {
       bookings: {
         orderBy: { bookingDate: 'desc' },
@@ -132,7 +150,7 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
                     <TripCard
                       key={booking.id}
                       booking={booking}
-                      token={searchParams.token}
+                      token={accessToken}
                       voucherToken={createBookingViewToken(booking.id) ?? ''}
                       isUpcoming={true}
                       countdown={getCountdown(booking.bookingDate, booking.slotTime?.time)}
@@ -155,7 +173,7 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
                     <TripCard
                       key={booking.id}
                       booking={booking}
-                      token={searchParams.token}
+                      token={accessToken}
                       voucherToken={createBookingViewToken(booking.id) ?? ''}
                       isUpcoming={false}
                       reviewToken={getReviewToken(booking.id)}
@@ -188,8 +206,13 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
         {/* Footer Note */}
         <div className="mt-12 pt-8 border-t border-neutral-200 dark:border-white/10 text-center">
           <p className="text-sm text-neutral-500 dark:text-neutral-400">
-            This private link expires in 30 days. Need help?{' '}
-            <a href="mailto:hello@baliwild.com" className="text-brand-ink hover:underline font-medium">
+            {sessionUser ? (
+              <>Showing every booking on your account. </>
+            ) : (
+              <>This private link expires in 30 days. </>
+            )}
+            Need help?{' '}
+            <a href={`mailto:${BRAND_EMAIL_SUPPORT}`} className="text-brand-ink hover:underline font-medium">
               Contact us
             </a>
           </p>
@@ -217,6 +240,13 @@ function TripsGuide() {
           <h2 className="mt-4 font-heading text-xl font-bold text-neutral-900 dark:text-white">
             Open your private trips link
           </h2>
+          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            Have an account?{' '}
+            <Link href="/login?next=/trips" className="font-semibold text-brand-ink underline-offset-4 hover:underline dark:text-brand">
+              Sign in to see every trip without a link
+            </Link>
+            .
+          </p>
           <ol className="mt-4 space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
             <li className="flex items-start gap-3">
               <Mail className="mt-0.5 h-4 w-4 text-neutral-500" aria-hidden="true" />
