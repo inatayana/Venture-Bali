@@ -72,6 +72,7 @@ Branch lama `feat/customer-auth-v1.2` mencoba magic-link auth dengan dependency 
 - Phase 1: schema + `customerSession.ts`, `customerGuard.ts`, `customerAuth.ts`, endpoint OTP/me/logout.
 - Phase 2: `/profile` aktual.
 - Phase 3: wishlist sync + `/trips` session.
-- Phase 4: password opsional/Argon2id (perlu approval), passkey, Next 15, VPS.
+- Phase 4 (selesai 2026-11-25): password opsional memakai scrypt N=2^17 (zero-dep), upgrade Next 15.5.27 + migrasi async request API, dan `docs/RUNBOOK_VPS_MIGRATION.md`.
+- Menyusul: Argon2id/passkey (butuh approval dependency baru) dan eksekusi VPS (butuh owner credential + keputusan gate versi Next).
 
 Detail implementasi: [CUSTOMER_ACCOUNT_DESIGN.md](./CUSTOMER_ACCOUNT_DESIGN.md).

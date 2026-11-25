@@ -56,8 +56,14 @@
   severity increase, or a new high/critical advisory.
 - Run `npm audit` weekly; report new high/critical findings to the owner and
   open a fix branch within 7 days.
-- Current residual: Next 14.x is end-of-life. Do not migrate to the VPS until
-  Next is upgraded to `>=15.5.28` or `>=16.4.1`.
+- Next.js was upgraded from EOL `14.2.35` to `15.5.27` on 2026-11-25 (Phase 4).
+  The previously written gate (`>=15.5.28` or `>=16.4.1`) does not match any
+  version published on npm at that date (stable lines ended at `15.5.27` and
+  `16.3.8`). **VPS migration remains blocked until the owner amends this gate to
+  accept 15.5.27 or waits for `>=16.4.1`** — see `docs/RUNBOOK_VPS_MIGRATION.md §0`.
+- Customer passwords (optional, Phase 4) use the shared scrypt implementation
+  with OWASP parameters (N=2^17, r=8, p=1); Argon2id and passkeys need an
+  explicit new-dependency approval and are deliberately deferred.
 - The Image Optimizer only accepts local assets: no `remotePatterns` and no
   user-supplied SVG. Remove `dangerouslyAllowSVG` once raster photography lands.
 - CSP is report-only and has no report endpoint yet; violations appear in the

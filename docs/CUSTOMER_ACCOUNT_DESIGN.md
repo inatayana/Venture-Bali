@@ -174,6 +174,8 @@ Email dikirim lewat helper Resend yang sudah ada (`src/lib/notifications.ts` pat
 | `/api/account/profile` | PATCH | Edit nama/WhatsApp/country code (email read-only, butuh verifikasi) |
 | `/api/account/wishlist` | GET / POST | Baca daftar DB / merge item localStorage (tenant-scoped) |
 | `/api/account/wishlist/toggle` | POST | Tambah/hapus satu item untuk akun yang login |
+| `/api/account/password` | POST / DELETE | Pasang/ubah/hapus password opsional (scrypt N=2^17), revoke sesi lain |
+| `/api/account/password/login` | POST | Login opsional dengan password; error generik sama seperti OTP |
 | `/api/account/logout` | POST | Revoke session di DB + hapus cookie |
 
 Semua body/query divalidasi `zod`; error generik untuk menghindari enumerasi user.
@@ -224,4 +226,4 @@ Sebelum rilis: `npm run db:seed` pada DB kosong + `npm run smoke`.
 | 1 | Schema + secret + DAL + OTP endpoints + logout + `useCustomerSession` | **selesai** (`a53d040`) |
 | 2 | `/profile` nyata, `/login` (OTP + daftar), edit profil, sign in/out di nav | **selesai** (`7227054`) |
 | 3 | Wishlist sync + `/trips` session access | **selesai** (`6e8266e`) |
-| 4 | Password opsional, Argon2id (butuh approval), passkey, Next 15, VPS | belum |
+| 4 | Password opsional (scrypt, zero-dep), Next 15.5.27 + migrasi async API, runbook VPS | **selesai** (`1c617e0`); Argon2id/passkey & eksekusi VPS menyusul (butuh approval & kredensial) |
