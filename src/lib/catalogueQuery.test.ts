@@ -41,7 +41,8 @@ describe('getCataloguePage — rating and newest sorts', () => {
 
     expect(findMany.mock.calls[0][0]).toMatchObject({
       where: {
-        category: 'atv',
+        // URL slug `atv` is stored in the database as the short label `ATV`.
+        category: 'ATV',
         OR: [
           { title: { contains: 'ubud', mode: 'insensitive' } },
           { shortDescription: { contains: 'ubud', mode: 'insensitive' } },
@@ -68,6 +69,24 @@ describe('getCataloguePage — rating and newest sorts', () => {
   it('clamps page and page size to safe values', async () => {
     await getCataloguePage({ page: -5, pageSize: 9999 });
     expect(findMany.mock.calls[0][0]).toMatchObject({ skip: 0, take: 48 });
+  });
+});
+
+describe('getCataloguePage — category normalization', () => {
+  it.each([
+    ['atv', 'ATV'],
+    ['water-sports', 'Water Sports'],
+    ['ATV', 'ATV'],
+    ['Water Sports', 'Water Sports'],
+    ['snorkeling', 'Snorkeling'],
+  ])('maps %s to the stored short label %s', async (input, expected) => {
+    await getCataloguePage({ category: input });
+    expect(findMany.mock.calls[0][0].where).toMatchObject({ category: expected });
+  });
+
+  it('keeps an unknown category as-is instead of guessing', async () => {
+    await getCataloguePage({ category: 'hotels' });
+    expect(findMany.mock.calls[0][0].where).toMatchObject({ category: 'hotels' });
   });
 });
 

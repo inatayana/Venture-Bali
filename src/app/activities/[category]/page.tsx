@@ -42,7 +42,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
   // Database-side filtering, ordering and pagination; see catalogueQuery.ts.
   const { items: ventureItems, total, totalPages } = await getCataloguePage({
-    category: categorySlug,
+    // The database stores the short label ("ATV"), not the URL slug ("atv").
+    category: cat.short,
     sort: sortValue,
     page: pageNum,
     pageSize,

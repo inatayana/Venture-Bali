@@ -14,6 +14,7 @@
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { toVentureItem, ventureWithRelations } from '@/lib/ventureMapper';
+import { resolveCategory } from '@/lib/taxonomy';
 import type { VentureItem } from '@/types/venture';
 
 export const CATALOGUE_SORTS = ['popular', 'newest', 'price-asc', 'price-desc'] as const;
@@ -49,6 +50,18 @@ function normalizePage(value?: number): number {
 function normalizePageSize(value?: number): number {
   if (!Number.isFinite(value) || (value ?? 0) <= 0) return DEFAULT_PAGE_SIZE;
   return Math.min(MAX_PAGE_SIZE, Math.floor(value as number));
+}
+
+/**
+ * URL slugs (`atv`, `water-sports`) and UI labels (`ATV`, `Water Sports`) are
+ * not the value stored on `Venture.category`; the database stores the short
+ * label. Resolve every accepted alias to that short label so a category link
+ * can never silently return an empty catalogue.
+ */
+function normalizeCategory(value?: string | null): string | null {
+  const raw = value?.trim();
+  if (!raw) return null;
+  return resolveCategory(raw)?.short ?? raw;
 }
 
 function buildWhere(category?: string | null, query?: string | null): Prisma.VentureWhereInput {
@@ -131,7 +144,7 @@ export async function getCataloguePage(input: CatalogueQueryInput = {}): Promise
   const sort = normalizeSort(input.sort);
   const page = normalizePage(input.page);
   const pageSize = normalizePageSize(input.pageSize);
-  const category = input.category?.trim() || null;
+  const category = normalizeCategory(input.category);
   const query = input.query?.trim() || null;
   const skip = (page - 1) * pageSize;
 
