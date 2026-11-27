@@ -123,33 +123,52 @@ export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry
     getArticles(baseUrl),
   ]);
 
+  // Canonical static pages with lastModified for better crawl budget allocation
+  const now = new Date();
   return [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily',
       priority: 1,
     },
     {
+      url: `${baseUrl}/experiences`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/blog`,
+      lastModified: now,
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/terms`,
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.3,
     },
     {
       url: `${baseUrl}/privacy`,
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.3,
     },
     {
       url: `${baseUrl}/refund`,
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.3,
     },
+    // Note: /explore intentionally omitted (noindex, not in sitemap)
     ...experiences,
     ...articles,
   ];

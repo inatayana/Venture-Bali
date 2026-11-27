@@ -11,6 +11,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "audit:check": "node scripts/check-audit.mjs",
+    "seo:check": "node scripts/seo/seo-ci-check.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:generate": "prisma generate",

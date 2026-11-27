@@ -41,8 +41,10 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const cat = categoryDef!;
 
   // Database-side filtering, ordering and pagination; see catalogueQuery.ts.
+  // Use cat.short (e.g., "ATV") which matches the Venture.category canonical values,
+  // not the URL slug (e.g., "atv").
   const { items: ventureItems, total, totalPages } = await getCataloguePage({
-    category: categorySlug,
+    category: cat.short,
     sort: sortValue,
     page: pageNum,
     pageSize,
