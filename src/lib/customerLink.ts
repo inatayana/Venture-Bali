@@ -246,6 +246,41 @@ export function verifyBookingViewToken(
   }
 }
 
+/** Verify a `bl1` token without binding it to a known booking id (entry links). */
+export function verifyBookingViewTokenAny(
+  token: string | null | undefined,
+): { bookingId: string } | null {
+  if (!token) return null;
+  const secret = getSecret();
+  if (!secret) return null;
+
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  const [scheme, payload, signature] = parts;
+  if (scheme !== VIEW_SCHEME) return null;
+
+  const expected = createHmac('sha256', secret)
+    .update(`${VIEW_SCHEME}.${payload}`)
+    .digest('base64url');
+  const providedBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expected);
+  if (
+    providedBuffer.length !== expectedBuffer.length ||
+    !timingSafeEqual(providedBuffer, expectedBuffer)
+  ) {
+    return null;
+  }
+
+  try {
+    const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as Partial<BookingViewTokenPayload>;
+    if (typeof data.bid !== 'string' || typeof data.exp !== 'number') return null;
+    if (data.scp !== 'view' || data.exp * 1000 <= Date.now()) return null;
+    return { bookingId: data.bid };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Read access for a booking: either a scoped `bl1` view token or an account
  * `cl1` link owned by the same customer. Runs after the booking is loaded so

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import TripsPage from './page';
 import { requireCustomer } from '@/lib/customerGuard';
-import { createCustomerLinkToken } from '@/lib/customerLink';
+import { createBookingViewToken, createCustomerLinkToken } from '@/lib/customerLink';
 
 // The shared desktop header owns router/search contexts; these tests assert
 // the trip guide / invalid-link / session content only.
@@ -12,7 +12,10 @@ jest.mock('@/components/layout/GlobalDesktopHeader', () => ({
 jest.mock('@/lib/customerGuard', () => ({ requireCustomer: jest.fn() }));
 
 jest.mock('@/lib/prisma', () => ({
-  prisma: { customer: { findUnique: jest.fn().mockResolvedValue({ bookings: [] }) } },
+  prisma: {
+    customer: { findUnique: jest.fn().mockResolvedValue({ bookings: [] }) },
+    booking: { findUnique: jest.fn().mockResolvedValue({ customerId: 'customer-1' }) },
+  },
 }));
 
 jest.mock('@/lib/customerLink', () => ({
@@ -66,6 +69,16 @@ describe('TripsPage', () => {
     expect(mockCreateLink).toHaveBeenCalledWith('customer-1');
     expect(screen.getByRole('heading', { name: /no trips yet/i })).toBeInTheDocument();
     expect(screen.getByText(/showing every booking on your account/i)).toBeInTheDocument();
+  });
+
+  it('accepts a booking-scoped bl1 link and shows only that booking', async () => {
+    process.env.CUSTOMER_LINK_SECRET = 'customer-link-secret-at-least-16';
+    const scoped = createBookingViewToken('booking-1');
+
+    render(await TripsPage({ searchParams: Promise.resolve({ token: scoped ?? '' }) }));
+
+    expect(screen.getByRole('heading', { name: /no trips yet/i })).toBeInTheDocument();
+    expect(screen.queryByText('This link is invalid or expired')).not.toBeInTheDocument();
   });
 
   it('lets the session win over a stale magic link', async () => {

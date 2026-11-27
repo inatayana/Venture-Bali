@@ -1,7 +1,9 @@
 import {
   buildCustomerTripsUrl,
+  createBookingViewToken,
   createCustomerLinkToken,
   createReviewToken,
+  verifyBookingViewTokenAny,
   verifyCustomerLinkToken,
   verifyReviewAccess,
   verifyReviewToken,
@@ -23,6 +25,13 @@ describe('customer magic link', () => {
 
     if (previousAdminSecret === undefined) delete process.env.ADMIN_SESSION_SECRET;
     else process.env.ADMIN_SESSION_SECRET = previousAdminSecret;
+  });
+
+  it('extracts the booking id from a booking-scoped bl1 token', () => {
+    const token = createBookingViewToken('booking-1');
+    expect(verifyBookingViewTokenAny(token)).toEqual({ bookingId: 'booking-1' });
+    expect(verifyBookingViewTokenAny(`${token?.slice(0, -1)}X`)).toBeNull();
+    expect(verifyBookingViewTokenAny(createCustomerLinkToken('customer-1'))).toBeNull();
   });
 
   it('round-trips a signed token', () => {

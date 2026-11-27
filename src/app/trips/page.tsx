@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireCustomer } from '@/lib/customerGuard';
 import {
   verifyCustomerLinkToken,
+  verifyBookingViewTokenAny,
   createCustomerLinkToken,
   createBookingViewToken,
   createReviewToken,
@@ -35,8 +36,10 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
   // permanent guest magic link. When both exist, the session wins.
   const sessionUser = await requireCustomer();
   const payload = verifyCustomerLinkToken(token);
+  // A `bl1` booking-scoped link is the third guest entry (checkout/voucher emails).
+  const viewPayload = !sessionUser && !payload ? verifyBookingViewTokenAny(token) : null;
 
-  if (!sessionUser && !payload) {
+  if (!sessionUser && !payload && !viewPayload) {
     if (!token) {
       // Tokenless entry point (nav link, typed URL): show both options.
       return <TripsGuide />;
@@ -44,7 +47,14 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
     return <InvalidTokenNotice />;
   }
 
-  const customerId = sessionUser?.customerId ?? payload?.customerId;
+  let customerId = sessionUser?.customerId ?? payload?.customerId ?? null;
+  if (!customerId && viewPayload) {
+    const booking = await prisma.booking.findUnique({
+      where: { id: viewPayload.bookingId },
+      select: { customerId: true },
+    });
+    customerId = booking?.customerId ?? null;
+  }
   if (!customerId) return <InvalidTokenNotice />;
 
   // TripCard links are token-based; issue a customer-scoped token for session
@@ -96,8 +106,13 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
 
   // Separate upcoming and past trips
   const now = new Date();
-  const upcomingBookings = customer.bookings.filter((b) => new Date(b.bookingDate) >= now && b.paymentStatus === 'PAID' && !b.cancelledAt);
-  const pastBookings = customer.bookings.filter((b) => new Date(b.bookingDate) < now || b.paymentStatus !== 'PAID' || b.cancelledAt);
+  // A bl1 holder may only see the one booking their link was scoped to.
+  const visibleBookings = viewPayload
+    ? customer.bookings.filter((booking) => booking.id === viewPayload.bookingId)
+    : customer.bookings;
+
+  const upcomingBookings = visibleBookings.filter((b) => new Date(b.bookingDate) >= now && b.paymentStatus === 'PAID' && !b.cancelledAt);
+  const pastBookings = visibleBookings.filter((b) => new Date(b.bookingDate) < now || b.paymentStatus !== 'PAID' || b.cancelledAt);
 
   // Generate review token
   const getReviewToken = (bookingId: string) => {
