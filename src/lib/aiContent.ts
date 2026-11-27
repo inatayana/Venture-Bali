@@ -182,18 +182,30 @@ export function validateGeneratedArticle(
 /**
  * Insert the internal links to the catalogue.
  * Every mention of a product title becomes a link to that product.
+ * Every mention of a destination guide becomes a link to /adventures/[slug].
  */
 export function addInternalLinks(
   content: string,
-  ventures: { id: string; title: string; slug: string }[]
+  ventures: { id: string; title: string; slug: string }[],
+  adventureGuides?: { slug: string; title: string }[]
 ): string {
   let result = content;
 
+  // Link product titles to their PDP
   for (const venture of ventures) {
     if (!venture.id || !venture.title || !venture.slug) continue;
     // Canonical PDP is /experiences/[id]/[slug] (see src/lib/seo.ts).
     const link = `[${venture.title}](/experiences/${venture.id}/${venture.slug})`;
     result = result.split(venture.title).join(link);
+  }
+
+  // Link destination guide titles to /adventures/[slug]
+  if (adventureGuides) {
+    for (const guide of adventureGuides) {
+      if (!guide.slug || !guide.title) continue;
+      const link = `[${guide.title}](/adventures/${guide.slug})`;
+      result = result.split(guide.title).join(link);
+    }
   }
 
   return result;
@@ -254,6 +266,15 @@ export async function getLinkableVentures(): Promise<{ id: string; title: string
     orderBy: { title: 'asc' },
   });
   return rows;
+}
+
+/**
+ * Published adventure guides that can be linked from an article.
+ */
+export async function getLinkableAdventureGuides(): Promise<{ slug: string; title: string }[]> {
+  const { getPublishedAdventurePages } = await import('@/lib/adventurePages');
+  const pages = await getPublishedAdventurePages();
+  return pages.map((page) => ({ slug: page.slug, title: page.title }));
 }
 
 /**

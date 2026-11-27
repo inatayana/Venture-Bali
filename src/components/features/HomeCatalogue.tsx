@@ -201,6 +201,12 @@ export function HomeCatalogue({
               View all
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Link>
+            <Link
+              href="/adventures"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-5 text-sm font-semibold text-neutral-900 transition-colors hover:border-brand hover:text-brand sm:ml-0 dark:border-white/10 dark:bg-neutral-800 dark:text-white"
+            >
+              Guides
+            </Link>
           </div>
         </div>
 

@@ -8,6 +8,7 @@ import { DesktopNavMenu } from '@/components/layout/DesktopNavMenu';
 import { generateCategoryMetadata, generateCategoryStructuredData } from '@/lib/seo';
 import { resolveCategory } from '@/lib/taxonomy';
 import { getCataloguePage } from '@/lib/catalogueQuery';
+import { getPublishedAdventurePages } from '@/lib/adventurePages';
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -48,6 +49,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     page: pageNum,
     pageSize,
   });
+
+  // Load published adventure guides for this activity to link from the hub.
+  const adventureGuides = await getPublishedAdventurePages(cat.slug);
 
   // Build URL for sort links
   const buildSortUrl = (value: string) => {
@@ -174,6 +178,27 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             </>
           )}
         </section>
+
+        {/* Contextual internal links to destination guides for this activity */}
+        {adventureGuides.length > 0 && (
+          <section className="container mx-auto px-4 pb-12" aria-labelledby="guides-heading">
+            <h2 id="guides-heading" className="sr-only">
+              {cat.canonical} guides by destination
+            </h2>
+            <nav className="flex flex-wrap gap-2" aria-label={`${cat.canonical} destination guides`}>
+              {adventureGuides.map((guide) => (
+                <Link
+                  key={guide.slug}
+                  href={`/adventures/${guide.slug}`}
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:border-brand hover:text-brand hover:bg-brand/5 dark:border-white/10 dark:bg-neutral-800 dark:text-white"
+                >
+                  <span aria-hidden="true">{guide.destinationName}</span>
+                </Link>
+              ))}
+            </nav>
+          </section>
+        )}
+
       </main>
     </>
   );

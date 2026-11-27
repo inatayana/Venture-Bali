@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { mockExperiences } from '@/data/mockExperiences';
+import { CATEGORY_REGISTRY } from '@/lib/taxonomy';
+import { getPublishedAdventurePages } from '@/lib/adventurePages';
 
 export interface SitemapEntry {
   url: string;
@@ -117,12 +119,13 @@ async function getArticles(baseUrl: string): Promise<SitemapEntry[]> {
   }
 }
 
-export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
-  const [experiences, articles] = await Promise.all([
-    getExperiences(baseUrl),
-    getArticles(baseUrl),
-  ]);
-
+/**
+ * Indexable static routes. `/explore` is deliberately excluded: it is the
+ * app-shell browser and declares `robots: { index: false }`, so listing it in
+ * the sitemap would contradict the page. `/experiences` is the canonical
+ * catalogue and every category hub is listed explicitly.
+ */
+export function buildStaticSitemapEntries(baseUrl: string): SitemapEntry[] {
   return [
     {
       url: baseUrl,
@@ -131,9 +134,29 @@ export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry
       priority: 1,
     },
     {
+      url: `${baseUrl}/experiences`,
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/adventures`,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    ...CATEGORY_REGISTRY.map((category) => ({
+      url: `${baseUrl}/activities/${category.slug}`,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
+    {
       url: `${baseUrl}/blog`,
       changeFrequency: 'daily',
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/about`,
+      changeFrequency: 'monthly',
+      priority: 0.5,
     },
     {
       url: `${baseUrl}/terms`,
@@ -150,6 +173,34 @@ export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry
       changeFrequency: 'monthly',
       priority: 0.3,
     },
+  ];
+}
+
+async function getAdventureGuides(baseUrl: string): Promise<SitemapEntry[]> {
+  try {
+    const pages = await getPublishedAdventurePages();
+    return pages.map((page) => ({
+      url: `${baseUrl}/adventures/${page.slug}`,
+      lastModified: page.lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    }));
+  } catch (error) {
+    console.error('Sitemap: could not load adventure guides:', error);
+    return [];
+  }
+}
+
+export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
+  const [experiences, articles, adventureGuides] = await Promise.all([
+    getExperiences(baseUrl),
+    getArticles(baseUrl),
+    getAdventureGuides(baseUrl),
+  ]);
+
+  return [
+    ...buildStaticSitemapEntries(baseUrl),
+    ...adventureGuides,
     ...experiences,
     ...articles,
   ];

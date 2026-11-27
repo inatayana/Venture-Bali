@@ -112,10 +112,18 @@ export function SiteFooter() {
               ))}
               <li className="min-w-0">
                 <Link
-                  href="/"
+                  href="/experiences"
                   className="inline-flex min-h-[44px] items-center gap-1.5 font-semibold text-brand transition-colors hover:text-white"
                 >
                   All adventures <span aria-hidden="true">→</span>
+                </Link>
+              </li>
+              <li className="min-w-0">
+                <Link
+                  href="/adventures"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 text-white/70 transition-colors hover:text-brand"
+                >
+                  Destination guides
                 </Link>
               </li>
             </ul>

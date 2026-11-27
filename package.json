@@ -23,7 +23,8 @@
     "admin:create": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON prisma/create-admin.ts",
     "brand:provision": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/provision-brand.js",
     "brand:validate": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/validate-brand-config.js",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "seo:check": "node scripts/seo/seo-ci-check.mjs"
   },
   "prisma": {
     "seed": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON prisma/seed.ts"
