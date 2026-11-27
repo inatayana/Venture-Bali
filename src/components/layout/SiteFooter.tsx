@@ -213,6 +213,15 @@ export function SiteFooter() {
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-white/40" aria-hidden="true" />
                 Secure checkout · no card details stored
               </li>
+              <li className="flex items-start gap-2">
+                <Link
+                  href="/why-book-direct"
+                  className="flex items-start gap-2 hover:text-brand transition-colors"
+                >
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-white/40" aria-hidden="true" />
+                  Why book direct — save 20-30%
+                </Link>
+              </li>
             </ul>
             <div className="mt-4 flex flex-wrap gap-1.5">
               {PAYMENT_BADGES.map((badge) => (
